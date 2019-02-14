@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_backgroud"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/tb_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/white"
+        android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/lock_manager" />
+    </android.support.v7.widget.Toolbar>
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="160dip">
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/news_vp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="35dip"
+            android:layout_gravity="bottom"
+            android:alpha="0.5"
+            android:background="@color/dot_tilte"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dip"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/dot_0"
+                    android:layout_width="5dip"
+                    android:layout_height="5dip"
+                    android:layout_marginLeft="2dip"
+                    android:layout_marginRight="2dip"
+                    android:background="@drawable/dot_focused" />
+
+                <View
+                    android:id="@+id/dot_1"
+                    android:layout_width="5dip"
+                    android:layout_height="5dip"
+                    android:layout_marginLeft="2dip"
+                    android:layout_marginRight="2dip"
+                    android:background="@drawable/dot_normal" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="120.0dip"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/ll_status"
+                android:layout_width="fill_parent"
+                android:layout_height="20.0dip"
+                android:layout_marginTop="1.0dip"
+                android:background="@color/white"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="12.0dip"
+                    android:text="@string/bt_state"
+                    android:textSize="12.0dip" />
+
+                <TextView
+                    android:id="@+id/status_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="5.0dip"
+                    android:background="@android:color/transparent"
+                    android:clickable="false"
+                    android:text="@string/bt_unconnected"
+                    android:textColor="@color/red"
+                    android:textSize="12.0dip" />
+
+                <TextView
+                    android:id="@+id/connect_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="11.0dip"
+                    android:text="@string/bt_reconnect"
+                    android:textColor="@color/blue2"
+                    android:textSize="12.0dip" />
+
+            </LinearLayout>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="5.0dip"
+                android:layout_marginLeft="5.0dip"
+                android:layout_marginRight="5.0dip"
+                android:layout_marginTop="5dp"
+                app:cardCornerRadius="4.0dip"
+                app:cardPreventCornerOverlap="false"
+                app:cardUseCompatPadding="true">
+
+                <LinearLayout
+                    android:id="@+id/ll_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginLeft="10.0dip"
+                        android:layout_marginRight="10.0dip"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tv_lock_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="20.0dip"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:text="门锁名称1"
+                            android:textColor="#ff5f646e"
+                            android:textSize="12.0sp" />
+
+                        <TextView
+                            android:id="@+id/bt_setting"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="11.0dip"
+                            android:text="@string/bt_setting"
+                            android:textColor="@color/blue2" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginLeft="10.0dip"
+                        android:layout_marginRight="10.0dip"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/iv_electric_quantity"
+                            android:layout_width="20dp"
+                            android:layout_height="16dp"
+                            android:layout_marginLeft="10dp"
+                            android:src="@mipmap/ic_battery_100" />
+
+                        <TextView
+                            android:id="@+id/tv_electric_quantity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_toRightOf="@id/iv_electric_quantity"
+                            android:text="100%"
+                            android:textColor="#ff5f646e"
+                            android:textSize="12.0sp" />
+
+                        <TextView
+                            android:id="@+id/tv_update"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:layout_toLeftOf="@id/tv_update_time"
+                            android:text="更新于："
+                            android:textColor="@color/red" />
+
+                        <TextView
+                            android:id="@+id/tv_update_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_marginLeft="10dp"
+                            android:text="02-13 19:52"
+                            android:textColor="@color/red" />
+
+                    </RelativeLayout>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white">
+
+            <com.smart.lock.widget.MyGridView
+                android:id="@+id/gv_lock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white"
+                android:gravity="center"
+                android:numColumns="3"
+                android:paddingLeft="20.0dip"
+                android:paddingRight="20.0dip"
+                android:scrollbars="none"
+                android:stretchMode="columnWidth"
+                android:verticalSpacing="1.0dip" />
+
+            <FrameLayout
+                android:id="@+id/fl_instruction"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/mask">
+
+                <Button
+                    android:id="@+id/btn_sync"
+                    style="@style/RountButtonStyle"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/ble_instruction"
+                    android:visibility="visible" />
+            </FrameLayout>
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,65 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- 顶部输入框的样式 -->
+    <style name="style_edit">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@mipmap/icon_edit_bg</item>
+    </style>
+
+    <!-- 顶部输入框的样式 -->
+    <style name="style_edit2">
+        <item name="android:layout_width">13dp</item>
+        <item name="android:layout_height">13dp</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/circle_test_selector</item>
+    </style>
+
+
+    <style name="main_tab_style">
+        <item name="android:textSize">14.0sp</item>
+        <item name="android:textColor">@drawable/home_bt_textcolor</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:background">#ffffffff</item>
+        <item name="android:layout_width">0.0dip</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:button">@null</item>
+        <item name="android:layout_weight">1.0</item>
+    </style>
+
+    <style name="LineVertical">
+        <item name="android:background">@color/color_line</item>
+        <item name="android:layout_width">0.5dip</item>
+        <item name="android:layout_height">fill_parent</item>
+    </style>
+
+    <style name="RountButtonStyle">
+        <item name="android:textSize">17.0sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/selector_btn_blue_24</item>
+        <item name="android:layout_width">140.0dip</item>
+        <item name="android:layout_height">50.0dip</item>
+    </style>
+
+</resources>

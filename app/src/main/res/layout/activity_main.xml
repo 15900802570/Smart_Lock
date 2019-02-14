@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_backgroud"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <com.smart.lock.widget.NoScrollViewPager
+        android:id="@+id/fragment_vg"
+        android:layout_width="fill_parent"
+        android:layout_height="0.0dip"
+        android:layout_weight="11.0"
+        android:background="#ff00beff"
+        android:overScrollMode="never" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="3.0dip"
+        android:layout_weight="1.0">
+
+        <RadioGroup
+            android:id="@+id/tab_rg"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/home_rd"
+                style="@style/main_tab_style"
+                android:drawableTop="@drawable/home_bt_bg"
+                android:text="@string/home_rd" />
+
+            <RadioButton
+                android:id="@+id/me_rd"
+                style="@style/main_tab_style"
+                android:drawableTop="@drawable/me_bt_bg"
+                android:text="@string/me_rd" />
+        </RadioGroup>
+    </RelativeLayout>
+</LinearLayout>

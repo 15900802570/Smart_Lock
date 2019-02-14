@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list>
+    <item>
+        <layer-list>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#0835baff" />
+                    <padding android:left="3.0px" android:right="3.0px" android:bottom="5.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#0935baff" />
+                    <padding android:left="2.0px" android:right="2.0px" android:bottom="4.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1035baff" />
+                    <padding android:left="2.0px" android:right="2.0px" android:bottom="4.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1135baff" />
+                    <padding android:left="1.0px" android:right="1.0px" android:bottom="3.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1235baff" />
+                    <padding android:left="1.0px" android:right="1.0px" android:bottom="3.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1335baff" />
+                    <padding android:left="1.0px" android:right="1.0px" android:bottom="2.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1435baff" />
+                    <padding android:left="1.0px" android:right="1.0px" android:bottom="2.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1535baff" />
+                    <padding android:left="1.0px" android:right="1.0px" android:bottom="1.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle"
+                  xmlns:android="http://schemas.android.com/apk/res/android">
+                    <solid android:color="#1635baff" />
+                    <padding android:left="1.0px" android:right="1.0px" android:bottom="1.0px" />
+                    <corners android:radius="24.0dip" />
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item>
+        <shape android:shape="rectangle"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="@color/colorBlue" />
+            <corners android:radius="24.0dip" />
+        </shape>
+    </item>
+</layer-list>

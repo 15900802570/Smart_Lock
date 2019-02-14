@@ -1,0 +1,76 @@
+package com.smart.lock.adapter;
+
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.smart.lock.R;
+
+import java.util.ArrayList;
+
+
+public class LockManagerAdapter extends BaseAdapter {
+
+    private Context mContext;
+    private GridView mGridView;
+    private ArrayList<Integer> mIcons = new ArrayList();
+    private ArrayList<Integer> mNames = new ArrayList();
+
+    public LockManagerAdapter(Context context, GridView gridView) {
+        mContext = context;
+        mGridView = gridView;
+
+        mNames.add(Integer.valueOf(R.string.password_manager));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_pwd));
+
+        mNames.add(Integer.valueOf(R.string.fingerprint_manager));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_finger));
+
+        mNames.add(Integer.valueOf(R.string.card_manager));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_card));
+
+        mNames.add(Integer.valueOf(R.string.event_manager));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_event));
+
+        mNames.add(Integer.valueOf(R.string.token_manager));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_token));
+
+        mNames.add(Integer.valueOf(R.string.permission_manager));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_permission));
+
+    }
+
+    @Override
+    public int getCount() {
+        return mIcons.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return (long) position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewGroup.LayoutParams layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 3);
+        View inflate = View.inflate(mContext, R.layout.item_lock_manager, null);
+        inflate.setLayoutParams(layoutParams);
+        View findViewById = inflate.findViewById(R.id.grid_item);
+        ImageView imageView = inflate.findViewById(R.id.image);
+        ((TextView) inflate.findViewById(R.id.content)).setText(((Integer) mNames.get(position)).intValue());
+        imageView.setBackgroundResource(((Integer) mIcons.get(position)).intValue());
+        findViewById.setTag(mIcons.get(position));
+        return inflate;
+    }
+
+}

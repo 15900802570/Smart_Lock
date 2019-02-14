@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Smart Lock</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="home_rd">home</string>
+    <string name="me_rd">me</string>
+    <string name="lock_manager">Lock Manager</string>
+    <string name="personal_conter">Personal Center</string>
+    <string name="back_message">Click exit again Smart·Lock</string>
+    <string name="bt_state">Bluetooth status:</string>
+    <string name="bt_unconnected">Unconnected</string>
+    <string name="bt_reconnect">Reconnect</string>
+    <string name="bt_setting">Setting</string>
+    <string name="bt_update_time">Update On:</string>
+
+    <string name="card_manager">Card Manager</string>
+    <string name="password_manager">Password Manager</string>
+    <string name="fingerprint_manager">Fingerprint Manager</string>
+    <string name="permission_manager">Permission Manager</string>
+    <string name="token_manager">Token Manager</string>
+    <string name="event_manager">Event Manager</string>
+</resources>

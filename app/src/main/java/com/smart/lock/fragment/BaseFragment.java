@@ -1,0 +1,35 @@
+package com.smart.lock.fragment;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+public abstract class BaseFragment extends Fragment {
+    public Activity mActivity;
+
+    public abstract View initView();
+
+    protected static String TAG = "BaseFragment";
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        this.mActivity = getActivity();
+    }
+
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return initView();
+    }
+
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        initDate();
+    }
+
+    public void initDate() {
+    }
+}
