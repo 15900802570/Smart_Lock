@@ -1,4 +1,7 @@
 <resources>
+    <string name="app_name">智能锁</string>
+    <string name="action_settings">设置</string>
+
     <!-- 描述数字键盘按下 -->
     <string name="numeric_keyboard_down">numeric keyboard down</string>
     <!-- 描述数字键盘弹起 -->

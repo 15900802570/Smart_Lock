@@ -13,7 +13,6 @@ import com.smart.lock.R;
 import com.smart.lock.utils.SystemUtils;
 
 public class NumericKeyboard extends View {
-    private int screen_width = 0;// 屏幕的宽度
     private float first_x = 0;// 绘制1的x坐标
     private float first_y = 0;// 绘制1的y坐标
     private float[] xs = new float[3];//声明数组保存每一列的圆心横坐标
@@ -56,7 +55,7 @@ public class NumericKeyboard extends View {
     // 初始化数据
     private void initData(Context context) {
         // 获取屏幕的宽度
-        screen_width = SystemUtils.getSystemDisplay(context)[0];
+        int screen_width = SystemUtils.getSystemDisplay(context)[0];
         // 获取绘制1的x坐标
         first_x = screen_width / 4;
         // 获取绘制1的y坐标

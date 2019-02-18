@@ -2,6 +2,13 @@
     <string name="app_name">Smart Lock</string>
     <string name="action_settings">Settings</string>
 
+    <string name="please_input_pwd">Please enter your password</string>
+    <string name="please_input_pwd_again">Confirm the password</string>
+    <string name="not_equals">两次输入的密码不一致,请重新输入！</string>
+    <string name="setting_pwd_success">密码设置成功！</string>
+    <string name="forget_pwd">忘记密码?</string>
+    <string name="delete">删除</string>
+
     <string name="home_rd">home</string>
     <string name="me_rd">me</string>
     <string name="lock_manager">Lock Manager</string>
@@ -19,4 +26,22 @@
     <string name="permission_manager">Permission Manager</string>
     <string name="token_manager">Token Manager</string>
     <string name="event_manager">Event Manager</string>
+    <string name="title_activity_login">Sign in</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_login2">Sign in</string>
+
+    <string name="title_activity_welcome">WelcomeActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

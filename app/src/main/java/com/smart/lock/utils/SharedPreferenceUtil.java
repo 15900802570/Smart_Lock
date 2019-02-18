@@ -9,15 +9,17 @@ public class SharedPreferenceUtil {
 	private static SharedPreferenceUtil myPrefs;//私有化
 	private SharedPreferences sp;
 	//提供私有的构造方法
-	private SharedPreferenceUtil(){}
+	private SharedPreferenceUtil(Context context){
+		initSharedPreferences(context);
+	}
 	/**
 	 * 对外提供的初始化方法
 	 * @return
 	 */
-	public static SharedPreferenceUtil getInstance(){
+	public static SharedPreferenceUtil getInstance(Context context){
 		//初始化自身对象
 		if(myPrefs == null){
-			myPrefs = new SharedPreferenceUtil();
+			myPrefs = new SharedPreferenceUtil(context);
 		}
 		return myPrefs;
 	}
@@ -45,7 +47,8 @@ public class SharedPreferenceUtil {
 		Editor editor = sp.edit();
 		//写入数据
 		editor.putString(key, value);
-		editor.commit();//提交写入的数据
+		editor.commit();
+//		editor.apply();//提交写入的数据
 	}
 
 	/**
