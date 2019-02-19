@@ -1,6 +1,7 @@
 package com.smart.lock.fragment;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,5 +32,21 @@ public abstract class BaseFragment extends Fragment {
     }
 
     public void initDate() {
+    }
+
+    /**
+     * 新界面
+     *
+     * @param cls    新Activity
+     * @param bundle 数据包
+     */
+    protected void startIntent(Class<?> cls, Bundle bundle) {
+        Intent intent = new Intent();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+
+        intent.setClass(getView().getContext(), cls);
+        startActivity(intent);
     }
 }

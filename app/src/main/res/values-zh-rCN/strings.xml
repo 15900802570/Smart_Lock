@@ -21,6 +21,8 @@
     <string name="bt_state">蓝牙状态:</string>
     <string name="bt_unconnected">未连接</string>
     <string name="bt_reconnect">重连</string>
+    <string name="bt_connect_failed">连接失败</string>
+    <string name="bt_connect_success">连接成功</string>
     <string name="bt_setting">设置</string>
     <string name="bt_update_time">更新于:</string>
 
@@ -31,4 +33,42 @@
     <string name="token_manager">临时密码</string>
     <string name="event_manager">门锁事件</string>
     <string name="ble_instruction">蓝牙开锁</string>
+    <string name="add_lock">添加门锁</string>
+    <string name="choose_add_way">选择以下一种方式添加</string>
+    <string name="input_code_of_tag_or_scan_qr">扫描设备标签上的二维码</string>
+    <string name="title_scan_qr">扫描二维码</string>
+    <string name="input_authorization_code">输入授权码添加</string>
+    <string name="manual_addition">手动添加</string>
+    <string name="empty_lock">暂无门锁</string>
+    <string name="lock_detection">门锁验证</string>
+    <string name="tv_scan_lock">正在搜索</string>
+    <string name="please_approach_lock">请将手机靠近门锁</string>
+    <string name="rescanning">重新扫描</string>
+    <string name="please_check">请检查：</string>
+    <string name="please_check1">1、设备是否已接通电源，并开机启动</string>
+    <string name="please_check2">2、蓝牙连接是否正常</string>
+    <string name="please_check3">3、如果设备只支持蓝牙，请确认设备蓝牙是否打开</string>
+    <string name="please_check_end">4、检查完毕但还是无法添加，请尝试重置设备</string>
+    <string name="ble_not_supported">不支持蓝牙低功耗</string>
+    <string name="ble_scan_failed">搜索失败</string>
+    <string name="add_lock_success">添加成功</string>
+    <string name="toast_add_lock_success">门锁添加成功!</string>
+    <string name="confirm">确认</string>
+    <string name="data_loading">请稍候</string>
+    <string name="checking_security">安全校验中...</string>
+    <string name="add_locking">生成设备中...</string>
+    <string name="retry_connect">连接超时，请重新操作...</string>
+    <string name="plz_set_lock_name">请设置门锁名称:</string>
+    <string name="lock_default_name">智能门锁</string>
+    <string name="battery_0">0%</string>
+    <string name="battery_10">10%</string>
+    <string name="battery_20">20%</string>
+    <string name="battery_30">30%</string>
+    <string name="battery_50">50%</string>
+    <string name="battery_60">60%</string>
+    <string name="battery_70">70%</string>
+    <string name="battery_80">80%</string>
+    <string name="battery_100">100%</string>
+    <string name="battery_unknow">未知</string>
+
 </resources>

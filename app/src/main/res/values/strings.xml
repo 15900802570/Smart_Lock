@@ -19,4 +19,14 @@
     <string name="permission_manager">Permission Manager</string>
     <string name="token_manager">Token Manager</string>
     <string name="event_manager">Event Manager</string>
+    <string name="add_lock">Add Lock</string>
+    <string name="choose_add_way">Choose one of the ways to add lock</string>
+    <string name="input_code_of_tag_or_scan_qr">Two-Dimensional Code on the Label of Scanning Equipment</string>
+    <string name="title_scan_qr">Scanning QR</string>
+    <string name="input_authorization_code">Input authorization code</string>
+    <string name="manual_addition">Manual addition</string>
+    <string name="empty_lock">Empty Lock</string>
+    <string name="lock_detection">Lock Detection</string>
+    <string name="tv_scan_lock">Searching</string>
+    <string name="please_approach_lock">Keep Your Mobile Phone Close To Lock</string>
 </resources>

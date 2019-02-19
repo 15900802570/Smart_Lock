@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ffeeeeee"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffffff">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@color/transparent"
+            android:padding="10.0dip"
+            android:src="@mipmap/icon_arrow_blue_left_45_45" />
+
+        <TextView
+            android:id="@+id/tv_message_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="10.0dip"
+            android:text="@string/add_lock"
+            android:textColor="#ff000000"
+            android:textSize="18.0dip" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8.0dip"
+            android:background="#ffeeeeee"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_step"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8.0dip"
+                android:text="@string/choose_add_way"
+                android:textColor="@color/black"
+                android:textSize="18.0sp" />
+
+            <LinearLayout
+                android:id="@+id/ll_scan_qr"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="23.0dip"
+                android:layout_marginRight="23.0dip"
+                android:layout_marginTop="17.0dip"
+                android:background="@drawable/box_corners_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24.0dip"
+                    android:text="@string/input_code_of_tag_or_scan_qr"
+                    android:textColor="@color/black"
+                    android:textSize="16.0sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36.0dip"
+                    android:src="@mipmap/add_way_scan" />
+
+                <Button
+                    android:id="@+id/btn_scan_qr"
+                    android:layout_width="146.0dip"
+                    android:layout_height="36.0dip"
+                    android:layout_marginBottom="24.0dip"
+                    android:layout_marginTop="19.0dip"
+                    android:background="@drawable/selector_btn"
+                    android:text="@string/title_scan_qr"
+                    android:textColor="@color/white"
+                    android:textSize="14.0sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_manual_addition"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="23.0dip"
+                android:layout_marginRight="23.0dip"
+                android:layout_marginTop="17.0dip"
+                android:background="@drawable/box_corners_white"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24.0dip"
+                    android:text="@string/input_authorization_code"
+                    android:textColor="@color/black"
+                    android:textSize="16.0sp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36.0dip"
+                    android:src="@mipmap/add_way_scan" />
+
+                <Button
+                    android:id="@+id/btn_manual_addition"
+                    android:layout_width="146.0dip"
+                    android:layout_height="36.0dip"
+                    android:layout_marginBottom="24.0dip"
+                    android:layout_marginTop="19.0dip"
+                    android:background="@drawable/selector_btn"
+                    android:text="@string/manual_addition"
+                    android:textColor="@color/white"
+                    android:textSize="14.0sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

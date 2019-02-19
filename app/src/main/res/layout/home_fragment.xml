@@ -32,7 +32,7 @@
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="35dip"
+            android:layout_height="20dip"
             android:layout_gravity="bottom"
             android:alpha="0.5"
             android:background="@color/dot_tilte"
@@ -64,10 +64,56 @@
         </LinearLayout>
     </FrameLayout>
 
-    <LinearLayout
+
+    <RelativeLayout
+        android:id="@+id/rl_add_lock"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:background="@color/white"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_empty_lock"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:src="@mipmap/empty_lock" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_empty_lock"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:text="@string/empty_lock"
+            android:textSize="20.0dip" />
+
+        <FrameLayout
+            android:id="@+id/fl_add_lock"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/mask">
+
+            <Button
+                android:id="@+id/btn_add_lock"
+                style="@style/RountButtonStyle"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="20dp"
+                android:text="@string/add_lock"
+                android:visibility="visible" />
+        </FrameLayout>
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_lock_manager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -91,7 +137,7 @@
                     android:textSize="12.0dip" />
 
                 <TextView
-                    android:id="@+id/status_tv"
+                    android:id="@+id/tv_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -103,7 +149,7 @@
                     android:textSize="12.0dip" />
 
                 <TextView
-                    android:id="@+id/connect_tv"
+                    android:id="@+id/tv_connect"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -144,10 +190,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="20.0dip"
                             android:layout_centerVertical="true"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginLeft="15dp"
                             android:text="门锁名称1"
                             android:textColor="#ff5f646e"
-                            android:textSize="12.0sp" />
+                            android:textSize="14.0sp" />
 
                         <TextView
                             android:id="@+id/bt_setting"
@@ -157,7 +203,8 @@
                             android:layout_centerVertical="true"
                             android:layout_marginRight="11.0dip"
                             android:text="@string/bt_setting"
-                            android:textColor="@color/blue2" />
+                            android:textColor="@color/blue2"
+                            android:textSize="14.0sp" />
 
                     </RelativeLayout>
 
@@ -171,38 +218,44 @@
 
                         <ImageView
                             android:id="@+id/iv_electric_quantity"
-                            android:layout_width="20dp"
-                            android:layout_height="16dp"
-                            android:layout_marginLeft="10dp"
-                            android:src="@mipmap/ic_battery_100" />
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="15dp"
+                            android:background="@mipmap/ic_battery_100" />
 
                         <TextView
                             android:id="@+id/tv_electric_quantity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
                             android:layout_marginLeft="10dp"
                             android:layout_toRightOf="@id/iv_electric_quantity"
                             android:text="100%"
                             android:textColor="#ff5f646e"
-                            android:textSize="12.0sp" />
+                            android:textSize="14.0sp" />
 
                         <TextView
                             android:id="@+id/tv_update"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
                             android:layout_marginLeft="10dp"
                             android:layout_toLeftOf="@id/tv_update_time"
                             android:text="更新于："
-                            android:textColor="@color/red" />
+                            android:textColor="@color/red"
+                            android:textSize="14.0sp" />
 
                         <TextView
                             android:id="@+id/tv_update_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
                             android:layout_marginLeft="10dp"
                             android:text="02-13 19:52"
-                            android:textColor="@color/red" />
+                            android:textColor="@color/red"
+                            android:textSize="14.0sp" />
 
                     </RelativeLayout>
                 </LinearLayout>
@@ -237,8 +290,10 @@
                 android:background="@drawable/mask">
 
                 <Button
-                    android:id="@+id/btn_sync"
+                    android:id="@+id/btn_instruction"
                     style="@style/RountButtonStyle"
+                    android:layout_width="140dp"
+                    android:layout_height="50dp"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/ble_instruction"
                     android:visibility="visible" />

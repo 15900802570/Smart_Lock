@@ -1,0 +1,74 @@
+package com.smart.lock.ble.creator;
+
+import android.os.Bundle;
+import android.util.Log;
+
+import com.smart.lock.ble.AES_ECB_PKCS7;
+import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.StringUtil;
+
+import java.util.Arrays;
+
+/**
+ * apk->设备,通知智能锁进行锁体秘钥录入
+ */
+public class BleCmd01Creator implements BleCreator {
+
+
+    private static final String TAG = BleCmd01Creator.class.getSimpleName();
+
+    @Override
+    public String getTag() {
+        return TAG;
+    }
+
+    @Override
+    public byte[] create(Message message) {
+
+        Bundle data = message.getData();
+
+        int apk = 0x01;
+        int type = data.getInt(BleMsg.KEY_CMD_TYPE);
+        int userId = data.getInt(BleMsg.KEY_USER_ID);
+
+        short cmdLen = 20;
+        byte[] buf = new byte[16];
+
+        byte[] cmd = new byte[128];
+
+        cmd[0] = 0x01;
+
+        StringUtil.short2Bytes(cmdLen, buf);
+        System.arraycopy(buf, 0, cmd, 1, 2);
+
+        StringUtil.int2Bytes(apk, buf);
+        System.arraycopy(buf, 0, cmd, 3, 1);
+
+        StringUtil.int2Bytes(type, buf);
+        System.arraycopy(buf, 0, cmd, 4, 1);
+
+        StringUtil.int2Bytes(userId, buf);
+        System.arraycopy(buf, 0, cmd, 5, 2);
+
+        try {
+            AES_ECB_PKCS7.AES256Encode(MessageCreator.pwdRandom, buf, MessageCreator.mSK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.arraycopy(buf, 0, cmd, 7, 16);
+
+        short crc = StringUtil.crc16(cmd, 23);
+
+        StringUtil.short2Bytes(crc, buf);
+        System.arraycopy(buf, 0, cmd, 23, 2);
+
+        byte[] bleCmd = new byte[25];
+        System.arraycopy(cmd, 0, bleCmd, 0, 25);
+
+        return bleCmd;
+    }
+
+}
