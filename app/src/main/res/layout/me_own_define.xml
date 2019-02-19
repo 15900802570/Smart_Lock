@@ -13,7 +13,7 @@
         android:layout_marginLeft="20.0dip"
         android:layout_marginTop="21.0dip"
         android:adjustViewBounds="true"
-        android:src="@mipmap/self_message" />
+        android:src="@mipmap/self_message"/>
 
     <TextView
         android:id="@+id/tv_me_define"

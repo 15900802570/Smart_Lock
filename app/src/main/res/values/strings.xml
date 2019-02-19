@@ -19,6 +19,7 @@
     <string name="bt_reconnect">Reconnect</string>
     <string name="bt_setting">Setting</string>
     <string name="bt_update_time">Update On:</string>
+    <string name="system_setting">System setting</string>
 
     <string name="card_manager">Card Manager</string>
     <string name="password_manager">Password Manager</string>
@@ -44,4 +45,7 @@
     <string name="title_activity_welcome">WelcomeActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="about_us">About Us</string>
+    <string name="title_activity_settings">Settings</string>
+
 </resources>

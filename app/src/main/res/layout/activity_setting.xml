@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/page_backgroud"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/tb_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/white"
+        android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/system_setting" />
+    </android.support.v7.widget.Toolbar>
+
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:background="@color/line" />
+
+        <com.smart.lock.widget.ToggleSwitchDefineView
+            android:id="@+id/lv_message"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10.0dip" />
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:background="@color/line" />
+
+        <com.smart.lock.widget.MeDefineView
+            android:id="@+id/lv_message2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"/>
+
+</LinearLayout>

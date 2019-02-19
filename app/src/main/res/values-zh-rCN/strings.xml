@@ -34,4 +34,7 @@
     <string name="token_manager">临时密码</string>
     <string name="event_manager">门锁事件</string>
     <string name="ble_instruction">蓝牙开锁</string>
+
+    <string name="about_us">关于我们</string>
+    <string name="system_setting">系统设置</string>
 </resources>
