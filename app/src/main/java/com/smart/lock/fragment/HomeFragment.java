@@ -190,8 +190,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case BIND_DEVICE:
                 mAddLockRl.setVisibility(View.GONE);
                 mLockManagerLl.setVisibility(View.VISIBLE);
-                if (mDefaultDevice != null)
-                    mIsConnected = BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection();
+                LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                 if (mIsConnected) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
                     mBleConnectTv.setVisibility(View.GONE);
@@ -287,11 +286,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                 LogUtil.d(TAG, "battery = " + mBattery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus + " + stStatus + "\n" + " unLockTime = " + unLockTime);
                 LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+                mIsConnected = true;
                 refreshView(BIND_DEVICE);
                 refreshBattery(mBattery);
             }
 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
+                mIsConnected = false;
                 refreshView(BIND_DEVICE);
                 if (mDefaultDevice != null) {
                     setSk();
@@ -330,6 +331,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         } catch (Exception ignore) {
             Log.e(TAG, ignore.toString());
         }
+        mIsConnected = false;
         if (mDefaultDevice != null)
             BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
     }
