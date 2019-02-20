@@ -1,7 +1,6 @@
 package com.smart.lock.ui.login;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,6 +26,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     // 密码框
     private MyPasswordTextView et_pwd1, et_pwd2, et_pwd3, et_pwd4;
     private int type;
+    private boolean isReturn;
     private TextView tv_info;//提示信息
     //声明字符串保存每一次输入的密码
     private String input;
@@ -37,16 +37,17 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //取消设置透明状态栏,使 ContentView 内容不再覆盖状态栏
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        //需要设置这个 flag 才能调用 setStatusBarColor 来设置状态栏颜色
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        //设置状态栏颜色
-        getWindow().setStatusBarColor(getResources().getColor(R.color.bg_color));
+//        //取消设置透明状态栏,使 ContentView 内容不再覆盖状态栏
+//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        //需要设置这个 flag 才能调用 setStatusBarColor 来设置状态栏颜色
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//        //设置状态栏颜色
+//        getWindow().setStatusBarColor(getResources().getColor(R.color.bg_color));
 
         setContentView(R.layout.activity_lock);
         //获取界面传递的值
         type = getIntent().getIntExtra("type", 1);
+        isReturn = getIntent().getBooleanExtra(ConstantUtil.IS_RETURN, false);
         initView();
         initListener();// 事件处理
 
@@ -102,7 +103,11 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
                         shakes();
                     } else {
-                        startActivity(new Intent(LockScreenActivity.this, MainActivity.class));
+                        if( isReturn) {
+                            setResult(RESULT_OK , new Intent().putExtra(ConstantUtil.CONFIRM, -1));
+                        }else {
+                            startActivity(new Intent(LockScreenActivity.this, MainActivity.class));
+                        }
                         finish();
                     }
                 } else if (type == ConstantUtil.SURE_SETTING_PASSWORD) {//确认密码
@@ -112,7 +117,10 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                         SharedPreferenceUtil.getInstance(LockScreenActivity.this).initSharedPreferences(LockScreenActivity.this);
                         SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeString(ConstantUtil.NUM_PWD, input);
                         tv_info.setText(getString(R.string.please_input_pwd));
-                        type = ConstantUtil.LOGIN_PASSWORD;
+                        if (isReturn){
+                            setResult(RESULT_OK, new Intent().putExtra(ConstantUtil.CONFIRM, 1));
+                            finish();
+                        }
                     } else {//不一致
                         shakes();
                     }
@@ -184,7 +192,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         }
         Animation shake = AnimationUtils.loadAnimation(this,R.anim.shake);
         findViewById(R.id.ll_pass).startAnimation(shake);
-
+        clearText();
     }
 
     /**
@@ -221,5 +229,11 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     protected void onDestroy() {
         super.onDestroy();
         clearText();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(RESULT_CANCELED,new Intent().putExtra(ConstantUtil.CONFIRM, 0));
     }
 }

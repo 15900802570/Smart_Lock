@@ -1,7 +1,12 @@
 package com.smart.lock.utils;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,19 +14,22 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.smart.lock.R;
+import com.smart.lock.ui.login.LockScreenActivity;
 
 public class DialogUtils {
     /**
      * 显示Dialog
-     * @param context  上下文
-     * @param msg  显示内容
-     * @param isTransBg 是否透明
+     *
+     * @param context      上下文
+     * @param msg          显示内容
+     * @param isTransBg    是否透明
      * @param isCancelable 是否可以点击取消
      * @return
      */
@@ -81,6 +89,63 @@ public class DialogUtils {
         loadingDialog.show();
 
         return loadingDialog;
+    }
+
+    public static Dialog createPromptDialog(final Activity mActivity, String msg, final Class<?> cls) {
+
+//        LayoutInflater inflater = LayoutInflater.from(context);
+//        View v = inflater.inflate(R.layout.dialog_prompt, null);
+//        TextView hintText = v.findViewById(R.id.contentView);
+//        Button confirmBtn = v.findViewById(R.id.confirmBtn);
+//        Button cancelBtn = v.findViewById(R.id.cancelBtn);
+//        hintText.setText(msg);
+
+//         final  Dialog promptDialog =  new AlertDialog.Builder(context).create();// 创建自定义样式dialog
+//        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_prompt_view);// 加载布局
+//        promptDialog.setCancelable(true); // 是否可以按“返回键”消失
+//        promptDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
+//        promptDialog.setContentView(layout, new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.WRAP_CONTENT,
+//                LinearLayout.LayoutParams.WRAP_CONTENT));// 设置布局
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
+        builder.setTitle("提示")
+                .setMessage(msg)
+                .setCancelable(true)
+                .setPositiveButton(mActivity.getResources().getString(R.string.confirm),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if ( cls!=null) {
+                            Intent intent = new Intent(mActivity, LockScreenActivity.class);
+                            intent.putExtra(ConstantUtil.IS_RETURN,true);
+                            mActivity.startActivityForResult(intent.
+                                    putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD),1);
+                        }
+                    }
+                })
+                .setNegativeButton(mActivity.getResources().getString(R.string.cancel),
+                        new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        Dialog promptDialog = builder.create();
+        /**
+         *将显示Dialog的方法封装在这里面
+         */
+        Window window = promptDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setGravity(Gravity.CENTER);
+        window.setAttributes(lp);
+        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+        promptDialog.show();
+
+        return promptDialog;
+
     }
 
     /**

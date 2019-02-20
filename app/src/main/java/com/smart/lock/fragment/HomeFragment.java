@@ -306,11 +306,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         super.onDestroy();
         try {
             LocalBroadcastManager.getInstance(mHomeView.getContext()).unregisterReceiver(deviceReciver);
+            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
         } catch (Exception ignore) {
             Log.e(TAG, ignore.toString());
         }
 
-        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
+
     }
 
 

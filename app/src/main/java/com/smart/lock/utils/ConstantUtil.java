@@ -32,6 +32,12 @@ public class ConstantUtil {
      */
     public static final String PREF_NAME = "numberlock";
 
+    public static final String TYPE = "type";
+
+    public static final String IS_RETURN = "is_return";
+
+    public static final String CONFIRM = "confirm";
+
     /**
      * 默认设备标识
      */
