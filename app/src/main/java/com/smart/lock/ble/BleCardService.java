@@ -487,18 +487,26 @@ public class BleCardService extends Service {
     }
 
     /**
-     * MSG 15,apk->设备,通知智能锁进行锁体秘钥录入
+     * MSG 15是APK通知智能锁进行锁体密钥录入的消息
      *
-     * @param type 锁体密钥的类型
-     * @param key  会话秘钥
-     * @return 发送结果
+     * @param cmdType 命令类型
+     * @param keyType 秘钥类型
+     * @param userId  用户编号
+     * @param lockId  秘钥编号
+     * @param pwd     录入密码
+     * @return
      */
-    public boolean sendCmd15(final byte[] type, final byte[] key) {
+    public boolean sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, int pwd) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_15);
-        msg.setAk(key);
+
         Bundle bundle = msg.getData();
-        bundle.putByteArray(BleMsg.KEY_CMD_TYPE, type);
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        bundle.putByte(BleMsg.KEY_TYPE, keyType);
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+        bundle.putByte(BleMsg.KEY_LOCK_ID, lockId);
+        bundle.putInt(BleMsg.KEY_PWD, pwd);
+
         return mBleProvider.send(msg);
     }
 

@@ -91,6 +91,18 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         }
     };
 
+    private Runnable mStopScan = new Runnable() {
+        @Override
+        public void run() {
+            mScanning = false;
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            mSearchingIv.clearAnimation();
+            mRescanLl.setVisibility(View.VISIBLE);
+            mTipsLl.setVisibility(View.VISIBLE);
+            mScanLockTv.setText(R.string.ble_scan_failed);
+        }
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,10 +201,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
-                if (!mLoadDialog.isShowing()) {
-                    mLoadDialog.show();
-                    closeDialog(10);
-                }
+                closeDialog(10);
                 BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11(0, 0);
             }
 
@@ -222,15 +231,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setDeviceName(ConstantUtil.LOCK_DEFAULT_NAME);
                 mDetectingDevice.setDeviceSecret(randCode);
                 DeviceInfoDao.getInstance(LockDetectingActivity.this).insert(mDetectingDevice);
-
+                mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
             }
         }
     };
-
-    private void addDevice() {
-
-    }
 
     /**
      * 搜索附近门锁
@@ -240,17 +245,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScanning = false;
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    mSearchingIv.clearAnimation();
-                    mRescanLl.setVisibility(View.VISIBLE);
-                    mTipsLl.setVisibility(View.VISIBLE);
-                    mScanLockTv.setText(R.string.ble_scan_failed);
-                }
-            }, SCAN_PERIOD);
+            mHandler.postDelayed(mStopScan, SCAN_PERIOD);
 
             mRescanLl.setVisibility(View.GONE);
             mTipsLl.setVisibility(View.GONE);
@@ -294,8 +289,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         LogUtil.d(TAG, "dev mac = " + mBleMac);
         if (device.getAddress().equals(mBleMac)) {
 
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-
+            mHandler.removeCallbacks(mStopScan);
+            scanLeDevice(false);
+            mRescanLl.setVisibility(View.GONE);
+            mTipsLl.setVisibility(View.GONE);
+            mScanLockTv.setText("");
             String mac = device.getAddress().replace(":", "");
 
             byte[] macByte = StringUtil.hexStringToBytes(mac);

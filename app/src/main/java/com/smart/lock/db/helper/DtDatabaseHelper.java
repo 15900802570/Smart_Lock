@@ -9,6 +9,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
@@ -28,6 +29,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource) {
         try {
             TableUtils.createTable(connectionSource, DeviceInfo.class);
+            TableUtils.createTable(connectionSource, DeviceKey.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }

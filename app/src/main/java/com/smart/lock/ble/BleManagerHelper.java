@@ -24,6 +24,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 
 import java.util.HashMap;
@@ -111,6 +112,7 @@ public class BleManagerHelper {
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
+            LogUtil.d(TAG, "closeDialog !");
             DialogUtils.closeDialog(mLoadDialog);
             Toast.makeText(mContext, R.string.retry_connect, Toast.LENGTH_LONG).show();
             Intent intent = new Intent();
@@ -128,7 +130,6 @@ public class BleManagerHelper {
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
         serviceInit();
-
     }
 
     public static BleManagerHelper getInstance(Context context, String bleMac, Boolean isOtaMode) {
@@ -166,10 +167,7 @@ public class BleManagerHelper {
                     mIsConnected = mService.connect(mBleMac);
                     Log.d(TAG, "mIsConnected = " + mIsConnected);
                     mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                        closeDialog(10);
-                    }
+                    closeDialog(5);
                 }
             }
         }, 500);
@@ -294,11 +292,6 @@ public class BleManagerHelper {
                     Log.d(TAG, "uuid = " + uuid);
                     List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
 
-                    for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                        String uuid2 = gattCharacteristic.getUuid().toString();
-                        Log.d(TAG, "uuid2 = " + uuid2);
-                    }
-
                 }
 
                 if (mOtaMode == 0) {
@@ -321,8 +314,8 @@ public class BleManagerHelper {
             if (action.equals(BleMsg.ACTION_DOES_NOT_SUPPORT_UART)) {
                 Log.d(TAG, "ACTION_DOES_NOT_SUPPORT_UART");
                 showMessage("Device doesn't support UART. Disconnecting");
-                mService.disconnect();
-                mIsConnected = false;
+//                mService.disconnect();
+//                mIsConnected = false;
             }
             // 4.2.3 MSG 03
             if (action.equals(BleMsg.EXTRA_DATA_MSG_02)) {
@@ -337,6 +330,7 @@ public class BleManagerHelper {
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.EXTRA_DATA_MSG_04)) {
+                mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
                 Bundle extra = intent.getExtras();
                 Intent result = new Intent();
@@ -427,7 +421,7 @@ public class BleManagerHelper {
      */
     private void closeDialog(int seconds) {
         mHandler.removeCallbacks(mRunnable);
-
+        LogUtil.d(TAG, "mRunnable ");
         mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 

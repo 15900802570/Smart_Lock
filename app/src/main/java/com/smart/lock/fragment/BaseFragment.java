@@ -8,6 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.smart.lock.ui.BaseActivity;
 
 public abstract class BaseFragment extends Fragment {
     public Activity mActivity;
@@ -48,5 +51,14 @@ public abstract class BaseFragment extends Fragment {
 
         intent.setClass(getView().getContext(), cls);
         startActivity(intent);
+    }
+
+    /**
+     * 吐司提示
+     *
+     * @param msg 提示信息
+     */
+    protected void showMessage(String msg) {
+        Toast.makeText(BaseFragment.this.getContext(), msg, Toast.LENGTH_SHORT).show();
     }
 }

@@ -7,7 +7,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
+        versionName "1.01"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -26,6 +26,18 @@ allprojects {
     }
 }
 
+def buildTime() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMdd')
+    return formattedDate
+}
+
+android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+        outputFileName = "DTS1586" + "_" + android.defaultConfig.versionName + "_${buildTime()}.apk"
+    }
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -40,4 +52,5 @@ dependencies {
     implementation files('libs/ormlite-core-5.1.jar')
     implementation files('libs/bcprov-jdk16-1.46.jar')
     implementation 'com.github.yuzhiqiang1993:zxing:2.1.8'
+    implementation "com.daimajia.swipelayout:library:1.2.0@aar"
 }
