@@ -5,20 +5,32 @@
     android:background="@color/page_backgroud"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/tb_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/white"
-        android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/app_bg" >
 
         <TextView
-            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:id="@+id/tv_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/system_setting" />
-    </android.support.v7.widget.Toolbar>
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="10.0dip"
+            android:text="@string/system_setting"
+            android:textColor="#ff000000"
+            android:textSize="18.0dip" />
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:padding="10.0dip"
+            android:background="@drawable/icon_arrow_blue_left" />
+    </RelativeLayout>
 
 
     <View

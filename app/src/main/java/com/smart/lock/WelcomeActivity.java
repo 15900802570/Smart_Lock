@@ -213,7 +213,7 @@ public class WelcomeActivity extends Activity {
     private void jLockScreenActivity(Activity mActivity){
         int param;
         try{
-            if (!SharedPreferenceUtil.getInstance(this).readString("password").isEmpty()) {
+            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD).isEmpty()) {
                 param = ConstantUtil.LOGIN_PASSWORD;
             }else {
                 param = ConstantUtil.SETTING_PASSWORD;

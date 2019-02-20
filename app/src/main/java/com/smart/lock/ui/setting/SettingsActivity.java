@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ToggleButton;
 
 import com.smart.lock.R;
@@ -14,11 +15,11 @@ import com.smart.lock.widget.ToggleSwitchDefineView;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private ImageView ivBack;
     private ToggleSwitchDefineView mNumPwdSwitchTv;
     private ToggleButton mNumPwdSwitchLight;
     private ToggleSwitchDefineView mFingersPrintSwitchTv;
     private ToggleButton mFingersPrintSwitchLight;
-    private View.OnClickListener onClickListener;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -30,6 +31,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void initView(){
+        ivBack = findViewById(R.id.iv_back);
         mNumPwdSwitchTv = this.findViewById(R.id.switch_password);
         mNumPwdSwitchLight = mNumPwdSwitchTv.getIv_switch_light();
         mFingersPrintSwitchTv = this.findViewById(R.id.switch_fingerprint);
@@ -51,6 +53,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void initEvent(){
+        ivBack.setOnClickListener(this);
         mNumPwdSwitchLight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,13 +72,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v){
-        switch (v.getId()){
-            case R.id.switch_password:
-                Log.e("TYpe","password");
-                break;
-            case R.id.switch_fingerprint:
-                Log.e("TYpe","Fingerprint");
-                break;
+        if (v.getId() == R.id.iv_back) {
+            finish();
+            return ;
+        } else {
+            return ;
         }
     }
 

@@ -99,7 +99,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     fBuffer.append(input);//保存第一次输入的密码
                     startTimer();
                 } else if (type == ConstantUtil.LOGIN_PASSWORD) {//登录
-                    if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString("password"))) {
+                    if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
                         shakes();
                     } else {
                         startActivity(new Intent(LockScreenActivity.this, MainActivity.class));
@@ -110,7 +110,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     if (input.equals(fBuffer.toString())) {//一致
                         //保存密码到文件中
                         SharedPreferenceUtil.getInstance(LockScreenActivity.this).initSharedPreferences(LockScreenActivity.this);
-                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeString("password", input);
+                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeString(ConstantUtil.NUM_PWD, input);
                         tv_info.setText(getString(R.string.please_input_pwd));
                         type = ConstantUtil.LOGIN_PASSWORD;
                     } else {//不一致

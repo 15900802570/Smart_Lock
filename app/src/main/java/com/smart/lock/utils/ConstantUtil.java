@@ -12,5 +12,7 @@ public class ConstantUtil {
 	public static final int LOGIN_PASSWORD = 1;
 	/** SharedPreferences的文件名 */
 	public static final String PREF_NAME = "numberlock";
+	/** 静态字段*/
+	public static final String NUM_PWD = "NumPwd";
 	
 }
