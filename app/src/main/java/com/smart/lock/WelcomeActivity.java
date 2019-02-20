@@ -185,6 +185,32 @@ public class WelcomeActivity extends Activity {
     //打开下一个界面
     private void openNextActivity(Activity mActivity) {
         //跳转到登录界面并销毁当前界面
+        try{
+            if(SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)){
+                jLockScreenActivity(mActivity);
+            }else {
+                jManiActivity(mActivity);
+            }
+        }catch (NullPointerException e){
+            jManiActivity(mActivity);
+        }
+        mActivity.finish();
+    }
+
+    /**
+     * 跳转到主界面
+     *@param mActivity 上下文
+     */
+    private void jManiActivity(Activity mActivity){
+        Intent intent = new Intent(mActivity, MainActivity.class);
+        mActivity.startActivity(intent);
+    }
+
+    /**
+     *  跳转到验证界面
+     * @param mActivity 上下文
+     */
+    private void jLockScreenActivity(Activity mActivity){
         int param;
         try{
             if (!SharedPreferenceUtil.getInstance(this).readString("password").isEmpty()) {
@@ -197,7 +223,6 @@ public class WelcomeActivity extends Activity {
         }
         Intent intent = new Intent(mActivity, LockScreenActivity.class);
         mActivity.startActivity(intent.putExtra("type", param));
-        mActivity.finish();
     }
 
     @Override

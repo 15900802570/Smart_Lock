@@ -16,16 +16,17 @@
         android:textColor="#ff000000"
         android:textSize="15.0dip" />
 
-    <android.widget.ToggleButton
+    <ToggleButton
         android:id="@+id/iv_switch_light"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="34dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20.0dip"
-        android:background="#ffffffff"
+        android:layout_marginRight="-25dp"
+        android:layout_marginBottom="0.0dip"
+        android:background="@null"
         android:button="@drawable/toggle_button_selector"
-        android:checked="true"
+        android:checked="false"
         android:textOff=""
         android:textOn="" />
 

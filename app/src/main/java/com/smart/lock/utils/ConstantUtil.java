@@ -2,6 +2,8 @@ package com.smart.lock.utils;
 
 public class ConstantUtil {
 
+	/** 开启密码验证*/
+	public static final String NUM_PWD_CHECK = "NumPwdCheck";
 	/** 初始设置密码 */
 	public static final int SETTING_PASSWORD = 0;
 	/** 确认密码 */

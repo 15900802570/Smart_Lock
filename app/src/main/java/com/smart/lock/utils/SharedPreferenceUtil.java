@@ -50,6 +50,19 @@ public class SharedPreferenceUtil {
 		editor.commit();
 //		editor.apply();//提交写入的数据
 	}
+	/**
+	 * 向SharedPreferences中写入Bool类型的数据
+	 * @param key
+	 * @param value
+	 */
+	public void writeBoolean(String key, Boolean value){
+		//获取编辑器对象
+		Editor editor = sp.edit();
+		//写入数据
+		editor.putBoolean(key, value);
+//		editor.commit();
+		editor.apply();//提交写入的数据
+	}
 
 	/**
 	 * 根据key读取SharedPreferences中的String类型的数据
@@ -58,5 +71,13 @@ public class SharedPreferenceUtil {
 	 */
 	public String readString(String key){
 		return sp.getString(key, "");
+	}
+	/**
+	 * 根据key读取SharedPreferences中的Bool类型的数据
+	 * @param key
+	 * @return
+	 */
+	public Boolean readBoolean(String key){
+		return sp.getBoolean(key, false);
 	}
 }
