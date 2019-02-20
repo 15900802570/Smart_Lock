@@ -1,4 +1,7 @@
 <resources>
+    <string name="app_name">智能锁</string>
+    <string name="action_settings">设置</string>
+
     <!-- 描述数字键盘按下 -->
     <string name="numeric_keyboard_down">numeric keyboard down</string>
     <!-- 描述数字键盘弹起 -->
@@ -33,6 +36,11 @@
     <string name="token_manager">临时密码</string>
     <string name="event_manager">门锁事件</string>
     <string name="ble_instruction">蓝牙开锁</string>
+
+    <string name="about_us">关于我们</string>
+    <string name="system_setting">系统设置</string>
+
+
     <string name="add_lock">添加门锁</string>
     <string name="choose_add_way">选择以下一种方式添加</string>
     <string name="input_code_of_tag_or_scan_qr">扫描设备标签上的二维码</string>

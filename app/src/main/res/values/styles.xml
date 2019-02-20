@@ -13,6 +13,14 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="WelcomeTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:background">@drawable/ic_cartoon</item>
+    </style>
+
+    <style name="LockScreen" >
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
@@ -21,16 +29,14 @@
     <style name="style_edit">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">16dp</item>
+        <item name="android:textSize">16sp</item>
         <item name="android:gravity">center</item>
-        <item name="android:background">@mipmap/icon_edit_bg</item>
     </style>
 
     <!-- 顶部输入框的样式 -->
     <style name="style_edit2">
         <item name="android:layout_width">13dp</item>
         <item name="android:layout_height">13dp</item>
-        <item name="android:textSize">16dp</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/circle_test_selector</item>
     </style>
