@@ -4,8 +4,10 @@ package com.smart.lock.db.bean;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
+
 @DatabaseTable(tableName = "tb_device_info")
-public class DeviceInfo {
+public class DeviceInfo implements Serializable {
 
     @DatabaseField(generatedId = true)
     private int id;

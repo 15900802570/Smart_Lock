@@ -33,12 +33,12 @@ public class BleCmd16Parse implements BleCommandParse {
 
         byte[] buf = new byte[16];
         try {
-            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mSK);
+            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mAK);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        byte[] lockId = Arrays.copyOfRange(buf, 0, 4);
+        byte[] lockId = Arrays.copyOfRange(buf, 0, 1);
 
         return MessageCreator.getCmd16Message(getParseKey(), lockId);
     }

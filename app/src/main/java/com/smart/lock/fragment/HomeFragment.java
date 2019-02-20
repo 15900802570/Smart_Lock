@@ -31,6 +31,7 @@ import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.ui.AddDeviceActivity;
+import com.smart.lock.ui.CardManagerActivity;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
@@ -97,7 +98,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     public View initView() {
@@ -173,9 +173,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
         mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
-        if (mDefaultDevice != null)
+
+        if (mDefaultDevice != null) {
+            setSk();
+            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
             refreshView(BIND_DEVICE);
-        else refreshView(UNBIND_DEVICE);
+        } else refreshView(UNBIND_DEVICE);
 
     }
 
@@ -187,10 +190,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case BIND_DEVICE:
                 mAddLockRl.setVisibility(View.GONE);
                 mLockManagerLl.setVisibility(View.VISIBLE);
-                mIsConnected = BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection();
+                if (mDefaultDevice != null)
+                    mIsConnected = BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection();
                 if (mIsConnected) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
                     mBleConnectTv.setVisibility(View.GONE);
+                    mLockNameTv.setText(mDefaultDevice.getDeviceName());
                     refreshBattery(mBattery);
                 } else {
                     mLockStatusTv.setText(R.string.bt_connect_failed);
@@ -213,7 +218,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case BATTER_UNKNOW:
                 mUpdateTimeTv.setVisibility(View.GONE);
                 mShowTimeTv.setVisibility(View.GONE);
-                mLockNameTv.setText(mDefaultDevice.getDeviceName());
+                if (mDefaultDevice != null)
+                    mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 mEqIv.setBackgroundResource(R.mipmap.lock_manager_battery_unknow);
                 mEqTv.setText(R.string.battery_unknow);
                 break;
@@ -284,6 +290,20 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 refreshView(BIND_DEVICE);
                 refreshBattery(mBattery);
             }
+
+            if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
+                refreshView(BIND_DEVICE);
+                if (mDefaultDevice != null) {
+                    setSk();
+                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
+                } else refreshView(UNBIND_DEVICE);
+            }
+
+            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
+                if (mDefaultDevice != null) {
+                    refreshView(BIND_DEVICE);
+                } else refreshView(UNBIND_DEVICE);
+            }
         }
     };
 
@@ -291,6 +311,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
         intentFilter.addAction(BleMsg.STR_RSP_SCANED);
+        intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         return intentFilter;
     }
 
@@ -309,8 +330,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         } catch (Exception ignore) {
             Log.e(TAG, ignore.toString());
         }
-
-        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
+        if (mDefaultDevice != null)
+            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
     }
 
 
@@ -369,16 +390,19 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Bundle bundle = new Bundle();
-
+        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
         switch (((Integer) view.getTag()).intValue()) {
             case R.mipmap.manager_pwd:
 //                startIntent(PasswordManagerActivity.class, bundle);
 
                 break;
             case R.mipmap.manager_card:
-//                startIntent(CardManagerActivity.class, bundle);
-                break;
+                if (mIsConnected)
+                    startIntent(CardManagerActivity.class, bundle);
+                else
+                    showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
 
+                break;
             case R.mipmap.manager_finger:
 //                startIntent(FingerprintManagerActivity.class, bundle);
                 break;

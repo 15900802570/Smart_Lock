@@ -108,9 +108,14 @@ public class BleMsg {
     public static final String KEY_PWD = "pwd";
 
     /**
-     * key 秘钥类型
+     * 命令类型
      */
-    public static final String KEY_CMD_TYPE = "keyType";
+    public static final String KEY_CMD_TYPE = "cmdType";
+
+    /**
+     * 秘钥类型
+     */
+    public static final String KEY_TYPE = "keyType";
 
     /**
      * 设备回复的错误编码
@@ -190,5 +195,10 @@ public class BleMsg {
     /**
      * 设备动态码
      */
-    public static final String KEY_RAND_CODE = "random_code";
+    public static final String KEY_RAND_CODE = "randomCode";
+
+    /**
+     * 默认设备
+     */
+    public static final String KEY_DEFAULT_DEVICE = "defaultDevice";
 }

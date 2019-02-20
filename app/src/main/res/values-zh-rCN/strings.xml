@@ -23,6 +23,7 @@
     <string name="back_message">再次点击退出 智能·门锁</string>
     <string name="bt_state">蓝牙状态:</string>
     <string name="bt_unconnected">未连接</string>
+    <string name="unconnected_device">未连接设备</string>
     <string name="bt_reconnect">重连</string>
     <string name="bt_connect_failed">连接失败</string>
     <string name="bt_connect_success">连接成功</string>
@@ -65,7 +66,7 @@
     <string name="data_loading">请稍候</string>
     <string name="checking_security">安全校验中...</string>
     <string name="add_locking">生成设备中...</string>
-    <string name="retry_connect">连接超时，请重新操作...</string>
+    <string name="retry_connect">连接超时,请重新操作...</string>
     <string name="plz_set_lock_name">请设置门锁名称:</string>
     <string name="lock_default_name">智能门锁</string>
     <string name="battery_0">0%</string>
@@ -78,5 +79,23 @@
     <string name="battery_80">80%</string>
     <string name="battery_100">100%</string>
     <string name="battery_unknow">未知</string>
+    <string name="device_sync">同步</string>
+    <string name="add_card">添加卡片</string>
+
+    <string name="set_pwd_success">密码设置成功</string>
+    <string name="modify_pwd_success">密码修改成功</string>
+    <string name="pause_user_success">暂停用户成功</string>
+    <string name="pause_user_failed">暂停用户失败</string>
+    <string name="add_user_success">新增用户成功</string>
+    <string name="add_user_failed">新增用户失败</string>
+    <string name="delete_user_success">删除用户成功</string>
+    <string name="delete_user_failed">删除用户失败</string>
+    <string name="add_nfc_failed">录入/修改NFC卡失败</string>
+    <string name="delete_nfc_success">删除NFC卡成功</string>
+    <string name="modify_nfc_success">修改NFC卡成功</string>
+
+    <string name="long_term">长期</string>
+    <string name="create_time">创建时间:</string>
+    <string name="add_nfc_tips">您已添加过NFC卡,请删除后添加</string>
 
 </resources>
