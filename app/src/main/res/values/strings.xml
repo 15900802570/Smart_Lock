@@ -47,6 +47,8 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="about_us">About Us</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="check_fingerprint">Please verify the existing fingerprints</string>
+    <string name="cancel">Cancel</string>
 
     <string name="add_lock">Add Lock</string>
     <string name="choose_add_way">Choose one of the ways to add lock</string>
@@ -58,4 +60,5 @@
     <string name="lock_detection">Lock Detection</string>
     <string name="tv_scan_lock">Searching</string>
     <string name="please_approach_lock">Keep Your Mobile Phone Close To Lock</string>
+    <string name="title_activity_base_fp">BaseFPActivity</string>
 </resources>

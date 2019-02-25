@@ -40,6 +40,7 @@
 
     <string name="about_us">关于我们</string>
     <string name="system_setting">系统设置</string>
+    <string name="check_fingerprint">请验证已有指纹</string>
 
 
     <string name="add_lock">添加门锁</string>

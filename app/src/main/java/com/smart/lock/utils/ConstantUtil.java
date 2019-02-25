@@ -3,11 +3,41 @@ package com.smart.lock.utils;
 public class ConstantUtil {
 
 	/**
-     * 开启密码验证
+     * 是否开启密码验证
      */
-	public static final String NUM_PWD_CHECK = "NumPwdCheck";
+	public static final String NUM_PWD_CHECK = "isNumPwdCheck";
 
-	/**
+    /**
+     * 是否开启指纹验证
+     */
+    public static final String FINGERPRINT_CHECK = "isFingerprintCheck";
+
+    /**
+     * 系统太低不支持指纹
+     */
+    public static final int FP_LOW_VERSION = 0;
+
+    /**
+     * 手机不支持指纹
+     */
+    public static final int FP_NO_HARDWARE = 1;
+
+    /**
+     * 未设置锁屏，需要设置锁屏并添加指纹
+     */
+    public static final int FP_NO_KEYGUARDSECURE = 2;
+
+    /**
+     * 系统中没有指纹
+     */
+    public static final int FP_NO_FINGERPRINT = 3;
+
+    /**
+     * 支持指纹
+     */
+    public static final int FP_SUPPORT = 4;
+
+    /**
      * 静态字段
      */
 	public static final String NUM_PWD = "NumPwd";

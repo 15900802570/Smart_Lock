@@ -10,10 +10,9 @@ import android.widget.TextView;
 
 @SuppressLint("AppCompatCustomView")
 public class PasswordTextView extends TextView {
-    private final String sing = "*";//密文显示的内容
     private String content = "";//显示的内容
     //文本改变事件回调接口
-    private OnTextChangedListener onTextChangedListener;
+    private OnMyTextChangedListener onMyTextChangedListener;
     /**
      * Handler线程对象,用来更新密码框的显示内容
      * 实现将输入的内容显示为密文
@@ -21,10 +20,10 @@ public class PasswordTextView extends TextView {
     private Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             //密文显示
-            PasswordTextView.this.setText(sing);
+            PasswordTextView.this.setSelected(true);
             //回调改变事件接口
-            if (onTextChangedListener != null) {
-                onTextChangedListener.textChanged(content);
+            if (onMyTextChangedListener != null) {
+                onMyTextChangedListener.textChanged(content);
             }
         }
 
@@ -44,10 +43,10 @@ public class PasswordTextView extends TextView {
     /**
      * 设置文本改变事件监听
      *
-     * @param onTextChangedListener
+     * @param onMyTextChangedListener
      */
-    public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
-        this.onTextChangedListener = onTextChangedListener;
+    public void setOnMyTextChangedListener(OnMyTextChangedListener onMyTextChangedListener) {
+        this.onMyTextChangedListener = onMyTextChangedListener;
     }
 
     /**
@@ -61,7 +60,7 @@ public class PasswordTextView extends TextView {
         if (!TextUtils.isEmpty(text)) {
             handler.sendEmptyMessage(0);//向Handler发送消息
         } else {
-            this.setText("");
+            this.setSelected(false);
         }
     }
 
@@ -77,7 +76,7 @@ public class PasswordTextView extends TextView {
     /**
      * 文本改变事件接口
      */
-    public interface OnTextChangedListener {
+    public interface OnMyTextChangedListener {
         /**
          * 密码框文本改变时调用
          *

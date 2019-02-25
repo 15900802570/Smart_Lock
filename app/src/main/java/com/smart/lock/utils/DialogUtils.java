@@ -3,6 +3,7 @@ package com.smart.lock.utils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -148,6 +149,24 @@ public class DialogUtils {
 
     }
 
+    public static Dialog createAlertDialog(Context context, String msg){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("提示")
+                .setMessage(msg)
+                .setCancelable(true);
+        Dialog mAlertDialog = builder.create();
+
+        Window window = mAlertDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setGravity(Gravity.CENTER);
+        window.setAttributes(lp);
+        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+        mAlertDialog.show();
+
+        return mAlertDialog;
+    }
     /**
      * 关闭dialog
      *
