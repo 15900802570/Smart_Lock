@@ -48,7 +48,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     private StringBuffer fBuffer = new StringBuffer();
 
     private boolean isFP;
-    private boolean isFPRequired;
+    private boolean isFPRequired = false;
     private FingerprintManager mFPM;
     private CancellationSignal mCancellationSignal;
     private Cipher mCipher;
@@ -111,6 +111,8 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         isFP=supportFP();
         try{
            isFPRequired = SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK);
+           LogUtil.e(TGA, "isFPRequired = "+isFPRequired);
+
         }catch (NullPointerException e){
             isFPRequired = false;
             LogUtil.e(TGA,"获取是否开启指纹验证信息失败");
@@ -378,7 +380,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     @Override
     protected void onResume() {
         super.onResume();
-        if(isFP){
+        if(isFP && isFPRequired){
         startFPListening();
         }
     }
@@ -386,7 +388,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     @Override
     protected void onPause() {
         super.onPause();
-        if(isFP){
+        if(isFP && isFPRequired){
         stopFPListening();
         }
     }
@@ -394,7 +396,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(isFP){
+        if(isFP && isFPRequired){
             stopFPListening();
         }
         clearText();
