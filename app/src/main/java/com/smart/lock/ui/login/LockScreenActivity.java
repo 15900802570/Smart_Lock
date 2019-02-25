@@ -179,17 +179,14 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         LogUtil.i(TGA,"指纹验证成功");
-                        setAllText();
-                        onAuthenticated();
+                        setAllText(true);
                     }
 
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
                         LogUtil.i(TGA, "指纹验证失败");
-                        setAllText();
-                        shakes();
-                        startTimer();
+                        setAllText(false);
                     }
                 },
                 null);
@@ -316,11 +313,19 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     /**
      * 设置所有字符
      */
-    private void setAllText(){
-        setText("1");
-        setText("2");
-        setText("3");
-        setText("4");
+    private void setAllText(boolean flag){
+        String pwd = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD);
+        if(flag){
+            setText(pwd.substring(0,1));
+            setText(pwd.substring(1,2));
+            setText(pwd.substring(2,3));
+            setText(pwd.substring(3,4));
+        }else {
+            setText(pwd.substring(0,1)+1);
+            setText(pwd.substring(1,2)+1);
+            setText(pwd.substring(2,3)+1);
+            setText(pwd.substring(3,4)+1);
+        }
     }
 
     /**
