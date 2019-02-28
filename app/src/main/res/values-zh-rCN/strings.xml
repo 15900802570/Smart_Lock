@@ -109,5 +109,6 @@
     <string name="temp_pwd_failure_time">失效时间</string>
     <string name="password">*********</string>
     <string name="replicating_success">已复制到剪切板</string>
+    <string name="share">分享</string>
 
 </resources>

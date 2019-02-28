@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
@@ -115,7 +116,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
         if(lKey.length == 32){
             mSecret= StringUtil.getCRC32(AES256Encode(intToHex(mCurTime)+"000000000000000000000000",lKey));
-            DialogUtils.createTempPwdDialog(this,String.valueOf(mSecret));
+            showPwdDialog(String.valueOf(mSecret));
             return true;
         }else {
             LogUtil.d(TGA,"mKey="+StringUtil.byteArrayToHexStr(lKey)+"   "+lKey.length);
@@ -221,6 +222,14 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         return null;
     }
 
+    /**
+     * Dialog显示临时密码
+     * @param string 临时密码
+     */
+    private void showPwdDialog(String string){
+        DialogUtils.createTempPwdDialog(this,"*"+string);
+    }
+
 
     public class TempPwdAdapter extends RecyclerView.Adapter<TempPwdAdapter.MyViewHolder> {
 
@@ -264,14 +273,18 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                 if(System.currentTimeMillis()/1000 - failureTime >= 0){
                     viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_invalid));
                     viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.red));
+                    viewHolder.mDelete.setVisibility(View.VISIBLE);
+                    viewHolder.mShare.setVisibility(View.INVISIBLE);
                 }else {
                     viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_valid));
+                    viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.light_black));
+                    viewHolder.mDelete.setVisibility(View.INVISIBLE);
+                    viewHolder.mShare.setVisibility(View.VISIBLE);
                 }
                 viewHolder.mTempPwdLl.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        DialogUtils.createTempPwdDialog(TempPwdActivity.this,
-                                "*"+String.valueOf(tempPwdInfo.getTempPwd()));
+                        showPwdDialog(String.valueOf(tempPwdInfo.getTempPwd()));
                         return true;
                     }
                 });
@@ -282,7 +295,13 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                         deleteItem(position);
                         mTempPwdAdapter.notifyDataSetChanged();
                     }
-
+                });
+                viewHolder.mShare.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mTempPwdAdapter.notifyDataSetChanged();
+                        Toast.makeText(TempPwdActivity.this,"还没有实现",Toast.LENGTH_SHORT).show();
+                    }
                 });
             }
         }
@@ -300,8 +319,9 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             private TextView mTempPwdValidTv;
             private LinearLayout mTempPwdLl;
             private LinearLayout mDelete;
+            private LinearLayout mShare;
 
-            public MyViewHolder(View itemView) {
+            private MyViewHolder(View itemView) {
                 super(itemView);
                 mSwipeLayout = (SwipeLayout) itemView;
                 mTempPwdValidTv = itemView.findViewById(R.id.tv_temp_pwd_valid);
@@ -309,6 +329,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                 mTempPwdFailureTimeTv = itemView.findViewById(R.id.tv_temp_pwd_failure_time);
                 mTempPwdLl = itemView.findViewById(R.id.ll_temp_pwd);
                 mDelete = itemView.findViewById(R.id.ll_delete);
+                mShare = itemView.findViewById(R.id.ll_share);
             }
         }
     }

@@ -71,4 +71,15 @@
     <string name="temp_pwd_failure_time">Failure Time</string>
     <string name="password">*********</string>
     <string name="replicating_success">Replicating Success</string>
+    <string name="battery_0">0%</string>
+    <string name="battery_10">10%</string>
+    <string name="battery_20">20%</string>
+    <string name="battery_30">30%</string>
+    <string name="battery_50">50%</string>
+    <string name="battery_60">60%</string>
+    <string name="battery_70">70%</string>
+    <string name="battery_80">80%</string>
+    <string name="battery_100">100%</string>
+    <string name="confirm">Confirm</string>
+    <string name="share">Share</string>
 </resources>
