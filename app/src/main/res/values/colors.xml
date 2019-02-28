@@ -138,6 +138,7 @@
     <color name="color_line">#ffcacdd2</color>
     <color name="color_hint">#885f646e</color>
     <color name="red_light">#fff94b2e</color>
-
+    <color name="colorRedSelected">#cce64340</color>
+    <color name="color_edit">#fff1f3f5</color>
     <color name="black_overlay">#66000000</color>
 </resources>

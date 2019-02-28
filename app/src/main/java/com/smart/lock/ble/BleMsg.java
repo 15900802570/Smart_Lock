@@ -52,6 +52,8 @@ public class BleMsg {
 
     public static final String STR_RSP_SECURE_CONNECTION = "com.datang.uart.rsp.SECURE_CONNECTION";
 
+    public static final String STR_RSP_OPEN_TEST = "com.datang.uart.rsp.OPEN_TEST";
+
     public static final String STR_RSP_OTA_MODE = "com.datang.uart.rsp.OTA_MODE";
 
     public static final String OTA_SEND_CMD = "OTA_SEND_CMD";
@@ -86,6 +88,16 @@ public class BleMsg {
      * 设备->APK，智能锁对APK或网关远程开锁的命令回应。
      */
     public static final String STR_RSP_MSG2E_ERRCODE = "com.datang.uart.rsp.MSG2E_ERRCODE";
+
+    /**
+     * 设备->APK，推送日志，每次只推送一条
+     */
+    public static final String STR_RSP_MSG32_LOG = "com.datang.uart.rsp.MSG32_LOG";
+
+    /**
+     * 智能锁在log传输过程中上报的消息
+     */
+    public static final String STR_RSP_MSG3E_ERROR = "com.datang.uart.rsp.MSG3E_ERROR";
 
     /**
      * 消息02回应的随机数
@@ -201,4 +213,28 @@ public class BleMsg {
      * 默认设备
      */
     public static final String KEY_DEFAULT_DEVICE = "defaultDevice";
+
+
+    /**
+     * 守护数据
+     */
+    public static final String KEY_SERIALIZABLE = "serializable";
+
+    /**
+     * 修改的秘钥
+     */
+    public static final String KEY_MODIFY_DEVICE_KEY = "modifyDeviceKey";
+
+    /**
+     * 日志信息
+     */
+    public static final String KEY_LOG = "log";
+
+    /**
+     * 日志编号
+     */
+    public static final String KEY_LOG_ID = "logId";
+
+
+
 }

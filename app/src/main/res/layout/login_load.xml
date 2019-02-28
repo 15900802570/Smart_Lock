@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/load"
+    android:layout_width="300.0dip"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="30.0dip"
+        android:background="@color/login_bag"
+        android:gravity="center_vertical"
+        android:paddingLeft="12.0dip"
+        android:text="@string/tips"
+        android:textColor="@android:color/white" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="15.0dip"
+        android:paddingTop="15.0dip" >
+
+        <ProgressBar
+            style="@style/layout_vertical"
+            android:layout_width="40.0dip"
+            android:layout_height="40.0dip"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="50.0dip"
+            android:indeterminate="false" />
+
+        <TextView
+            android:id="@+id/contentView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="40.0dip"
+            android:text=""
+            android:textColor="@color/login_bag"
+            android:textSize="16.0sp" />
+    </LinearLayout>
+
+</LinearLayout>

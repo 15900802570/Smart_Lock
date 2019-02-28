@@ -223,6 +223,21 @@ public class DeviceKeyDao implements DeviceKeyImpl {
     }
 
     @Override
+    public DeviceKey queryByLockId(Object nodeId, Object userId, Object lockId) {
+        DeviceKey deviceKey = new DeviceKey();
+        try {
+            deviceKey = dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("device_user_id", userId).
+                    and().eq("lock_id", lockId).queryForFirst();
+            if (deviceKey != null) {
+                return deviceKey;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return deviceKey;
+    }
+
+    @Override
     public ArrayList<DeviceKey> queryKeyByImei(String key, String valus, String imei) {
         ArrayList<DeviceKey> list = new ArrayList<DeviceKey>();
         try {

@@ -1,11 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_hide"
-    android:layout_width="75.0dip"
+    android:layout_width="150.0dip"
     android:layout_height="110dp"
+    android:orientation="horizontal"
     android:paddingBottom="5.0dip"
-    android:paddingTop="5dp"
-    android:orientation="horizontal">
+    android:paddingTop="5dp">
+
+    <LinearLayout
+        android:id="@+id/ll_modify"
+        android:layout_width="0.0dip"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0"
+        android:background="@color/colorBlue"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_modify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="2.0dip"
+            android:gravity="center"
+            android:text="@string/edit"
+            android:textColor="@color/white"
+            android:textSize="14dp" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_delete"
@@ -22,7 +41,8 @@
             android:drawablePadding="2.0dip"
             android:gravity="center"
             android:text="@string/delete"
-            android:textSize="14dp"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="14dp" />
     </LinearLayout>
+
 </LinearLayout>

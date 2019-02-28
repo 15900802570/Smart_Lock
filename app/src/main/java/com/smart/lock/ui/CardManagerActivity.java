@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,9 +40,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
     private static final String TAG = "CardManagerActivity";
 
     private CardManagerAdapter mCardAdapter;
-    private String mUser;
     private String mNodeId;
-    private String mPwd;
 
     private String mLockId = null;
 
@@ -155,6 +154,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "NFC").size();
 
                 if (count >= 0 && count < 1) {
+                    DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
                     closeDialog(15);
                     mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, Short.parseShort(mDefaultDevice.getDeviceUser()), (byte) 0, 0);
@@ -183,7 +183,8 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
     public class CardManagerAdapter extends RecyclerView.Adapter<CardManagerAdapter.MyViewHolder> {
         private Context mContext;
         public ArrayList<DeviceKey> mCardList;
-        public int positionDelete;
+        public int positionDelete = -1;
+        public int positionModify = -1;
 
         public CardManagerAdapter(Context context) {
             mContext = context;
@@ -213,10 +214,22 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog = DialogUtils.createLoadingDialog(CardManagerActivity.this, CardManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionDelete = position;
                         mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, Short.parseShort(cardInfo.getDeviceUserId()), Byte.parseByte(cardInfo.getLockId()), 0);
+                    }
+                });
+
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(CardManagerActivity.this, CardManagerActivity.this.getResources().getString(R.string.data_loading));
+                        closeDialog(10);
+                        positionModify = position;
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, Short.parseShort(cardInfo.getDeviceUserId()), Byte.parseByte(cardInfo.getLockId()), 0);
                     }
                 });
             }
@@ -231,19 +244,22 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
         class MyViewHolder extends RecyclerView.ViewHolder {
 
             SwipeLayout mSwipeLayout;
-            TextView mName;
+            EditText mName;
             ImageView mType;
             TextView mCreateTime;
             LinearLayout mDelete;
+            LinearLayout mModifyLl;
 
             public MyViewHolder(View itemView) {
                 super(itemView);
 
                 mSwipeLayout = (SwipeLayout) itemView;
                 mType = itemView.findViewById(R.id.iv_type);
-                mName = itemView.findViewById(R.id.tv_username);
+                mName = itemView.findViewById(R.id.et_username);
                 mDelete = itemView.findViewById(R.id.ll_delete);
                 mCreateTime = itemView.findViewById(R.id.tv_create_time);
+                mModifyLl = itemView.findViewById(R.id.ll_modify);
+                mModifyLl.setVisibility(View.GONE);
             }
         }
     }
@@ -264,7 +280,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
         super.onResume();
         Log.d(TAG, "onResume");
         if (!mBleManagerHelper.getServiceConnection()) {
-            showMessage("设备连接失败，请重新连接！");
+            showMessage(getResources().getString(R.string.plz_reconnect));
             finish();
         }
     }

@@ -37,7 +37,7 @@ public class BleMessageListenerImpl implements BleMessageListener {
 
                 notifyData(BleMsg.EXTRA_DATA_MSG_02, extra);
 
-            }else if (type == Message.TYPE_BLE_RECEV_CMD_04) {
+            } else if (type == Message.TYPE_BLE_RECEV_CMD_04) {
 
                 notifyData(BleMsg.EXTRA_DATA_MSG_04, extra);
 
@@ -45,7 +45,7 @@ public class BleMessageListenerImpl implements BleMessageListener {
 
                 notifyData(BleMsg.EXTRA_DATA_MSG_12, extra);
 
-            }else if (type == Message.TYPE_BLE_RECEV_CMD_1A) {
+            } else if (type == Message.TYPE_BLE_RECEV_CMD_1A) {
 
                 notifyData(BleMsg.STR_RSP_MSG1A_STATUS, extra);
 
@@ -65,7 +65,15 @@ public class BleMessageListenerImpl implements BleMessageListener {
 
                 notifyData(BleMsg.STR_RSP_MSG2E_ERRCODE, extra);
 
-            }else {
+            } else if (type == Message.TYPE_BLE_RECEV_CMD_32) {
+
+                notifyData(BleMsg.STR_RSP_MSG32_LOG, extra);
+
+            } else if (type == Message.TYPE_BLE_RECEV_CMD_3E) {
+
+                notifyData(BleMsg.STR_RSP_MSG3E_ERROR, extra);
+
+            } else {
                 Log.w(TAG, "Message type : " + type + " can not be handler");
                 return;
             }

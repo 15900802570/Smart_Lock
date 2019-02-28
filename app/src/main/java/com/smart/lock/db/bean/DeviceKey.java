@@ -26,8 +26,19 @@ public class DeviceKey implements Serializable {
     @DatabaseField(columnName = "key_name")
     private String keyName;
 
+    @DatabaseField(columnName = "pwd")
+    private String pwd;
+
     @DatabaseField(columnName = "key_active_time")
     private long keyActiveTime;
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
 
     public int getId() {
         return id;
@@ -94,6 +105,7 @@ public class DeviceKey implements Serializable {
                 ", deviceUserId='" + deviceUserId + '\'' +
                 ", lockId='" + lockId + '\'' +
                 ", keyName='" + keyName + '\'' +
+                ", pwd='" + pwd + '\'' +
                 ", keyActiveTime=" + keyActiveTime +
                 '}';
     }

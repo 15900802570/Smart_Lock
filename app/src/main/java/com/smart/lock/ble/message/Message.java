@@ -151,9 +151,29 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_21 = 0x21;
 
     /**
+     * 日志查询
+     */
+    public static final byte TYPE_BLE_SEND_CMD_31 = 0x31;
+
+    /**
      * MSG 2E 是智能锁在远程开锁命令后的回应。
      */
     public static final byte TYPE_BLE_RECEV_CMD_2E = 0x2E;
+
+    /**
+     * 智能锁使用MSG 32推送日志给APK，每次只推送一条
+     */
+    public static final byte TYPE_BLE_RECEV_CMD_32 = 0x32;
+
+    /**
+     * MSG 33是APK从智能锁查删除日志，通过MSG3E回复结果
+     */
+    public static final byte TYPE_BLE_SEND_CMD_33 = 0x33;
+
+    /**
+     * MSG 3E是智能锁在log传输过程中上报的消息
+     */
+    public static final byte TYPE_BLE_RECEV_CMD_3E = 0x3E;
 
     /**
      * OTA升级命令

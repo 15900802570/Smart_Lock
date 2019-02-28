@@ -8,6 +8,7 @@ import android.util.SparseIntArray;
 import com.smart.lock.ble.BleChannel;
 import com.smart.lock.ble.BleCommand;
 import com.smart.lock.ble.BleMessageListener;
+import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.ClientTransaction;
 import com.smart.lock.ble.creator.BleCmd01Creator;
 import com.smart.lock.ble.creator.BleCmd03Creator;
@@ -16,6 +17,8 @@ import com.smart.lock.ble.creator.BleCmd15Creator;
 import com.smart.lock.ble.creator.BleCmd17Creator;
 import com.smart.lock.ble.creator.BleCmd19Creator;
 import com.smart.lock.ble.creator.BleCmd21Creator;
+import com.smart.lock.ble.creator.BleCmd31Creator;
+import com.smart.lock.ble.creator.BleCmd33Creator;
 import com.smart.lock.ble.creator.BleCmdOtaCreator;
 import com.smart.lock.ble.creator.BleCmdOtaDataCreator;
 import com.smart.lock.ble.creator.BleCreator;
@@ -28,8 +31,12 @@ import com.smart.lock.ble.parser.BleCmd18Parse;
 import com.smart.lock.ble.parser.BleCmd1AParse;
 import com.smart.lock.ble.parser.BleCmd1EParse;
 import com.smart.lock.ble.parser.BleCmd2EParse;
+import com.smart.lock.ble.parser.BleCmd32Parse;
+import com.smart.lock.ble.parser.BleCmd3EParse;
 import com.smart.lock.ble.parser.BleCommandParse;
+import com.smart.lock.utils.LogUtil;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -117,6 +124,11 @@ public class BleProvider {
     protected Map<String, BleMessageListener> transactionBleMsgListenerMap;
 
     /**
+     * 守护进程映射表
+     */
+    protected Map<String, Serializable> mSerializableMap;
+
+    /**
      * ble指令创建器映射表
      */
     protected SparseArray<BleCreator> bleCreatorMap;
@@ -136,7 +148,7 @@ public class BleProvider {
     /**
      * 调试开关
      */
-    protected boolean debug = false;
+    protected boolean debug = true;
 
     /**
      * ble 接口
@@ -177,6 +189,7 @@ public class BleProvider {
         // 初始化指令回调映射表
         messageListenerMap = new SparseArray();
         transactionBleMsgListenerMap = new HashMap();
+        mSerializableMap = new HashMap<>();
 
         // 初始化指令创建器和指令解析器映射表
         bleCreatorMap = new SparseArray();
@@ -245,7 +258,6 @@ public class BleProvider {
      * @see Message
      */
     private synchronized boolean offer(Object message) {
-        Log.d(TAG, "status = " + status);
         if (status == STATUS_RUNNING) {
             try {
                 if (message instanceof Message) {
@@ -395,6 +407,7 @@ public class BleProvider {
 
                                 if (mBleChannel.sendPacket(mRspBuf)) {
                                     Arrays.fill(mRspBuf, 0, 20, (byte) 0);
+
                                 } else {
                                     Log.i(TAG, "send AT : " + cmd + " failure");
                                     // 设置发送失败状态
@@ -422,7 +435,7 @@ public class BleProvider {
 
                         // 如果是事务ble下发，启动ble事务
                         if (transaction != null) {
-                            addBleMsgListener(transaction);
+                            addBleMsgListener(transaction, msg.getData().getSerializable(BleMsg.KEY_SERIALIZABLE));
                             transaction.startWatch();
                             Log.i(TAG, "Transaction start : " + transaction.getListenerKey());
                         } else {
@@ -486,29 +499,30 @@ public class BleProvider {
         clearSession();
 
         try {
-            Log.d(TAG, "parse ble : " + Arrays.toString(cmdBuf));
 
             // 获取解析器
             BleCommandParse parse = bleCommandParseMap.get(cmdBuf[0]);
             if (parse != null) {
                 // 解析成消息
                 Message m = parse.parse(cmdBuf);
+                Log.d(TAG, "parse m : " + m.toString());
+
                 if (m != null) {
-                    if (bleMsgListener == null) {
-                        if (searchTransaction) {
-                            // 获取事务监听器
-                            bleMsgListener = removeBleMsgListener(m.getKey());
-                            if (bleMsgListener != null) {
-                                Log.i(TAG, "bleMsgListener halt : "
-                                        + bleMsgListener.getListenerKey());
-                                // 停止定时器
-                                bleMsgListener.halt();
-                            } else {
-                                Log.i(TAG,
-                                        "bleMsgListener  : "
-                                                + Message.getMessageTypeTag(m.getType())
-                                                + " is null");
-                            }
+                    LogUtil.d(TAG, "m.getKey() = " + m.getKey());
+                    if (m.getKey() != null) {
+                        // 获取事务监听器
+                        Serializable serializable = removeBleMsgListener(m.getKey());
+
+                        if (serializable != null) {
+                            m.getData().putSerializable(BleMsg.KEY_SERIALIZABLE, serializable);
+                            Log.i(TAG, "bleMsgListener halt : " + bleMsgListener.getListenerKey());
+                            // 停止定时器
+                            bleMsgListener.halt();
+                        } else {
+                            Log.i(TAG,
+                                    "bleMsgListener  : "
+                                            + Message.getMessageTypeTag(m.getType())
+                                            + " is null");
                         }
                     }
                     // 分发消息
@@ -555,9 +569,29 @@ public class BleProvider {
                 msg.recycle();
             }
         } else {
-            Log.d(TAG, bleMsgListener.getListenerKey());
+            if (debug) {
+                Log.d(TAG, "devLog : " + bleMsgListener.getListenerKey()
+                        + " transactionBleMsgListenerMap size : "
+                        + transactionBleMsgListenerMap.size());
+            }
+            if (transactionBleMsgListenerMap.size() == 0) {
+                synchronized (sendThread) {
+                    sendThread.notify();
+                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
+                }
+            }
             bleMsgListener.onReceive(this, msg);
         }
+    }
+
+    public boolean addATMsgListener(BleMessageListener listener) {
+        transactionBleMsgListenerMap.put(listener.getListenerKey(), listener);
+        if (debug) {
+            Log.d(TAG, "addBleMsgListener : " + listener.getListenerKey()
+                    + " transactionBleMsgListenerMap size : "
+                    + transactionBleMsgListenerMap.size());
+        }
+        return true;
     }
 
     /**
@@ -574,6 +608,8 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_17, new BleCmd17Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_19, new BleCmd19Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_21, new BleCmd21Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_31, new BleCmd31Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_33, new BleCmd33Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_OTA, new BleCmdOtaCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_CMD, new BleCmdOtaDataCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_DATA, new BleCmdOtaDataCreator());
@@ -588,7 +624,8 @@ public class BleProvider {
         messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_16, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_18, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_2E, mBleMessageListener);
-
+        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_32, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_3E, mBleMessageListener);
 
         //填充ble指令接收器映射表
         bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_1A, new BleCmd1AParse());
@@ -599,6 +636,8 @@ public class BleProvider {
         bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_16, new BleCmd16Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_18, new BleCmd18Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_2E, new BleCmd2EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_32, new BleCmd32Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_3E, new BleCmd3EParse());
     }
 
     /**
@@ -627,6 +666,17 @@ public class BleProvider {
                         // 直接发送消息
                         ClientTransaction transaction = (ClientTransaction) obj;
                         sendMessage(transaction.getMessage(), transaction, bleCommandList);
+                        if (transactionBleMsgListenerMap.size() != 0) {
+                            synchronized (sendThread) {
+                                try {
+                                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
+                                    sendThread.wait();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
                     } else {
                         // 未知类型消息
                         Log.w(TAG, "Unknow obj class : "
@@ -724,17 +774,20 @@ public class BleProvider {
         transactionBleMsgListenerMap.clear();
     }
 
-    public boolean addBleMsgListener(BleMessageListener listener) {
+    public boolean addBleMsgListener(BleMessageListener listener, Serializable serializable) {
         transactionBleMsgListenerMap.put(listener.getListenerKey(), listener);
+        if (serializable != null) {
+            mSerializableMap.put(listener.getListenerKey(), serializable);
+        }
         if (debug) {
-            Log.d(TAG, "addATMsgListener : " + listener.getListenerKey()
+            Log.d(TAG, "addbleMsgListener : " + listener.getListenerKey()
                     + " transactionBleMsgListenerMap size : "
                     + transactionBleMsgListenerMap.size());
         }
         return true;
     }
 
-    public synchronized BleMessageListener removeBleMsgListener(String key) {
+    public synchronized Serializable removeBleMsgListener(String key) {
         if (key == null) {
             return null;
         }
@@ -743,11 +796,15 @@ public class BleProvider {
             Log.d(TAG, "removeBleMsgListener : " + key + " removeBleMsgListener size : "
                     + transactionBleMsgListenerMap.size());
         }
-
-        return transactionBleMsgListenerMap.remove(key);
+        Serializable serializable = mSerializableMap.remove(key);
+        if (serializable != null) {
+            LogUtil.d(TAG, "serializable = " + serializable.toString());
+        }
+        transactionBleMsgListenerMap.remove(key);
+        return serializable;
     }
 
-    public synchronized BleMessageListener removeBleMsgListener(BleMessageListener listener) {
+    public synchronized Serializable removeBleMsgListener(BleMessageListener listener) {
         return removeBleMsgListener(listener.getListenerKey());
     }
 

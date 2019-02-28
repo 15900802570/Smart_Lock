@@ -64,7 +64,7 @@ public class DeviceInfo implements Serializable {
     private String productKey;
 
     @DatabaseField(columnName = "device_secret")
-    private String deviceSecret;
+    private String deviceSecret; //板卡的动态秘钥
 
     @DatabaseField(columnName = "node_type")
     private String nodeType;

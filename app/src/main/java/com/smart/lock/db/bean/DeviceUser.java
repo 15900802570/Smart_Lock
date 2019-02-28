@@ -7,25 +7,36 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.io.Serializable;
 
 @DatabaseTable(tableName = "tb_device_user")
-public class DeviveUser implements Serializable {
+public class DeviceUser implements Serializable {
 
-    @DatabaseField(generatedId = true)
+    @DatabaseField(generatedId = true, columnName = "_id")
     private int id;
 
     @DatabaseField(columnName = "dev_node_id")
-    public String devNodeId;
+    private String devNodeId;
 
     @DatabaseField(columnName = "user_id")
-    public String userId;
+    private String userId;
 
     @DatabaseField(columnName = "user_permission")
-    public String userPermission;
+    private String userPermission;
 
     @DatabaseField(columnName = "user_status")
-    public String userStatus;
+    private String userStatus;
 
     @DatabaseField(columnName = "create_time")
-    public long createTime;
+    private long createTime;
+
+    @DatabaseField(columnName = "user_name")
+    private String userName;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public String getDevNodeId() {
         return devNodeId;
@@ -69,13 +80,14 @@ public class DeviveUser implements Serializable {
 
     @Override
     public String toString() {
-        return "DeviveUser{" +
+        return "DeviceUser{" +
                 "id=" + id +
                 ", devNodeId='" + devNodeId + '\'' +
                 ", userId='" + userId + '\'' +
                 ", userPermission='" + userPermission + '\'' +
                 ", userStatus='" + userStatus + '\'' +
                 ", createTime=" + createTime +
+                ", userName='" + userName + '\'' +
                 '}';
     }
 }

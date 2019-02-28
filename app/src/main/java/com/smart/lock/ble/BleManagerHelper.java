@@ -112,7 +112,6 @@ public class BleManagerHelper {
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
-            LogUtil.d(TAG, "closeDialog !");
             DialogUtils.closeDialog(mLoadDialog);
             Toast.makeText(mContext, R.string.retry_connect, Toast.LENGTH_LONG).show();
             Intent intent = new Intent();
@@ -157,18 +156,22 @@ public class BleManagerHelper {
 
             @Override
             public void run() {
-                Log.d(TAG, "mBtAdapter.getState() " + mBtAdapter.getState());
-                Log.d(TAG, "mBtAdapter.getScanMode() " + mBtAdapter.getScanMode());
-                Log.d(TAG, "mService.initialize() " + mService.initialize());
-                Log.d(TAG, "mIsBind " + mIsBind);
                 mConnectType = type;
                 mUserId = userId;
-                if (!mIsConnected) {
-                    mIsConnected = mService.connect(mBleMac);
-                    Log.d(TAG, "mIsConnected = " + mIsConnected);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
-                    closeDialog(5);
+
+                if (!mBtAdapter.isEnabled()) {
+                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    mContext.startActivity(enableIntent);
                 }
+
+                LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
+                if (!mIsConnected && mService != null) {
+                    mService.connect(mBleMac);
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
+                    closeDialog(10);
+                }
+
             }
         }, 500);
         return mIsConnected;
@@ -189,6 +192,7 @@ public class BleManagerHelper {
      */
     private void serviceInit() {
         Intent bindIntent = new Intent(mContext, BleCardService.class);
+        LogUtil.d(TAG, "mIsBind = " + mIsBind);
         if (!mIsBind) {
             mIsBind = mContext.bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         }
@@ -273,9 +277,12 @@ public class BleManagerHelper {
                 Log.d(TAG, "UART_DISCONNECT_MSG");
                 mState = UART_PROFILE_DISCONNECTED;
                 MessageCreator.mAK = null;
-                mService.disconnect();
+                if (mIsConnected) {
+                    mService.disconnect();
+                    mService.close();
+                }
+
                 mIsConnected = false;
-                mService.close();
                 mOtaMode = mTempMode ? 1 : 0;
                 mConnectType = 0;
                 mUserId = 0;
@@ -330,6 +337,7 @@ public class BleManagerHelper {
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.EXTRA_DATA_MSG_04)) {
+                mIsConnected = true;
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
                 Bundle extra = intent.getExtras();
@@ -382,6 +390,12 @@ public class BleManagerHelper {
      */
     public void stopService() {
         instance = null;
+        try {
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(UARTStatusChangeReceiver);
+        } catch (Exception ignore) {
+            Log.e(TAG, ignore.toString());
+        }
+
         if (mIsBind) {
             if (mService != null) {
                 mService.disconnect();
@@ -398,11 +412,7 @@ public class BleManagerHelper {
             mIsBind = false;
         }
 
-        try {
-            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(UARTStatusChangeReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
+
     }
 
     /**

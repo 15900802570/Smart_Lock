@@ -56,6 +56,11 @@
             </RelativeLayout>
 
             <com.smart.lock.widget.MeDefineView
+                android:id="@+id/mv_scan_qr"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <com.smart.lock.widget.MeDefineView
                 android:id="@+id/self_message"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />

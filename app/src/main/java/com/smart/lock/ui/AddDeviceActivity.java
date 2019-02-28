@@ -55,7 +55,7 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener {
 
                     startIntent(LockDetectingActivity.class, bundle);
                 } else {
-                    ToastUtil.show(AddDeviceActivity.this, "请扫描正确的二维码", Toast.LENGTH_LONG);
+                    ToastUtil.show(AddDeviceActivity.this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
                 }
             }
         }

@@ -1,7 +1,9 @@
 package com.smart.lock.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -20,6 +22,7 @@ import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.ArrayList;
@@ -53,12 +56,12 @@ public class BaseListViewActivity extends Activity implements View.OnClickListen
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
 
-                mLoadDialog.cancel();
+                DialogUtils.closeDialog(mLoadDialog);
 
                 mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mNodeId, false);
-                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
+//                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
 
-                Toast.makeText(BaseListViewActivity.this, "设置超时，请重新操作！", Toast.LENGTH_LONG).show();
+                Toast.makeText(BaseListViewActivity.this, BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 
         }
@@ -103,7 +106,6 @@ public class BaseListViewActivity extends Activity implements View.OnClickListen
         mDeleteBtn.setOnClickListener(this);
         mSyncTv.setOnClickListener(this);
     }
-
 
 
     /**
@@ -176,4 +178,21 @@ public class BaseListViewActivity extends Activity implements View.OnClickListen
                 break;
         }
     }
+
+    /**
+     * 新界面
+     *
+     * @param cls    新Activity
+     * @param bundle 数据包
+     */
+    protected void startIntent(Class<?> cls, Bundle bundle) {
+        Intent intent = new Intent();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+
+        intent.setClass(this, cls);
+        startActivity(intent);
+    }
+
 }

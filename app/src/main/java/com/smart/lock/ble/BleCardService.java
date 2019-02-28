@@ -22,6 +22,7 @@ import android.util.Log;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.BleReceiver;
+import com.smart.lock.db.bean.DeviceLog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -283,6 +284,7 @@ public class BleCardService extends Service {
         }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+        Log.d(TAG, "deivce !" + device.getAddress() + device.getBondState());
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -615,6 +617,52 @@ public class BleCardService extends Service {
         }
 
         return mBleProvider.send(msg);
+    }
+
+    /**
+     * 是APK从智能锁查询开锁日志
+     *
+     * @param cmdType 命令类型
+     * @param userId  用户编号
+     * @return 是否发送成功
+     */
+    public boolean sendCmd31(final byte cmdType, final short userId) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_31);
+
+        Bundle bundle = msg.getData();
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        return mBleProvider.send(msg);
+    }
+
+    /**
+     * MSG 33是APK从智能锁查删除日志，通过MSG3E回复结果。
+     *
+     * @param cmdType 命令类型
+     * @param userId  用户编号
+     * @param logId   日志编号
+     * @return 是否发送成功
+     */
+    public boolean sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_33);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
+
+        Bundle bundle = msg.getData();
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        bundle.putInt(BleMsg.KEY_LOG_ID, logId);
+
+        bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
+
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+
+        return ct.request();
     }
 
     private synchronized void write(Object o) {

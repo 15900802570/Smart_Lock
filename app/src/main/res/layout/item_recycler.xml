@@ -20,8 +20,8 @@
             android:layout_marginLeft="15.0dip"
             android:layout_marginRight="15.0dip"
             app:cardCornerRadius="6.0dip"
-            app:cardUseCompatPadding="true"
-            app:cardPreventCornerOverlap="false">
+            app:cardPreventCornerOverlap="false"
+            app:cardUseCompatPadding="true">
 
             <LinearLayout
                 android:id="@+id/ll_content"
@@ -54,25 +54,37 @@
                     android:layout_height="fill_parent"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_username"
-                        android:layout_width="150.0dip"
-                        android:layout_height="0.0dip"
-                        android:layout_marginLeft="20.0dip"
-                        android:layout_weight="1.0"
-                        android:ellipsize="end"
-                        android:gravity="bottom"
-                        android:paddingRight="20.0dip"
-                        android:singleLine="true"
-                        android:textColor="#ff5f646e"
-                        android:textSize="17.0sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/et_username"
+                            android:layout_width="150.0dip"
+                            android:layout_height="0.0dip"
+                            android:layout_marginLeft="20.0dip"
+                            android:layout_weight="1.0"
+                            android:ellipsize="end"
+                            android:gravity="bottom"
+                            android:paddingRight="20.0dip"
+                            android:singleLine="true"
+                            android:textColor="#ff5f646e"
+                            android:textSize="17.0sp" />
+
+                        <ImageButton
+                            android:id="@+id/ib_edit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toRightOf="@+id/tv_username"
+                            android:src="@mipmap/edit" />
+                    </RelativeLayout>
 
                     <RelativeLayout
                         android:id="@+id/rl_id"
                         android:layout_width="fill_parent"
                         android:layout_height="0.0dip"
-                        android:layout_weight="1.0"
                         android:layout_marginTop="5dp"
+                        android:layout_weight="1.0"
                         android:gravity="top"
                         android:orientation="horizontal">
 

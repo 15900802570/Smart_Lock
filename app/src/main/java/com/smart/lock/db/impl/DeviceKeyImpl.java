@@ -33,6 +33,9 @@ public interface DeviceKeyImpl {
 
     ArrayList<DeviceKey> queryDeviceKey(Object nodeId, Object userId, Object type);
 
+    DeviceKey queryByLockId(Object nodeId, Object userId, Object lockId);
+
+
     DeviceKey queryFirstData(String key, Object valus);
 
     void delete(DeviceKey info);

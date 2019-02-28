@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
@@ -41,7 +42,7 @@ public class BleCmd19Creator implements BleCreator {
         Arrays.fill(cmdbuf, 0, 16, (byte) 0);
 
         try {
-            AES_ECB_PKCS7.AES256Encode(cmdbuf, buf, extra.getByteArray(BleMsg.KEY_AK));
+            AES_ECB_PKCS7.AES256Encode(cmdbuf, buf, MessageCreator.mAK);
         } catch (Exception e) {
             e.printStackTrace();
         }

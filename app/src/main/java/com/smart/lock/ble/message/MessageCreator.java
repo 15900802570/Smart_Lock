@@ -232,5 +232,45 @@ public class MessageCreator {
         return mMessage;
     }
 
+    /**
+     * 获取消息Message.TYPE_BLE_RECEV_CMD_18
+     *
+     * @param type    消息类型
+     * @param log 日志信息
+     * @return
+     */
+    public static Message getCmd32Message(byte type, byte[] log) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+
+        if (log != null && log.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_LOG, log);
+        }
+
+//        if (count != null && count.length != 0) {
+//            mBundle.putByteArray(BleMsg.KEY_TIME_OUT, count);
+//        }
+        return mMessage;
+    }
+
+    /**
+     * 获取消息Message.TYPE_BLE_RECEV_CMD_3E
+     *
+     * @param type    消息类型
+     * @param errCode 设备回复的错误编码
+     * @return
+     */
+    public static Message getCmd3EMessage(byte type, byte[] errCode) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
+
+        if (errCode != null && errCode.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
+        }
+        return mMessage;
+    }
 
 }

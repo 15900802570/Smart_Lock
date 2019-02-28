@@ -49,12 +49,13 @@ public class BaseActivity extends Activity {
      * @param cls    新Activity
      * @param bundle 数据包
      */
-    protected void startIntent(Class<?> cls, Bundle bundle) {
+    protected void startIntent(Class<?> cls, Bundle bundle, int flag) {
         Intent intent = new Intent();
         if (bundle != null) {
             intent.putExtras(bundle);
         }
-
+        if (flag != -1)
+            intent.addFlags(flag);
         intent.setClass(this, cls);
         startActivity(intent);
     }

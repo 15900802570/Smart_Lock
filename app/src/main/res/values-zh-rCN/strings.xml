@@ -33,14 +33,15 @@
     <string name="card_manager">门卡管理</string>
     <string name="password_manager">密码管理</string>
     <string name="fingerprint_manager">指纹管理</string>
+    <string name="device_manager">设备管理</string>
     <string name="permission_manager">用户与权限</string>
     <string name="token_manager">临时密码</string>
     <string name="event_manager">门锁事件</string>
-    <string name="ble_instruction">蓝牙开锁</string>
+    <string name="ble_instruction">一键开锁</string>
 
     <string name="about_us">关于我们</string>
     <string name="system_setting">系统设置</string>
-
+    <string name="scan_qr">扫一扫</string>
 
     <string name="add_lock">添加门锁</string>
     <string name="choose_add_way">选择以下一种方式添加</string>
@@ -50,6 +51,8 @@
     <string name="manual_addition">手动添加</string>
     <string name="empty_lock">暂无门锁</string>
     <string name="lock_detection">门锁验证</string>
+    <string name="create_pwd">创建密码</string>
+    <string name="modify_pwd">修改密码</string>
     <string name="tv_scan_lock">正在搜索</string>
     <string name="please_approach_lock">请将手机靠近门锁</string>
     <string name="rescanning">重新扫描</string>
@@ -91,12 +94,43 @@
     <string name="add_user_failed">新增用户失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
-    <string name="add_nfc_failed">录入/修改NFC卡失败</string>
+    <string name="add_nfc_failed">录入NFC卡失败</string>
+    <string name="modify_nfc_failed">修改NFC卡失败</string>
     <string name="delete_nfc_success">删除NFC卡成功</string>
     <string name="modify_nfc_success">修改NFC卡成功</string>
+    <string name="add_pwd_failed">录入密码失败</string>
+    <string name="delete_pwd_success">删除密码成功</string>
+
+    <string name="add_fp_failed">录入指纹失败</string>
+    <string name="modify_fp_failed">修改指纹失败</string>
+    <string name="modify_fp_success">修改指纹成功</string>
+    <string name="delete_fp_success">删除指纹成功</string>
 
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
     <string name="add_nfc_tips">您已添加过NFC卡,请删除后添加</string>
+    <string name="add_pwd_tips">您已添加过密码,请删除后添加</string>
+    <string name="add_fp_tips">添加指纹过多,请删除后添加</string>
 
+    <string name="plz_reconnect">设备连接失败,请重新连接！</string>
+    <string name="add_password">添加密码</string>
+    <string name="add_fingerprint">添加指纹</string>
+    <string name="password">密码</string>
+    <string name="user_name">使用者:</string>
+    <string name="edit">修改</string>
+    <string name="input_new_pwd">请输入新密码:</string>
+    <string name="input_new_pwd_again">请再次输入新密码:</string>
+    <string name="tips">提示</string>
+    <string name="valid_password">请输入正确的密码（6位）</string>
+    <string name="pwd_twice_error">2次输入的密码不一致</string>
+    <string name="plz_input_username">请输入使用者</string>
+    <string name="fingerprint">指纹</string>
+    <string name="modify_username">修改使用者</string>
+    <string name="title_event">门锁事件</string>
+    <string name="event_type">类型编号:</string>
+    <string name="remote">远程</string>
+    <string name="plz_choise_del_log">请选择要删除的日志</string>
+    <string name="plz_scan_correct_qr">请扫描正确的二维码!</string>
+    <string name="administrator">管理员</string>
+    <string name="members">普通成员</string>
 </resources>

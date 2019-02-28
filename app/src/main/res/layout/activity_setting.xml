@@ -9,7 +9,7 @@
         android:id="@+id/rl_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/app_bg" >
+        android:background="@color/app_bg">
 
         <TextView
             android:id="@+id/tv_title"
@@ -28,8 +28,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:padding="10.0dip"
-            android:background="@drawable/icon_arrow_blue_left" />
+            android:background="@drawable/icon_arrow_blue_left"
+            android:padding="10.0dip" />
     </RelativeLayout>
 
 
@@ -43,9 +43,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
-        <com.smart.lock.widget.ToggleSwitchDefineView
-            android:id="@+id/switch_fingerprint"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+    <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/switch_fingerprint"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/tw_open_test"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

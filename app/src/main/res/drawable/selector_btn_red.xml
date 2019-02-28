@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector>
+    <item xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/box_corners_red" android:state_focused="false" android:state_pressed="false" />
+    <item xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/box_corners_red_selected" android:state_pressed="true" />
+</selector>

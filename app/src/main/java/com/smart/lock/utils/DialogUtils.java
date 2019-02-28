@@ -70,7 +70,7 @@ public class DialogUtils {
         TextView tipTextView = (TextView) v.findViewById(R.id.tip_tv);// 提示文字
         tipTextView.setText(msg);// 设置加载信息
 
-        Dialog loadingDialog = new Dialog(context, R.style.MyDialogStyle);// 创建自定义样式dialog
+        Dialog loadingDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
         loadingDialog.setCancelable(true); // 是否可以按“返回键”消失
         loadingDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
         loadingDialog.setContentView(layout, new LinearLayout.LayoutParams(
@@ -114,23 +114,23 @@ public class DialogUtils {
                 .setCancelable(true)
                 .setPositiveButton(mActivity.getResources().getString(R.string.confirm),
                         new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if ( cls!=null) {
-                            Intent intent = new Intent(mActivity, LockScreenActivity.class);
-                            intent.putExtra(ConstantUtil.IS_RETURN,true);
-                            mActivity.startActivityForResult(intent.
-                                    putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD),1);
-                        }
-                    }
-                })
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (cls != null) {
+                                    Intent intent = new Intent(mActivity, LockScreenActivity.class);
+                                    intent.putExtra(ConstantUtil.IS_RETURN, true);
+                                    mActivity.startActivityForResult(intent.
+                                            putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), 1);
+                                }
+                            }
+                        })
                 .setNegativeButton(mActivity.getResources().getString(R.string.cancel),
                         new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
         Dialog promptDialog = builder.create();
         /**
          *将显示Dialog的方法封装在这里面
@@ -147,6 +147,16 @@ public class DialogUtils {
         return promptDialog;
 
     }
+
+//    public static AlertDialog createEdit(final Context context, String msg) {
+//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//        final AlertDialog dialog = builder.create();
+//        View dialogView = View.inflate(context, R.layout.dialog_login, null);
+//
+//        builder.setTitle(R.string.modify_username)
+//                .setView()
+//        return dialog;
+//    }
 
     /**
      * 关闭dialog

@@ -10,6 +10,9 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceLog;
+import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.db.bean.UserProfile;
 import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
@@ -30,6 +33,9 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.createTable(connectionSource, DeviceInfo.class);
             TableUtils.createTable(connectionSource, DeviceKey.class);
+            TableUtils.createTable(connectionSource, DeviceUser.class);
+            TableUtils.createTable(connectionSource, DeviceLog.class);
+            TableUtils.createTable(connectionSource, UserProfile.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -37,7 +43,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource,
-            int oldVersion, int newVersion) {
+                          int oldVersion, int newVersion) {
         LogUtil.d("MyDatabaseHelper.onUpgrade oldVersion=" + oldVersion + "  newVersion="
                 + newVersion);
     }
@@ -46,7 +52,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     /**
      * 单例获取该Helper
-     * 
+     *
      * @param context
      * @return
      */

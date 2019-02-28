@@ -52,4 +52,44 @@ public class ConstantUtil {
      * 智能门锁默认名称
      */
     public static final String LOCK_DEFAULT_NAME = "智能门锁";
+
+    /**
+     * 修改
+     */
+    public static final String MODIFY = "modify";
+
+    /**
+     * 创建
+     */
+    public static final String CREATE = "create";
+
+    /**
+     * 设备管理员
+     */
+    public static final String DEVICE_MASTER = "master";
+
+    /**
+     * 设备成员
+     */
+    public static final String DEVICE_MEMBER = "member";
+
+    /**
+     * 用户状态 -未启用 -0
+     */
+    public static final String USER_UNENABLE = "unenable";
+
+    /**
+     * 用户状态 -未启用 -1
+     */
+    public static final String USER_ENABLE = "enable";
+
+    /**
+     * 用户状态 -暂停 -2
+     */
+    public static final String USER_PAUSE = "pause";
+
+    /**
+     * 测试连接开关
+     */
+    public static final String OPEN_TEST = "openTest";
 }

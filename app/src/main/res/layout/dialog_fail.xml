@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300.0dip"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="30.0dip"
+        android:background="@color/login_bag"
+        android:gravity="center_vertical"
+        android:paddingLeft="12.0dip"
+        android:text="@string/tips"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:id="@+id/contentView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="15.0dip"
+        android:layout_marginTop="15.0dip"
+        android:drawableLeft="@mipmap/register_failed"
+        android:drawablePadding="15.0dip"
+        android:gravity="center"
+        android:lineSpacingExtra="2.0dip"
+        android:textColor="@color/gray2" />
+
+</LinearLayout>

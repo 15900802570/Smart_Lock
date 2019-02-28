@@ -123,15 +123,15 @@
             <LinearLayout
                 android:id="@+id/ll_status"
                 android:layout_width="fill_parent"
-                android:layout_height="20.0dip"
+                android:layout_height="25.0dip"
                 android:layout_marginTop="1.0dip"
+                android:gravity="center_vertical"
                 android:background="@color/white"
                 android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="12.0dip"
                     android:text="@string/bt_state"
                     android:textSize="12.0dip" />
@@ -140,7 +140,6 @@
                     android:id="@+id/tv_status"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="5.0dip"
                     android:background="@android:color/transparent"
                     android:clickable="false"
@@ -151,8 +150,8 @@
                 <TextView
                     android:id="@+id/tv_connect"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
                     android:layout_marginLeft="11.0dip"
                     android:text="@string/bt_reconnect"
                     android:textColor="@color/blue2"

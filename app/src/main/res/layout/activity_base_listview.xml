@@ -27,7 +27,7 @@
             android:layout_centerInParent="true"
             android:gravity="center"
             android:padding="10.0dip"
-            android:text="设备管理"
+            android:text="@string/device_manager"
             android:textColor="#ff000000"
             android:textSize="18.0dip" />
 
