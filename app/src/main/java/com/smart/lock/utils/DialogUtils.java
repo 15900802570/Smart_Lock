@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +22,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ui.login.LockScreenActivity;
@@ -94,21 +97,6 @@ public class DialogUtils {
 
     public static Dialog createPromptDialog(final Activity mActivity, String msg, final Class<?> cls) {
 
-//        LayoutInflater inflater = LayoutInflater.from(context);
-//        View v = inflater.inflate(R.layout.dialog_prompt, null);
-//        TextView hintText = v.findViewById(R.id.contentView);
-//        Button confirmBtn = v.findViewById(R.id.confirmBtn);
-//        Button cancelBtn = v.findViewById(R.id.cancelBtn);
-//        hintText.setText(msg);
-
-//         final  Dialog promptDialog =  new AlertDialog.Builder(context).create();// 创建自定义样式dialog
-//        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_prompt_view);// 加载布局
-//        promptDialog.setCancelable(true); // 是否可以按“返回键”消失
-//        promptDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
-//        promptDialog.setContentView(layout, new LinearLayout.LayoutParams(
-//                LinearLayout.LayoutParams.WRAP_CONTENT,
-//                LinearLayout.LayoutParams.WRAP_CONTENT));// 设置布局
-
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         builder.setTitle("提示")
                 .setMessage(msg)
@@ -166,6 +154,41 @@ public class DialogUtils {
         mAlertDialog.show();
 
         return mAlertDialog;
+    }
+
+    public static Dialog createTempPwdDialog(final Context context,final String msg){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getResources().getString(R.string.temp_pwd))
+                .setMessage(msg)
+                .setNeutralButton(R.string.click_to_copy, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            ClipboardManager clipboardManager = (ClipboardManager)context.
+                                    getSystemService(Context.CLIPBOARD_SERVICE);
+
+                            ClipData clipData = ClipData.newPlainText(context.getResources().getString(R.string.temp_pwd),msg);
+                            clipboardManager.setPrimaryClip(clipData);
+                            Toast.makeText(context,context.getResources().getString(R.string.replicating_success),Toast.LENGTH_SHORT).show();
+
+                        }catch (NullPointerException e){
+                            e.printStackTrace();
+                        }
+                    dialog.dismiss();
+                    }
+                });
+        Dialog mTempPwdDialog = builder.create();
+
+        Window window = mTempPwdDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setGravity(Gravity.CENTER);
+        window.setAttributes(lp);
+        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+
+        mTempPwdDialog.show();
+        return mTempPwdDialog;
     }
     /**
      * 关闭dialog

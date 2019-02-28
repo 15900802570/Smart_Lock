@@ -10,6 +10,7 @@ import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.TempPwd;
 import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
@@ -30,6 +31,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.createTable(connectionSource, DeviceInfo.class);
             TableUtils.createTable(connectionSource, DeviceKey.class);
+            TableUtils.createTable(connectionSource, TempPwd.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }

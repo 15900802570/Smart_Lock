@@ -862,4 +862,11 @@ public class DateTimeUtil {
         return format.parse(pTime);
     }
 
+    /**
+     * 临时密码失效时间计算
+     */
+    public static long getFailureTime(long createdTime){
+        return (long)Math.ceil(createdTime/1800.0+1)*1800;
+    }
+
 }

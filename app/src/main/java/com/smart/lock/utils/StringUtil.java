@@ -15,6 +15,7 @@ import android.text.Editable;
 import android.util.Log;
 
 import java.util.Arrays;
+import java.util.zip.CRC32;
 
 public class StringUtil {
 
@@ -281,6 +282,24 @@ public class StringUtil {
         }
 
         return sub;
+    }
+
+    public static byte[] byteMerger(byte[] byte_1, byte[] byte_2){
+                byte[] byte_3 = new byte[byte_1.length+byte_2.length];
+                System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
+                System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
+            return byte_3;
+    }
+
+    /**
+     *  CRC校验码
+     * @param bytes 输入字节串
+     * @return long 输出字符
+     */
+    public static long getCRC32(byte[] bytes){
+        CRC32 crc32=new CRC32();
+        crc32.update(bytes);
+        return crc32.getValue();
     }
 
     public static String Bytes2HexString(byte[] bytes) {

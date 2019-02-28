@@ -99,5 +99,15 @@
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
     <string name="add_nfc_tips">您已添加过NFC卡,请删除后添加</string>
+    <string name="temp_pwd_invalid">失效</string>
+    <string name="temp_pwd_valid">有效</string>
+    <string name="temp_pwd">临时密码</string>
+    <string name="temp_pwd_username">用户名</string>
+    <string name="btn_create_temp_pwd">创建临时密码</string>
+    <string name="str_is_empty">字符串为空</string>
+    <string name="click_to_copy">点击复制</string>
+    <string name="temp_pwd_failure_time">失效时间</string>
+    <string name="password">*********</string>
+    <string name="replicating_success">已复制到剪切板</string>
 
 </resources>

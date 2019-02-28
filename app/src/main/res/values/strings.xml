@@ -61,4 +61,14 @@
     <string name="tv_scan_lock">Searching</string>
     <string name="please_approach_lock">Keep Your Mobile Phone Close To Lock</string>
     <string name="title_activity_base_fp">BaseFPActivity</string>
+    <string name="temp_pwd_valid">Valid</string>
+    <string name="temp_pwd_invalid">Invalid</string>
+    <string name="temp_pwd">Temporary Password</string>
+    <string name="temp_pwd_username">User</string>
+    <string name="btn_create_temp_pwd">Create Temp Password</string>
+    <string name="str_is_empty">String is empty</string>
+    <string name="click_to_copy">Click Copy to clipboard</string>
+    <string name="temp_pwd_failure_time">Failure Time</string>
+    <string name="password">*********</string>
+    <string name="replicating_success">Replicating Success</string>
 </resources>

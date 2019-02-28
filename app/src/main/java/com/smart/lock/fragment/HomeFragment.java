@@ -33,6 +33,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.ui.AddDeviceActivity;
 import com.smart.lock.ui.CardManagerActivity;
 import com.smart.lock.ui.LockDetectingActivity;
+import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -418,7 +419,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 break;
 
             case R.mipmap.manager_token:
-//               startIntent(TokenManagerActivitySwipeAdapter.class, bundle);
+               startIntent(TempPwdActivity.class, bundle);
                 break;
             default:
                 break;
