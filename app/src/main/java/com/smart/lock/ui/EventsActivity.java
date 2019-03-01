@@ -271,8 +271,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 }
 
             }
-
-
         }
     };
 
