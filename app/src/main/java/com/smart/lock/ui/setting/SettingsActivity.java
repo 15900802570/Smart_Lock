@@ -40,7 +40,7 @@ import javax.crypto.SecretKey;
 
 public class SettingsActivity extends BaseFPActivity implements View.OnClickListener {
 
-    private static String TAG = "SettingsActivity";
+    private static String TAG= "SettingsActivity";
 
     private ImageView ivBack;
     private ToggleSwitchDefineView mNumPwdSwitchTv;
@@ -60,7 +60,6 @@ public class SettingsActivity extends BaseFPActivity implements View.OnClickList
     private int isFP = 0; //是否支持指纹，0 1 不支持 2 3 未设置 4 支持
     private FingerprintManager mFPM;
     private CancellationSignal mCancellationSignal;
-    private Cipher mCipher;
     private KeyStore mKeyStore;
 
     private boolean isFPRequired = false;
@@ -91,11 +90,12 @@ public class SettingsActivity extends BaseFPActivity implements View.OnClickList
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.switch_fingerprint);
+        isFP = supportFP();
         if (isFP > 1) {
             mFingerprintSwitchTv.setDes("指纹验证");
             mFingerprintSwitchLightTbtn = mFingerprintSwitchTv.getIv_switch_light();
         } else {
-            mFingerprintSwitchTv.setVisibility(View.INVISIBLE);
+            mFingerprintSwitchTv.setVisibility(View.GONE);
         }
 
     }
@@ -249,6 +249,7 @@ public class SettingsActivity extends BaseFPActivity implements View.OnClickList
      */
     @TargetApi(23)
     private void doFingerprintDialog(){
+        Cipher lCipher;
         //初始化key
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
@@ -268,11 +269,11 @@ public class SettingsActivity extends BaseFPActivity implements View.OnClickList
         // 初始化Cipher
         try{
             SecretKey key = (SecretKey)mKeyStore.getKey(DEVICE_POLICY_SERVICE,null);
-            mCipher=Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES+'/'
+            lCipher=Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES+'/'
                     +KeyProperties.BLOCK_MODE_CBC+'/'
                     +KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            mCipher.init(Cipher.ENCRYPT_MODE,key);
-            showFingerprintDialog(mCipher);
+            lCipher.init(Cipher.ENCRYPT_MODE,key);
+            showFingerprintDialog(lCipher);
         }catch ( Exception e){
             LogUtil.e(TGA,"初始化Cipher出错"+e);
         }
