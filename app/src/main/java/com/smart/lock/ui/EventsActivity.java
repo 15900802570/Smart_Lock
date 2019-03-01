@@ -21,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
@@ -415,9 +416,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 });
 
                 if (mVisiBle)
-                    viewHolder.mDeleteCb.setVisibility(View.VISIBLE);
+                    viewHolder.mDeleteRl.setVisibility(View.VISIBLE);
                 else
-                    viewHolder.mDeleteCb.setVisibility(View.GONE);
+                    viewHolder.mDeleteRl.setVisibility(View.GONE);
 
                 viewHolder.mDeleteCb.setChecked(mAllDelete);
             }
@@ -444,6 +445,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             LinearLayout mDelete;
             TextView mTime;
             CheckBox mDeleteCb;
+            RelativeLayout mDeleteRl;
 
             public MyViewHolder(View itemView) {
                 super(itemView);
@@ -454,6 +456,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
                 mTime = itemView.findViewById(R.id.tv_create_time);
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
+                mDeleteRl = itemView.findViewById(R.id.rl_delete);
             }
         }
     }

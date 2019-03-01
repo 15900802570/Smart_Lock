@@ -5,7 +5,7 @@
     android:gravity="center">
     <!-- 提示信息 -->
     <TextView
-        android:id="@+id/tv_info"
+        android:id="@+id/info_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -16,37 +16,37 @@
         android:textSize="18sp" />
     <!-- 密码显示框 -->
     <LinearLayout
-        android:id="@+id/ll_pass"
+        android:id="@+id/num_pwd_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tv_info"
+        android:layout_below="@id/info_tv"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
-        <com.smart.lock.ui.login.MyPasswordTextView
-            android:id="@+id/et_pwd1"
+        <com.smart.lock.ui.login.PasswordTextView
+            android:id="@+id/num_pwd1"
             style="@style/style_edit2" />
 
-        <com.smart.lock.ui.login.MyPasswordTextView
-            android:id="@+id/et_pwd2"
+        <com.smart.lock.ui.login.PasswordTextView
+            android:id="@+id/num_pwd2"
             style="@style/style_edit2"
             android:layout_marginStart="20sp" />
 
-        <com.smart.lock.ui.login.MyPasswordTextView
-            android:id="@+id/et_pwd3"
+        <com.smart.lock.ui.login.PasswordTextView
+            android:id="@+id/num_pwd3"
             style="@style/style_edit2"
             android:layout_marginStart="20sp" />
 
-        <com.smart.lock.ui.login.MyPasswordTextView
-            android:id="@+id/et_pwd4"
+        <com.smart.lock.ui.login.PasswordTextView
+            android:id="@+id/num_pwd4"
             style="@style/style_edit2"
             android:layout_marginStart="20dp" />
     </LinearLayout>
     <!-- 数字键盘 -->
     <com.smart.lock.ui.login.NumericKeyboard
-        android:id="@+id/nk"
+        android:id="@+id/num_kb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp" />

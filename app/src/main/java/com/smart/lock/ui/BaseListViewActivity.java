@@ -3,10 +3,14 @@ package com.smart.lock.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -22,10 +26,13 @@ import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class BaseListViewActivity extends Activity implements View.OnClickListener {
     protected RecyclerView mListView;
@@ -82,6 +89,30 @@ public class BaseListViewActivity extends Activity implements View.OnClickListen
 
         Bundle bundle = getIntent().getExtras();
         mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(baseReciver, intentFilter());
+    }
+
+    /**
+     * 广播接收
+     */
+    private final BroadcastReceiver baseReciver = new BroadcastReceiver() {
+
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
+                showMessage(BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect));
+                finish();
+            }
+
+        }
+    };
+
+    private static IntentFilter intentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
+        return intentFilter;
     }
 
     /**
@@ -195,4 +226,13 @@ public class BaseListViewActivity extends Activity implements View.OnClickListen
         startActivity(intent);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(baseReciver);
+        } catch (Exception ignore) {
+            Log.e(TAG, ignore.toString());
+        }
+    }
 }

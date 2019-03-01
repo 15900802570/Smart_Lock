@@ -42,6 +42,8 @@
     <string name="about_us">关于我们</string>
     <string name="system_setting">系统设置</string>
     <string name="scan_qr">扫一扫</string>
+    <string name="check_fingerprint">请验证已有指纹</string>
+
 
     <string name="add_lock">添加门锁</string>
     <string name="choose_add_way">选择以下一种方式添加</string>
@@ -111,6 +113,17 @@
     <string name="add_nfc_tips">您已添加过NFC卡,请删除后添加</string>
     <string name="add_pwd_tips">您已添加过密码,请删除后添加</string>
     <string name="add_fp_tips">添加指纹过多,请删除后添加</string>
+    <string name="temp_pwd_invalid">失效</string>
+    <string name="temp_pwd_valid">有效</string>
+    <string name="temp_pwd">临时密码</string>
+    <string name="temp_pwd_username">用户名</string>
+    <string name="btn_create_temp_pwd">创建临时密码</string>
+    <string name="str_is_empty">字符串为空</string>
+    <string name="click_to_copy">点击复制</string>
+    <string name="temp_pwd_failure_time">失效时间</string>
+    <string name="temp_password">*********</string>
+    <string name="replicating_success">已复制到剪切板</string>
+    <string name="share">分享</string>
 
     <string name="plz_reconnect">设备连接失败,请重新连接！</string>
     <string name="add_password">添加密码</string>

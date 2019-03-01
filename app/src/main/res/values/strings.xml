@@ -47,6 +47,8 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="about_us">About Us</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="check_fingerprint">Please verify the existing fingerprints</string>
+    <string name="cancel">Cancel</string>
 
     <string name="add_lock">Add Lock</string>
     <string name="choose_add_way">Choose one of the ways to add lock</string>
@@ -58,4 +60,26 @@
     <string name="lock_detection">Lock Detection</string>
     <string name="tv_scan_lock">Searching</string>
     <string name="please_approach_lock">Keep Your Mobile Phone Close To Lock</string>
+    <string name="title_activity_base_fp">BaseFPActivity</string>
+    <string name="temp_pwd_valid">Valid</string>
+    <string name="temp_pwd_invalid">Invalid</string>
+    <string name="temp_pwd">Temporary Password</string>
+    <string name="temp_pwd_username">User</string>
+    <string name="btn_create_temp_pwd">Create Temp Password</string>
+    <string name="str_is_empty">String is empty</string>
+    <string name="click_to_copy">Click Copy to clipboard</string>
+    <string name="temp_pwd_failure_time">Failure Time</string>
+    <string name="password">*********</string>
+    <string name="replicating_success">Replicating Success</string>
+    <string name="battery_0">0%</string>
+    <string name="battery_10">10%</string>
+    <string name="battery_20">20%</string>
+    <string name="battery_30">30%</string>
+    <string name="battery_50">50%</string>
+    <string name="battery_60">60%</string>
+    <string name="battery_70">70%</string>
+    <string name="battery_80">80%</string>
+    <string name="battery_100">100%</string>
+    <string name="confirm">Confirm</string>
+    <string name="share">Share</string>
 </resources>

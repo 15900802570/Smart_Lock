@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_bg">
+
+    <RelativeLayout
+        android:id="@+id/rl_temp_pwd_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/app_bg" >
+
+        <TextView
+            android:id="@+id/tv_temp_pwd_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="10.0dip"
+            android:text="@string/temp_pwd"
+            android:textColor="#ff000000"
+            android:textSize="18.0dip" />
+
+        <ImageView
+            android:id="@+id/iv_temp_pwd_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:padding="10.0dip"
+            android:onClick="onClick"
+            android:background="@drawable/icon_arrow_blue_left" />
+    </RelativeLayout>
+    <View
+        android:layout_height="0.5dp"
+        android:layout_width="match_parent"
+        android:layout_below="@id/rl_temp_pwd_title"
+        android:background="@color/line" />
+
+    <LinearLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rl_temp_pwd_title"
+        android:background="@color/white"
+        android:orientation="vertical">
+
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/temp_pwd_list_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/listview_bg_grey"
+            android:divider="@null"
+            android:paddingTop="5.0dip"
+            android:scrollbarSize="10dp"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical" />
+
+    </LinearLayout>
+
+
+
+    <FrameLayout
+        android:id="@+id/fl_add"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/mask">
+
+        <Button
+            android:id="@+id/btn_create_temp_pwd"
+            style="@style/RountButtonStyle"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20.0dip"
+            android:visibility="visible"
+            android:onClick="onClick"
+            android:text="@string/btn_create_temp_pwd"/>
+    </FrameLayout>
+
+</RelativeLayout>

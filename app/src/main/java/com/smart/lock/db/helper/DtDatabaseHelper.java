@@ -13,6 +13,7 @@ import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.bean.UserProfile;
+import com.smart.lock.db.bean.TempPwd;
 import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
@@ -36,6 +37,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, DeviceUser.class);
             TableUtils.createTable(connectionSource, DeviceLog.class);
             TableUtils.createTable(connectionSource, UserProfile.class);
+            TableUtils.createTable(connectionSource, TempPwd.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
