@@ -303,6 +303,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                         Toast.makeText(TempPwdActivity.this,"还没有实现",Toast.LENGTH_SHORT).show();
                     }
                 });
+
             }
         }
 

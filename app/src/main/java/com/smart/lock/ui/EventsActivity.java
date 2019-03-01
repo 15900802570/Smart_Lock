@@ -238,9 +238,10 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     } else if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MEMBER)) {
                         mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getDeviceUser());
                     }
-
                     mEventAdapter.setDataSource(mLogs);
                     mEventAdapter.notifyDataSetChanged();
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mHandler.removeCallbacks(mRunnable);
 
                 } else if (errCode[3] == 0x01) {
 
@@ -251,16 +252,23 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
                         mEventAdapter.mLogList.remove(position);
                         mEventAdapter.notifyItemRemoved(position);
+                        mEventAdapter.mDeleteLogs.remove(mDelDeVLog);
+                    }
+
+                    if (mEventAdapter.mDeleteLogs.size() == 0) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mHandler.removeCallbacks(mRunnable);
                     }
 
                 } else if (errCode[3] == 0x02) {
-
+                    showMessage(EventsActivity.this.getString(R.string.del_log_failed));
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mHandler.removeCallbacks(mRunnable);
                 } else if (errCode[3] == 0x03) {
-
+                    showMessage(EventsActivity.this.getString(R.string.no_authority));
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mHandler.removeCallbacks(mRunnable);
                 }
-
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
 
             }
 
@@ -443,6 +451,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             TextView mEventInfo;
             TextView mEventType;
             LinearLayout mDelete;
+            LinearLayout mModifyLl;
             TextView mTime;
             CheckBox mDeleteCb;
             RelativeLayout mDeleteRl;
@@ -453,7 +462,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 mEventInfo = itemView.findViewById(R.id.tv_event_info);
                 mEventType = itemView.findViewById(R.id.tv_type);
                 mDelete = itemView.findViewById(R.id.ll_delete);
-
+                mModifyLl = itemView.findViewById(R.id.ll_modify);
                 mTime = itemView.findViewById(R.id.tv_create_time);
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -205,7 +206,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             final DeviceKey cardInfo = mCardList.get(position);
             if (cardInfo != null) {
                 viewHolder.mName.setText(cardInfo.getKeyName());
@@ -222,7 +223,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                     }
                 });
 
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
@@ -230,6 +231,14 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                         closeDialog(10);
                         positionModify = position;
                         mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, Short.parseShort(cardInfo.getDeviceUserId()), Byte.parseByte(cardInfo.getLockId()), 0);
+                    }
+                });
+
+                viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        cardInfo.setKeyName(viewHolder.mName.getText().toString().trim());
+                        DeviceKeyDao.getInstance(CardManagerActivity.this).updateDeviceKey(cardInfo);
                     }
                 });
             }
@@ -249,6 +258,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
             TextView mCreateTime;
             LinearLayout mDelete;
             LinearLayout mModifyLl;
+            ImageButton mEditIbtn;
 
             public MyViewHolder(View itemView) {
                 super(itemView);
@@ -259,7 +269,8 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 mDelete = itemView.findViewById(R.id.ll_delete);
                 mCreateTime = itemView.findViewById(R.id.tv_create_time);
                 mModifyLl = itemView.findViewById(R.id.ll_modify);
-                mModifyLl.setVisibility(View.GONE);
+                mModifyLl.setVisibility(View.VISIBLE);
+                mEditIbtn = itemView.findViewById(R.id.ib_edit);
             }
         }
     }

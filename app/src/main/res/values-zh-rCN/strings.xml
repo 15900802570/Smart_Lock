@@ -146,4 +146,6 @@
     <string name="plz_scan_correct_qr">请扫描正确的二维码!</string>
     <string name="administrator">管理员</string>
     <string name="members">普通成员</string>
+    <string name="del_log_failed">删除log成功</string>
+    <string name="no_authority">无权限</string>
 </resources>

@@ -212,12 +212,13 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
         }
 
         @Override
-        public void onBindViewHolder(FpManagerAdapter.MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(final FpManagerAdapter.MyViewHolder viewHolder, final int position) {
             final DeviceKey fpInfo = mFpList.get(position);
             if (fpInfo != null) {
                 viewHolder.mName.setText(fpInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.record_fingerprint);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(fpInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
+
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -242,7 +243,8 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        fpInfo.setKeyName(viewHolder.mName.getText().toString().trim());
+                        DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).updateDeviceKey(fpInfo);
                     }
                 });
             }

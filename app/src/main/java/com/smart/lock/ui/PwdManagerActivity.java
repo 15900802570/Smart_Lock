@@ -16,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -179,7 +180,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             final DeviceKey pwdInfo = mPwdList.get(position);
             if (pwdInfo != null) {
                 viewHolder.mName.setText(pwdInfo.getKeyName());
@@ -206,6 +207,14 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                     }
                 });
 
+                viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        pwdInfo.setKeyName(viewHolder.mName.getText().toString().trim());
+                        DeviceKeyDao.getInstance(PwdManagerActivity.this).updateDeviceKey(pwdInfo);
+                    }
+                });
+
             }
 
         }
@@ -223,6 +232,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
             TextView mCreateTime;
             LinearLayout mDelete;
             LinearLayout mModifyLl;
+            ImageButton mEditIbtn;
 
             public MyViewHolder(View itemView) {
                 super(itemView);
@@ -233,6 +243,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                 mDelete = itemView.findViewById(R.id.ll_delete);
                 mModifyLl = itemView.findViewById(R.id.ll_modify);
                 mCreateTime = itemView.findViewById(R.id.tv_create_time);
+                mEditIbtn = itemView.findViewById(R.id.ib_edit);
             }
         }
     }
