@@ -12,7 +12,7 @@
         android:layout_height="fill_parent"
         android:background="@color/green"
         android:gravity="center"
-        android:visibility="invisible">
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tv_share"

@@ -50,7 +50,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private String mMac;
     private long mSecret;
     private static final List<String> mList = new ArrayList<>(
-            Arrays.asList("00","01","02","03"));
+            Arrays.asList("01","02","03","04"));
     private int mCurTime;
 
     private RecyclerView mTempPwdListView;
@@ -113,10 +113,12 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         LogUtil.d(TGA,"NodeId="+mNodeId+'\\' +
                 "                        mMac="+mMac);
         LogUtil.d(TGA,"CurrentTimeHEX="+intToHex(mCurTime));
+        LogUtil.d(TGA, "Key="+byteArrayToHexString(lKey));
 
         if(lKey.length == 32){
             mSecret= StringUtil.getCRC32(AES256Encode(intToHex(mCurTime)+"000000000000000000000000",lKey));
             showPwdDialog(String.valueOf(mSecret));
+            LogUtil.d(TGA,"mSecret="+mSecret);
             return true;
         }else {
             LogUtil.d(TGA,"mKey="+StringUtil.byteArrayToHexStr(lKey)+"   "+lKey.length);
@@ -274,11 +276,11 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_invalid));
                     viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.red));
                     viewHolder.mDelete.setVisibility(View.VISIBLE);
-                    viewHolder.mShare.setVisibility(View.INVISIBLE);
+                    viewHolder.mShare.setVisibility(View.GONE);
                 }else {
                     viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_valid));
                     viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.light_black));
-                    viewHolder.mDelete.setVisibility(View.INVISIBLE);
+                    viewHolder.mDelete.setVisibility(View.GONE);
                     viewHolder.mShare.setVisibility(View.VISIBLE);
                 }
                 viewHolder.mTempPwdLl.setOnLongClickListener(new View.OnLongClickListener() {
