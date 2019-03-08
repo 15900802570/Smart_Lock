@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_hide_default_and_unbind"
+    android:layout_width="wrap_content"
+    android:layout_height="95dp"
+    android:paddingBottom="5.0dip"
+    android:paddingTop="5dp"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/ll_set_default"
+        android:layout_width="75.0dip"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_set_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="2.0dip"
+            android:gravity="center"
+            android:text="@string/set_default"
+            android:textSize="16sp"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_unbind"
+            android:layout_width="75.0dip"
+            android:layout_height="match_parent"
+            android:background="@color/red"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_unbind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2.0dip"
+                android:gravity="center"
+                android:text="@string/unbind"
+                android:textSize="16sp"
+                android:textColor="@color/white" />
+        </LinearLayout>
+</LinearLayout>

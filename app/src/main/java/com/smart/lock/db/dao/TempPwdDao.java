@@ -85,10 +85,13 @@ public class TempPwdDao implements TempPwdImpl {
     }
 
     @Override
-    public ArrayList<TempPwd> queryAll() {
+    public ArrayList<TempPwd> queryAllByDevNodeId(String devNodeId) {
         ArrayList<TempPwd> list = null;
         try {
-            list = (ArrayList<TempPwd>)dao.queryBuilder().orderBy("pwd_create_time",false).query();
+            list = (ArrayList<TempPwd>)dao.queryBuilder().
+                    orderBy("pwd_create_time",false).
+                    where().eq("device_nodeId",devNodeId).
+                    query();
             if(list != null){
                 return list;
             }

@@ -148,4 +148,26 @@
     <string name="members">普通成员</string>
     <string name="del_log_failed">删除log成功</string>
     <string name="no_authority">无权限</string>
+    <string name="device_management">设备管理</string>
+    <string name="btn_add_new_lock">添加门锁</string>
+    <string name="number">编号</string>
+    <string name="set_default">设为默认</string>
+    <string name="unbind">解除绑定</string>
+    <string name="lock_settings">门锁设置</string>
+    <string name="intelligent_lock">智能锁芯</string>
+    <string name="anti_prizing_alarm">防撬报警</string>
+    <string name="combination_lock">组合开锁</string>
+    <string name="normally_open">常开功能</string>
+    <string name="rolled_back_time">回锁时间</string>
+    <string name="version_info">版本信息</string>
+    <string name="self_check">自检修复</string>
+    <string name="ota_update">OTA升级</string>
+    <string name="turn_off_voice">关闭语音提示</string>
+    <string name="set_up_time">设置时间</string>
+    <string name="restore_the_factory_settings">恢复出厂设置</string>
+    <string name="serial_number">序列号</string>
+    <string name="imei">IMEI</string>
+    <string name="bluetooth_mac_address">蓝牙MAC地址</string>
+    <string name="software_version">软件版本</string>
+    <string name="hardware_version">硬件版本</string>
 </resources>

@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.smart.lock.ui.BaseActivity;
 
-public abstract class BaseFragment extends Fragment {
+public abstract class  BaseFragment extends Fragment {
     public Activity mActivity;
 
     public abstract View initView();

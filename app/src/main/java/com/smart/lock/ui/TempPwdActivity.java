@@ -2,6 +2,8 @@ package com.smart.lock.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,7 +42,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class TempPwdActivity extends Activity implements View.OnClickListener {
 
-    private static String TGA = "TempPwdActivity";
+    private static String TAG = "TempPwdActivity";
 
     private DeviceInfo mDefaultDevice;
     private TempPwd mTempPwd;
@@ -51,9 +53,15 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private long mSecret;
     private static final List<String> mList = new ArrayList<>(
             Arrays.asList("01","02","03","04"));
+    private static  final List<String> tList = new ArrayList<>(
+            Arrays.asList("^3139313832353432353438303436393139323636353539323137313532353638" ,
+                    "^3034343633373830373835383338333330373836303335303430343936313733" ,
+                    "3132393439303838393533313433303237333034383230383930343730353130" ,
+                    "3534353237373138393132313933373134393735313834363732373539383930")
+    );
     private int mCurTime;
 
-    private RecyclerView mTempPwdListView;
+    private RecyclerView mTempPwdListViewRv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +72,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     }
 
     protected void initView() {
-        mTempPwdListView = findViewById(R.id.temp_pwd_list_view);
+        mTempPwdListViewRv = findViewById(R.id.temp_pwd_list_view);
     }
 
     private void initData(){
@@ -73,9 +81,9 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         mMac = mDefaultDevice.getBleMac().replace(":","");
 
         mTempPwdAdapter = new TempPwdAdapter(this);
-        mTempPwdListView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
-        mTempPwdListView.setItemAnimator(new DefaultItemAnimator());
-        mTempPwdListView.setAdapter(mTempPwdAdapter);
+        mTempPwdListViewRv.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        mTempPwdListViewRv.setItemAnimator(new DefaultItemAnimator());
+        mTempPwdListViewRv.setAdapter(mTempPwdAdapter);
     }
 
     @Override
@@ -109,19 +117,21 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                         mList.get(new Random().nextInt(4))+  //随机序列
                         "0000000000000000000000000000000000"));     //17字节补码
 
-        LogUtil.d(TGA,"mCurTime="+mCurTime+'\''+System.currentTimeMillis());
-        LogUtil.d(TGA,"NodeId="+mNodeId+'\\' +
+        LogUtil.d(TAG,"mCurTime="+mCurTime+'\''+System.currentTimeMillis());
+        LogUtil.d(TAG,"NodeId="+mNodeId+'\\' +
                 "                        mMac="+mMac);
-        LogUtil.d(TGA,"CurrentTimeHEX="+intToHex(mCurTime));
-        LogUtil.d(TGA, "Key="+byteArrayToHexString(lKey));
+        LogUtil.d(TAG,"CurrentTimeHEX="+intToHex(mCurTime));
+        LogUtil.d(TAG, "Key="+byteArrayToHexString(lKey));
 
         if(lKey.length == 32){
-            mSecret= StringUtil.getCRC32(AES256Encode(intToHex(mCurTime)+"000000000000000000000000",lKey));
+            mSecret= StringUtil.getCRC32(AES256Encode(
+                    intToHex(mCurTime)+"000000000000000000000000",
+                    StringUtil.hexStringToBytes(tList.get(new Random().nextInt(4)))));
             showPwdDialog(String.valueOf(mSecret));
-            LogUtil.d(TGA,"mSecret="+mSecret);
+            LogUtil.d(TAG,"mSecret="+mSecret);
             return true;
         }else {
-            LogUtil.d(TGA,"mKey="+StringUtil.byteArrayToHexStr(lKey)+"   "+lKey.length);
+            LogUtil.d(TAG,"mKey="+StringUtil.bytesToHexString(lKey)+"   "+lKey.length);
             return false;
         }
 
@@ -132,6 +142,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      */
     private void saveTempPwd(){
         TempPwd lTempPwd= new TempPwd();
+        lTempPwd.setDeviceNodeId(mNodeId);
         lTempPwd.setPwdCreateTime(System.currentTimeMillis()/1000);
         lTempPwd.setTempPwdUser(getResources().getString(R.string.temp_pwd_username));
         lTempPwd.setTempPwd(String.valueOf(mSecret));
@@ -149,7 +160,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      **/
     public  byte[] toByteArray(String hexString) {
         if (hexString.isEmpty())
-            LogUtil.d(TGA,getResources().getString(R.string.str_is_empty));
+            LogUtil.d(TAG,getResources().getString(R.string.str_is_empty));
         hexString = hexString.toLowerCase();
         final byte[] byteArray = new byte[hexString.length() / 2];
         int k = 0;
@@ -236,21 +247,21 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     public class TempPwdAdapter extends RecyclerView.Adapter<TempPwdAdapter.MyViewHolder> {
 
         private Context mContext;
-        public ArrayList<TempPwd> mTempPwdList;
-        public int positionDelete;
+        private ArrayList<TempPwd> mTempPwdList;
 
-        public TempPwdAdapter(Context context) {
+        private TempPwdAdapter(Context context) {
             mContext = context;
-            mTempPwdList = TempPwdDao.getInstance(TempPwdActivity.this).queryAll();
+            mTempPwdList = TempPwdDao.getInstance(TempPwdActivity.this).queryAllByDevNodeId(mNodeId);
         }
 
-        public void addItem(TempPwd tempPwd) {
+        private void addItem(TempPwd tempPwd) {
             mTempPwdList.add(0,tempPwd);
         }
         private void deleteItem(int positionDelete){
             mTempPwdList.remove(positionDelete);
         }
 
+        @NonNull
         @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_temp_pwd,
@@ -263,7 +274,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(@NonNull  MyViewHolder viewHolder, final int position) {
             final TempPwd tempPwdInfo = mTempPwdList.get(position);
             long failureTime;
             if (tempPwdInfo != null) {

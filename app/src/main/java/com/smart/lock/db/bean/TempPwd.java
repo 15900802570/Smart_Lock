@@ -11,6 +11,9 @@ public class TempPwd implements Serializable {
     @DatabaseField(generatedId = true, columnName = "_id")
     private int id;
 
+    @DatabaseField(columnName = "device_nodeId")
+    private String deviceNodeId;
+
     @DatabaseField(columnName = "temp_pwd_user",defaultValue = "User")
     private String tempPwdUser;
 
@@ -52,6 +55,14 @@ public class TempPwd implements Serializable {
         this.pwdCreateTime = pwdCreateTime;
     }
 
+    public String getDeviceNodeId() {
+        return deviceNodeId;
+    }
+
+    public void setDeviceNodeId(String deviceNodeId) {
+        this.deviceNodeId = deviceNodeId;
+    }
+    
     @Override
     public String toString(){
         return "TempPwd{"+

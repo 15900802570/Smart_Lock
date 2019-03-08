@@ -14,6 +14,9 @@ package com.smart.lock.utils;
 import android.text.Editable;
 import android.util.Log;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.zip.CRC32;
 

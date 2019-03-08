@@ -83,4 +83,27 @@
     <string name="confirm">Confirm</string>
     <string name="share">Share</string>
     <string name="temp_password">*********</string>
+    <string name="device_management">Device Management</string>
+    <string name="btn_add_new_lock">ADD NEW LOCK</string>
+    <string name="number">Number</string>
+    <string name="set_default">Set Default</string>
+    <string name="unbind">Unbind</string>
+    <string name="lock_settings">Lock Settings</string>
+    <string name="intelligent_lock">Itelligent Lock</string>
+    <string name="anti_prizing_alarm">Anti-prizing Alarm</string>
+    <string name="combination_lock">Combination Lock</string>
+    <string name="normally_open">Normally Open</string>
+    <string name="rolled_back_time">Rolled Back Time</string>
+    <string name="version_info">Version</string>
+    <string name="self_check">Self-Check</string>
+    <string name="ota_update">OTA</string>
+    <string name="turn_off_voice">Turn OFF Voice Prompts</string>
+    <string name="set_up_time">Set-up Time</string>
+    <string name="restore_the_factory_settings">Restore the factory settings</string>
+    <string name="title_activity_version_info">VersionInfoActivity</string>
+    <string name="serial_number">Serial Number</string>
+    <string name="imei">IMEI</string>
+    <string name="bluetooth_mac_address">BT MAC AD</string>
+    <string name="software_version">Software Version</string>
+    <string name="hardware_version">Hardware Version</string>
 </resources>

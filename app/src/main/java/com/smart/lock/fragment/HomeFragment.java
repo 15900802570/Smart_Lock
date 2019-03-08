@@ -35,6 +35,7 @@ import com.smart.lock.ui.CardManagerActivity;
 import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.FingerPrintManagerActivity;
 import com.smart.lock.ui.LockDetectingActivity;
+import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.PwdManagerActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.utils.ConstantUtil;
@@ -358,7 +359,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     private static IntentFilter intentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
+        intentFilter.addAction(BleMsg. STR_RSP_SECURE_CONNECTION);
         intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
@@ -402,6 +403,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 setSk();
                 BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
                 break;
+            case R.id.bt_setting:
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                startIntent(LockSettingActivity.class,bundle);
+                LogUtil.d(TAG,"设置信息");
             default:
                 break;
         }
