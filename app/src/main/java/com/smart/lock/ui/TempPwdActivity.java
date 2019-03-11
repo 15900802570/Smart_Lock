@@ -52,13 +52,8 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private String mMac;
     private long mSecret;
     private static final List<String> mList = new ArrayList<>(
-            Arrays.asList("01","02","03","04"));
-    private static  final List<String> tList = new ArrayList<>(
-            Arrays.asList("^3139313832353432353438303436393139323636353539323137313532353638" ,
-                    "^3034343633373830373835383338333330373836303335303430343936313733" ,
-                    "3132393439303838393533313433303237333034383230383930343730353130" ,
-                    "3534353237373138393132313933373134393735313834363732373539383930")
-    );
+            Arrays.asList("01", "02", "03", "04"));
+    private List<String> mSecretList = new ArrayList<>();
     private int mCurTime;
 
     private RecyclerView mTempPwdListViewRv;
@@ -75,13 +70,19 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         mTempPwdListViewRv = findViewById(R.id.temp_pwd_list_view);
     }
 
-    private void initData(){
-        mDefaultDevice = (DeviceInfo)getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
-        mNodeId=mDefaultDevice.getDeviceNodeId();
-        mMac = mDefaultDevice.getBleMac().replace(":","");
+    private void initData() {
+        mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+        mNodeId = mDefaultDevice.getDeviceNodeId();
+        mMac = mDefaultDevice.getBleMac().replace(":", "");
+        String tempSecret = mDefaultDevice.getTempSecret();
+        mSecretList.add(tempSecret.substring(0, 64));
+        mSecretList.add(tempSecret.substring(64, 128));
+        mSecretList.add(tempSecret.substring(128, 192));
+        mSecretList.add(tempSecret.substring(192, 256));
+        LogUtil.d(TAG,"mSecretList = " + mSecretList.toString());
 
         mTempPwdAdapter = new TempPwdAdapter(this);
-        mTempPwdListViewRv.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
+        mTempPwdListViewRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mTempPwdListViewRv.setItemAnimator(new DefaultItemAnimator());
         mTempPwdListViewRv.setAdapter(mTempPwdAdapter);
     }
@@ -93,8 +94,8 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                 finish();
                 break;
             case R.id.btn_create_temp_pwd:
-                if(createTempPwd()){
-                 saveTempPwd();
+                if (createTempPwd()) {
+                    saveTempPwd();
                 }
 
                 break;
@@ -108,31 +109,31 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      *
      * @return bool 是否创建成功
      */
-    private boolean createTempPwd(){
+    private boolean createTempPwd() {
         byte[] lKey;
-        mCurTime = (int)Math.ceil(System.currentTimeMillis()/1800000.0)*1800;
+        mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
         byte[] mNodeIdBytes = StringUtil.hexStringToBytes(mNodeId);
         StringUtil.exchange(mNodeIdBytes);
         lKey = StringUtil.byteMerger(mNodeIdBytes,
-                StringUtil.hexStringToBytes( mMac+
-                        mList.get(new Random().nextInt(4))+  //随机序列
+                StringUtil.hexStringToBytes(mMac +
+                        mList.get(new Random().nextInt(4)) +  //随机序列
                         "0000000000000000000000000000000000"));     //17字节补码
 
-        LogUtil.d(TAG,"mCurTime="+mCurTime+'\''+System.currentTimeMillis());
-        LogUtil.d(TAG,"NodeId="+mNodeId+'\\' +
-                "                        mMac="+mMac);
-        LogUtil.d(TAG,"CurrentTimeHEX="+intToHex(mCurTime));
-        LogUtil.d(TAG, "Key="+byteArrayToHexString(lKey));
+        LogUtil.d(TAG, "mCurTime=" + mCurTime + '\'' + System.currentTimeMillis());
+        LogUtil.d(TAG, "NodeId=" + mNodeId + '\\' +
+                "                        mMac=" + mMac);
+        LogUtil.d(TAG, "CurrentTimeHEX=" + intToHex(mCurTime));
+        LogUtil.d(TAG, "Key=" + byteArrayToHexString(lKey));
 
-        if(lKey.length == 32){
-            mSecret= StringUtil.getCRC32(AES256Encode(
-                    intToHex(mCurTime)+"000000000000000000000000",
-                    StringUtil.hexStringToBytes(tList.get(new Random().nextInt(4)))));
+        if (lKey.length == 32) {
+            mSecret = StringUtil.getCRC32(AES256Encode(
+                    intToHex(mCurTime) + "000000000000000000000000",
+                    StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
             showPwdDialog(String.valueOf(mSecret));
-            LogUtil.d(TAG,"mSecret="+mSecret);
+            LogUtil.d(TAG, "mSecret=" + mSecret);
             return true;
-        }else {
-            LogUtil.d(TAG,"mKey="+StringUtil.bytesToHexString(lKey)+"   "+lKey.length);
+        } else {
+            LogUtil.d(TAG, "mKey=" + StringUtil.bytesToHexString(lKey) + "   " + lKey.length);
             return false;
         }
 
@@ -141,10 +142,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     /**
      * 存储临时密码
      */
-    private void saveTempPwd(){
-        TempPwd lTempPwd= new TempPwd();
+    private void saveTempPwd() {
+        TempPwd lTempPwd = new TempPwd();
         lTempPwd.setDeviceNodeId(mNodeId);
-        lTempPwd.setPwdCreateTime(System.currentTimeMillis()/1000);
+        lTempPwd.setPwdCreateTime(System.currentTimeMillis() / 1000);
         lTempPwd.setTempPwdUser(getResources().getString(R.string.temp_pwd_username));
         lTempPwd.setTempPwd(String.valueOf(mSecret));
         TempPwdDao.getInstance(this).insert(lTempPwd);
@@ -155,13 +156,12 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     /**
      * 16进制的字符串表示转成字节数组
      *
-     * @param hexString
-     *            16进制格式的字符串
+     * @param hexString 16进制格式的字符串
      * @return 转换后的字节数组
      **/
-    public  byte[] toByteArray(String hexString) {
+    public byte[] toByteArray(String hexString) {
         if (hexString.isEmpty())
-            LogUtil.d(TAG,getResources().getString(R.string.str_is_empty));
+            LogUtil.d(TAG, getResources().getString(R.string.str_is_empty));
         hexString = hexString.toLowerCase();
         final byte[] byteArray = new byte[hexString.length() / 2];
         int k = 0;
@@ -176,31 +176,33 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
     /**
      * 字节数组转十六进制
+     *
      * @param data 输入字节串
      * @return String 16进制对应的字符串
      */
     private String byteArrayToHexString(byte[] data) {
         StringBuilder sBuilder = new StringBuilder();
-        for(int i = 0;i < data.length;i++) {
-            String str1 = Integer.toHexString(data[i]&0xFF);
-                sBuilder.append(str1);
-            }
+        for (int i = 0; i < data.length; i++) {
+            String str1 = Integer.toHexString(data[i] & 0xFF);
+            sBuilder.append(str1);
+        }
         return sBuilder.toString();
     }
 
     /**
-     *  int 类型转化为hex
+     * int 类型转化为hex
+     *
      * @param n 整数
      * @return String
      */
     private String intToHex(int n) {
         StringBuffer s = new StringBuffer();
-        String a="";
-        char []b = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-        while(n != 0){
-            s = s.append(b[n%16]);
-            n = n/16;
-            if(s.length()%2 ==0){
+        String a = "";
+        char[] b = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        while (n != 0) {
+            s = s.append(b[n % 16]);
+            n = n / 16;
+            if (s.length() % 2 == 0) {
                 s.reverse();
                 a += s.toString();
                 s = new StringBuffer();
@@ -211,26 +213,27 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
     /**
      * AES256加密
+     *
      * @param stringToEncode 输入加密信息
-     * @param secretKey byte[] 加密Secret
+     * @param secretKey      byte[] 加密Secret
      * @return
      */
-    private byte[] AES256Encode(String stringToEncode, byte[] secretKey){
-        try{
-            SecretKeySpec keySpec = new SecretKeySpec(secretKey,"AES256");
+    private byte[] AES256Encode(String stringToEncode, byte[] secretKey) {
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(secretKey, "AES256");
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE,keySpec);
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
             byte[] result = cipher.doFinal(toByteArray(stringToEncode));
             return result;
-        }catch (NoSuchPaddingException e){
+        } catch (NoSuchPaddingException e) {
             e.printStackTrace();
-        }catch (NoSuchAlgorithmException e){
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        }catch (InvalidKeyException e){
+        } catch (InvalidKeyException e) {
             e.printStackTrace();
-        }catch (IllegalBlockSizeException e){
+        } catch (IllegalBlockSizeException e) {
             e.printStackTrace();
-        }catch (BadPaddingException e){
+        } catch (BadPaddingException e) {
             e.printStackTrace();
         }
         return null;
@@ -238,10 +241,11 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
     /**
      * Dialog显示临时密码
+     *
      * @param string 临时密码
      */
-    private void showPwdDialog(String string){
-        DialogUtils.createTempPwdDialog(this,"*"+string);
+    private void showPwdDialog(String string) {
+        DialogUtils.createTempPwdDialog(this, "*" + string);
     }
 
 
@@ -256,9 +260,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         }
 
         private void addItem(TempPwd tempPwd) {
-            mTempPwdList.add(0,tempPwd);
+            mTempPwdList.add(0, tempPwd);
         }
-        private void deleteItem(int positionDelete){
+
+        private void deleteItem(int positionDelete) {
             mTempPwdList.remove(positionDelete);
         }
 
@@ -275,21 +280,21 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull  MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(@NonNull MyViewHolder viewHolder, final int position) {
             final TempPwd tempPwdInfo = mTempPwdList.get(position);
             long failureTime;
             if (tempPwdInfo != null) {
-                failureTime =DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime());
+                failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime());
                 viewHolder.mTempPwdTv.setText(getResources().getString(R.string.temp_password));
                 viewHolder.mTempPwdFailureTimeTv.setText(DateTimeUtil.timeStamp2Date(
                         String.valueOf(failureTime),
                         "yyyy-MM-dd HH:mm"));
-                if(System.currentTimeMillis()/1000 - failureTime >= 0){
+                if (System.currentTimeMillis() / 1000 - failureTime >= 0) {
                     viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_invalid));
                     viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.red));
                     viewHolder.mDelete.setVisibility(View.VISIBLE);
                     viewHolder.mShare.setVisibility(View.GONE);
-                }else {
+                } else {
                     viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_valid));
                     viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.light_black));
                     viewHolder.mDelete.setVisibility(View.GONE);
@@ -314,7 +319,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         mTempPwdAdapter.notifyDataSetChanged();
-                        Toast.makeText(TempPwdActivity.this,"还没有实现",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TempPwdActivity.this, "还没有实现", Toast.LENGTH_SHORT).show();
                     }
                 });
 
