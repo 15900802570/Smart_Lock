@@ -7,14 +7,11 @@ import android.util.Log;
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
-import com.smart.lock.db.impl.DeviceUserImpl;
-import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DeviceUserDao implements DeviceUserImpl {
+public class DeviceUserDao {
     private final String TAG = DeviceUserDao.class.getSimpleName();
 
     private DtDatabaseHelper mHelper;
@@ -44,7 +41,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         return instance;
     }
 
-    @Override
+
     public void insert(DeviceUser DeviceUser) {
 
         try {
@@ -54,7 +51,6 @@ public class DeviceUserDao implements DeviceUserImpl {
         }
     }
 
-    @Override
     public synchronized void insert(ArrayList<DeviceUser> beanArrayList) {
         try {
             dao.create(beanArrayList);
@@ -63,7 +59,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         }
     }
 
-    @Override
+
     public void updateDeviceUser(DeviceUser info) {
         try {
             dao.update(info);
@@ -73,7 +69,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         }
     }
 
-    @Override
+
     public void deleteByKey(String key, String values) {
         ArrayList<DeviceUser> list = null;
         try {
@@ -88,7 +84,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         }
     }
 
-    @Override
+
     public synchronized void delete(DeviceUser info) {
         try {
             dao.delete(info);
@@ -101,7 +97,7 @@ public class DeviceUserDao implements DeviceUserImpl {
     /**
      * @return -1:删除数据异常 0：无数据
      */
-    @Override
+
     public int deleteAll() {
         int number = -1;
         try {
@@ -119,7 +115,7 @@ public class DeviceUserDao implements DeviceUserImpl {
     /**
      * @return 表中数据的个数
      */
-    @Override
+
     public long queryCount() {
         long number = 0;
         try {
@@ -133,7 +129,7 @@ public class DeviceUserDao implements DeviceUserImpl {
     /**
      * @param id 这个id 就是表中，每次插入数据，自己递增的id 字段
      */
-    @Override
+
     public ArrayList<DeviceUser> queryId(int id) {
         ArrayList<DeviceUser> list = null;
 
@@ -150,7 +146,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         return list;
     }
 
-    @Override
+
     public ArrayList<DeviceUser> queryAll() {
         ArrayList<DeviceUser> list = null;
         try {
@@ -166,7 +162,6 @@ public class DeviceUserDao implements DeviceUserImpl {
     }
 
 
-    @Override
     public ArrayList<DeviceUser> queryKey(String key, Object valus) {
         ArrayList<DeviceUser> list = null;
         try {
@@ -180,7 +175,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         return list;
     }
 
-    @Override
+
     public DeviceUser queryUser(Object nodeId, Object userId) {
         DeviceUser deviceUser = null;
         try {
@@ -194,7 +189,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         return deviceUser;
     }
 
-    @Override
+
     public ArrayList<DeviceUser> queryUsers(Object nodeId, Object permission) {
         ArrayList<DeviceUser> list = null;
         try {
@@ -208,7 +203,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         return list;
     }
 
-    @Override
+
     public ArrayList<DeviceUser> queryDeviceUsers(Object nodeId) {
         ArrayList<DeviceUser> list = null;
         try {
@@ -222,9 +217,9 @@ public class DeviceUserDao implements DeviceUserImpl {
         return list;
     }
 
-    @Override
-    public ArrayList<String> queryDeviceUserIds(Object nodeId) {
-        ArrayList<String> list = new ArrayList<>();
+
+    public ArrayList<Short> queryDeviceUserIds(Object nodeId) {
+        ArrayList<Short> list = new ArrayList<>();
         try {
             ArrayList<DeviceUser> users = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", true).where().eq("dev_node_id", nodeId).query();
             for (DeviceUser info : users) {
@@ -248,17 +243,16 @@ public class DeviceUserDao implements DeviceUserImpl {
     public int getUserStatus(String nodeId, int num) {
         int ret = 0;
         int index = 0;
-        ArrayList<String> userIds = queryDeviceUserIds(nodeId);
+        ArrayList<Short> userIds = queryDeviceUserIds(nodeId);
         if (userIds != null && !userIds.isEmpty()) {
 
-            for (String userId : userIds) {
-                int id = Integer.parseInt(userId);
-                if (id > 0 && id <= 5) { //管理员编号
-                    index = id - 1;
-                } else if (id > 100 && id <= 200) { //普通用户
-                    index = id - 91;
-                } else if (id > 200 && id <= 300) { //临时用户
-                    index = id - 196;
+            for (Short userId : userIds) {
+                if (userId > 0 && userId <= 5) { //管理员编号
+                    index = userId - 1;
+                } else if (userId > 100 && userId <= 200) { //普通用户
+                    index = userId - 91;
+                } else if (userId > 200 && userId <= 300) { //临时用户
+                    index = userId - 196;
                 }
 
                 if ((num - 1) * 32 <= index && index < num * 32) {
@@ -278,7 +272,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         ArrayList<DeviceUser> users = queryDeviceUsers(nodeId);
         if (users != null && !users.isEmpty()) {
             for (DeviceUser user : users) {
-                int id = Integer.parseInt(user.getUserId());
+                short id = user.getUserId();
                 if (id > 0 && id <= 5) { //管理员编号
                     index = id - 1;
                 } else if (id > 100 && id <= 200) { //普通用户
@@ -300,8 +294,8 @@ public class DeviceUserDao implements DeviceUserImpl {
      *
      * @param status 秘钥状态字
      */
-    public ArrayList<String> checkUserStatus(int status, String nodeId, int num) {
-        ArrayList<String> diffIds = new ArrayList<>();
+    public ArrayList<Short> checkUserStatus(int status, String nodeId, int num) {
+        ArrayList<Short> diffIds = new ArrayList<>();
         int ret = 0;
         int tmp = 0;
         int userStatus = getUserStatus(nodeId, num);
@@ -317,11 +311,11 @@ public class DeviceUserDao implements DeviceUserImpl {
                     if (tmp != 0) {
                         Log.d(TAG, "tmp = " + tmp);
                         if (i < 5) { //管理员
-                            diffIds.add(String.valueOf(i + 1));
+                            diffIds.add((short) (i + 1));
                         } else if (i < 10) {
-                            diffIds.add(String.valueOf(i + 196));
+                            diffIds.add((short) (i + 196));
                         } else {
-                            diffIds.add(String.valueOf(i + 91));
+                            diffIds.add((short) (i + 91));
                         }
                     }
 
@@ -332,7 +326,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         return diffIds;
     }
 
-    @Override
+
     public DeviceUser queryDefaultUsers(Object nodeId) {
         DeviceUser deviceUser = null;
         try {

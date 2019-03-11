@@ -134,7 +134,7 @@ public abstract class BaseFragment extends Fragment {
      *
      * @param userId
      */
-    protected synchronized DeviceUser createDeviceUser(String userId, String path, int permission) {
+    protected synchronized DeviceUser createDeviceUser(short userId, String path, int permission) {
         DeviceUser user = new DeviceUser();
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
@@ -229,7 +229,7 @@ public abstract class BaseFragment extends Fragment {
 
     protected String createQr(DeviceUser user) {
         byte[] nodeId = StringUtil.hexStringToBytes(user.getDevNodeId());
-        byte[] userId = StringUtil.hexStringToBytes(StringUtil.stringToAsciiString(user.getUserId(), 4));
+        byte[] userId = StringUtil.hexStringToBytes(StringUtil.stringToAsciiString(String.valueOf(user.getUserId()), 4));
         DeviceInfo info = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", user.getDevNodeId());
         byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac());
 

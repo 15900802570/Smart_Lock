@@ -7,12 +7,11 @@ import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.helper.DtDatabaseHelper;
-import com.smart.lock.db.impl.DeviceLogImpl;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class DeviceLogDao implements DeviceLogImpl {
+public class DeviceLogDao {
 
     private DtDatabaseHelper mHelper;
     private Dao<DeviceLog, Integer> dao;
@@ -41,7 +40,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         return instance;
     }
 
-    @Override
     public void insert(DeviceLog DeviceLog) {
 
         try {
@@ -51,7 +49,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         }
     }
 
-    @Override
     public void insert(ArrayList<DeviceLog> beanArrayList) {
         try {
             dao.create(beanArrayList);
@@ -60,7 +57,7 @@ public class DeviceLogDao implements DeviceLogImpl {
         }
     }
 
-    @Override
+    
     public void updateDeviceLog(DeviceLog info) {
         try {
             dao.update(info);
@@ -70,7 +67,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         }
     }
 
-    @Override
     public void deleteByKey(String key, String values) {
         ArrayList<DeviceLog> list = null;
         try {
@@ -85,7 +81,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         }
     }
 
-    @Override
     public void delete(DeviceLog info) {
         try {
             dao.delete(info);
@@ -98,7 +93,6 @@ public class DeviceLogDao implements DeviceLogImpl {
     /**
      * @return -1:删除数据异常 0：无数据
      */
-    @Override
     public int deleteAll() {
         int number = -1;
         try {
@@ -116,7 +110,6 @@ public class DeviceLogDao implements DeviceLogImpl {
     /**
      * @return 表中数据的个数
      */
-    @Override
     public long queryCount() {
         long number = 0;
         try {
@@ -130,7 +123,6 @@ public class DeviceLogDao implements DeviceLogImpl {
     /**
      * @param id 这个id 就是表中，每次插入数据，自己递增的id 字段
      */
-    @Override
     public ArrayList<DeviceLog> queryId(int id) {
         ArrayList<DeviceLog> list = null;
 
@@ -147,7 +139,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         return list;
     }
 
-    @Override
     public ArrayList<DeviceLog> queryByConnectType(String connectType) {
         ArrayList<DeviceLog> list = null;
 
@@ -162,7 +153,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         return list;
     }
 
-    @Override
     public ArrayList<DeviceLog> queryAll() {
         ArrayList<DeviceLog> list = null;
         try {
@@ -178,7 +168,6 @@ public class DeviceLogDao implements DeviceLogImpl {
     }
 
 
-    @Override
     public ArrayList<DeviceLog> queryKey(String key, Object valus) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
         try {
@@ -192,7 +181,6 @@ public class DeviceLogDao implements DeviceLogImpl {
         return list;
     }
 
-    @Override
     public ArrayList<DeviceLog> queryUserLog(Object nodeId, Object userId) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
         try {
@@ -206,11 +194,10 @@ public class DeviceLogDao implements DeviceLogImpl {
         return list;
     }
 
-    @Override
     public ArrayList<DeviceLog> queryDeviceLog(Object nodeId, Object userId, Object type) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
         try {
-            list = (ArrayList<DeviceLog>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("device_user_id", userId).
+            list = (ArrayList<DeviceLog>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId).
                     and().eq("key_type", type).query();
             if (list != null) {
                 return list;

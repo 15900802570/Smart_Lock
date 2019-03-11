@@ -17,8 +17,8 @@ public class DeviceKey implements Serializable {
     @DatabaseField(columnName = "key_type")
     private String keyType;
 
-    @DatabaseField(columnName = "device_user_id")
-    private String deviceUserId;
+    @DatabaseField(columnName = "user_id")
+    private short userId;
 
     @DatabaseField(columnName = "lock_id")
     private String lockId;
@@ -64,12 +64,12 @@ public class DeviceKey implements Serializable {
         this.keyType = keyType;
     }
 
-    public String getDeviceUserId() {
-        return deviceUserId;
+    public short getUserId() {
+        return userId;
     }
 
-    public void setDeviceUserId(String deviceUserId) {
-        this.deviceUserId = deviceUserId;
+    public void setUserId(short userId) {
+        this.userId = userId;
     }
 
     public String getLockId() {
@@ -102,7 +102,7 @@ public class DeviceKey implements Serializable {
                 "id=" + id +
                 ", deviceNodeId='" + deviceNodeId + '\'' +
                 ", keyType='" + keyType + '\'' +
-                ", deviceUserId='" + deviceUserId + '\'' +
+                ", userId=" + userId +
                 ", lockId='" + lockId + '\'' +
                 ", keyName='" + keyName + '\'' +
                 ", pwd='" + pwd + '\'' +

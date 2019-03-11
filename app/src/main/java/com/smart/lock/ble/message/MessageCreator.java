@@ -249,6 +249,25 @@ public class MessageCreator {
     }
 
     /**
+     * 获取消息Message.TYPE_BLE_RECEV_CMD_16
+     *
+     * @param type 消息类型
+     * @param msg  信息
+     * @return
+     */
+    public static Message getCmd25Message(byte type, byte[] msg) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
+        Bundle mBundle = mMessage.getData();
+
+        if (msg != null && msg.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_USER_MSG, msg);
+        }
+        return mMessage;
+    }
+
+    /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_18
      *
      * @param type 消息类型

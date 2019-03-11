@@ -21,7 +21,7 @@ public class DeviceLog implements Serializable{
     private String nodeId;
 
     @DatabaseField(columnName = "user_id")
-    private String userId;
+    private short userId;
 
     //操作秘钥的备注名
     @DatabaseField(columnName = "key_name")
@@ -59,11 +59,11 @@ public class DeviceLog implements Serializable{
         this.logTime = logTime;
     }
 
-    public String getUserId() {
+    public short getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(short userId) {
         this.userId = userId;
     }
 

@@ -81,7 +81,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mSyncTv.setVisibility(View.GONE);
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getDeviceUser());
+        mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getUserId());
 
         mBleManagerHelper = BleManagerHelper.getInstance(this, mNodeId, false);
 
@@ -93,9 +93,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.toString());
 
         if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-            mBleManagerHelper.getBleCardService().sendCmd31((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
+            mBleManagerHelper.getBleCardService().sendCmd31((byte) 1, mDefaultDevice.getUserId());
         } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-            mBleManagerHelper.getBleCardService().sendCmd31((byte) 0, Short.parseShort(mDefaultDevice.getDeviceUser()));
+            mBleManagerHelper.getBleCardService().sendCmd31((byte) 0, mDefaultDevice.getUserId());
         }
 
         mLogs = new ArrayList<>();
@@ -188,7 +188,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
 
                 DeviceLog devLog = new DeviceLog();
-                devLog.setUserId(StringUtil.bytesToHexString(userId));
+                devLog.setUserId(Short.parseShort(StringUtil.bytesToHexString(userId), 16));
                 devLog.setLogId(Integer.parseInt(StringUtil.bytesToHexString(logId), 16));
                 devLog.setLogTime(Long.parseLong(StringUtil.bytesToHexString(time), 16));
                 devLog.setNodeId(StringUtil.bytesToHexString(nodeId));
@@ -236,7 +236,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                         mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
                     } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getDeviceUser());
+                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getUserId());
                     }
                     mEventAdapter.setDataSource(mLogs);
                     mEventAdapter.notifyDataSetChanged();
@@ -292,7 +292,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
                             int logId = devLog.getLogId();
                             LogUtil.d(TAG, "logId = " + logId);
-                            mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, Short.parseShort(mDefaultDevice.getDeviceUser()), logId, devLog);
+                            mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog);
                         }
                         closeDialog(10);
                     } else {
@@ -309,7 +309,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                     mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
                 } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                    mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getDeviceUser());
+                    mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getUserId());
                 }
 
                 mEventAdapter.setDataSource(mLogs);
@@ -389,7 +389,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             final DeviceLog logInfo = mLogList.get(position);
             DeviceUser user = DeviceUserDao.getInstance(EventsActivity.this).queryUser(logInfo.getNodeId(), logInfo.getUserId());
-
 
             if (logInfo != null) {
                 if (logInfo.getLogType().equals("PWD")) {

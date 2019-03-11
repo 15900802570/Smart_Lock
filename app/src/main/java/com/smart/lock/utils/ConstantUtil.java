@@ -114,7 +114,7 @@ public class ConstantUtil {
     public static final int USER_UNENABLE = 0x00;
 
     /**
-     * 用户状态 -未启用 -1
+     * 用户状态 -启用 -1
      */
     public static final int USER_ENABLE = 0x01;
 

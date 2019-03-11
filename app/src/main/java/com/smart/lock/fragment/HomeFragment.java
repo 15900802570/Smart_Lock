@@ -29,8 +29,10 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.AddDeviceActivity;
 import com.smart.lock.ui.CardManagerActivity;
@@ -45,6 +47,7 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MyGridView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -135,7 +138,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 public void run() {
                     if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
                         setSk();
-                        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
+                        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultUser.getUserId());
                     } else
                         BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().disconnect();
                 }
@@ -194,10 +197,9 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
         mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
-
         if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
             setSk();
-            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
+            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
 
@@ -226,7 +228,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     refreshView(BATTER_UNKNOW);
                 }
                 if (mDefaultDevice != null) {
-                    mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getDeviceUser());
+                    mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mMyGridView.setAdapter(mLockAdapter);
@@ -303,22 +305,20 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    private void checkUserId(ArrayList<String> userIds) {
+    private void checkUserId(ArrayList<Short> userIds) {
         ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
 
         if (!userIds.isEmpty()) {
             for (DeviceUser user : users) {
-                Log.d(TAG, "getUserId 1= " + user.getUserId());
                 if (userIds.contains(user.getUserId())) {
                     DeviceUserDao.getInstance(mActivity).delete(user);
                     userIds.remove(user.getUserId());
                 }
             }
-            for (String userId : userIds) {
-                int i = Integer.parseInt(userId);
-                if (i > 0 && i <= 100) { //管理员
+            for (Short userId : userIds) {
+                if (userId > 0 && userId <= 100) { //管理员
                     createDeviceUser(userId, null, ConstantUtil.DEVICE_MASTER);
-                } else if (i > 200 && i <= 300) {
+                } else if (userId > 200 && userId <= 300) {
                     createDeviceUser(userId, null, ConstantUtil.DEVICE_TEMP);
                 } else {
                     createDeviceUser(userId, null, ConstantUtil.DEVICE_MEMBER);
@@ -373,6 +373,10 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     DeviceUserDao.getInstance(mActivity).checkUserState(mDefaultDevice.getDeviceNodeId(), userState);
 
                     mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
+                    mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), mNodeId, false);
+                    if (mBleManagerHelper.getServiceConnection()) {
+                        mBleManagerHelper.getBleCardService().sendCmd25(mDefaultDevice.getUserId());
+                    }
                 }
 
                 mIsConnected = true;
@@ -391,12 +395,34 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
             }
 
+            if (action.equals(BleMsg.STR_RSP_MSG26_USERINFO)) {
+                short userId = (short) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
+                if (userId == mDefaultDevice.getUserId()) {
+                    byte[] userInfo = intent.getByteArrayExtra(BleMsg.KEY_USER_MSG);
+                    mDefaultUser.setUserStatus(userInfo[0]);
+                    DeviceUserDao.getInstance(mHomeView.getContext()).updateDeviceUser(mDefaultUser);
+
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[1], "PWD", "1");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[2], "NFC", "1");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[3], "FP", "1");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[4], "FP", "2");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[5], "FP", "3");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[6], "FP", "4");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[7], "FP", "5");
+
+                    mDefaultDevice.setMixUnlock(userInfo[8]);
+                    DeviceInfoDao.getInstance(mHomeView.getContext()).updateDeviceInfo(mDefaultDevice);
+                }
+
+
+            }
+
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                 mIsConnected = false;
                 refreshView(BIND_DEVICE);
                 if (mDefaultDevice != null) {
                     setSk();
-                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
+                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 } else refreshView(UNBIND_DEVICE);
             }
 
@@ -412,12 +438,14 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         }
     };
 
+
     protected static IntentFilter intentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
         intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG26_USERINFO);
         return intentFilter;
     }
 
@@ -457,7 +485,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case R.id.tv_connect:
                 mBleConnectTv.setEnabled(false);
                 setSk();
-                BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
+                BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 break;
             default:
                 break;

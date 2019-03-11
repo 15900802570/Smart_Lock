@@ -85,6 +85,11 @@ public class BleMsg {
     public static final String STR_RSP_MSG18_TIMEOUT = "com.datang.uart.rsp.MSG18_TIMEOUT";
 
     /**
+     * 设备->APK，用户信息查询
+     */
+    public static final String STR_RSP_MSG26_USERINFO = "com.datang.uart.rsp.MSG26_USERINFO";
+
+    /**
      * 设备->APK，智能锁对APK或网关远程开锁的命令回应。
      */
     public static final String STR_RSP_MSG2E_ERRCODE = "com.datang.uart.rsp.MSG2E_ERRCODE";
@@ -138,6 +143,12 @@ public class BleMsg {
      * 锁体密钥编号
      */
     public static final String KEY_LOCK_ID = "lockId";
+
+
+    /**
+     * 用户信息
+     */
+    public static final String KEY_USER_MSG = "userMsg";
 
     /**
      * 智能锁本地密钥状态字

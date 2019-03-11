@@ -90,7 +90,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 } else if (errCode[3] == 0x10) {
                     showMessage(CardManagerActivity.this.getResources().getString(R.string.delete_nfc_success));
                     DeviceKeyDao.getInstance(CardManagerActivity.this).delete(mCardAdapter.mCardList.get(mCardAdapter.positionDelete));
-                    mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "NFC"));
+                    mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC"));
                     mCardAdapter.notifyDataSetChanged();
                 }
 
@@ -105,13 +105,13 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
-                deviceKey.setDeviceUserId(mDefaultDevice.getDeviceUser());
+                deviceKey.setUserId(mDefaultDevice.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 deviceKey.setKeyName("NFC" + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType("NFC");
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(CardManagerActivity.this).insert(deviceKey);
-                mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "NFC"));
+                mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC"));
                 mCardAdapter.notifyDataSetChanged();
             }
 
@@ -152,13 +152,13 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
 
                 break;
             case R.id.btn_add:
-                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "NFC").size();
+                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC").size();
 
                 if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
                     closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, Short.parseShort(mDefaultDevice.getDeviceUser()), (byte) 0, 0);
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mDefaultDevice.getUserId(), (byte) 0, 0);
                 } else {
                     showMessage(getResources().getString(R.string.add_nfc_tips));
                 }
@@ -189,7 +189,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
 
         public CardManagerAdapter(Context context) {
             mContext = context;
-            mCardList = DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "NFC");
+            mCardList = DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC");
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {
@@ -219,7 +219,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                         mLoadDialog = DialogUtils.createLoadingDialog(CardManagerActivity.this, CardManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, Short.parseShort(cardInfo.getDeviceUserId()), Byte.parseByte(cardInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), 0);
                     }
                 });
 
@@ -230,7 +230,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                         mLoadDialog = DialogUtils.createLoadingDialog(CardManagerActivity.this, CardManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, Short.parseShort(cardInfo.getDeviceUserId()), Byte.parseByte(cardInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), 0);
                     }
                 });
 

@@ -217,7 +217,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setActivitedTime(Long.parseLong(time, 16));
                 mDetectingDevice.setBleMac(mBleMac);
                 mDetectingDevice.setConnectType(false);
-                mDetectingDevice.setDeviceUser(String.valueOf(Integer.parseInt(userId, 16)));
+                mDetectingDevice.setUserId(Short.parseShort(userId, 16));
                 mDetectingDevice.setDeviceNodeId(mNodeId);
                 mDetectingDevice.setNodeType(ConstantUtil.SMART_LOCK);
                 mDetectingDevice.setDeviceDate(System.currentTimeMillis() / 1000);
@@ -228,7 +228,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setDeviceSecret(randCode);
                 DeviceInfoDao.getInstance(LockDetectingActivity.this).insert(mDetectingDevice);
 
-                createDeviceUser(userId);
+                createDeviceUser(Short.parseShort(userId, 16));
 
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
@@ -265,15 +265,15 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      *
      * @param userId
      */
-    private void createDeviceUser(String userId) {
+    private void createDeviceUser(short userId) {
         DeviceUser user = new DeviceUser();
 
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
-        user.setUserId(String.valueOf(Integer.parseInt(userId, 16)));
+        user.setUserId(userId);
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
         user.setUserStatus(ConstantUtil.USER_ENABLE);
-        user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId, 16));
+        user.setUserName(getString(R.string.administrator) + userId);
         DeviceUserDao.getInstance(this).insert(user);
     }
 
