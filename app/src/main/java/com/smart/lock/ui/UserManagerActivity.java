@@ -180,7 +180,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 4, Short.parseShort(mDefaultDevice.getDeviceUser()));
+                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 4, mDefaultDevice.getUserId());
                 }
                 break;
             case R.id.del_all_fp:
@@ -188,7 +188,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 5, Short.parseShort(mDefaultDevice.getDeviceUser()));
+                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 5, mDefaultDevice.getUserId());
                 }
                 break;
             case R.id.del_all_card:
@@ -196,7 +196,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 6, Short.parseShort(mDefaultDevice.getDeviceUser()));
+                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 6, mDefaultDevice.getUserId());
                 }
                 break;
             case R.id.del_all_user:
@@ -231,7 +231,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 } else if (errCode[3] == 0x11) {
                     ArrayList<DeviceUser> users = DeviceUserDao.getInstance(UserManagerActivity.this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
                     for (DeviceUser user : users) {
-                        if (!user.getUserId().equals(mDefaultDevice.getDeviceUser())) {
+                        if (!(user.getUserId() == mDefaultDevice.getUserId())) {
                             DeviceUserDao.getInstance(UserManagerActivity.this).delete(user);
                         }
                     }

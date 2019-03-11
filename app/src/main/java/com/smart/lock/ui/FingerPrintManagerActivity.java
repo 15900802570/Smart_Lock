@@ -96,7 +96,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                     showMessage(FingerPrintManagerActivity.this.getResources().getString(R.string.delete_fp_success));
 
                     DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).delete(mFpAdapter.mFpList.get(mFpAdapter.positionDelete));
-                    mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "FP"));
+                    mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP"));
                     mFpAdapter.notifyDataSetChanged();
                 }
 
@@ -115,13 +115,13 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                 LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
-                deviceKey.setDeviceUserId(mDefaultDevice.getDeviceUser());
+                deviceKey.setUserId(mDefaultDevice.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 deviceKey.setKeyName(FingerPrintManagerActivity.this.getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType("FP");
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).insert(deviceKey);
-                mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "FP"));
+                mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP"));
                 mFpAdapter.notifyDataSetChanged();
             }
 
@@ -158,13 +158,13 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
 
                 break;
             case R.id.btn_add:
-                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "FP").size();
+                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP").size();
 
                 if (count >= 0 && count <= 5) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
                     closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()), (byte) 0, 0);
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, mDefaultDevice.getUserId(), (byte) 0, 0);
                 } else {
                     showMessage(getResources().getString(R.string.add_fp_tips));
                 }
@@ -195,7 +195,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
 
         public FpManagerAdapter(Context context) {
             mContext = context;
-            mFpList = DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "FP");
+            mFpList = DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP");
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {
@@ -226,7 +226,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                         mLoadDialog = DialogUtils.createLoadingDialog(FingerPrintManagerActivity.this, FingerPrintManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, Short.parseShort(fpInfo.getDeviceUserId()), Byte.parseByte(fpInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), 0);
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
@@ -236,7 +236,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                         mLoadDialog = DialogUtils.createLoadingDialog(FingerPrintManagerActivity.this, FingerPrintManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, Short.parseShort(fpInfo.getDeviceUserId()), Byte.parseByte(fpInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), 0);
                     }
                 });
 
@@ -299,7 +299,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
             showMessage(getResources().getString(R.string.plz_reconnect));
             finish();
         }
-        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "FP"));
+        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP"));
         mFpAdapter.notifyDataSetChanged();
     }
 

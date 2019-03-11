@@ -156,6 +156,16 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_21 = 0x21;
 
     /**
+     * 查询用户信息
+     */
+    public static final byte TYPE_BLE_SEND_CMD_25 = 0x25;
+
+    /**
+     * MSG 26是智能锁回复给APK的用户相关信息，其中密钥及临时用户有效时间段如果没有全部设置，则默认为0。
+     */
+    public static final byte TYPE_BLE_RECEV_CMD_26 = 0x26;
+
+    /**
      * 日志查询
      */
     public static final byte TYPE_BLE_SEND_CMD_31 = 0x31;

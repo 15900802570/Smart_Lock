@@ -16,7 +16,7 @@ public class DeviceUser implements Serializable {
     private String devNodeId;
 
     @DatabaseField(columnName = "user_id")
-    private String userId;
+    private short userId;
 
     @DatabaseField(columnName = "user_permission")
     private int userPermission;
@@ -57,11 +57,11 @@ public class DeviceUser implements Serializable {
         this.devNodeId = devNodeId;
     }
 
-    public String getUserId() {
+    public short getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(short userId) {
         this.userId = userId;
     }
 

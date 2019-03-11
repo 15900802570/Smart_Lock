@@ -85,7 +85,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                 if (errCode[3] == 0x0d) {
                     showMessage(PwdManagerActivity.this.getResources().getString(R.string.delete_pwd_success));
                     DeviceKeyDao.getInstance(PwdManagerActivity.this).delete(mPwdAdapter.mPwdList.get(mPwdAdapter.positionDelete));
-                    mPwdAdapter.setDataSource(DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "PWD"));
+                    mPwdAdapter.setDataSource(DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "PWD"));
                     mPwdAdapter.notifyDataSetChanged();
                 }
 
@@ -128,7 +128,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
 
                 break;
             case R.id.btn_add:
-                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "PWD").size();
+                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "PWD").size();
 
                 if (count >= 0 && count < 1) {
                     Bundle bundle = new Bundle();
@@ -164,7 +164,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
 
         public PwdManagerAdapter(Context context) {
             mContext = context;
-            mPwdList = DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "PWD");
+            mPwdList = DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "PWD");
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {
@@ -194,7 +194,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                         mLoadDialog = DialogUtils.createLoadingDialog(PwdManagerActivity.this, PwdManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, Short.parseShort(pwdInfo.getDeviceUserId()), Byte.parseByte(pwdInfo.getLockId()), Integer.parseInt(pwdInfo.getPwd()));
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), Integer.parseInt(pwdInfo.getPwd()));
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
@@ -268,7 +268,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
             showMessage(getResources().getString(R.string.plz_reconnect));
             finish();
         }
-        mPwdAdapter.setDataSource(DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getDeviceUser(), "PWD"));
+        mPwdAdapter.setDataSource(DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "PWD"));
         mPwdAdapter.notifyDataSetChanged();
     }
 

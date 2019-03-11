@@ -6,14 +6,15 @@ import android.content.Context;
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.helper.DtDatabaseHelper;
-import com.smart.lock.db.impl.DeviceKeyImpl;
+import com.smart.lock.ui.CardManagerActivity;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeviceKeyDao implements DeviceKeyImpl {
+public class DeviceKeyDao  {
 
     private DtDatabaseHelper mHelper;
     private Dao<DeviceKey, Integer> dao;
@@ -42,7 +43,7 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return instance;
     }
 
-    @Override
+    
     public void insert(DeviceKey DeviceKey) {
 
         try {
@@ -52,7 +53,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         }
     }
 
-    @Override
     public void insert(ArrayList<DeviceKey> beanArrayList) {
         try {
             dao.create(beanArrayList);
@@ -61,7 +61,7 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         }
     }
 
-    @Override
+     
     public void updateDeviceKey(DeviceKey info) {
         try {
             dao.update(info);
@@ -71,7 +71,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         }
     }
 
-    @Override
     public void deleteByKey(String key, String values) {
         ArrayList<DeviceKey> list = null;
         try {
@@ -86,7 +85,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         }
     }
 
-    @Override
     public void delete(DeviceKey info) {
         try {
             dao.delete(info);
@@ -99,7 +97,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
     /**
      * @return -1:删除数据异常 0：无数据
      */
-    @Override
     public int deleteAll() {
         int number = -1;
         try {
@@ -117,7 +114,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
     /**
      * @return 表中数据的个数
      */
-    @Override
     public long queryCount() {
         long number = 0;
         try {
@@ -131,7 +127,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
     /**
      * @param id 这个id 就是表中，每次插入数据，自己递增的id 字段
      */
-    @Override
     public ArrayList<DeviceKey> queryId(int id) {
         ArrayList<DeviceKey> list = null;
 
@@ -148,7 +143,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return list;
     }
 
-    @Override
     public ArrayList<DeviceKey> queryByConnectType(String connectType) {
         ArrayList<DeviceKey> list = null;
 
@@ -163,7 +157,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return list;
     }
 
-    @Override
     public ArrayList<DeviceKey> queryAll() {
         ArrayList<DeviceKey> list = null;
         try {
@@ -179,7 +172,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
     }
 
 
-    @Override
     public ArrayList<DeviceKey> queryKey(String key, Object valus) {
         ArrayList<DeviceKey> list = null;
         try {
@@ -193,7 +185,6 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return list;
     }
 
-    @Override
     public DeviceKey queryFirstData(String key, Object valus) {
         DeviceKey deviceInfo = null;
         try {
@@ -207,11 +198,10 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return deviceInfo;
     }
 
-    @Override
     public ArrayList<DeviceKey> queryDeviceKey(Object nodeId, Object userId, Object type) {
         ArrayList<DeviceKey> list = new ArrayList<DeviceKey>();
         try {
-            list = (ArrayList<DeviceKey>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("device_user_id", userId).
+            list = (ArrayList<DeviceKey>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId).
                     and().eq("key_type", type).query();
             if (list != null) {
                 return list;
@@ -222,11 +212,10 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return list;
     }
 
-    @Override
     public DeviceKey queryByLockId(Object nodeId, Object userId, Object lockId) {
         DeviceKey deviceKey = new DeviceKey();
         try {
-            deviceKey = dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("device_user_id", userId).
+            deviceKey = dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId).
                     and().eq("lock_id", lockId).queryForFirst();
             if (deviceKey != null) {
                 return deviceKey;
@@ -237,7 +226,30 @@ public class DeviceKeyDao implements DeviceKeyImpl {
         return deviceKey;
     }
 
-    @Override
+    public void checkDeviceKey(Object nodeId, short userId, byte key, String type, String lockId) {
+        if (key != 0) {
+            DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId);
+            if (deviceKey == null) {
+                deviceKey = new DeviceKey();
+                deviceKey.setDeviceNodeId((String) nodeId);
+                deviceKey.setUserId(userId);
+                deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
+                deviceKey.setKeyName(type + lockId);
+                deviceKey.setKeyType(type);
+                deviceKey.setLockId((String) lockId);
+
+                insert(deviceKey);
+            }
+        } else {
+            DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId);
+            if (deviceKey != null) {
+                delete(deviceKey);
+            }
+        }
+
+    }
+
+
     public ArrayList<DeviceKey> queryKeyByImei(String key, String valus, String imei) {
         ArrayList<DeviceKey> list = new ArrayList<DeviceKey>();
         try {

@@ -65,6 +65,10 @@ public class BleMessageListenerImpl implements BleMessageListener {
 
                 notifyData(BleMsg.STR_RSP_MSG2E_ERRCODE, extra);
 
+            }else if (type == Message.TYPE_BLE_RECEV_CMD_26) {
+
+                notifyData(BleMsg.STR_RSP_MSG26_USERINFO, extra);
+
             } else if (type == Message.TYPE_BLE_RECEV_CMD_32) {
 
                 notifyData(BleMsg.STR_RSP_MSG32_LOG, extra);

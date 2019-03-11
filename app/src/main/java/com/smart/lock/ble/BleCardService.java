@@ -489,7 +489,7 @@ public class BleCardService extends Service {
 
         DeviceUser user = new DeviceUser();
         user.setUserPermission(cmdType);
-        user.setUserId(String.valueOf(userId));
+        user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
         ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
@@ -610,6 +610,28 @@ public class BleCardService extends Service {
         }
 
         return mBleProvider.send(msg);
+    }
+
+    /**
+     * MSG25是apk发给智能锁查询某用户所有用户相关信息的消息，通过MSG26返回查询结果。管理员可以查询所有用户，普通用户可以查询自己，其他情况返回MSG2E错误。
+     *
+     * @param userId  用户编号
+     * @return 是否发送成功
+     */
+    public boolean sendCmd25(final short userId) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_25);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
+
+        Bundle bundle = msg.getData();
+
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
+
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+
+        return ct.request();
     }
 
     /**

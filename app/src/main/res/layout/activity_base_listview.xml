@@ -41,7 +41,7 @@
             android:padding="10.0dip"
             android:text="@string/device_sync"
             android:textColor="@color/blue2"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/return_btn"

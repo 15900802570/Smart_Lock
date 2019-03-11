@@ -55,8 +55,8 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "device_topic")
     private String topic;
 
-    @DatabaseField(columnName = "device_user")
-    private String deviceUser;
+    @DatabaseField(columnName = "user_id")
+    private short userId;
 
     @DatabaseField(columnName = "device_default")
     private boolean deviceDefault;
@@ -76,11 +76,22 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "unlock_time")
     private String unLockTime;
 
+    @DatabaseField(columnName = "mix_unlock")
+    private int mixUnlock;
+
     @DatabaseField(columnName = "lock_battery")
     private int lockBattery;
 
     @DatabaseField(columnName = "temp_pwd_secret")
     private String tempSecret;
+
+    public int getMixUnlock() {
+        return mixUnlock;
+    }
+
+    public void setMixUnlock(int mixUnlock) {
+        this.mixUnlock = mixUnlock;
+    }
 
     public String getTempSecret() {
         return tempSecret;
@@ -150,12 +161,12 @@ public class DeviceInfo implements Serializable {
         this.deviceSecret = deviceSecret;
     }
 
-    public String getDeviceUser() {
-        return deviceUser;
+    public short getUserId() {
+        return userId;
     }
 
-    public void setDeviceUser(String deviceUser) {
-        this.deviceUser = deviceUser;
+    public void setUserId(short userId) {
+        this.userId = userId;
     }
 
     public String getDescription() {
@@ -302,15 +313,16 @@ public class DeviceInfo implements Serializable {
                 ", activitedTime=" + activitedTime +
                 ", description='" + description + '\'' +
                 ", topic='" + topic + '\'' +
-                ", deviceUser='" + deviceUser + '\'' +
+                ", userId='" + userId + '\'' +
                 ", deviceDefault=" + deviceDefault +
                 ", productKey='" + productKey + '\'' +
                 ", deviceSecret='" + deviceSecret + '\'' +
                 ", nodeType='" + nodeType + '\'' +
                 ", bleMac='" + bleMac + '\'' +
                 ", unLockTime='" + unLockTime + '\'' +
+                ", mixUnlock=" + mixUnlock +
                 ", lockBattery=" + lockBattery +
-                ", tempSecret=" + tempSecret +
+                ", tempSecret='" + tempSecret + '\'' +
                 ", deviceIndex=" + deviceIndex +
                 '}';
     }
