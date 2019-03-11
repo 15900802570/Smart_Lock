@@ -129,7 +129,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mBleMac = getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
             mSn = extras.getString(BleMsg.KEY_NODE_SN);
             mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
-            mUserType = extras.getInt(BleMsg.KEY_USER_TYPE);
+            mUserType = extras.getString(BleMsg.KEY_USER_TYPE);
+            mUserType = mUserType != null ? mUserType : "0";
         }
 
         // When you need the permission, e.g. onCreate, OnClick etc.
@@ -199,7 +200,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
                 closeDialog(10);
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11((byte) 0, (short) 0);
+                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11(Byte.valueOf(mUserType), (short) 0);
             }
 
             // 4.2.3 MSG 12
@@ -274,13 +275,13 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(String.valueOf(Integer.parseInt(userId, 16)));
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-        if(userIdInt<101){
+        if (userIdInt < 101) {
             user.setUserPermission(ConstantUtil.DEVICE_MASTER);
             user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId));
-        }else if(userIdInt<201){
+        } else if (userIdInt < 201) {
             user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
             user.setUserName(getString(R.string.members) + Integer.parseInt(userId));
-        }else {
+        } else {
             user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
             user.setUserName(getString(R.string.members) + Integer.parseInt(userId));
         }

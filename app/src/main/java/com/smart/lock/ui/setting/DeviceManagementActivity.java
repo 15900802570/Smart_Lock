@@ -61,7 +61,6 @@ public class DeviceManagementActivity extends AppCompatActivity{
     protected void onActivityResult(int requestCode,int resultCode, Intent data){
         super.onActivityResult(requestCode,resultCode,data);
         if(requestCode ==REQUEST_CODE_SCAN && resultCode == RESULT_OK){
-            LogUtil.e(TAG,"这是一个寂寞的天");
             if(data != null){
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 byte[] mByte;
@@ -73,12 +72,10 @@ public class DeviceManagementActivity extends AppCompatActivity{
                     DialogUtils.createAlertDialog(this,content);
                     return;
                 }
-                    LogUtil.e(TAG,"mByte="+Arrays.toString(mByte));
+                    LogUtil.d(TAG,"mByte="+Arrays.toString(mByte));
                 byte[] devInfo = new byte[32];
                 AES_ECB_PKCS7.AES256Decode(mByte,devInfo,MessageCreator.mQrSecret);
-                    LogUtil.e(TAG,Arrays.toString(devInfo));
-                byte[] temp2={25, 45, 92, -113, -63, 39, 81, 86, -36, 80, 102, 7, 33, -52, -116, 35, 89, 31, 121, 85, 8, -28, 50, -91, 17, -50, 57, -89, 45, -98, 86, -125};
-                    LogUtil.e(TAG,"temp2="+StringUtil.bytesToHexString(temp2));
+                    LogUtil.d(TAG,Arrays.toString(devInfo));
                 getDevInfo(devInfo);
                 addDev();
             }
@@ -150,17 +147,19 @@ public class DeviceManagementActivity extends AppCompatActivity{
 //                +"\n"+time);
     }
     private void addDev(){
-//        if((Long.valueOf(mTime))<System.currentTimeMillis()/1000){
-//            DialogUtils.createAlertDialog(this,"授权码已过期，请重新请求");
-//            return;
-//        }else {
+        if((Long.valueOf(mTime))<System.currentTimeMillis()/1000){
+            DialogUtils.createAlertDialog(this,"授权码已过期，请重新请求");
+        }else {
             Bundle bundle = new Bundle();
             bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-            bundle.putString(BleMsg.KEY_NODE_SN, "123");
+            bundle.putString(BleMsg.KEY_NODE_SN, "123456789124");
             bundle.putString(BleMsg.KEY_NODE_ID, mDevImei);
-            bundle.putInt(BleMsg.KEY_USER_TYPE,Integer.valueOf(mUserType));
+            bundle.putString(BleMsg.KEY_USER_TYPE,mUserType);
+            LogUtil.e(TAG,"mac="+mBleMac+'\n'+
+                    "nodeId="+mDevImei+'\n'+
+                    "type="+mUserType);
             startIntent(LockDetectingActivity.class, bundle);
-//        }
+        }
 
     }
     /**

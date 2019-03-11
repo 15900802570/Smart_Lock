@@ -11,7 +11,7 @@ public class BaseActivity extends Activity {
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI
     protected String mBleMac; //蓝牙地址
-    protected Integer mUserType;
+    protected String mUserType;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -25,6 +25,7 @@ public class BaseActivity extends Activity {
      * @return 标准MAC字符串
      */
     protected static String getMacAdr(String str) {
+        str = str.toUpperCase();
         StringBuilder result = new StringBuilder("");
         for (int i = 1; i <= 12; i++) {
             result.append(str.charAt(i - 1));
