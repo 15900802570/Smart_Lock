@@ -92,9 +92,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         LogUtil.i(TAG, "mDefaultDevice.getDeviceUser() = " + mDefaultDevice.getDeviceUser());
 
-        if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MASTER)) {
+        if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
             mBleManagerHelper.getBleCardService().sendCmd31((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
-        } else if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MEMBER)) {
+        } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
             mBleManagerHelper.getBleCardService().sendCmd31((byte) 0, Short.parseShort(mDefaultDevice.getDeviceUser()));
         }
 
@@ -233,9 +233,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
                 if (errCode[3] == 0x00) {
-                    if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MASTER)) {
+                    if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                         mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
-                    } else if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MEMBER)) {
+                    } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
                         mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getDeviceUser());
                     }
                     mEventAdapter.setDataSource(mLogs);
@@ -306,9 +306,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 mEventAdapter.chioseALLDelete(false);
                 mSelectCb.setChecked(false);
 
-                if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MASTER)) {
+                if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                     mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
-                } else if (mDeviceUser.getUserPermission().equals(ConstantUtil.DEVICE_MEMBER)) {
+                } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
                     mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getDeviceUser());
                 }
 

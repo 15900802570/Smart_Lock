@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,28 +24,27 @@ import android.widget.TextView;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
+import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.AddDeviceActivity;
 import com.smart.lock.ui.CardManagerActivity;
 import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.FingerPrintManagerActivity;
-import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.PwdManagerActivity;
 import com.smart.lock.ui.TempPwdActivity;
+import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MyGridView;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -72,6 +70,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private ViewPagerAdapter mAdapter; //news adapter
     private LockManagerAdapter mLockAdapter; //gridView adapter
     private DeviceInfo mDefaultDevice; //默认设备
+    private DeviceUser mDefaultUser; //默认用户
     private ArrayList<DeviceInfo> mDeviceInfos; //设备集合
     private ArrayList<View> mDots; //spot list
 
@@ -136,7 +135,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 public void run() {
                     if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
                         setSk();
-                        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
+                        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
                     } else
                         BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().disconnect();
                 }
@@ -191,9 +190,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             }
         });
 
-        mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView);
-        mMyGridView.setAdapter(mLockAdapter);
-
         LocalBroadcastManager.getInstance(mHomeView.getContext()).registerReceiver(deviceReciver, intentFilter());
 
         mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
@@ -201,7 +197,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
         if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
             setSk();
-            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
+            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
 
@@ -228,6 +224,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     mBleConnectTv.setVisibility(View.VISIBLE);
                     mBleConnectTv.setEnabled(true);
                     refreshView(BATTER_UNKNOW);
+                }
+                if (mDefaultDevice != null) {
+                    mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryDefaultUsers(mDefaultDevice.getDeviceNodeId());
+                    mNodeId = mDefaultDevice.getDeviceNodeId();
+                    mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
+                    mMyGridView.setAdapter(mLockAdapter);
                 }
                 break;
             case UNBIND_DEVICE:
@@ -317,8 +319,63 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 int unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
                 byte[] syncUsers = intent.getByteArrayExtra(BleMsg.KEY_SYNC_USERS);
 
-                LogUtil.d(TAG, "battery = " + mBattery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus + " + stStatus + "\n" + " unLockTime = " + unLockTime);
+                LogUtil.d(TAG, "battery = " + mBattery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
                 LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+                StringBuffer buffer = new StringBuffer();
+                byte[] buf = new byte[4];
+                System.arraycopy(syncUsers, 0, buf, 0, 4);
+                String status1 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                LogUtil.d(TAG, "status1 = " + status1);
+                System.arraycopy(syncUsers, 4, buf, 0, 4);
+                String status2 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                LogUtil.d(TAG, "status2 = " + status2);
+
+                System.arraycopy(syncUsers, 8, buf, 0, 4);
+                String status3 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                LogUtil.d(TAG, "status3 = " + status3);
+
+                System.arraycopy(syncUsers, 12, buf, 0, 4);
+                String status4 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                LogUtil.d(TAG, "status4 = " + status4);
+
+                buffer.append(status4);
+                buffer.append(status3);
+                buffer.append(status2);
+                buffer.append(status1);
+
+                LogUtil.d(TAG, "buffer = " + buffer.toString());
+                LogUtil.d(TAG, "buffer to long = " + Long.parseLong(buffer.toString()));
+
+                if (mDefaultDevice != null) {
+                    ArrayList<String> userIds = DeviceUserDao.getInstance(mActivity).checkUserStatus(Long.parseLong(buffer.toString()), mDefaultDevice.getDeviceNodeId());
+                    LogUtil.d(TAG, "userIds = " + userIds.toString());
+
+                    ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+
+                    if (!userIds.isEmpty()) {
+                        for (DeviceUser user : users) {
+                            Log.d(TAG, "getUserId 1= " + user.getUserId());
+                            if (userIds.contains(user.getUserId())) {
+                                Log.d(TAG, "getUserId 2= " + user.getUserId());
+                                DeviceUserDao.getInstance(mActivity).delete(user);
+                                userIds.remove(user.getUserId());
+                            }
+                        }
+                        for (String userId : userIds) {
+                            int i = Integer.parseInt(userId);
+                            if (i > 0 && i <= 5) { //管理员
+                                createDeviceUser(userId, null, ConstantUtil.DEVICE_MASTER);
+                            } else if (i > 5 && i <= 10) {
+                                createDeviceUser(userId, null, ConstantUtil.DEVICE_TEMP);
+                            } else {
+                                createDeviceUser(userId, null, ConstantUtil.DEVICE_MEMBER);
+                            }
+
+                        }
+                    }
+                }
+
+
                 mIsConnected = true;
                 refreshView(BIND_DEVICE);
                 refreshBattery(mBattery);
@@ -330,7 +387,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                         public void run() {
                             BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().disconnect();
                         }
-                    }, 2000);
+                    }, 5000);
                 }
 
             }
@@ -340,7 +397,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 refreshView(BIND_DEVICE);
                 if (mDefaultDevice != null) {
                     setSk();
-                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
+                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
                 } else refreshView(UNBIND_DEVICE);
             }
 
@@ -356,7 +413,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         }
     };
 
-    private static IntentFilter intentFilter() {
+    protected static IntentFilter intentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
         intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
@@ -378,13 +435,14 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void onDestroy() {
         super.onDestroy();
+
         try {
             LocalBroadcastManager.getInstance(mHomeView.getContext()).unregisterReceiver(deviceReciver);
         } catch (Exception ignore) {
             Log.e(TAG, ignore.toString());
         }
         mIsConnected = false;
-        LogUtil.d(TAG, "onDestroy !");
+
         if (mDefaultDevice != null)
             BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
     }
@@ -400,7 +458,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case R.id.tv_connect:
                 mBleConnectTv.setEnabled(false);
                 setSk();
-                BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle(1, Integer.parseInt(mDefaultDevice.getDeviceUser()));
+                BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));
                 break;
             default:
                 break;
@@ -475,11 +533,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_permission:
+                startIntent(UserManagerActivity.class, bundle);
 
                 break;
-
             case R.mipmap.manager_token:
-               startIntent(TempPwdActivity.class, bundle);
+                startIntent(TempPwdActivity.class, bundle);
                 break;
             default:
                 break;

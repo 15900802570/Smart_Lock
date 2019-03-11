@@ -2,16 +2,20 @@
 package com.smart.lock.db.dao;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.db.impl.DeviceUserImpl;
+import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DeviceUserDao implements DeviceUserImpl {
+    private final String TAG = DeviceUserDao.class.getSimpleName();
 
     private DtDatabaseHelper mHelper;
     private Dao<DeviceUser, Integer> dao;
@@ -51,7 +55,7 @@ public class DeviceUserDao implements DeviceUserImpl {
     }
 
     @Override
-    public void insert(ArrayList<DeviceUser> beanArrayList) {
+    public synchronized void insert(ArrayList<DeviceUser> beanArrayList) {
         try {
             dao.create(beanArrayList);
         } catch (SQLException e) {
@@ -85,7 +89,7 @@ public class DeviceUserDao implements DeviceUserImpl {
     }
 
     @Override
-    public void delete(DeviceUser info) {
+    public synchronized void delete(DeviceUser info) {
         try {
             dao.delete(info);
         } catch (SQLException e) {
@@ -166,7 +170,7 @@ public class DeviceUserDao implements DeviceUserImpl {
     public ArrayList<DeviceUser> queryKey(String key, Object valus) {
         ArrayList<DeviceUser> list = null;
         try {
-            list = (ArrayList<DeviceUser>) dao.queryForEq(key, valus);
+            list = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", false).where().eq(key, valus).query();
             if (list != null) {
                 return list;
             }
@@ -181,6 +185,130 @@ public class DeviceUserDao implements DeviceUserImpl {
         DeviceUser deviceUser = null;
         try {
             deviceUser = dao.queryBuilder().where().eq("dev_node_id", nodeId).and().eq("user_id", userId).queryForFirst();
+            if (deviceUser != null) {
+                return deviceUser;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return deviceUser;
+    }
+
+    @Override
+    public ArrayList<DeviceUser> queryUsers(Object nodeId, Object permission) {
+        ArrayList<DeviceUser> list = null;
+        try {
+            list = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", true).where().eq("dev_node_id", nodeId).and().eq("user_permission", permission).query();
+            if (list != null) {
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public ArrayList<DeviceUser> queryDeviceUsers(Object nodeId) {
+        ArrayList<DeviceUser> list = null;
+        try {
+            list = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", true).where().eq("dev_node_id", nodeId).query();
+            if (list != null) {
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public ArrayList<String> queryDeviceUserIds(Object nodeId) {
+        ArrayList<String> list = new ArrayList<>();
+        try {
+            ArrayList<DeviceUser> users = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", true).where().eq("dev_node_id", nodeId).query();
+            for (DeviceUser info : users) {
+                list.add(info.getUserId());
+            }
+
+            if (list != null) {
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * 本地用户状态字
+     *
+     * @return 获取本地用户状态字
+     */
+    public long getUserStatus(String nodeId) {
+        long ret = 0;
+        long index = 0;
+        ArrayList<String> userIds = queryDeviceUserIds(nodeId);
+        if (userIds != null && !userIds.isEmpty()) {
+
+            for (String userId : userIds) {
+                long id = Long.parseLong(userId);
+                Log.d(TAG, "id = " + id);
+                if (id > 0 && id <= 5) { //管理员编号
+                    index = id - 1;
+                } else if (id > 100 && id <= 200) { //普通用户
+                    index = id - 91;
+                } else if (id > 200 && id <= 300) { //临时用户
+                    index = id - 196;
+                }
+                ret |= 1 << index;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * 检查状态字，实现用户同步功能
+     *
+     * @param status 秘钥状态字
+     */
+    public ArrayList<String> checkUserStatus(long status, String nodeId) {
+        ArrayList<String> diffIds = new ArrayList<>();
+        long ret = 0;
+        long tmp = 0;
+        long userStatus = getUserStatus(nodeId);
+        Log.d(TAG, "userStatus = " + userStatus);
+
+        ret = status ^ userStatus;
+
+        Log.d(TAG, "ret = " + ret);
+        synchronized (this) {
+            if (ret != 0) {
+                for (int i = 0; i < 100; i++) {
+                    tmp = ret & (1 << i);
+                    if (tmp != 0) {
+                        Log.d(TAG, "tmp = " + tmp);
+                        if (i < 5) { //管理员
+                            diffIds.add(String.valueOf(i + 1));
+                        } else if (i < 10) {
+                            diffIds.add(String.valueOf(i + 196));
+                        } else {
+                            diffIds.add(String.valueOf(i + 91));
+                        }
+                    }
+
+                }
+            }
+        }
+
+        return diffIds;
+    }
+
+    @Override
+    public DeviceUser queryDefaultUsers(Object nodeId) {
+        DeviceUser deviceUser = null;
+        try {
+            deviceUser = dao.queryBuilder().orderBy("create_time", true).where().eq("dev_node_id", nodeId).queryForFirst();
             if (deviceUser != null) {
                 return deviceUser;
             }

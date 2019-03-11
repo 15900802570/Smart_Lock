@@ -44,16 +44,12 @@ public class BleCmd03Creator implements BleCreator {
 
         System.arraycopy(buf, 0, cmd, 3, 16);
 
-        long time = System.currentTimeMillis() / 1000;
-        StringUtil.int2Bytes((int) time, buf);
-        System.arraycopy(buf, 0, cmd, 19, 4);
-
-        short crc = StringUtil.crc16(cmd, 23);
+        short crc = StringUtil.crc16(cmd, 19);
         StringUtil.short2Bytes(crc, buf);
-        System.arraycopy(buf, 0, cmd, 23, 2);
+        System.arraycopy(buf, 0, cmd, 19, 2);
 
-        byte[] bleCmd = new byte[25];
-        System.arraycopy(cmd, 0, bleCmd, 0, 25);
+        byte[] bleCmd = new byte[21];
+        System.arraycopy(cmd, 0, bleCmd, 0, 21);
 
         return bleCmd;
     }

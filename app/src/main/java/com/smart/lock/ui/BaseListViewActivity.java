@@ -138,51 +138,6 @@ public class BaseListViewActivity extends Activity implements View.OnClickListen
         mSyncTv.setOnClickListener(this);
     }
 
-
-    /**
-     * 检查状态字，实现录入秘钥同步功能
-     *
-     * @param status 秘钥状态字
-     */
-    public boolean checkStatus(int status, Handler handler, Runnable runnable, String imei, BleCardService service, byte[] ak) {
-        ArrayList<String> lockIdList = null;
-        ArrayList<String> devList = new ArrayList<>();
-        if (lockIdList == null) {
-            lockIdList = new ArrayList<>();
-        }
-        Log.d(TAG, "lockIdList = " + lockIdList);
-
-        //将二进制状态字反序，便于获取lockId
-        String str = new StringBuffer(Integer.toBinaryString(status)).reverse().toString();
-
-        Log.d(TAG, "str = " + str);
-        if (str != null && str.equals("0")) {
-            mStatusTag = false;
-            return false;
-        }
-        for (int i = str.length() - 1; i >= 0; i--) {
-
-            if (str.charAt(i) == '1') {
-                String lockId = StringUtil.autoGenericCode(String.valueOf(i), 4);
-                devList.add(lockId);
-                if (!lockIdList.contains(lockId)) {
-                    Log.d(TAG, "lockId = " + lockId);
-                    closeDialog(15, handler, runnable);
-                    service.sendCmd17(lockId, ak);
-                }
-            }
-
-        }
-
-        for (String devLockId : devList) {
-            if (!devList.contains(devLockId)) {
-//                SettingInfoDao.getInstance(this).deleteSettingKey("lock_id", devLockId);
-            }
-        }
-        mStatusTag = false;
-        return true;
-    }
-
     /**
      * 超时提醒
      *

@@ -19,7 +19,7 @@ public class DeviceUser implements Serializable {
     private String userId;
 
     @DatabaseField(columnName = "user_permission")
-    private String userPermission;
+    private int userPermission;
 
     @DatabaseField(columnName = "user_status")
     private String userStatus;
@@ -29,6 +29,17 @@ public class DeviceUser implements Serializable {
 
     @DatabaseField(columnName = "user_name")
     private String userName;
+
+    @DatabaseField(columnName = "qr_path")
+    private String qrPath;
+
+    public String getQrPath() {
+        return qrPath;
+    }
+
+    public void setQrPath(String qrPath) {
+        this.qrPath = qrPath;
+    }
 
     public String getUserName() {
         return userName;
@@ -54,11 +65,11 @@ public class DeviceUser implements Serializable {
         this.userId = userId;
     }
 
-    public String getUserPermission() {
+    public int getUserPermission() {
         return userPermission;
     }
 
-    public void setUserPermission(String userPermission) {
+    public void setUserPermission(int userPermission) {
         this.userPermission = userPermission;
     }
 
@@ -88,6 +99,7 @@ public class DeviceUser implements Serializable {
                 ", userStatus='" + userStatus + '\'' +
                 ", createTime=" + createTime +
                 ", userName='" + userName + '\'' +
+                ", qrPath='" + qrPath + '\'' +
                 '}';
     }
 }

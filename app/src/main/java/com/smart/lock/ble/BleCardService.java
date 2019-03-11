@@ -23,7 +23,10 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.BleReceiver;
 import com.smart.lock.db.bean.DeviceLog;
+import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.utils.ConstantUtil;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -445,12 +448,12 @@ public class BleCardService extends Service {
     /**
      * MSG 01
      */
-    public boolean sendCmd01(int cmdType, int userId) {
+    public boolean sendCmd01(byte cmdType, short userId) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_01);
         Bundle mBundle = msg.getData();
-        mBundle.putInt(BleMsg.KEY_CMD_TYPE, cmdType);
-        mBundle.putInt(BleMsg.KEY_USER_ID, userId);
+        mBundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        mBundle.putShort(BleMsg.KEY_USER_ID, userId);
         return mBleProvider.send(msg);
     }
 
@@ -476,14 +479,34 @@ public class BleCardService extends Service {
     /**
      * MSG 11
      */
-    public boolean sendCmd11(final int cmdType, final int userId) {
+    public boolean sendCmd11(final byte cmdType, final short userId) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_11);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+        Bundle bundle = msg.getData();
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        DeviceUser user = new DeviceUser();
+        user.setUserPermission(cmdType);
+        user.setUserId(String.valueOf(userId));
+        bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
+
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+
+        return ct.request();
+
+    }
+
+    /**
+     * MSG 17
+     */
+    public boolean sendCmd13(final byte cmdType) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_13);
 
         Bundle bundle = msg.getData();
-        bundle.putInt(BleMsg.KEY_CMD_TYPE, cmdType);
-
-        bundle.putInt(BleMsg.KEY_USER_ID, userId);
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
 
         return mBleProvider.send(msg);
     }
@@ -513,25 +536,15 @@ public class BleCardService extends Service {
     }
 
     /**
-     * APK智能锁。用来删除锁体密钥信息的消息
-     *
-     * @param lockId 锁体密钥编号，4字节
-     * @param key    会话秘钥
-     * @return 是否发送成功
+     * MSG 17
      */
-    public boolean sendCmd17(String lockId, final byte[] key) {
+    public boolean sendCmd17(final byte cmdType, final short userId) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_17);
 
         Bundle bundle = msg.getData();
-        if (!TextUtils.isEmpty(lockId)) {
-            mDeleteLockIds.add(lockId);
-            bundle.putString(BleMsg.KEY_LOCK_ID, lockId);
-        }
-
-        if (key != null && key.length != 0) {
-            bundle.putByteArray(BleMsg.KEY_AK, key);
-        }
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
 
         return mBleProvider.send(msg);
     }

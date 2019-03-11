@@ -96,12 +96,17 @@ public class ConstantUtil {
     /**
      * 设备管理员
      */
-    public static final String DEVICE_MASTER = "master";
+    public static final int DEVICE_MASTER = 0x01;
 
     /**
      * 设备成员
      */
-    public static final String DEVICE_MEMBER = "member";
+    public static final int DEVICE_MEMBER = 0x02;
+
+    /**
+     * 临时成员
+     */
+    public static final int DEVICE_TEMP = 0x03;
 
     /**
      * 用户状态 -未启用 -0

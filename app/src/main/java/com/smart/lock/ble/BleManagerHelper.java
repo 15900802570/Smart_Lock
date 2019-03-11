@@ -102,12 +102,12 @@ public class BleManagerHelper {
     /**
      * 连接方式 0-扫描二维码 1-普通安全连接
      */
-    private int mConnectType = 0;
+    private byte mConnectType = 0;
 
     /**
      * 用户编号，mConnectType =0 时，该值为0，否则非0
      */
-    private int mUserId = 0;
+    private short mUserId = 0;
 
 
     private Runnable mRunnable = new Runnable() {
@@ -151,7 +151,7 @@ public class BleManagerHelper {
      *
      * @return
      */
-    public boolean connectBle(final int type, final int userId) {
+    public boolean connectBle(final byte type, final short userId) {
         new Handler().postDelayed(new Runnable() {
 
             @Override

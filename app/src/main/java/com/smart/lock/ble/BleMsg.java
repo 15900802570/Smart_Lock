@@ -200,6 +200,11 @@ public class BleMsg {
     public static final String KEY_UNLOCK_TIME = "unLockTime";
 
     /**
+     * 临时密码加密秘钥
+     */
+    public static final String KEY_TMP_PWD_SK = "tmpPwdSk";
+
+    /**
      * 设备时间
      */
     public static final String KEY_LOCK_TIME = "LockTime";
@@ -234,7 +239,6 @@ public class BleMsg {
      * 日志编号
      */
     public static final String KEY_LOG_ID = "logId";
-
 
 
 }

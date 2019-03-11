@@ -13,6 +13,7 @@ import com.smart.lock.ble.ClientTransaction;
 import com.smart.lock.ble.creator.BleCmd01Creator;
 import com.smart.lock.ble.creator.BleCmd03Creator;
 import com.smart.lock.ble.creator.BleCmd11Creator;
+import com.smart.lock.ble.creator.BleCmd13Creator;
 import com.smart.lock.ble.creator.BleCmd15Creator;
 import com.smart.lock.ble.creator.BleCmd17Creator;
 import com.smart.lock.ble.creator.BleCmd19Creator;
@@ -604,6 +605,7 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_01, new BleCmd01Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_03, new BleCmd03Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_11, new BleCmd11Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_13, new BleCmd13Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_15, new BleCmd15Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_17, new BleCmd17Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_19, new BleCmd19Creator());

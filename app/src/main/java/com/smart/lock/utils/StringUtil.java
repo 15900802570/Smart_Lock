@@ -284,20 +284,21 @@ public class StringUtil {
         return sub;
     }
 
-    public static byte[] byteMerger(byte[] byte_1, byte[] byte_2){
-                byte[] byte_3 = new byte[byte_1.length+byte_2.length];
-                System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
-                System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
-            return byte_3;
+    public static byte[] byteMerger(byte[] byte_1, byte[] byte_2) {
+        byte[] byte_3 = new byte[byte_1.length + byte_2.length];
+        System.arraycopy(byte_1, 0, byte_3, 0, byte_1.length);
+        System.arraycopy(byte_2, 0, byte_3, byte_1.length, byte_2.length);
+        return byte_3;
     }
 
     /**
-     *  CRC校验码
+     * CRC校验码
+     *
      * @param bytes 输入字节串
      * @return long 输出字符
      */
-    public static long getCRC32(byte[] bytes){
-        CRC32 crc32=new CRC32();
+    public static long getCRC32(byte[] bytes) {
+        CRC32 crc32 = new CRC32();
         crc32.update(bytes);
         return crc32.getValue();
     }
@@ -325,6 +326,16 @@ public class StringUtil {
             temp[tail] = (byte) k;
             head++;
             tail--;
+        }
+    }
+
+    public static String getFileName(String pathandname) {
+        int start = pathandname.lastIndexOf("/");
+        int end = pathandname.lastIndexOf(".");
+        if (start != -1 && end != -1) {
+            return pathandname.substring(start + 1, end);
+        } else {
+            return null;
         }
     }
 }

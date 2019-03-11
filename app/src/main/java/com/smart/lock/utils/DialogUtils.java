@@ -9,6 +9,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ui.login.LockScreenActivity;
+import com.smart.lock.widget.CustomDialog;
 
 public class DialogUtils {
     /**
@@ -137,7 +139,7 @@ public class DialogUtils {
 
     }
 
-    public static Dialog createAlertDialog(Context context, String msg){
+    public static Dialog createAlertDialog(Context context, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("提示")
                 .setMessage(msg)
@@ -156,7 +158,7 @@ public class DialogUtils {
         return mAlertDialog;
     }
 
-    public static Dialog createTempPwdDialog(final Context context,final String msg){
+    public static Dialog createTempPwdDialog(final Context context, final String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(context.getResources().getString(R.string.temp_pwd))
                 .setMessage(msg)
@@ -164,17 +166,17 @@ public class DialogUtils {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         try {
-                            ClipboardManager clipboardManager = (ClipboardManager)context.
+                            ClipboardManager clipboardManager = (ClipboardManager) context.
                                     getSystemService(Context.CLIPBOARD_SERVICE);
 
-                            ClipData clipData = ClipData.newPlainText(context.getResources().getString(R.string.temp_pwd),msg);
+                            ClipData clipData = ClipData.newPlainText(context.getResources().getString(R.string.temp_pwd), msg);
                             clipboardManager.setPrimaryClip(clipData);
-                            Toast.makeText(context,context.getResources().getString(R.string.replicating_success),Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, context.getResources().getString(R.string.replicating_success), Toast.LENGTH_SHORT).show();
 
-                        }catch (NullPointerException e){
+                        } catch (NullPointerException e) {
                             e.printStackTrace();
                         }
-                    dialog.dismiss();
+                        dialog.dismiss();
                     }
                 });
         Dialog mTempPwdDialog = builder.create();
@@ -190,6 +192,26 @@ public class DialogUtils {
         mTempPwdDialog.show();
         return mTempPwdDialog;
     }
+
+    public static CustomDialog showQRDialog(final Context context, final Bitmap bitmap) {
+
+        CustomDialog.Builder builder = new CustomDialog.Builder(context);
+        final CustomDialog dialog = builder.cancelTouchout(false)
+                .view(R.layout.dialog_create_qr)
+                .heightDimenRes(R.dimen.dialog_height)
+                .widthDimenRes(R.dimen.dialog_width)
+                .style(R.style.CustomDialog)
+                .addViewOnclick(R.id.share_btn, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        SystemUtils.shareImg(bitmap, context);
+                    }
+                }).build();
+
+        dialog.show();
+        return dialog;
+    }
+
     /**
      * 关闭dialog
      *

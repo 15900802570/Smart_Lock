@@ -48,7 +48,6 @@ public class BleCmd02Parse implements BleCommandParse {
         if (memcmp(random, MessageCreator.pwdRandom, 16)) {
 
             System.arraycopy(buf, 16, respRandom, 0, 16);
-
             System.arraycopy(buf, 32, akbuf, 0, 32);
 
         } else

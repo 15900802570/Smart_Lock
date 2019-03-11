@@ -53,4 +53,5 @@ dependencies {
     implementation files('libs/bcprov-jdk16-1.46.jar')
     implementation 'com.github.yuzhiqiang1993:zxing:2.1.8'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
+    implementation 'com.android.support:design:27.1.1-alphal'
 }

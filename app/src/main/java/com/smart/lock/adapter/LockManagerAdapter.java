@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.smart.lock.R;
+import com.smart.lock.utils.ConstantUtil;
 
 import java.util.ArrayList;
 
@@ -21,7 +22,7 @@ public class LockManagerAdapter extends BaseAdapter {
     private ArrayList<Integer> mIcons = new ArrayList();
     private ArrayList<Integer> mNames = new ArrayList();
 
-    public LockManagerAdapter(Context context, GridView gridView) {
+    public LockManagerAdapter(Context context, GridView gridView,int permission) {
         mContext = context;
         mGridView = gridView;
 
@@ -37,11 +38,13 @@ public class LockManagerAdapter extends BaseAdapter {
         mNames.add(Integer.valueOf(R.string.event_manager));
         mIcons.add(Integer.valueOf(R.mipmap.manager_event));
 
-        mNames.add(Integer.valueOf(R.string.token_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.manager_token));
+        if(permission == ConstantUtil.DEVICE_MASTER) {
+            mNames.add(Integer.valueOf(R.string.token_manager));
+            mIcons.add(Integer.valueOf(R.mipmap.manager_token));
 
-        mNames.add(Integer.valueOf(R.string.permission_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.manager_permission));
+            mNames.add(Integer.valueOf(R.string.permission_manager));
+            mIcons.add(Integer.valueOf(R.mipmap.manager_permission));
+        }
 
     }
 

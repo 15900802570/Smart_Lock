@@ -13,4 +13,11 @@
     <dimen name="countdown_margin">15dp</dimen>
     <!-- 倒计时区域的文字大小 -->
     <dimen name="countdown_text_size">12sp</dimen>
+    <dimen name="tablayout_indicator_height">2dp</dimen>
+
+    <dimen name="qr_height">260dp</dimen>
+    <dimen name="qr_width">260dp</dimen>
+
+    <dimen name="dialog_height">346dp</dimen>
+    <dimen name="dialog_width">300dp</dimen>
 </resources>

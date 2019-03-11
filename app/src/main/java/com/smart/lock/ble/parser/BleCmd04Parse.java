@@ -24,7 +24,7 @@ public class BleCmd04Parse implements BleCommandParse {
         int packetLen = (cmd[1]) * 256 + (cmd[2] + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
 
-        byte[] buf = new byte[64];
+        byte[] buf = new byte[160];
 
         try {
             AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mAK);
@@ -33,19 +33,21 @@ public class BleCmd04Parse implements BleCommandParse {
         }
 
         byte[] batPerscent = new byte[1];
-        byte[] syncUsers = new byte[8];
+        byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];
         byte[] stStatus = new byte[1];
         byte[] unLockTime = new byte[1];
 
+        byte[] tmpPwdSk = new byte[32 * 4];
+
         System.arraycopy(buf, 0, batPerscent, 0, 1);
-        System.arraycopy(buf, 1, syncUsers, 0, 8);
-        System.arraycopy(buf, 9, userStatus, 0, 1);
-        System.arraycopy(buf, 10, stStatus, 0, 1);
-        System.arraycopy(buf, 11, unLockTime, 0, 1);
+        System.arraycopy(buf, 1, syncUsers, 0, 16);
+        System.arraycopy(buf, 17, userStatus, 0, 1);
+        System.arraycopy(buf, 18, stStatus, 0, 1);
+        System.arraycopy(buf, 19, unLockTime, 0, 1);
+        System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
 
-
-        return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0]);
+        return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk);
     }
 
     @Override

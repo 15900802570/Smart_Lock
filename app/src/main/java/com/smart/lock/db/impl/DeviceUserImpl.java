@@ -27,6 +27,14 @@ public interface DeviceUserImpl {
 
     DeviceUser queryUser(Object nodeId, Object userId);
 
+    ArrayList<DeviceUser> queryUsers(Object nodeId, Object permission);
+
+    ArrayList<DeviceUser> queryDeviceUsers(Object nodeId);
+
+    ArrayList<String> queryDeviceUserIds(Object nodeId);
+
     void delete(DeviceUser info);
+
+    DeviceUser queryDefaultUsers(Object nodeId);
 
 }

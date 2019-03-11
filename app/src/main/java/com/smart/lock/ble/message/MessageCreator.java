@@ -44,6 +44,14 @@ public class MessageCreator {
     public static byte mAK[] = new byte[32];
 
     /**
+     * APP二维码加密
+     */
+    public static byte mQrSecret[] = {
+            'D', 'T', 'S', '1', '5', '8', '6', 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0x09,
+            0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F
+    };
+
+    /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_02
      *
      * @param type   消息类型
@@ -73,25 +81,27 @@ public class MessageCreator {
      * @param batPerscent 电池电量
      * @param syncUsers   用户同步状态字
      * @param userStatus  用户状态
-     * @param stStatus 设置状态字
-     * @param unLockTime 回锁时间
+     * @param stStatus    设置状态字
+     * @param unLockTime  回锁时间
      * @return
      */
-    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime) {
+    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-        LogUtil.d(TAG,"batPerscent = " + batPerscent);
-        LogUtil.d(TAG,"syncUsers = " + Arrays.toString(syncUsers));
-        LogUtil.d(TAG,"userStatus = " + userStatus);
-        LogUtil.d(TAG,"stStatus = " + stStatus);
-        LogUtil.d(TAG,"unLockTime = " + unLockTime);
+        LogUtil.d(TAG, "batPerscent = " + batPerscent);
+        LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+        LogUtil.d(TAG, "userStatus = " + userStatus);
+        LogUtil.d(TAG, "stStatus = " + stStatus);
+        LogUtil.d(TAG, "unLockTime = " + unLockTime);
 
         mBundle.putByte(BleMsg.KEY_BAT_PERSCENT, batPerscent);
         mBundle.putByte(BleMsg.KEY_USER_STATUS, userStatus);
         mBundle.putByte(BleMsg.KEY_SETTING_STATUS, stStatus);
         mBundle.putByte(BleMsg.KEY_UNLOCK_TIME, unLockTime);
-
+        if (tmpPwdSk != null && tmpPwdSk.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_TMP_PWD_SK, tmpPwdSk);
+        }
         if (syncUsers != null && syncUsers.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_SYNC_USERS, syncUsers);
         }
@@ -101,17 +111,18 @@ public class MessageCreator {
     /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_12
      *
-     * @param type        消息类型
-     * @param userId 用户编号
+     * @param type     消息类型
+     * @param userId   用户编号
      * @param nodeId   设备编号
-     * @param bleMac  蓝牙地址
+     * @param bleMac   蓝牙地址
      * @param randCode 设备动态码
-     * @param time 设备时间
+     * @param time     设备时间
      * @return
      */
     public static Message getCmd12Message(byte type, byte[] userId, byte[] nodeId, byte[] bleMac, byte[] randCode, byte[] time) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
         Bundle mBundle = mMessage.getData();
 
         if (userId != null && userId.length != 0) {
@@ -144,7 +155,7 @@ public class MessageCreator {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
 
         if (errCode != null && errCode.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
@@ -235,8 +246,8 @@ public class MessageCreator {
     /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_18
      *
-     * @param type    消息类型
-     * @param log 日志信息
+     * @param type 消息类型
+     * @param log  日志信息
      * @return
      */
     public static Message getCmd32Message(byte type, byte[] log) {

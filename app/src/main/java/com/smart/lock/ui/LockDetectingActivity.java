@@ -197,7 +197,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
                 closeDialog(10);
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11(0, 0);
+                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11((byte) 0, (short) 0);
             }
 
             // 4.2.3 MSG 12
@@ -210,7 +210,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 LogUtil.d(TAG, "userId = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID)));
                 String time = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_LOCK_TIME));
                 String randCode = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE));
-
+                LogUtil.d(TAG, "KEY_RAND_CODE = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE)));
                 DeviceInfo defaultDevice = DeviceInfoDao.getInstance(LockDetectingActivity.this).queryFirstData("device_default", true);
 
                 mDetectingDevice = new DeviceInfo();
@@ -270,10 +270,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
-        user.setUserId(userId);
+        user.setUserId(String.valueOf(Integer.parseInt(userId, 16)));
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-        user.setUserStatus(ConstantUtil.USER_UNENABLE);
-        user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId));
+        user.setUserStatus(ConstantUtil.USER_ENABLE);
+        user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId, 16));
         DeviceUserDao.getInstance(this).insert(user);
     }
 
@@ -358,7 +358,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.mSK));
             mIsConnected = BleManagerHelper.getInstance(this, mBleMac, false).getServiceConnection();
             if (!mIsConnected)
-                BleManagerHelper.getInstance(this, mBleMac, false).connectBle(0, 0);
+                BleManagerHelper.getInstance(this, mBleMac, false).connectBle((byte) 0, (short) 0);
         }
 
     }

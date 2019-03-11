@@ -1,13 +1,13 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation">
     <string name="app_name">智能锁</string>
     <string name="action_settings">设置</string>
 
     <!-- 描述数字键盘按下 -->
-    <string name="numeric_keyboard_down">numeric keyboard down</string>
+    <string name="numeric_keyboard_down">数字键盘向下</string>
     <!-- 描述数字键盘弹起 -->
-    <string name="numeric_keyboard_up">numeric keyboard up</string>
+    <string name="numeric_keyboard_up">数字键盘向上</string>
     <!-- 描述数字键盘取消 -->
-    <string name="numeric_keyboard_cancel">numeric keyboard cancel</string>
+    <string name="numeric_keyboard_cancel">数字键盘取消</string>
 
     <string name="please_input_pwd">请输入密码</string>
     <string name="please_input_pwd_again">确认密码</string>
@@ -94,6 +94,8 @@
     <string name="pause_user_failed">暂停用户失败</string>
     <string name="add_user_success">新增用户成功</string>
     <string name="add_user_failed">新增用户失败</string>
+    <string name="recovery_user_success">恢复用户成功</string>
+    <string name="recovery_user_failed">恢复用户失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
     <string name="add_nfc_failed">录入NFC卡失败</string>
@@ -107,6 +109,10 @@
     <string name="modify_fp_failed">修改指纹失败</string>
     <string name="modify_fp_success">修改指纹成功</string>
     <string name="delete_fp_success">删除指纹成功</string>
+    <string name="delete_key_success">群删密钥成功</string>
+    <string name="delete_key_failed">群删密钥失败</string>
+    <string name="delete_users_success">群删用户成功</string>
+    <string name="delete_users_failed">群删用户失败</string>
 
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
@@ -130,7 +136,7 @@
     <string name="add_fingerprint">添加指纹</string>
     <string name="password">密码</string>
     <string name="user_name">使用者:</string>
-    <string name="edit">修改</string>
+    <string name="edit">编辑</string>
     <string name="input_new_pwd">请输入新密码:</string>
     <string name="input_new_pwd_again">请再次输入新密码:</string>
     <string name="tips">提示</string>
@@ -143,9 +149,41 @@
     <string name="event_type">类型编号:</string>
     <string name="remote">远程</string>
     <string name="plz_choise_del_log">请选择要删除的日志</string>
+    <string name="plz_choise_del_user">请选择要删除的用户</string>
     <string name="plz_scan_correct_qr">请扫描正确的二维码!</string>
     <string name="administrator">管理员</string>
-    <string name="members">普通成员</string>
+    <string name="members">普通用户</string>
+    <string name="tmp_user">临时用户</string>
     <string name="del_log_failed">删除log成功</string>
     <string name="no_authority">无权限</string>
+    <string name="prompt_email">邮件</string>
+    <string name="title_activity_welcome">欢迎使用界面</string>
+    <string name="error_invalid_password">密码太短</string>
+    <string name="error_incorrect_password">密码不正确</string>
+    <string name="error_field_required">此字段必填</string>
+    <string name="error_invalid_email">电子邮件地址无效</string>
+    <string name="action_sign_in">登录或注册</string>
+    <string name="title_activity_login">登录</string>
+    <string name="prompt_password">通过（可选）</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="permission_rationale">提供电子邮件完成需要联系人权限。</string>
+    <string name="title_activity_login2">登录</string>
+    <string name="dummy_button">虚拟按钮</string>
+    <string name="title_activity_base_fp">BaseFPActivity</string>
+
+    <string name="del_all_pwd">删除所有密码</string>
+    <string name="del_all_fp">删除所有指纹</string>
+    <string name="del_all_nfc">删除所有卡片</string>
+    <string name="del_all_user">删除所有用户</string>
+    <string name="title_activity_settings">设置</string>
+    <string name="unenable">未启用</string>
+    <string name="normal">正常</string>
+    <string name="pause">暂停</string>
+    <string name="recovery">恢复</string>
+    <string name="invalid">失效</string>
+    <string name="number">编号:</string>
+    <string name="mine_certify_select">已选择</string>
+    <string name="create_user">创建用户</string>
+    <string name="add_user_tips">创建达到上限，请删除后再添加</string>
+    <string name="all_election">全选</string>
 </resources>

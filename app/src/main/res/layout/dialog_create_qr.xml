@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300.0dip"
+    android:layout_height="wrap_content"
+    android:id="@+id/dialog_prompt_view"
+    android:layout_gravity="center"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="30.0dip"
+        android:background="@color/login_bag"
+        android:gravity="center"
+        android:text="@string/tips"
+        android:textColor="@android:color/white" />
+
+    <ImageView
+        android:id="@+id/iv_qr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5.0dip"
+        android:gravity="center"
+        android:lineSpacingExtra="5.0dip"
+        android:paddingLeft="8.0dip"
+        android:paddingRight="8.0dip"
+        android:textColor="@color/gray1"
+        android:textColorLink="#ff66a5f9" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45.0dip"
+        android:background="#ffe4e4e4"
+        android:paddingTop="1.0dip" >
+
+        <Button
+            android:id="@+id/share_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0"
+            android:background="@android:color/white"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="分       享"
+            android:textColor="@color/login_bag" />
+
+        <LinearLayout
+            android:layout_width="1.0dip"
+            android:layout_height="fill_parent" />
+
+        <Button
+            android:id="@+id/cancel_btn"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0"
+            android:background="@android:color/white"
+            android:text="取       消"
+            android:textColor="@color/login_bag" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -3,14 +3,17 @@ package com.smart.lock.ble.creator;
 import android.os.Bundle;
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
+import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
 
 /**
- * apk->设备,通知智能锁进行锁体秘钥录入
+ * 	MSG 17是APK用来删除某个用户名下某种类型密钥的消息，智能锁收到该消息后，将删除结果通过MSG 1E进行回复
  */
 public class BleCmd17Creator implements BleCreator {
 
@@ -29,34 +32,35 @@ public class BleCmd17Creator implements BleCreator {
 
         if (extra == null) throw new RuntimeException("AK is error!");
 
+        byte type = extra.getByte(BleMsg.KEY_CMD_TYPE);
+        short userId = extra.getShort(BleMsg.KEY_USER_ID);
+
         short cmdLen = 16;
         byte[] cmd = new byte[128];
 
         cmd[0] = 0x17;
-        byte[] buf = new byte[16];
+        byte[] buf = new byte[32];
+
         StringUtil.short2Bytes(cmdLen, buf);
         System.arraycopy(buf, 0, cmd, 1, 2);
-        //写入LockId
-        byte[] lockIdBuf = new byte[16];
-        StringUtil.int2Bytes(Integer.parseInt(extra.getString(BleMsg.KEY_LOCK_ID), 10), lockIdBuf);
 
-        System.arraycopy(lockIdBuf, 0, lockIdBuf, 0, 4);
+        byte[] cmdBuf = new byte[16];
+        byte[] userIdBuf = new byte[2];
 
-        Arrays.fill(lockIdBuf, 4, 16, (byte) 12);
+        cmdBuf[2] = type;
+
+        StringUtil.short2Bytes(userId, userIdBuf);
+        System.arraycopy(userIdBuf, 0, cmdBuf, 0, 2);
+
+        Arrays.fill(cmdBuf, 3, 16, (byte) 13);
 
         try {
-            AES_ECB_PKCS7.AES256Encode(lockIdBuf, buf, extra.getByteArray(BleMsg.KEY_AK));
+            AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //写入F1
+
         System.arraycopy(buf, 0, cmd, 3, 16);
-
-//        mCrc = crc16(cmd, 19);
-//        Log.d(TAG, "mCrc = " + mCrc);
-//        short2Bytes(mCrc, buf);
-//        System.arraycopy(buf, 0, cmd, 19, 2);
-
 
         short crc = StringUtil.crc16(cmd, 19);
         StringUtil.short2Bytes(crc, buf);

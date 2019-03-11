@@ -106,6 +106,11 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_11 = 0x11;
 
     /**
+     * MSG 13用来删除特定用户群。
+     */
+    public static final byte TYPE_BLE_SEND_CMD_13 = 0x13;
+
+    /**
      * APK通知智能锁进行锁体密钥录入的消息
      */
     public static final byte TYPE_BLE_SEND_CMD_15 = 0x15;

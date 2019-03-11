@@ -18,9 +18,10 @@
         <item name="android:background">@drawable/ic_cartoon</item>
     </style>
 
-    <style name="LockScreen" >
+    <style name="LockScreen">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
@@ -126,6 +127,38 @@
 
     <style name="layout_vertical" parent="@style/layout_fill">
         <item name="android:layout_height">0.0px</item>
+    </style>
+
+    <style name="ToolbarPopupTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle
+        </item> <!--新增一个item，用于控制menu-->
+    </style>
+
+    <style name="OverflowMenuStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>  <!--把该属性改为false即可使menu位置位于toolbar之下-->
+    </style>
+
+    <style name="AppTheme.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/white</item>
+        <item name="actionMenuTextColor">@color/black</item>
+    </style>
+
+    <style name="TabLayout" parent="Base.Widget.Design.TabLayout">
+        <item name="tabBackground">@drawable/tab_background</item>
+    </style>
+
+    <!--自定义Dialog-->
+    <style name="CustomDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:backgroundDimEnabled">true</item><!--true 屏幕变暗-->
+        <item name="android:windowBackground">@android:color/transparent</item><!-- 背景透明 -->
+        <!-- Dialog进入及退出动画 -->
+        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>
+    </style>
+
+    <!-- Dialog进出动画 -->
+    <style name="DialogAnimation" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/custom_dialog_in</item>
+        <item name="android:windowExitAnimation">@anim/custom_dialog_out</item>
     </style>
 
 </resources>
