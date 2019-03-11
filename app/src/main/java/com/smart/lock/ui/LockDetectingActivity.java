@@ -42,6 +42,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.Arrays;
 
@@ -128,6 +129,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mBleMac = getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
             mSn = extras.getString(BleMsg.KEY_NODE_SN);
             mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
+            mUserType = extras.getInt(BleMsg.KEY_USER_TYPE);
         }
 
         // When you need the permission, e.g. onCreate, OnClick etc.
@@ -267,13 +269,24 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      */
     private void createDeviceUser(String userId) {
         DeviceUser user = new DeviceUser();
-
+        int userIdInt = Integer.valueOf(userId);
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(String.valueOf(Integer.parseInt(userId, 16)));
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-        user.setUserStatus(ConstantUtil.USER_ENABLE);
-        user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId, 16));
+        if(userIdInt<101){
+            user.setUserPermission(ConstantUtil.DEVICE_MASTER);
+            user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId));
+        }else if(userIdInt<201){
+            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
+            user.setUserName(getString(R.string.members) + Integer.parseInt(userId));
+        }else {
+            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
+            user.setUserName(getString(R.string.members) + Integer.parseInt(userId));
+        }
+
+        user.setUserStatus(ConstantUtil.USER_UNENABLE);
+
         DeviceUserDao.getInstance(this).insert(user);
     }
 

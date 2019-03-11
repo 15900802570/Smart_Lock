@@ -2,39 +2,43 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/rl_toggle_switch"
+    android:id="@+id/rl_btn_setting"
     android:background="@color/white">
 
     <TextView
-        android:id="@+id/tv_switch_des"
+        android:id="@+id/tv_btn_info_des"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="15.0dip"
         android:layout_marginTop="20.0dip"
         android:layout_marginBottom="20.0dip"
         android:gravity="center_vertical"
-        android:text="客厅-灯光"
+        android:text="@string/lock_settings"
         android:textColor="#ff000000"
         android:textSize="15.0dip" />
 
-    <ToggleButton
-        android:id="@+id/iv_switch_light"
-        android:layout_width="55dp"
-        android:layout_height="32dp"
+    <LinearLayout
+        android:id="@+id/ll_btn_setting_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="0.0dip"
-        android:background="@null"
-        android:button="@drawable/toggle_button_selector"
-        android:checked="false"
-        android:textOff=""
-        android:textOn="" />
+        android:orientation="vertical"
+        android:gravity="center">
+        <Button
+            android:id="@+id/btn_setting_des"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/unbind"
+            android:gravity="center"
+            android:background="@color/white"
+            android:textColor="@color/lite_blue"/>
+    </LinearLayout>
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/tv_switch_des"
+        android:layout_below="@+id/tv_btn_info_des"
         android:background="@color/lineBg" />
 
 </RelativeLayout>

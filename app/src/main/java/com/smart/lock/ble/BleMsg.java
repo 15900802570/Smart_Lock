@@ -173,6 +173,10 @@ public class BleMsg {
      * 设备用户编号
      */
     public static final String KEY_USER_ID = "userId";
+    /**
+     * 设备用户类型
+     */
+    public static final String KEY_USER_TYPE = "userType";
 
     /**
      * 设备电量百分比

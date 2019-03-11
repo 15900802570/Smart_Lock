@@ -14,7 +14,7 @@ public interface TempPwdImpl {
 
     ArrayList<TempPwd> queryId(int id);
 
-    ArrayList<TempPwd> queryAll();
+    ArrayList<TempPwd> queryAllByDevNodeId(String devNodeId);
 
     void delete(TempPwd info);
 }

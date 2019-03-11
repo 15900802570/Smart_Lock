@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.LockSettingActivity">
+
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/app_bg">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="10.0dip"
+            android:text="@string/lock_settings"
+            android:textColor="#ff000000"
+            android:textSize="18.0dip" />
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/icon_arrow_blue_left"
+            android:onClick="onClick"
+            android:padding="10.0dip" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/v_lock_setting_line"
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:layout_below="@+id/rl_title"
+        android:background="@color/line" />
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@id/v_lock_setting_line">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/ts_intelligent_lock"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+        <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/ts_anti_prizing_alarm"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+        <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/ts_combination_lock"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+        <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/ts_normally_open"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+        <com.smart.lock.widget.ToggleSwitchDefineView
+        android:id="@+id/ts_turn_off_voice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+        <com.smart.lock.widget.BtnSettingDefineView
+        android:id="@+id/bs_rolled_back_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+        <com.smart.lock.widget.NextActivityDefineView
+        android:id="@+id/next_version_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+        <com.smart.lock.widget.NextActivityDefineView
+        android:id="@+id/next_self_check"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+        <com.smart.lock.widget.NextActivityDefineView
+        android:id="@+id/next_ota_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+        <com.smart.lock.widget.NextActivityDefineView
+            android:id="@+id/next_factory_reset"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+
+
+</ScrollView>
+
+</RelativeLayout>
