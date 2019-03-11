@@ -47,6 +47,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +56,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     private final static String TAG = UserManagerActivity.class.getSimpleName();
 
     private TabLayout mUserPermissionTl;
-    private ViewPager mUserPermissionVp;
+    private NoScrollViewPager mUserPermissionVp;
     private Toolbar mUsetSetTb;
     private TextView mTitleTv;
     private MenuItem mDeleteItem;
@@ -122,6 +123,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mUserPermissionVp.setAdapter(mUserPagerAdapter);
         initTabLayout();
         mUserPermissionVp.setOffscreenPageLimit(2);
+        mUserPermissionVp.setNoScroll(false);
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getDeviceNodeId(), false);

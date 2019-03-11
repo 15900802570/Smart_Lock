@@ -251,7 +251,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
                 if (path != null) {
-                    mAdminAdapter.addItem(createDeviceUser(Short.parseShort(userId,16), path, ConstantUtil.DEVICE_MASTER));
+                    mAdminAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MASTER));
                 }
 
                 mHandler.removeCallbacks(mRunnable);
@@ -446,6 +446,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     @Override
                     public void onClick(View v) {
                         userInfo.setUserName(holder.mNameEt.getText().toString().trim());
+                        LogUtil.d(TAG, "userInfo = " + userInfo.toString());
                         DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(userInfo);
                     }
                 });
@@ -521,6 +522,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             }
         }
 
+        @Override
+        public void onViewAttachedToWindow(@NonNull AdminViewHoler holder) {
+            super.onViewAttachedToWindow(holder);
+            holder.mNameEt.setEnabled(false);
+            holder.mNameEt.setEnabled(true);
+        }
 
         @Override
         public int getItemCount() {

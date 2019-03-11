@@ -560,8 +560,10 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_permission:
-                startIntent(UserManagerActivity.class, bundle);
-
+                if (mIsConnected)
+                    startIntent(UserManagerActivity.class, bundle);
+                else
+                    showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_token:
                 startIntent(TempPwdActivity.class, bundle);
