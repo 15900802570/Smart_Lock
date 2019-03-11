@@ -90,7 +90,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mLoadDialog = DialogUtils.createLoadingDialog(EventsActivity.this, EventsActivity.this.getResources().getString(R.string.data_loading));
         closeDialog(60);
 
-        LogUtil.i(TAG, "mDefaultDevice.getDeviceUser() = " + mDefaultDevice.getDeviceUser());
+        LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.toString());
 
         if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
             mBleManagerHelper.getBleCardService().sendCmd31((byte) 1, Short.parseShort(mDefaultDevice.getDeviceUser()));

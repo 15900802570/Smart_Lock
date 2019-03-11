@@ -217,7 +217,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setActivitedTime(Long.parseLong(time, 16));
                 mDetectingDevice.setBleMac(mBleMac);
                 mDetectingDevice.setConnectType(false);
-                mDetectingDevice.setDeviceUser(userId);
+                mDetectingDevice.setDeviceUser(String.valueOf(Integer.parseInt(userId, 16)));
                 mDetectingDevice.setDeviceNodeId(mNodeId);
                 mDetectingDevice.setNodeType(ConstantUtil.SMART_LOCK);
                 mDetectingDevice.setDeviceDate(System.currentTimeMillis() / 1000);

@@ -22,7 +22,7 @@ public class DeviceUser implements Serializable {
     private int userPermission;
 
     @DatabaseField(columnName = "user_status")
-    private String userStatus;
+    private int userStatus;
 
     @DatabaseField(columnName = "create_time")
     private long createTime;
@@ -73,11 +73,11 @@ public class DeviceUser implements Serializable {
         this.userPermission = userPermission;
     }
 
-    public String getUserStatus() {
+    public int getUserStatus() {
         return userStatus;
     }
 
-    public void setUserStatus(String userStatus) {
+    public void setUserStatus(int userStatus) {
         this.userStatus = userStatus;
     }
 

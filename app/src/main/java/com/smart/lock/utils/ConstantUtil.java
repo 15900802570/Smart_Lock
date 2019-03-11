@@ -2,10 +2,10 @@ package com.smart.lock.utils;
 
 public class ConstantUtil {
 
-	/**
+    /**
      * 是否开启密码验证
      */
-	public static final String NUM_PWD_CHECK = "isNumPwdCheck";
+    public static final String NUM_PWD_CHECK = "isNumPwdCheck";
 
     /**
      * 是否开启指纹验证
@@ -40,7 +40,7 @@ public class ConstantUtil {
     /**
      * 静态字段
      */
-	public static final String NUM_PWD = "NumPwd";
+    public static final String NUM_PWD = "NumPwd";
 
     /**
      * 初始设置密码
@@ -111,17 +111,17 @@ public class ConstantUtil {
     /**
      * 用户状态 -未启用 -0
      */
-    public static final String USER_UNENABLE = "unenable";
+    public static final int USER_UNENABLE = 0x00;
 
     /**
      * 用户状态 -未启用 -1
      */
-    public static final String USER_ENABLE = "enable";
+    public static final int USER_ENABLE = 0x01;
 
     /**
      * 用户状态 -暂停 -2
      */
-    public static final String USER_PAUSE = "pause";
+    public static final int USER_PAUSE = 0x02;
 
     /**
      * 测试连接开关

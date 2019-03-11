@@ -226,7 +226,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     refreshView(BATTER_UNKNOW);
                 }
                 if (mDefaultDevice != null) {
-                    mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryDefaultUsers(mDefaultDevice.getDeviceNodeId());
+                    mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getDeviceUser());
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mMyGridView.setAdapter(mLockAdapter);
@@ -303,6 +303,31 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
+    private void checkUserId(ArrayList<String> userIds) {
+        ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+
+        if (!userIds.isEmpty()) {
+            for (DeviceUser user : users) {
+                Log.d(TAG, "getUserId 1= " + user.getUserId());
+                if (userIds.contains(user.getUserId())) {
+                    DeviceUserDao.getInstance(mActivity).delete(user);
+                    userIds.remove(user.getUserId());
+                }
+            }
+            for (String userId : userIds) {
+                int i = Integer.parseInt(userId);
+                if (i > 0 && i <= 100) { //管理员
+                    createDeviceUser(userId, null, ConstantUtil.DEVICE_MASTER);
+                } else if (i > 200 && i <= 300) {
+                    createDeviceUser(userId, null, ConstantUtil.DEVICE_TEMP);
+                } else {
+                    createDeviceUser(userId, null, ConstantUtil.DEVICE_MEMBER);
+                }
+
+            }
+        }
+    }
+
     /**
      * 广播接收
      */
@@ -318,14 +343,16 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 int stStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
                 int unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
                 byte[] syncUsers = intent.getByteArrayExtra(BleMsg.KEY_SYNC_USERS);
+                byte[] userState = intent.getByteArrayExtra(BleMsg.KEY_USERS_STATE);
+                byte[] tempSecret = intent.getByteArrayExtra(BleMsg.KEY_TMP_PWD_SK);
 
                 LogUtil.d(TAG, "battery = " + mBattery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
                 LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
-                StringBuffer buffer = new StringBuffer();
                 byte[] buf = new byte[4];
                 System.arraycopy(syncUsers, 0, buf, 0, 4);
                 String status1 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
                 LogUtil.d(TAG, "status1 = " + status1);
+
                 System.arraycopy(syncUsers, 4, buf, 0, 4);
                 String status2 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
                 LogUtil.d(TAG, "status2 = " + status2);
@@ -338,43 +365,15 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 String status4 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
                 LogUtil.d(TAG, "status4 = " + status4);
 
-                buffer.append(status4);
-                buffer.append(status3);
-                buffer.append(status2);
-                buffer.append(status1);
-
-                LogUtil.d(TAG, "buffer = " + buffer.toString());
-                LogUtil.d(TAG, "buffer to long = " + Long.parseLong(buffer.toString()));
-
                 if (mDefaultDevice != null) {
-                    ArrayList<String> userIds = DeviceUserDao.getInstance(mActivity).checkUserStatus(Long.parseLong(buffer.toString()), mDefaultDevice.getDeviceNodeId());
-                    LogUtil.d(TAG, "userIds = " + userIds.toString());
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status1), mDefaultDevice.getDeviceNodeId(), 1));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status2), mDefaultDevice.getDeviceNodeId(), 2));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status3), mDefaultDevice.getDeviceNodeId(), 3));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status4), mDefaultDevice.getDeviceNodeId(), 4));
+                    DeviceUserDao.getInstance(mActivity).checkUserState(mDefaultDevice.getDeviceNodeId(), userState);
 
-                    ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-
-                    if (!userIds.isEmpty()) {
-                        for (DeviceUser user : users) {
-                            Log.d(TAG, "getUserId 1= " + user.getUserId());
-                            if (userIds.contains(user.getUserId())) {
-                                Log.d(TAG, "getUserId 2= " + user.getUserId());
-                                DeviceUserDao.getInstance(mActivity).delete(user);
-                                userIds.remove(user.getUserId());
-                            }
-                        }
-                        for (String userId : userIds) {
-                            int i = Integer.parseInt(userId);
-                            if (i > 0 && i <= 5) { //管理员
-                                createDeviceUser(userId, null, ConstantUtil.DEVICE_MASTER);
-                            } else if (i > 5 && i <= 10) {
-                                createDeviceUser(userId, null, ConstantUtil.DEVICE_TEMP);
-                            } else {
-                                createDeviceUser(userId, null, ConstantUtil.DEVICE_MEMBER);
-                            }
-
-                        }
-                    }
+                    mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
                 }
-
 
                 mIsConnected = true;
                 refreshView(BIND_DEVICE);

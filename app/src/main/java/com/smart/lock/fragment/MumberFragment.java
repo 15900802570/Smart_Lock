@@ -132,6 +132,12 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         mMumberAdapter.notifyDataSetChanged();
     }
 
+
+    public void refreshView() {
+        mMumberAdapter.setDataSource();
+        mMumberAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public View initView() {
         mMumberView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
@@ -149,7 +155,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         mDefaultDevice = DeviceInfoDao.getInstance(mMumberView.getContext()).queryFirstData("device_default", true);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryDefaultUsers(mNodeId);
+        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getDeviceUser());
         mBleManagerHelper = BleManagerHelper.getInstance(mMumberView.getContext(), mNodeId, false);
         mMumberAdapter = new MumberAdapter(mMumberView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mMumberView.getContext(), LinearLayoutManager.VERTICAL, false);
@@ -224,7 +230,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
                 if (path != null) {
-                    mMumberAdapter.addItem(createDeviceUser(String.valueOf(Integer.parseInt(userId,16)), path, ConstantUtil.DEVICE_MEMBER));
+                    mMumberAdapter.addItem(createDeviceUser(String.valueOf(Integer.parseInt(userId, 16)), path, ConstantUtil.DEVICE_MEMBER));
                 }
 
 
@@ -235,12 +241,15 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                DeviceUser delUser = DeviceUserDao.getInstance(mMumberView.getContext()).queryUser(mNodeId, user.getUserId());
-                if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
-                    mHandler.removeCallbacks(mRunnable);
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
+                if (user != null) {
+                    DeviceUser delUser = DeviceUserDao.getInstance(mMumberView.getContext()).queryUser(mNodeId, user.getUserId());
+                    if (user == null || delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                        return;
+                    }
+                } else return;
+
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
 
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
@@ -318,8 +327,17 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             return new MumberViewHoler(inflate);
         }
 
-        public void setDataSource(ArrayList<DeviceUser> userList) {
-            mUserList = userList;
+        public void setDataSource() {
+            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
+            int index = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId().equals(mDefaultUser.getUserId())) {
+                    index = mUserList.indexOf(user);
+                }
+            }
+            if (index != -1) {
+                mUserList.remove(index);
+            }
         }
 
         public void chioseItemDelete(boolean visible) {
@@ -331,7 +349,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             mAllDelete = allDelete;
         }
 
-        public void changeUserState(DeviceUser changeUser, String state) {
+        public void changeUserState(DeviceUser changeUser, int state) {
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId().equals(changeUser.getUserId())) {
@@ -383,14 +401,14 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameEt.setText(userInfo.getUserName());
-                if (userInfo.getUserStatus().equals(ConstantUtil.USER_UNENABLE)) {
+                if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mMumberView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setClickToClose(false);
-                } else if (userInfo.getUserStatus().equals(ConstantUtil.USER_ENABLE)) {
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setText(mMumberView.getContext().getResources().getString(R.string.normal));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
-                } else if (userInfo.getUserStatus().equals(ConstantUtil.USER_PAUSE)) {
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mMumberView.getContext().getResources().getString(R.string.pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);

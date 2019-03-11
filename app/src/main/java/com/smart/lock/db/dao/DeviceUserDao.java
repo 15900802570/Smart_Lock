@@ -245,15 +245,14 @@ public class DeviceUserDao implements DeviceUserImpl {
      *
      * @return 获取本地用户状态字
      */
-    public long getUserStatus(String nodeId) {
-        long ret = 0;
-        long index = 0;
+    public int getUserStatus(String nodeId, int num) {
+        int ret = 0;
+        int index = 0;
         ArrayList<String> userIds = queryDeviceUserIds(nodeId);
         if (userIds != null && !userIds.isEmpty()) {
 
             for (String userId : userIds) {
-                long id = Long.parseLong(userId);
-                Log.d(TAG, "id = " + id);
+                int id = Integer.parseInt(userId);
                 if (id > 0 && id <= 5) { //管理员编号
                     index = id - 1;
                 } else if (id > 100 && id <= 200) { //普通用户
@@ -261,10 +260,39 @@ public class DeviceUserDao implements DeviceUserImpl {
                 } else if (id > 200 && id <= 300) { //临时用户
                     index = id - 196;
                 }
-                ret |= 1 << index;
+
+                if ((num - 1) * 32 <= index && index < num * 32) {
+                    ret |= 1 << index;
+                }
             }
         }
         return ret;
+    }
+
+
+    /**
+     * 更新用户状态
+     */
+    public void checkUserState(String nodeId, byte[] status) {
+        int index = 0;
+        ArrayList<DeviceUser> users = queryDeviceUsers(nodeId);
+        if (users != null && !users.isEmpty()) {
+            for (DeviceUser user : users) {
+                int id = Integer.parseInt(user.getUserId());
+                if (id > 0 && id <= 5) { //管理员编号
+                    index = id - 1;
+                } else if (id > 100 && id <= 200) { //普通用户
+                    index = id - 91;
+                } else if (id > 200 && id <= 300) { //临时用户
+                    index = id - 196;
+                }
+                if (status[index] != user.getUserStatus()) {
+                    user.setUserStatus(status[index]);
+                    updateDeviceUser(user);
+                }
+            }
+
+        }
     }
 
     /**
@@ -272,11 +300,11 @@ public class DeviceUserDao implements DeviceUserImpl {
      *
      * @param status 秘钥状态字
      */
-    public ArrayList<String> checkUserStatus(long status, String nodeId) {
+    public ArrayList<String> checkUserStatus(int status, String nodeId, int num) {
         ArrayList<String> diffIds = new ArrayList<>();
-        long ret = 0;
-        long tmp = 0;
-        long userStatus = getUserStatus(nodeId);
+        int ret = 0;
+        int tmp = 0;
+        int userStatus = getUserStatus(nodeId, num);
         Log.d(TAG, "userStatus = " + userStatus);
 
         ret = status ^ userStatus;
@@ -284,7 +312,7 @@ public class DeviceUserDao implements DeviceUserImpl {
         Log.d(TAG, "ret = " + ret);
         synchronized (this) {
             if (ret != 0) {
-                for (int i = 0; i < 100; i++) {
+                for (int i = 0; i < 32; i++) {
                     tmp = ret & (1 << i);
                     if (tmp != 0) {
                         Log.d(TAG, "tmp = " + tmp);

@@ -468,7 +468,7 @@ public class BleProvider {
     private void parseBle(byte[] command, BleMessageListener bleMsgListener, List<BleCommand> bleCommandList, boolean searchTransaction) {
 
         if (isNewCommand()) {
-
+            LogUtil.d(TAG, "command = " + Arrays.toString(command));
             mPacketLength = (command[1] * 256) + (command[2] + 5);
 
             Log.i(TAG, "recvResponse() new cmd length = " + mPacketLength);
@@ -536,9 +536,7 @@ public class BleProvider {
             }
 
         } catch (
-                Exception e)
-
-        {
+                Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }

@@ -132,6 +132,11 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
         mTempAdapter.notifyDataSetChanged();
     }
 
+    public void refreshView() {
+        mTempAdapter.setDataSource();
+        mTempAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public View initView() {
         mTempView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
@@ -149,7 +154,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
         mDefaultDevice = DeviceInfoDao.getInstance(mTempView.getContext()).queryFirstData("device_default", true);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryDefaultUsers(mNodeId);
+        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getDeviceUser());
         mBleManagerHelper = BleManagerHelper.getInstance(mTempView.getContext(), mNodeId, false);
         mTempAdapter = new TempAdapter(mTempView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mTempView.getContext(), LinearLayoutManager.VERTICAL, false);
@@ -223,7 +228,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
                 if (path != null) {
-                    mTempAdapter.addItem(createDeviceUser(String.valueOf(Integer.parseInt(userId,16)), path, ConstantUtil.DEVICE_TEMP));
+                    mTempAdapter.addItem(createDeviceUser(String.valueOf(Integer.parseInt(userId, 16)), path, ConstantUtil.DEVICE_TEMP));
                 }
 
                 mHandler.removeCallbacks(mRunnable);
@@ -233,12 +238,15 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
             //MSG1E �豸->apk��������Ϣ
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                DeviceUser delUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mNodeId, user.getUserId());
-                if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
-                    mHandler.removeCallbacks(mRunnable);
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
+                if (user != null) {
+                    DeviceUser delUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mNodeId, user.getUserId());
+                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                        return;
+                    }
+                } else return;
+
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
 
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
@@ -316,8 +324,17 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
             return new TempViewHoler(inflate);
         }
 
-        public void setDataSource(ArrayList<DeviceUser> userList) {
-            mUserList = userList;
+        public void setDataSource() {
+            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+            int index = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId().equals(mDefaultUser.getUserId())) {
+                    index = mUserList.indexOf(user);
+                }
+            }
+            if (index != -1) {
+                mUserList.remove(index);
+            }
         }
 
         public void chioseItemDelete(boolean visible) {
@@ -329,7 +346,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
             mAllDelete = allDelete;
         }
 
-        public void changeUserState(DeviceUser changeUser, String state) {
+        public void changeUserState(DeviceUser changeUser, int state) {
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId().equals(changeUser.getUserId())) {
@@ -381,14 +398,14 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameEt.setText(userInfo.getUserName());
-                if (userInfo.getUserStatus().equals(ConstantUtil.USER_UNENABLE)) {
+                if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
-                } else if (userInfo.getUserStatus().equals(ConstantUtil.USER_ENABLE)) {
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.normal));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
-                } else if (userInfo.getUserStatus().equals(ConstantUtil.USER_PAUSE)) {
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);

@@ -153,6 +153,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         mAdminAdapter.notifyDataSetChanged();
     }
 
+    public void refreshView() {
+        mAdminAdapter.setDataSource();
+        mAdminAdapter.notifyDataSetChanged();
+    }
+
+
     @Override
     public View initView() {
         mAdminView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
@@ -170,7 +176,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         mDefaultDevice = DeviceInfoDao.getInstance(mAdminView.getContext()).queryFirstData("device_default", true);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryDefaultUsers(mNodeId);
+        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(),mDefaultDevice.getDeviceUser());
         mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext(), mNodeId, false);
         mAdminAdapter = new AdminAdapter(mAdminView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
@@ -247,7 +253,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
                 if (path != null) {
-                    mAdminAdapter.addItem(createDeviceUser(String.valueOf(Integer.parseInt(userId,16)), path, ConstantUtil.DEVICE_MASTER));
+                    mAdminAdapter.addItem(createDeviceUser(String.valueOf(Integer.parseInt(userId, 16)), path, ConstantUtil.DEVICE_MASTER));
                 }
 
                 mHandler.removeCallbacks(mRunnable);
@@ -257,12 +263,15 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-                if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
-                    mHandler.removeCallbacks(mRunnable);
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
+                if (user != null) {
+                    DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                        return;
+                    }
+                } else return;
+
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
 
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
@@ -341,8 +350,17 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             return new AdminViewHoler(inflate);
         }
 
-        public void setDataSource(ArrayList<DeviceUser> userList) {
-            mUserList = userList;
+        public void setDataSource() {
+            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+            int index = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId().equals(mDefaultUser.getUserId())) {
+                    index = mUserList.indexOf(user);
+                }
+            }
+            if (index != -1) {
+                mUserList.remove(index);
+            }
         }
 
         public void chioseItemDelete(boolean visible) {
@@ -354,7 +372,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             mAllDelete = allDelete;
         }
 
-        public void changeUserState(DeviceUser changeUser, String state) {
+        public void changeUserState(DeviceUser changeUser, int state) {
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId().equals(changeUser.getUserId())) {
@@ -407,14 +425,14 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
             if (userInfo != null) {
                 holder.mNameEt.setText(userInfo.getUserName());
-                if (userInfo.getUserStatus().equals(ConstantUtil.USER_UNENABLE)) {
+                if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
-                } else if (userInfo.getUserStatus().equals(ConstantUtil.USER_ENABLE)) {
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.normal));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
-                } else if (userInfo.getUserStatus().equals(ConstantUtil.USER_PAUSE)) {
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);

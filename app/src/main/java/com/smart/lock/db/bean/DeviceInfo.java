@@ -5,6 +5,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @DatabaseTable(tableName = "tb_device_info")
 public class DeviceInfo implements Serializable {
@@ -77,6 +78,17 @@ public class DeviceInfo implements Serializable {
 
     @DatabaseField(columnName = "lock_battery")
     private int lockBattery;
+
+    @DatabaseField(columnName = "temp_pwd_secret")
+    private String tempSecret;
+
+    public String getTempSecret() {
+        return tempSecret;
+    }
+
+    public void setTempSecret(String tempSecret) {
+        this.tempSecret = tempSecret;
+    }
 
     public int getLockBattery() {
         return lockBattery;
@@ -298,6 +310,7 @@ public class DeviceInfo implements Serializable {
                 ", bleMac='" + bleMac + '\'' +
                 ", unLockTime='" + unLockTime + '\'' +
                 ", lockBattery=" + lockBattery +
+                ", tempSecret=" + tempSecret +
                 ", deviceIndex=" + deviceIndex +
                 '}';
     }

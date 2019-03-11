@@ -169,7 +169,7 @@ public class BleManagerHelper {
                     mService.connect(mBleMac);
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
-                    closeDialog(10);
+                    closeDialog(15);
                 }
 
             }

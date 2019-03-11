@@ -134,7 +134,7 @@ public abstract class BaseFragment extends Fragment {
      *
      * @param userId
      */
-    protected DeviceUser createDeviceUser(String userId, String path, int permission) {
+    protected synchronized DeviceUser createDeviceUser(String userId, String path, int permission) {
         DeviceUser user = new DeviceUser();
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);

@@ -85,7 +85,7 @@ public class MessageCreator {
      * @param unLockTime  回锁时间
      * @return
      */
-    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk) {
+    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
@@ -105,6 +105,11 @@ public class MessageCreator {
         if (syncUsers != null && syncUsers.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_SYNC_USERS, syncUsers);
         }
+
+        if (userState != null && userState.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_USERS_STATE, userState);
+        }
+
         return mMessage;
     }
 

@@ -185,6 +185,11 @@ public class BleMsg {
     public static final String KEY_SYNC_USERS = "syncUsers";
 
     /**
+     * 设备用户状态，用以同步用户状态
+     */
+    public static final String KEY_USERS_STATE = "userState";
+
+    /**
      * 设备用户状态,1字节，0-未启用，1-启用，2-暂停，用户创建后默认未启用，创建开锁信息后才是启用状态
      */
     public static final String KEY_USER_STATUS = "userStatus";
