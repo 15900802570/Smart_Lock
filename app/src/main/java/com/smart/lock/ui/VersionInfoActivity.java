@@ -40,7 +40,7 @@ public class VersionInfoActivity extends Activity {
         mSerialNumTv.setText(mDefaultDevice.getDeviceSn());
         mImeiTv.setText(mDefaultDevice.getDeviceNodeId());
         mBTMacTv.setText(mDefaultDevice.getBleMac());
-        if(!mDefaultDevice.getDeviceVersion().equals("")) {
+        if(mDefaultDevice.getDeviceVersion()!=null) {
             mSoftVersionTv.setText(mDefaultDevice.getDeviceVersion());
             mHardVersionTv.setText(mDefaultDevice.getDeviceVersion());
         }

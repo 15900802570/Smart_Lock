@@ -276,7 +276,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
         if (userIdInt < 101) {
             user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-            user.setUserName(getString(R.string.administrator) + Integer.parseInt(userId));
+            user.setUserName(getString(R.string.administrator) + userId);
         } else if (userIdInt < 201) {
             user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
             user.setUserName(getString(R.string.members) + userId);
