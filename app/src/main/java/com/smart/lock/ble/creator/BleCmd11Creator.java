@@ -53,7 +53,7 @@ public class BleCmd11Creator implements BleCreator {
         System.arraycopy(userIdBuf, 0, cmdBuf, 1, 2);
 
         Arrays.fill(cmdBuf, 3, 16, (byte) 13);
-
+        LogUtil.d(TAG,"cmdBuf = "+Arrays.toString(cmdBuf));
         try {
             AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
         } catch (Exception e) {

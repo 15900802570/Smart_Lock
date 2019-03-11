@@ -12,9 +12,9 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ui.AddDeviceActivity;
 import com.smart.lock.ui.LockDetectingActivity;
-import com.smart.lock.ui.setting.SettingsActivity;
+import com.smart.lock.ui.setting.DeviceManagementActivity;
+import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MeDefineView;
@@ -29,6 +29,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private Toolbar mToolbar;
     private MeDefineView mSystemSetTv;
     private MeDefineView mScanQrMv;
+    private MeDefineView mDevManagementTv;
 
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI
@@ -45,6 +46,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mMeView = View.inflate(mActivity, R.layout.me_fragment, null);
         mSystemSetTv = mMeView.findViewById(R.id.system_set);
         mScanQrMv = mMeView.findViewById(R.id.mv_scan_qr);
+        mDevManagementTv = mMeView.findViewById(R.id.mc_manage);
         Log.d(TAG, "initView");
         initEvent();
         return mMeView;
@@ -59,12 +61,14 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         mSystemSetTv.setDes(mMeView.getContext().getResources().getString(R.string.system_setting));
         mScanQrMv.setDes(mMeView.getContext().getResources().getString(R.string.scan_qr));
+        mDevManagementTv.setDes(mMeView.getResources().getString(R.string.device_management));
 
     }
 
     private void initEvent() {
         mSystemSetTv.setOnClickListener(this);
         mScanQrMv.setOnClickListener(this);
+        mDevManagementTv.setOnClickListener(this);
     }
 
     @Override
@@ -105,13 +109,14 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 Log.e("self_message", "0012012");
                 break;
             case R.id.mc_manage:
-                Log.e("mc_manage", "0012012");
+                Intent devManageInstant = new Intent(this.mActivity, DeviceManagementActivity.class);
+                this.startActivity(devManageInstant);
                 break;
             case R.id.sent_repair:
                 Log.e("sent_repair", "0012012");
                 break;
             case R.id.system_set:
-                Intent intent = new Intent(this.mActivity, SettingsActivity.class);
+                Intent intent = new Intent(this.mActivity, SystemSettingsActivity.class);
                 this.startActivity(intent);
                 break;
         }

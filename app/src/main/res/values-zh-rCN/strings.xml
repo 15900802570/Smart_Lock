@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation">
+<resources>
     <string name="app_name">智能锁</string>
     <string name="action_settings">设置</string>
 
@@ -94,8 +94,6 @@
     <string name="pause_user_failed">暂停用户失败</string>
     <string name="add_user_success">新增用户成功</string>
     <string name="add_user_failed">新增用户失败</string>
-    <string name="recovery_user_success">恢复用户成功</string>
-    <string name="recovery_user_failed">恢复用户失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
     <string name="add_nfc_failed">录入NFC卡失败</string>
@@ -109,10 +107,6 @@
     <string name="modify_fp_failed">修改指纹失败</string>
     <string name="modify_fp_success">修改指纹成功</string>
     <string name="delete_fp_success">删除指纹成功</string>
-    <string name="delete_key_success">群删密钥成功</string>
-    <string name="delete_key_failed">群删密钥失败</string>
-    <string name="delete_users_success">群删用户成功</string>
-    <string name="delete_users_failed">群删用户失败</string>
 
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
@@ -181,9 +175,30 @@
     <string name="pause">暂停</string>
     <string name="recovery">恢复</string>
     <string name="invalid">失效</string>
-    <string name="number">编号:</string>
     <string name="mine_certify_select">已选择</string>
     <string name="create_user">创建用户</string>
     <string name="add_user_tips">创建达到上限，请删除后再添加</string>
     <string name="all_election">全选</string>
+    <string name="device_management">设备管理</string>
+    <string name="btn_add_new_lock">添加门锁</string>
+    <string name="number">编号</string>
+    <string name="set_default">设为默认</string>
+    <string name="unbind">解除绑定</string>
+    <string name="lock_settings">门锁设置</string>
+    <string name="intelligent_lock">智能锁芯</string>
+    <string name="anti_prizing_alarm">防撬报警</string>
+    <string name="combination_lock">组合开锁</string>
+    <string name="normally_open">常开功能</string>
+    <string name="rolled_back_time">回锁时间</string>
+    <string name="version_info">版本信息</string>
+    <string name="self_check">自检修复</string>
+    <string name="ota_update">OTA升级</string>
+    <string name="turn_off_voice">关闭语音提示</string>
+    <string name="set_up_time">设置时间</string>
+    <string name="restore_the_factory_settings">恢复出厂设置</string>
+    <string name="serial_number">序列号</string>
+    <string name="imei">IMEI</string>
+    <string name="bluetooth_mac_address">蓝牙MAC地址</string>
+    <string name="software_version">软件版本</string>
+    <string name="hardware_version">硬件版本</string>
 </resources>

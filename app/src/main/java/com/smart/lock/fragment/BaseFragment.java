@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 
-public abstract class BaseFragment extends Fragment {
+public abstract class  BaseFragment extends Fragment {
     public Activity mActivity;
 
     public abstract View initView();

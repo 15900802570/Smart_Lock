@@ -49,7 +49,11 @@
             android:name=".ui.login.LockScreenActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.setting.SettingsActivity"
+            android:name=".ui.setting.SystemSettingsActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.LockSettingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
@@ -86,6 +90,14 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.UserManagerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.setting.DeviceManagementActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ui.VersionInfoActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 

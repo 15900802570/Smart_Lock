@@ -91,6 +91,21 @@ public class TempPwdDao {
         }
         return list;
     }
+    public ArrayList<TempPwd> queryAllByDevNodeId(String devNodeId) {
+        ArrayList<TempPwd> list = null;
+        try {
+            list = (ArrayList<TempPwd>)dao.queryBuilder().
+                    orderBy("pwd_create_time",false).
+                    where().eq("device_nodeId",devNodeId).
+                    query();
+            if(list != null){
+                return list;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     public void delete(TempPwd info) {
         try {
