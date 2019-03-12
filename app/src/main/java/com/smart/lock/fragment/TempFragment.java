@@ -1,7 +1,9 @@
 package com.smart.lock.fragment;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -197,19 +199,20 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     return;
                 }
 
-                byte[] buf = new byte[32];
-                byte[] authBuf = new byte[32];
-                authBuf[0] = 0x01;
+                byte[] buf = new byte[64];
+                byte[] authBuf = new byte[64];
+                authBuf[0] = 0x03;
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_USER_ID), 0, authBuf, 1, 2);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
+                System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 18);
 
                 byte[] timeBuf = new byte[4];
                 StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
                 LogUtil.d(TAG, "time = " + Arrays.toString(timeBuf));
-                System.arraycopy(timeBuf, 0, authBuf, 17, 4);
+                System.arraycopy(timeBuf, 0, authBuf, 35, 4);
 
-                Arrays.fill(authBuf, 21, 32, (byte) 0x11);
+                Arrays.fill(authBuf, 39, 32, (byte) 0x25);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
 
@@ -226,7 +229,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
                 if (path != null) {
-                    mTempAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16)  , path, ConstantUtil.DEVICE_TEMP));
+                    mTempAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_TEMP));
                 }
 
                 mHandler.removeCallbacks(mRunnable);
@@ -418,8 +421,15 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        userInfo.setUserName(holder.mNameEt.getText().toString().trim());
-                        DeviceUserDao.getInstance(mTempView.getContext()).updateDeviceUser(userInfo);
+
+                        AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
+
+                        editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                holder.mNameEt.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
+                            }
+                        });
                     }
                 });
 
