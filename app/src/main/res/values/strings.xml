@@ -200,4 +200,5 @@
     <string name="bluetooth_mac_address">BT MAC AD</string>
     <string name="software_version">Software Version</string>
     <string name="hardware_version">Hardware Version</string>
+    <string name="modify_note_name">Modify Note Name</string>
 </resources>

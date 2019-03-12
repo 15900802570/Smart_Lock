@@ -201,4 +201,5 @@
     <string name="bluetooth_mac_address">蓝牙MAC地址</string>
     <string name="software_version">软件版本</string>
     <string name="hardware_version">硬件版本</string>
+    <string name="modify_note_name">请修改备注名</string>
 </resources>

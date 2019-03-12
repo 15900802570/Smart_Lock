@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -26,6 +27,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
+import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.widget.CustomDialog;
 
@@ -210,6 +214,31 @@ public class DialogUtils {
 
         dialog.show();
         return dialog;
+    }
+
+    public static AlertDialog showEditDialog(final Context context, String msg, final DeviceUser user) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final EditText editText = new EditText(context);
+        builder.setTitle(msg)
+                .setView(editText)
+                .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton(context.getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String name = editText.getText().toString().trim();
+                        user.setUserName(name);
+                        DeviceUserDao.getInstance(context).updateDeviceUser(user);
+                        dialog.dismiss();
+                    }
+                }).show();
+
+
+        return builder.create();
     }
 
     /**
