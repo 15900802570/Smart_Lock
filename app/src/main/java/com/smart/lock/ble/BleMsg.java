@@ -188,7 +188,10 @@ public class BleMsg {
      * 设备用户类型
      */
     public static final String KEY_USER_TYPE = "userType";
-
+    /**
+     * 设备SK
+     */
+    public static final String KEY_DEV_SECRET ="devSecret";
     /**
      * 设备电量百分比
      */

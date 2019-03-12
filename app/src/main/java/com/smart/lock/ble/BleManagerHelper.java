@@ -25,8 +25,10 @@ import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -175,6 +177,41 @@ public class BleManagerHelper {
             }
         }, 500);
         return mIsConnected;
+    }
+
+    /**
+     * 设置秘钥
+     */
+    public static void setSk(String sBleMac, String sNodeId, String sDevSecret) {
+        String mac = sBleMac.replace(":", "");
+
+        byte[] macByte = StringUtil.hexStringToBytes(mac);
+
+        String defaultNodeId = sNodeId;
+        LogUtil.d(TAG, "defaultNodeId = " + defaultNodeId);
+
+        byte[] nodeId = StringUtil.hexStringToBytes(defaultNodeId);
+
+        StringUtil.exchange(nodeId);
+
+        LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
+        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
+
+        System.arraycopy(nodeId, 0, MessageCreator.mSK, 0, 8); //写入IMEI
+
+        System.arraycopy(macByte, 0, MessageCreator.mSK, 8, 6); //写入MAC
+
+        byte[] code = new byte[18];
+        String secretCode = sDevSecret;
+        if (secretCode == null || secretCode.equals("0")) {
+            Arrays.fill(MessageCreator.mSK, 14, 32, (byte) 0);
+        } else {
+            code = StringUtil.hexStringToBytes(secretCode);
+            System.arraycopy(code, 0, MessageCreator.mSK, 14, 18); //写入secretCode
+        }
+
+        LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.mSK));
+
     }
 
     public void setTempMode(Boolean isOtaMode) {

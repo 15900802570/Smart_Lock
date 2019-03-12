@@ -11,7 +11,9 @@ public class BaseActivity extends Activity {
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI
     protected String mBleMac; //蓝牙地址
-    protected String mUserType;
+    protected String mUserType; //用户类型
+    protected String mUserId;   //用户ID
+    protected String mDevSecret; //设备Secret
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
