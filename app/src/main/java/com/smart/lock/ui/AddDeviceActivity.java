@@ -1,10 +1,13 @@
 
 package com.smart.lock.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,6 +21,8 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.permission.PermissionHelper;
+import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.yzq.zxinglibrary.android.CaptureActivity;
@@ -25,13 +30,15 @@ import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 
-public class AddDeviceActivity extends BaseActivity implements OnClickListener {
+public class AddDeviceActivity extends BaseActivity implements OnClickListener, PermissionInterface {
     private static final int REQUEST_CODE_SCAN = 0;
     private static final String TAG = "AddDeviceActivity";
 
     private Button mScanQrBt;
     private Button mManualAddBtn;
     private ImageView mBackIv;
+    private PermissionHelper mPermissionHelper;
+    private static final int REQ_CODE_CAMERA = 1;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -67,6 +74,7 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener {
 
         initView();
         initEvent();
+        mPermissionHelper = new PermissionHelper(this, this);
     }
 
     private void initView() {
@@ -83,7 +91,6 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener {
 
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy");
     }
 
 
@@ -103,7 +110,7 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_scan_qr:
-                scanQr();
+                mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, 1);
                 break;
             case R.id.btn_manual_addition:
                 break;
@@ -146,5 +153,29 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener {
         config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(newIntent, REQUEST_CODE_SCAN);
+    }
+
+    /**
+     * 重写Activity的权限请求返回结果方法
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        mPermissionHelper.requestPermissionsResult(requestCode, permissions, grantResults); // 接管结果判断
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+    @Override
+    public void requestPermissionsSuccess(int callBackCode) {
+        if (callBackCode == REQ_CODE_CAMERA) {
+            scanQr();
+        }
+    }
+
+    @Override
+    public void requestPermissionsFail(int callBackCode) {
+        if (callBackCode == REQ_CODE_CAMERA) {
+            showMessage("您拒绝了权限申请！");
+        }
     }
 }

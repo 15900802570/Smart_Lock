@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-public class BaseActivity extends Activity {
+public class BaseActivity extends AppCompatActivity {
 
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI

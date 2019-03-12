@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +35,7 @@ import com.smart.lock.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class BaseListViewActivity extends Activity implements View.OnClickListener {
+public class BaseListViewActivity extends AppCompatActivity implements View.OnClickListener {
     protected RecyclerView mListView;
     protected TextView mTitle;
     protected ImageView mBack;

@@ -96,7 +96,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         controller.setAcitivty(this);
         mCmdType = getIntent().getStringExtra(BleMsg.KEY_CMD_TYPE);
 
-
         if (mCmdType.equals(ConstantUtil.CREATE)) {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             mNodeId = mDefaultDevice.getDeviceNodeId();
