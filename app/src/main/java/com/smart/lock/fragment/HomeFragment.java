@@ -148,7 +148,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void setTestMode(boolean openTest) {
         mOpenTest = openTest;
-
         if (mOpenTest) {
             new Handler().postDelayed(new Runnable() {
 
@@ -329,7 +328,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             for (DeviceUser user : users) {
                 if (userIds.contains(user.getUserId())) {
                     DeviceUserDao.getInstance(mActivity).delete(user);
-                    userIds.remove((Short) user.getUserId());
+                    userIds.remove(user.getUserId());
                 }
             }
             for (Short userId : userIds) {
@@ -467,6 +466,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void onResume() {
         super.onResume();
+        mDefaultDevice=DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
@@ -504,10 +504,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 break;
             case R.id.bt_setting:
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                startIntent(LockSettingActivity.class, bundle);
-                LogUtil.d(TAG, "设置信息");
+                if(mIsConnected){
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                    startIntent(LockSettingActivity.class,bundle);
+                }else {
+                    showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
+                }
             default:
                 break;
         }

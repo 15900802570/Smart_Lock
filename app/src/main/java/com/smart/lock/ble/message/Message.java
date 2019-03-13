@@ -151,6 +151,10 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_OTA = 0x1B;
 
     /**
+     * 设备版本信息
+     */
+    public static final byte TYPE_BLE_RECEV_CMD_1C = 0x1C;
+    /**
      * 远程开锁
      */
     public static final byte TYPE_BLE_SEND_CMD_21 = 0x21;
