@@ -491,10 +491,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 break;
             case R.id.bt_setting:
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                startIntent(LockSettingActivity.class,bundle);
-                LogUtil.d(TAG,"设置信息");
+                if(mIsConnected){
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                    startIntent(LockSettingActivity.class,bundle);
+                }else {
+                    showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
+                }
             default:
                 break;
         }

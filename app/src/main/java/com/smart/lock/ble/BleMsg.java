@@ -80,6 +80,11 @@ public class BleMsg {
     public static final String STR_RSP_MSG1A_STATUS = "com.datang.uart.rsp.MSG1A_STATUS";
 
     /**
+     * 设备->APK,智能锁将设备信息上报给APK
+     */
+    public static final String STR_RSP_MSG1C_VERSION = "com.datang.uart.rsp.MSG1C_VERSION";
+
+    /**
      * 设备->APK，智能锁录入前提供给APK的超时时间
      */
     public static final String STR_RSP_MSG18_TIMEOUT = "com.datang.uart.rsp.MSG18_TIMEOUT";

@@ -1,10 +1,15 @@
 package com.smart.lock.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.utils.LogUtil;
@@ -33,6 +38,8 @@ public class LockSettingActivity extends AppCompatActivity {
 
 
     private DeviceInfo mDefaultDevice;
+
+    private BleManagerHelper mBleManagerHelper;
 
 
     @Override
@@ -77,6 +84,8 @@ public class LockSettingActivity extends AppCompatActivity {
         try {
             Bundle bundle = getIntent().getExtras();
             mDefaultDevice = (DeviceInfo) bundle.getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
+            mBleManagerHelper = BleManagerHelper.getInstance(this,mDefaultDevice.getDeviceNodeId(),false);
+            LocalBroadcastManager.getInstance(this).registerReceiver(LockSettingReceiver,intentFilter());
         }catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -99,6 +108,32 @@ public class LockSettingActivity extends AppCompatActivity {
             }
         });
     }
+
+    private static IntentFilter intentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
+        intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
+        intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG1C_VERSION);
+        return intentFilter;
+    }
+
+    /**
+     * 广播接收
+     *
+     */
+    private final BroadcastReceiver LockSettingReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            // 4.2.3 MSG 1C
+            if(action.equals(BleMsg.STR_RSP_MSG1C_VERSION)){
+
+            }
+        }
+    };
+
     public void onClick(View view){
         switch (view.getId()){
             case R.id.iv_back:
