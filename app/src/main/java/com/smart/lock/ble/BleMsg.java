@@ -189,10 +189,6 @@ public class BleMsg {
      */
     public static final String KEY_USER_TYPE = "userType";
     /**
-     * 设备SK
-     */
-    public static final String KEY_DEV_SECRET ="devSecret";
-    /**
      * 设备电量百分比
      */
     public static final String KEY_BAT_PERSCENT = "batPerscent";

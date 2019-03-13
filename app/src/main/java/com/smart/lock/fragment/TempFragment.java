@@ -212,7 +212,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 LogUtil.d(TAG, "time = " + Arrays.toString(timeBuf));
                 System.arraycopy(timeBuf, 0, authBuf, 35, 4);
 
-                Arrays.fill(authBuf, 39, 32, (byte) 0x25);
+                Arrays.fill(authBuf, 39, 64, (byte) 0x25);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
 

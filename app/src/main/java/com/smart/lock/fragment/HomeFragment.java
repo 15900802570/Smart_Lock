@@ -453,6 +453,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void onResume() {
         super.onResume();
+        mDefaultDevice=DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
