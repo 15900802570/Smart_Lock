@@ -132,15 +132,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mUserType = mUserType != null ? mUserType : "0";
         }
 
-        // When you need the permission, e.g. onCreate, OnClick etc.
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            }, 255);
-        } else {
-            // We have already permission to use the location
-        }
-
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {

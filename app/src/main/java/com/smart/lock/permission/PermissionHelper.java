@@ -8,9 +8,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import com.smart.lock.utils.LogUtil;
+
 import java.security.Permission;
 
+import static android.content.ContentValues.TAG;
+
 public class PermissionHelper {
+    private final String TAG = PermissionHelper.class.getSimpleName();
 
     private Activity mActivity;
     private PermissionInterface mPermissionInterface;
@@ -24,13 +29,33 @@ public class PermissionHelper {
     }
 
     /**
+     * 弹出对话框请求权限
+     *
+     * @param permissions
+     * @param requestCode
+     */
+    public void requestPermissions(String[] permissions, int requestCode) {
+        mCallBackCode = requestCode;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (String permission : permissions) {
+                if (hasPermission(mActivity, permission)) {
+                    mPermissionInterface.requestPermissionsSuccess(mCallBackCode);
+                } else {
+                    ActivityCompat.requestPermissions(mActivity, new String[]{permission}, mCallBackCode);
+                }
+            }
+
+        }
+    }
+
+    /**
      * 判断是否有某个权限
      *
      * @param context
      * @param permission
      * @return
      */
-    public static boolean hasPermission(Context context, String permission) {
+    public  boolean hasPermission(Context context, String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // Android 6.0判断，6.0以下跳过。在清单文件注册即可，不用动态请求，这里直接视为有权限
             if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
                 return false;
@@ -66,6 +91,7 @@ public class PermissionHelper {
     public void requestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == mCallBackCode) {
             for (int result : grantResults) {
+                LogUtil.d(TAG, "result = " + result);
                 if (result == PackageManager.PERMISSION_GRANTED) {
                     mPermissionInterface.requestPermissionsSuccess(mCallBackCode);
                 } else {

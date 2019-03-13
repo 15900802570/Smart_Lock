@@ -13,6 +13,11 @@ public class ConstantUtil {
     public static final String FINGERPRINT_CHECK = "isFingerprintCheck";
 
     /**
+     * 是否自动测试
+     */
+    public static final String OPEN_TEST = "openTest";
+
+    /**
      * 系统太低不支持指纹
      */
     public static final int FP_LOW_VERSION = 0;
@@ -123,8 +128,4 @@ public class ConstantUtil {
      */
     public static final int USER_PAUSE = 0x02;
 
-    /**
-     * 测试连接开关
-     */
-    public static final String OPEN_TEST = "openTest";
 }

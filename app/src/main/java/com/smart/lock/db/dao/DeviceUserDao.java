@@ -60,7 +60,7 @@ public class DeviceUserDao {
     }
 
 
-    public void updateDeviceUser(DeviceUser info) {
+    public synchronized void updateDeviceUser(DeviceUser info) {
         try {
             dao.update(info);
 
@@ -176,7 +176,7 @@ public class DeviceUserDao {
     }
 
 
-    public DeviceUser queryUser(Object nodeId, Object userId) {
+    public synchronized DeviceUser queryUser(Object nodeId, Object userId) {
         DeviceUser deviceUser = null;
         try {
             deviceUser = dao.queryBuilder().where().eq("dev_node_id", nodeId).and().eq("user_id", userId).queryForFirst();

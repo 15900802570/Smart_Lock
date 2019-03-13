@@ -212,7 +212,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 LogUtil.d(TAG, "time = " + Arrays.toString(timeBuf));
                 System.arraycopy(timeBuf, 0, authBuf, 35, 4);
 
-                Arrays.fill(authBuf, 39, 32, (byte) 0x25);
+                Arrays.fill(authBuf, 39, 64, (byte) 0x25);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
 
@@ -226,11 +226,11 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
                 LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
 
-                String path = createQRcodeImage(buf);
-                Log.d(TAG, "path = " + path);
-                if (path != null) {
-                    mTempAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_TEMP));
-                }
+//                String path = createQRcodeImage(buf);
+                Log.d(TAG, "path = " + null);
+//                if (path != null) {
+                    mTempAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), null, ConstantUtil.DEVICE_TEMP));
+//                }
 
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
@@ -398,7 +398,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
         public void onBindViewHolder(@NonNull final TempViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
-                holder.mNameEt.setText(userInfo.getUserName());
+                holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
@@ -418,20 +418,23 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 }
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
+                final AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
-
-                        editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                holder.mNameEt.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
-                            }
-                        });
+                        editDialog.show();
                     }
                 });
+
+                if (editDialog != null) {
+                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            LogUtil.d(TAG, "holder.mNameTv = " + holder.mNameTv.getText().toString());
+                            holder.mNameTv.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
+                        }
+                    });
+                }
 
                 holder.mUserPause.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -475,22 +478,22 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
                     @Override
                     public boolean onLongClick(View v) {
-                        String path = userInfo.getQrPath();
-                        Log.d(TAG, "path = " + path);
-                        if (StringUtil.checkNotNull(path)) {
-                            String qrName = StringUtil.getFileName(path);
-                            if (System.currentTimeMillis() - Long.parseLong(qrName) > 30 * 60 * 60) {
-                                Log.d(TAG, "qrName = " + qrName);
-                                displayImage(path);
-                            } else {
-                                String newPath = createQr(userInfo);
-                                Log.d(TAG, "newPath = " + newPath);
-                            }
-
-                        } else {
-                            String newPath = createQr(userInfo);
-                            Log.d(TAG, "newPath = " + newPath);
-                        }
+//                        String path = userInfo.getQrPath();
+//                        Log.d(TAG, "path = " + path);
+//                        if (StringUtil.checkNotNull(path)) {
+//                            String qrName = StringUtil.getFileName(path);
+//                            if (System.currentTimeMillis() - Long.parseLong(qrName) > 30 * 60 * 60) {
+//                                Log.d(TAG, "qrName = " + qrName);
+//                                displayImage(path);
+//                            } else {
+//                                String newPath = createQr(userInfo);
+//                                Log.d(TAG, "newPath = " + newPath);
+//                            }
+//
+//                        } else {
+//                            String newPath = createQr(userInfo);
+//                            Log.d(TAG, "newPath = " + newPath);
+//                        }
                         return true;
                     }
                 });
@@ -517,7 +520,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
             TextView mUserStateTv;
             ImageButton mEditIbtn;
             SwipeLayout mSwipeLayout;
-            EditText mNameEt;
+            TextView mNameTv;
             TextView mUserNumberTv;
             CheckBox mDeleteCb;
             LinearLayout mUserRecovery;
@@ -526,7 +529,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
             public TempViewHoler(View itemView) {
                 super(itemView);
-                mNameEt = itemView.findViewById(R.id.et_username);
+                mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);
                 mUserStateTv = itemView.findViewById(R.id.tv_status);
                 mEditIbtn = itemView.findViewById(R.id.ib_edit);

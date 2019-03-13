@@ -12,4 +12,9 @@ public interface PermissionInterface {
      */
     void requestPermissionsFail(int callBackCode);
 
+    /**
+     * 设置需要请求的权限
+     */
+    String[] getPermissions();
+
 }

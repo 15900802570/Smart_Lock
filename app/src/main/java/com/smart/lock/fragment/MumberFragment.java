@@ -1,7 +1,9 @@
 package com.smart.lock.fragment;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -213,7 +215,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 LogUtil.d(TAG, "time = " + Arrays.toString(timeBuf));
                 System.arraycopy(timeBuf, 0, authBuf, 35, 4);
 
-                Arrays.fill(authBuf, 39, 32, (byte) 0x25);
+                Arrays.fill(authBuf, 39, 64, (byte) 0x25);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
 
@@ -400,7 +402,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         public void onBindViewHolder(@NonNull final MumberViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
-                holder.mNameEt.setText(userInfo.getUserName());
+                holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mMumberView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setClickToClose(false);
@@ -419,13 +421,22 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 mSwipelayout.setRightSwipeEnabled(false);
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
+                final AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        userInfo.setUserName(holder.mNameEt.getText().toString().trim());
-                        DeviceUserDao.getInstance(mMumberView.getContext()).updateDeviceUser(userInfo);
+                        editDialog.show();
                     }
                 });
+
+                if (editDialog != null) {
+                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            holder.mNameTv.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
+                        }
+                    });
+                }
 
                 holder.mUserPause.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -508,7 +519,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             TextView mUserStateTv;
             ImageButton mEditIbtn;
             SwipeLayout mSwipeLayout;
-            EditText mNameEt;
+            TextView mNameTv;
             TextView mUserNumberTv;
             LinearLayout mUserRecovery;
             LinearLayout mUserPause;
@@ -517,7 +528,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 
             public MumberViewHoler(View itemView) {
                 super(itemView);
-                mNameEt = itemView.findViewById(R.id.et_username);
+                mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);
                 mUserStateTv = itemView.findViewById(R.id.tv_status);
                 mEditIbtn = itemView.findViewById(R.id.ib_edit);

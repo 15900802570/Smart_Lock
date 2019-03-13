@@ -39,6 +39,8 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener, 
     private ImageView mBackIv;
     private PermissionHelper mPermissionHelper;
     private static final int REQ_CODE_CAMERA = 1;
+    private static final int ACCESS_COARSE_LOCATION = 2;
+    private static final int ACCESS_FINE_LOCATION = 3;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -110,7 +112,7 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_scan_qr:
-                mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, 1);
+                mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_COARSE_LOCATION);
                 break;
             case R.id.btn_manual_addition:
                 break;
@@ -167,15 +169,29 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener, 
 
     @Override
     public void requestPermissionsSuccess(int callBackCode) {
+        Log.d(TAG, "success callBackCode = " + callBackCode);
+
         if (callBackCode == REQ_CODE_CAMERA) {
             scanQr();
+        } else if (callBackCode == ACCESS_COARSE_LOCATION) {
+            mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
+        } else if (callBackCode == ACCESS_FINE_LOCATION) {
+            mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, REQ_CODE_CAMERA);
         }
     }
 
     @Override
     public void requestPermissionsFail(int callBackCode) {
-        if (callBackCode == REQ_CODE_CAMERA) {
-            showMessage("您拒绝了权限申请！");
-        }
+        Log.d(TAG, "failed callBackCode = " + callBackCode);
+        showMessage("您拒绝了权限申请！");
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CAMERA
+        };
     }
 }

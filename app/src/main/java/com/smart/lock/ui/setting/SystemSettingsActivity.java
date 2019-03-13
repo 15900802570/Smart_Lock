@@ -36,7 +36,7 @@ import javax.crypto.SecretKey;
 
 public class SystemSettingsActivity extends BaseFPActivity implements View.OnClickListener {
 
-    private static String TAG= "SystemSettingsActivity";
+    private static String TAG = "SystemSettingsActivity";
 
     private ImageView ivBack;
     private ToggleSwitchDefineView mNumPwdSwitchTv;
@@ -127,6 +127,17 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 mIsFPRequired = false;
             }
         }
+
+        try {
+            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.OPEN_TEST)) {
+                mOpenTestTb.setChecked(true);
+            } else {
+                mOpenTestTb.setChecked(false);
+            }
+        } catch (NullPointerException e) {
+            LogUtil.e(TAG, "初始化自动连接失败" + e);
+            mOpenTestTb.setChecked(false);
+        }
     }
 
     public void initEvent() {
@@ -158,13 +169,13 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 }
             }
         });
-        if(mIsFP>1){
+        if (mIsFP > 1) {
             mFingerprintSwitchLightTbtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(v.getId() == R.id.iv_switch_light){
-                        if(mFingerprintSwitchLightTbtn.isChecked()){
-                            if(!mIsPwdRequired){
+                    if (v.getId() == R.id.iv_switch_light) {
+                        if (mFingerprintSwitchLightTbtn.isChecked()) {
+                            if (!mIsPwdRequired) {
                                 mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
                                         "您未开启密码验证，请先开启密码验证");
                                 mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -173,7 +184,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                                         mFingerprintSwitchLightTbtn.setChecked(false);
                                     }
                                 });
-                            }else if(mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE){
+                            } else if (mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE) {
                                 mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
                                         "您未设置锁屏，请设置锁屏并添加指纹");
                                 mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -182,7 +193,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                                         mFingerprintSwitchLightTbtn.setChecked(false);
                                     }
                                 });
-                            }else if(mIsFP == ConstantUtil.FP_NO_FINGERPRINT){
+                            } else if (mIsFP == ConstantUtil.FP_NO_FINGERPRINT) {
                                 mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
                                         "您至少在系统设置中添加一个指纹");
                                 mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -191,7 +202,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                                         mFingerprintSwitchLightTbtn.setChecked(false);
                                     }
                                 });
-                            }else if(mIsFP == ConstantUtil.FP_SUPPORT){
+                            } else if (mIsFP == ConstantUtil.FP_SUPPORT) {
                                 doFingerprintDialog();
                             }
                         } else {
@@ -205,6 +216,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mOpenTestTb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).writeBoolean(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
                 Intent result = new Intent();
                 result.putExtra(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
                 result.setAction(BleMsg.STR_RSP_OPEN_TEST);
@@ -215,28 +227,29 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
 
     /**
-     *  检测设备是否支持指纹
+     * 检测设备是否支持指纹
+     *
      * @return 0 系统不支持 1 手机不支持 2 未设置锁屏 3 未设置指纹 4 支持指纹
      */
-    private int supportFP(){
-        if(Build.VERSION.SDK_INT<23){
-            LogUtil.i(TGA,"系统版本低,不支持指纹功能");
+    private int supportFP() {
+        if (Build.VERSION.SDK_INT < 23) {
+            LogUtil.i(TGA, "系统版本低,不支持指纹功能");
             return ConstantUtil.FP_LOW_VERSION;
-        }else {
+        } else {
             KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
             mFPM = getSystemService(FingerprintManager.class);
-            if(!mFPM.isHardwareDetected()){
-                LogUtil.i(TGA,"手机不支持指纹");
+            if (!mFPM.isHardwareDetected()) {
+                LogUtil.i(TGA, "手机不支持指纹");
                 return ConstantUtil.FP_NO_HARDWARE;
-            }else if(!keyguardManager.isKeyguardSecure()){
-                LogUtil.i(TGA,"未设置锁屏，需设置锁屏并添加指纹");
+            } else if (!keyguardManager.isKeyguardSecure()) {
+                LogUtil.i(TGA, "未设置锁屏，需设置锁屏并添加指纹");
                 return ConstantUtil.FP_NO_KEYGUARDSECURE;
-            }else if(!mFPM.hasEnrolledFingerprints()){
-                LogUtil.i(TGA,"系统中至少需要添加一个指纹");
+            } else if (!mFPM.hasEnrolledFingerprints()) {
+                LogUtil.i(TGA, "系统中至少需要添加一个指纹");
                 return ConstantUtil.FP_NO_FINGERPRINT;
             }
         }
-        LogUtil.i(TGA,"支持指纹");
+        LogUtil.i(TGA, "支持指纹");
         return ConstantUtil.FP_SUPPORT;
     }
 
@@ -244,50 +257,50 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
      * 开启指纹验证
      */
     @TargetApi(23)
-    private void doFingerprintDialog(){
+    private void doFingerprintDialog() {
         Cipher lCipher;
         //初始化key
         try {
             mKeyStore = KeyStore.getInstance("AndroidKeyStore");
             mKeyStore.load(null);
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore");
-            KeyGenParameterSpec.Builder builder= new KeyGenParameterSpec.Builder(DEVICE_POLICY_SERVICE,
-                    KeyProperties.PURPOSE_ENCRYPT|
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(DEVICE_POLICY_SERVICE,
+                    KeyProperties.PURPOSE_ENCRYPT |
                             KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
                     .setUserAuthenticationRequired(true)
                     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
             keyGenerator.init(builder.build());
             keyGenerator.generateKey();
-        }catch (Exception e){
-            LogUtil.e(TGA,"初始化key出错"+e);
+        } catch (Exception e) {
+            LogUtil.e(TGA, "初始化key出错" + e);
         }
         // 初始化Cipher
-        try{
-            SecretKey key = (SecretKey)mKeyStore.getKey(DEVICE_POLICY_SERVICE,null);
-            lCipher=Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES+'/'
-                    +KeyProperties.BLOCK_MODE_CBC+'/'
-                    +KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            lCipher.init(Cipher.ENCRYPT_MODE,key);
+        try {
+            SecretKey key = (SecretKey) mKeyStore.getKey(DEVICE_POLICY_SERVICE, null);
+            lCipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + '/'
+                    + KeyProperties.BLOCK_MODE_CBC + '/'
+                    + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+            lCipher.init(Cipher.ENCRYPT_MODE, key);
             showFingerprintDialog(lCipher);
-        }catch ( Exception e){
-            LogUtil.e(TGA,"初始化Cipher出错"+e);
+        } catch (Exception e) {
+            LogUtil.e(TGA, "初始化Cipher出错" + e);
         }
 
     }
 
     @TargetApi(23)
-    private void showFingerprintDialog(Cipher cipher){
+    private void showFingerprintDialog(Cipher cipher) {
         FingerprintDialogFragment fingerprintDialogFragment = new FingerprintDialogFragment();
         fingerprintDialogFragment.setCipher(cipher);
-        fingerprintDialogFragment.show(getFragmentManager(),"FINGERPRINT");
+        fingerprintDialogFragment.show(getFragmentManager(), "FINGERPRINT");
     }
 
     @Override
-    public void onFingerprintAuthentication(){
-        LogUtil.i(TGA,"指纹验证成功");
+    public void onFingerprintAuthentication() {
+        LogUtil.i(TGA, "指纹验证成功");
         SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                writeBoolean(ConstantUtil.FINGERPRINT_CHECK,!mIsFPRequired);
+                writeBoolean(ConstantUtil.FINGERPRINT_CHECK, !mIsFPRequired);
         mFingerprintSwitchLightTbtn.setChecked(!mIsFPRequired);
         mIsFPRequired = !mIsFPRequired;
     }
@@ -323,30 +336,30 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         super.onActivityResult(requestCode, resultCode, data);
 
 
-        if(resultCode ==RESULT_OK){
-            switch (data.getExtras().getInt(ConstantUtil.CONFIRM)){
+        if (resultCode == RESULT_OK) {
+            switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
                 case 1:
                     SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.NUM_PWD_CHECK,true);
+                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                     mNumPwdSwitchLightTBtn.setChecked(true);
                     mIsPwdRequired = true;
                     break;
                 case -1:
                     SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.NUM_PWD_CHECK,false);
+                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
                     mNumPwdSwitchLightTBtn.setChecked(false);
-                    mIsPwdRequired=false;
+                    mIsPwdRequired = false;
                     SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.FINGERPRINT_CHECK,false);
+                            writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
                     mFingerprintSwitchLightTbtn.setChecked(false);
-                    mIsFPRequired=false;
+                    mIsFPRequired = false;
                     break;
                 default:
                     break;
             }
-        }else {
+        } else {
             SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                    writeBoolean(ConstantUtil.NUM_PWD_CHECK,true);
+                    writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
             mNumPwdSwitchLightTBtn.setChecked(true);
             mIsPwdRequired = true;
         }

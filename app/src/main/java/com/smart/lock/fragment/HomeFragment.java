@@ -1,15 +1,23 @@
 
 package com.smart.lock.fragment;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,6 +42,8 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.permission.PermissionHelper;
+import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.AddDeviceActivity;
 import com.smart.lock.ui.CardManagerActivity;
 import com.smart.lock.ui.EventsActivity;
@@ -102,6 +112,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private boolean mOpenTest = false; // 测试连接的开关
 
     private int mBattery = 0;
+    private int REQUESTCODE = 0;
+    private String[] mPermission = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
 
     /**
      * 服务连接标志
@@ -133,6 +148,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void setTestMode(boolean openTest) {
         mOpenTest = openTest;
+
         if (mOpenTest) {
             new Handler().postDelayed(new Runnable() {
 
@@ -204,7 +220,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
-
     }
 
     /**
@@ -314,7 +329,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             for (DeviceUser user : users) {
                 if (userIds.contains(user.getUserId())) {
                     DeviceUserDao.getInstance(mActivity).delete(user);
-                    userIds.remove(user.getUserId());
+                    userIds.remove((Short) user.getUserId());
                 }
             }
             for (Short userId : userIds) {
@@ -416,7 +431,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     DeviceInfoDao.getInstance(mHomeView.getContext()).updateDeviceInfo(mDefaultDevice);
                 }
 
-
             }
 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
@@ -492,8 +506,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case R.id.bt_setting:
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                startIntent(LockSettingActivity.class,bundle);
-                LogUtil.d(TAG,"设置信息");
+                startIntent(LockSettingActivity.class, bundle);
+                LogUtil.d(TAG, "设置信息");
             default:
                 break;
         }
@@ -567,9 +581,15 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_permission:
-                if (mIsConnected)
-                    startIntent(UserManagerActivity.class, bundle);
-                else
+                LogUtil.d(TAG, "ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) = " + ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE));
+                if (mIsConnected) {
+                    if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        startIntent(UserManagerActivity.class, bundle);
+                    } else {
+                        ActivityCompat.requestPermissions(mActivity, mPermission, REQUESTCODE);
+                    }
+                } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_token:
@@ -580,4 +600,40 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUESTCODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    AskForPermission();
+                }
+            }
+
+        }
+
+    }
+
+    private void AskForPermission() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mHomeView.getContext());
+        builder.setTitle("Need Permission!");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + mActivity.getPackageName())); // 根据包名打开对应的设置界面
+                startActivity(intent);
+            }
+        });
+        builder.create().show();
+    }
+
 }

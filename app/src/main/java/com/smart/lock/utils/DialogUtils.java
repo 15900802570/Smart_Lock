@@ -34,6 +34,8 @@ import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.widget.CustomDialog;
 
 public class DialogUtils {
+    private static final String TAG = "DialogUtils";
+
     /**
      * 显示Dialog
      *
@@ -226,19 +228,16 @@ public class DialogUtils {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
-                })
-                .setPositiveButton(context.getString(R.string.confirm), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String name = editText.getText().toString().trim();
-                        user.setUserName(name);
-                        DeviceUserDao.getInstance(context).updateDeviceUser(user);
-                        dialog.dismiss();
-                    }
-                }).show();
-
-
-        return builder.create();
+                }).setPositiveButton(context.getString(R.string.confirm), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = editText.getText().toString().trim();
+                user.setUserName(name);
+                DeviceUserDao.getInstance(context).updateDeviceUser(user);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        return dialog;
     }
 
     /**

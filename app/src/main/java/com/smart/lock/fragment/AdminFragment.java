@@ -1,8 +1,10 @@
 package com.smart.lock.fragment;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
@@ -54,6 +56,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.widget.CustomDialog;
 
+import java.io.File;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -235,7 +238,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 LogUtil.d(TAG, "time = " + Arrays.toString(timeBuf));
                 System.arraycopy(timeBuf, 0, authBuf, 35, 4);
 
-                Arrays.fill(authBuf, 39, 32, (byte) 0x25);
+                Arrays.fill(authBuf, 39, 64, (byte) 0x25);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
 
@@ -415,7 +418,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 mDeleteUsers.remove(delIndex);
             }
             mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
-
         }
 
         @Override
@@ -423,7 +425,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             final DeviceUser userInfo = mUserList.get(position);
 
             if (userInfo != null) {
-                holder.mNameEt.setText(userInfo.getUserName());
+                holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
@@ -443,14 +445,23 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 }
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
+                final AlertDialog editDialog = DialogUtils.showEditDialog(mAdminView.getContext(), mContext.getString(R.string.modify_note_name), userInfo);
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        userInfo.setUserName(holder.mNameEt.getText().toString().trim());
-                        LogUtil.d(TAG, "userInfo = " + userInfo.toString());
-                        DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(userInfo);
+                        editDialog.show();
                     }
                 });
+
+                if (editDialog != null) {
+                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            LogUtil.d(TAG, "holder.mNameTv = " + holder.mNameTv.getText().toString());
+                            holder.mNameTv.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
+                        }
+                    });
+                }
 
                 holder.mUserPause.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -502,6 +513,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                                 Log.d(TAG, "qrName = " + qrName);
                                 displayImage(path);
                             } else {
+                                File delQr = new File(path);
+                                delQr.delete();
                                 String newPath = createQr(userInfo);
                                 Log.d(TAG, "newPath = " + newPath);
                             }
@@ -526,8 +539,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         @Override
         public void onViewAttachedToWindow(@NonNull AdminViewHoler holder) {
             super.onViewAttachedToWindow(holder);
-            holder.mNameEt.setEnabled(false);
-            holder.mNameEt.setEnabled(true);
+            holder.mNameTv.setEnabled(false);
+            holder.mNameTv.setEnabled(true);
         }
 
         @Override
@@ -540,7 +553,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             TextView mUserStateTv;
             ImageButton mEditIbtn;
             SwipeLayout mSwipeLayout;
-            EditText mNameEt;
+            TextView mNameTv;
             TextView mUserNumberTv;
             LinearLayout mUserRecovery;
             LinearLayout mUserPause;
@@ -549,7 +562,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
             public AdminViewHoler(View itemView) {
                 super(itemView);
-                mNameEt = itemView.findViewById(R.id.et_username);
+                mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);
                 mUserStateTv = itemView.findViewById(R.id.tv_status);
                 mEditIbtn = itemView.findViewById(R.id.ib_edit);

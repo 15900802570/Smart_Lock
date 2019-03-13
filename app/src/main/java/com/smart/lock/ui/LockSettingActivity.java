@@ -31,7 +31,6 @@ public class LockSettingActivity extends AppCompatActivity {
 
     private String  TAG = "LockSettingActivity";
 
-
     private DeviceInfo mDefaultDevice;
 
 
