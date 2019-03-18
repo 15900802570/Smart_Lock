@@ -40,8 +40,27 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "device_sn")
     private String deviceSn;
 
-    @DatabaseField(columnName = "device_version")
-    private String deviceVersion;
+    @DatabaseField(columnName = "device_sw_version")
+    private String deviceSwVersion;
+
+    @DatabaseField(columnName = "device_hw_version")
+    private String deviceHwVersion;
+
+    public String getDeviceSwVersion() {
+        return deviceSwVersion;
+    }
+
+    public void setDeviceSwVersion(String deviceSwVersion) {
+        this.deviceSwVersion = deviceSwVersion;
+    }
+
+    public String getDeviceHwVersion() {
+        return deviceHwVersion;
+    }
+
+    public void setDeviceHwVersion(String deviceHwVersion) {
+        this.deviceHwVersion = deviceHwVersion;
+    }
 
     @DatabaseField(columnName = "device_status")
     private String deviceStatus;
@@ -193,14 +212,6 @@ public class DeviceInfo implements Serializable {
         this.deviceStatus = deviceStatus;
     }
 
-    public String getDeviceVersion() {
-        return deviceVersion;
-    }
-
-    public void setDeviceVersion(String deviceVersion) {
-        this.deviceVersion = deviceVersion;
-    }
-
     /**
      * 设备显示优先级
      */
@@ -308,7 +319,8 @@ public class DeviceInfo implements Serializable {
                 ", deviceNodeId='" + deviceNodeId + '\'' +
                 ", getewayNodeId='" + getewayNodeId + '\'' +
                 ", deviceSn='" + deviceSn + '\'' +
-                ", deviceVersion='" + deviceVersion + '\'' +
+                ", deviceSwVersion='" + deviceSwVersion + '\'' +
+                ", deviceHwVersion='" + deviceHwVersion + '\'' +
                 ", deviceStatus='" + deviceStatus + '\'' +
                 ", activitedTime=" + activitedTime +
                 ", description='" + description + '\'' +

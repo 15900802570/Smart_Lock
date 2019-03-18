@@ -574,19 +574,33 @@ public class BleCardService extends Service {
     /**
      * APK智能锁。APK给智能锁下发的同步查询指令，智能锁通过MSG1A返回同步状态字
      *
-     * @param key 会话秘钥
      * @return 是否发送成功
      */
-    public boolean sendCmd19(final byte[] key) {
+    public boolean sendCmd19(byte cmdType) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_19);
 
         Bundle bundle = msg.getData();
 
-        if (key != null && key.length != 0) {
-            bundle.putByteArray(BleMsg.KEY_AK, key);
+        if (cmdType != -1) {
+            bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
         }
+        return mBleProvider.send(msg);
+    }
+    /**
+     * APK智能锁。APK给智能锁设置回锁时间
+     *
+     * @return 是否发送成功
+     */
+    public boolean sendCmd1D(byte cmdType) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_1D);
 
+        Bundle bundle = msg.getData();
+
+        if (cmdType != -1) {
+            bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        }
         return mBleProvider.send(msg);
     }
 
@@ -615,7 +629,7 @@ public class BleCardService extends Service {
     /**
      * MSG25是apk发给智能锁查询某用户所有用户相关信息的消息，通过MSG26返回查询结果。管理员可以查询所有用户，普通用户可以查询自己，其他情况返回MSG2E错误。
      *
-     * @param userId  用户编号
+     * @param userId 用户编号
      * @return 是否发送成功
      */
     public boolean sendCmd25(final short userId) {

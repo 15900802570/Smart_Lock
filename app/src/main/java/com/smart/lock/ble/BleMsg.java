@@ -264,5 +264,13 @@ public class BleMsg {
      */
     public static final String KEY_LOG_ID = "logId";
 
+    /**
+     * 软件版本信息
+     */
+    public static final String KEY_SW_VER = "swVer";
 
+    /**
+     * 硬件版本信息
+     */
+    public static final String KEY_HW_VER = "hwVER";
 }

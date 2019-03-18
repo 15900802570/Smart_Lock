@@ -46,7 +46,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
+            android:paddingLeft="20dp"
             android:paddingTop="30sp"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/serial_number"
                 android:textSize="17.0sp"
-                android:layout_weight="1.7"/>
+                android:layout_weight="1.8"/>
             <TextView
                 android:id="@+id/tv_serial_num"
                 android:layout_width="match_parent"
@@ -67,7 +67,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
+            android:paddingLeft="20dp"
             android:paddingTop="30sp"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/imei"
                 android:textSize="17.0sp"
-                android:layout_weight="1.7"/>
+                android:layout_weight="1.8"/>
             <TextView
                 android:id="@+id/tv_imei"
                 android:layout_width="match_parent"
@@ -88,7 +88,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
+            android:paddingLeft="20dp"
             android:paddingTop="30sp"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/bluetooth_mac_address"
                 android:textSize="17.0sp"
-                android:layout_weight="1.7"/>
+                android:layout_weight="1.8"/>
             <TextView
                 android:id="@+id/tv_bt_mac_ad"
                 android:layout_width="match_parent"
@@ -109,7 +109,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
+            android:paddingLeft="20dp"
             android:paddingTop="30sp"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/software_version"
                 android:textSize="17.0sp"
-                android:layout_weight="1.7"/>
+                android:layout_weight="1.8"/>
             <TextView
                 android:id="@+id/tv_software_version"
                 android:layout_width="match_parent"
@@ -130,7 +130,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="30dp"
+            android:paddingLeft="20dp"
             android:paddingTop="30sp"
             android:layout_gravity="center"
             android:orientation="horizontal">
@@ -139,7 +139,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/hardware_version"
                 android:textSize="17.0sp"
-                android:layout_weight="1.7"/>
+                android:layout_weight="1.8"/>
             <TextView
                 android:id="@+id/tv_hardware_version"
                 android:layout_width="match_parent"

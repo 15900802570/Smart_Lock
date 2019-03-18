@@ -134,7 +134,10 @@ public class Message implements Serializable {
      * MSG19是APK给智能锁下发的同步查询指令
      */
     public static final byte TYPE_BLE_SEND_CMD_19 = 0x19;
-
+    /**
+     * MSG1D是APK给智能锁 回锁时间设置
+     */
+    public static final byte TYPE_BLE_SEND_CMD_1D = 0x1D;
     /**
      * MSG 1E 是智能锁在配置基本信息过程中给服务器上报的消息
      */

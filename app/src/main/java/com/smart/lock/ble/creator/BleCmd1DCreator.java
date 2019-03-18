@@ -1,5 +1,6 @@
 package com.smart.lock.ble.creator;
 
+
 import android.os.Bundle;
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
@@ -12,17 +13,11 @@ import com.smart.lock.utils.StringUtil;
 import java.util.Arrays;
 
 /**
- * MSG19是APK给智能锁下发的同步查询指令
+ * apk->设备,设置回锁时间
  */
-public class BleCmd19Creator implements BleCreator {
+public class BleCmd1DCreator implements BleCreator {
 
-
-    private static final String TAG = BleCmd19Creator.class.getSimpleName();
-
-    @Override
-    public String getTag() {
-        return TAG;
-    }
+    private static final String TAG = BleCmd1DCreator.class.getSimpleName();
 
     @Override
     public byte[] create(Message message) {
@@ -33,21 +28,24 @@ public class BleCmd19Creator implements BleCreator {
 
         byte type = extra.getByte(BleMsg.KEY_CMD_TYPE);
 
-        short cmdLen = 16;
-        byte[] cmd = new byte[128];
 
-        cmd[0] = 0x19;
+        byte[] cmd = new byte[128];
+        cmd[0] = 0x1D;
+
         byte[] buf = new byte[16];
-        StringUtil.short2Bytes(cmdLen, buf);
+
+        StringUtil.short2Bytes((short) 16, buf);
+
         System.arraycopy(buf, 0, cmd, 1, 2);
 
         byte[] cmdBuf = new byte[16];
-
         cmdBuf[0] = type;
+
         Arrays.fill(cmdBuf, 1, 16, (byte) 0);
-        LogUtil.d(TAG,"cmd = "+ Arrays.toString(cmdBuf));
+        LogUtil.d(TAG, "cmd =" + Arrays.toString(cmdBuf));
+
         try {
-            AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
+            AES_ECB_PKCS7.AES256Decode(cmdBuf, buf, MessageCreator.mAK);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,8 +59,14 @@ public class BleCmd19Creator implements BleCreator {
 
         byte[] bleCmd = new byte[21];
         System.arraycopy(cmd, 0, bleCmd, 0, 21);
+
         LogUtil.d(TAG,Arrays.toString(bleCmd));
+
         return bleCmd;
     }
 
+    @Override
+    public String getTag() {
+        return TAG;
+    }
 }

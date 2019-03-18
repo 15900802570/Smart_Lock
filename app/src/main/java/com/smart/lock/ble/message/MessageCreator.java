@@ -150,6 +150,32 @@ public class MessageCreator {
     }
 
     /**
+     * 获取消息 MESSAGE.TYPE_BLE_RECEV_CMD_1C
+     * @param type 消息类型
+     * @param sn 设备序列号
+     * @param sw_ver 软件版本
+     * @param hw_ver 硬件版本
+     * @return
+     */
+    public static Message getCmd1CMessage(byte type, byte[] sn, byte[] sw_ver, byte[] hw_ver) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
+        Bundle mBundle = mMessage.getData();
+
+        if (sn != null && sn.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_NODE_SN, sn);
+        }
+        if (sw_ver!= null && sw_ver.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_SW_VER, sw_ver);
+        }
+        if (hw_ver != null && hw_ver.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_HW_VER, hw_ver);
+        }
+        return mMessage;
+    }
+
+    /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_1E
      *
      * @param type    消息类型

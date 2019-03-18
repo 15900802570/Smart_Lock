@@ -4,6 +4,8 @@
     <color name="colorLockBackground">#4a5559</color>
 
     <color name="dot_tilte">#ff37474f</color>
+    <color name="pressed_true">#e8e8e3</color>
+    <color name="pressed_false">#ffffffff</color>
 
     <color name="abc_input_method_navigation_guard">@android:color/black</color>
     <color name="abc_search_url_text_normal">#ff7fa87f</color>
@@ -120,6 +122,7 @@
     <color name="textColorGray">#ffa1abaf</color>
     <color name="textColorOpen">#ff27baff</color>
     <color name="transparent">#00000000</color>
+    <color name="transparent_grey">#b0000000</color>
     <color name="transparent2">#ff999999</color>
     <color name="viewfinder_border">#ffafed44</color>
     <color name="viewfinder_laser">#ffcc0000</color>
