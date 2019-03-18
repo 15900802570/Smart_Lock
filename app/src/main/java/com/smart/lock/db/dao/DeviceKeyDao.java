@@ -4,9 +4,11 @@ package com.smart.lock.db.dao;
 import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
+import com.smart.lock.R;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.ui.CardManagerActivity;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -14,7 +16,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DeviceKeyDao  {
+public class DeviceKeyDao {
 
     private DtDatabaseHelper mHelper;
     private Dao<DeviceKey, Integer> dao;
@@ -43,7 +45,7 @@ public class DeviceKeyDao  {
         return instance;
     }
 
-    
+
     public void insert(DeviceKey DeviceKey) {
 
         try {
@@ -61,7 +63,7 @@ public class DeviceKeyDao  {
         }
     }
 
-     
+
     public void updateDeviceKey(DeviceKey info) {
         try {
             dao.update(info);
@@ -226,7 +228,7 @@ public class DeviceKeyDao  {
         return deviceKey;
     }
 
-    public void checkDeviceKey(Object nodeId, short userId, byte key, String type, String lockId) {
+    public void checkDeviceKey(Object nodeId, short userId, byte key, byte type, String lockId) {
         if (key != 0) {
             DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId);
             if (deviceKey == null) {
@@ -234,7 +236,13 @@ public class DeviceKeyDao  {
                 deviceKey.setDeviceNodeId((String) nodeId);
                 deviceKey.setUserId(userId);
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName(type + lockId);
+                if (type == ConstantUtil.USER_PWD) {
+                    deviceKey.setKeyName(R.string.password + lockId);
+                } else if (type == ConstantUtil.USER_FINGERPRINT)
+                    deviceKey.setKeyName(R.string.fingerprint + lockId);
+                else if (type == ConstantUtil.USER_NFC)
+                    deviceKey.setKeyName("NFC" + lockId);
+
                 deviceKey.setKeyType(type);
                 deviceKey.setLockId((String) lockId);
 

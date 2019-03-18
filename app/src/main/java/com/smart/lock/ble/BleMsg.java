@@ -239,6 +239,11 @@ public class BleMsg {
      */
     public static final String KEY_DEFAULT_DEVICE = "defaultDevice";
 
+    /**
+     * 当前临时用户
+     */
+    public static final String KEY_TEMP_USER = "tempUser";
+
 
     /**
      * 守护数据
@@ -260,5 +265,13 @@ public class BleMsg {
      */
     public static final String KEY_LOG_ID = "logId";
 
+    /**
+     * 开锁时段
+     */
+    public static final String KEY_UNLOCK_IMEI = "unLockTime";
 
+    /**
+     * 开锁时段
+     */
+    public static final String KEY_LIFE_CYCLE = "lefeCycle";
 }

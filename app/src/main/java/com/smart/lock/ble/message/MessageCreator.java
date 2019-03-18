@@ -94,6 +94,7 @@ public class MessageCreator {
         LogUtil.d(TAG, "userStatus = " + userStatus);
         LogUtil.d(TAG, "stStatus = " + stStatus);
         LogUtil.d(TAG, "unLockTime = " + unLockTime);
+        LogUtil.d(TAG, "userState = " + userState);
 
         mBundle.putByte(BleMsg.KEY_BAT_PERSCENT, batPerscent);
         mBundle.putByte(BleMsg.KEY_USER_STATUS, userStatus);
@@ -197,8 +198,8 @@ public class MessageCreator {
     public static Message getCmd16Message(byte type, byte[] lockId) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
         Bundle mBundle = mMessage.getData();
-
 
         if (lockId != null && lockId.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_LOCK_ID, lockId);

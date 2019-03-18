@@ -201,4 +201,13 @@
     <string name="software_version">Software Version</string>
     <string name="hardware_version">Hardware Version</string>
     <string name="modify_note_name">Modify Note Name</string>
+    <string name="temp_user_setting">Temp User Setting</string>
+    <string name="set_unlock_time">Set unLock time</string>
+    <string name="set_unlock_key">Set unLock key</string>
+    <string name="note_name">Note Name:</string>
+    <string name="add_unlock_time">Add unlock time</string>
+    <string name="set_unlock_time_success">Set unlock time success</string>
+    <string name="unlock_key">Unlock time</string>
+    <string name="set_life_cycle_success">Set temp user life cycle success</string>
+    <string name="remote_unlock_success">Remote unlock success</string>
 </resources>

@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.UserManagerActivity">
+
+    <item
+        android:id="@+id/item_set_unlock_time"
+        android:orderInCategory="100"
+        android:title="@string/set_unlock_time"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/item_set_unlock_key"
+        android:orderInCategory="100"
+        android:title="@string/set_unlock_key"
+        app:showAsAction="never" />
+
+</menu>

@@ -35,6 +35,8 @@
     <string name="fingerprint_manager">指纹管理</string>
     <string name="device_manager">设备管理</string>
     <string name="permission_manager">用户与权限</string>
+    <string name="unlock_key">开锁信息管理</string>
+    <string name="temp_user_setting">临时用户管理</string>
     <string name="token_manager">临时密码</string>
     <string name="event_manager">门锁事件</string>
     <string name="ble_instruction">一键开锁</string>
@@ -142,6 +144,7 @@
     <string name="title_event">门锁事件</string>
     <string name="event_type">类型编号:</string>
     <string name="remote">远程</string>
+    <string name="remote_unlock_success">远程开锁成功</string>
     <string name="plz_choise_del_log">请选择要删除的日志</string>
     <string name="plz_choise_del_user">请选择要删除的用户</string>
     <string name="plz_scan_correct_qr">请扫描正确的二维码!</string>
@@ -202,4 +205,10 @@
     <string name="software_version">软件版本</string>
     <string name="hardware_version">硬件版本</string>
     <string name="modify_note_name">请修改备注名</string>
+    <string name="set_unlock_time">设置开锁时段</string>
+    <string name="set_unlock_key">设置开锁信息</string>
+    <string name="note_name">备注:</string>
+    <string name="add_unlock_time">添加时段</string>
+    <string name="set_unlock_time_success">设置临时用户有效期成功</string>
+    <string name= "set_life_cycle_success">临时用户生命周期设置成功</string>
 </resources>

@@ -27,11 +27,99 @@ public class DeviceUser implements Serializable {
     @DatabaseField(columnName = "create_time")
     private long createTime;
 
+    @DatabaseField(columnName = "lc_begin") //生命周期开始
+    private String lcBegin;
+
+    @DatabaseField(columnName = "lc_end") //生命周期结束
+    private String lcEnd;
+
+    @DatabaseField(columnName = "st_ts_begin") //第一开锁开始时段
+    private String stTsBegin;
+
+    @DatabaseField(columnName = "st_ts_end")//第一开锁结束时段
+    private String stTsEnd;
+
+    @DatabaseField(columnName = "nd_ts_begin")//第二开锁开始时段
+    private String ndTsBegin;
+
+    @DatabaseField(columnName = "nd_ts_end")//第二开锁结束时段
+    private String ndTsend;
+
+    @DatabaseField(columnName = "th_ts_begin")//第三开锁开始时段
+    private String thTsBegin;
+
+    @DatabaseField(columnName = "th_ts_end")//第三开锁结束时段
+    private String thTsEnd;
+
     @DatabaseField(columnName = "user_name")
     private String userName;
 
     @DatabaseField(columnName = "qr_path")
     private String qrPath;
+
+    public String getLcBegin() {
+        return lcBegin;
+    }
+
+    public void setLcBegin(String lcBegin) {
+        this.lcBegin = lcBegin;
+    }
+
+    public String getLcEnd() {
+        return lcEnd;
+    }
+
+    public void setLcEnd(String lcEnd) {
+        this.lcEnd = lcEnd;
+    }
+
+    public String getStTsBegin() {
+        return stTsBegin;
+    }
+
+    public void setStTsBegin(String stTsBegin) {
+        this.stTsBegin = stTsBegin;
+    }
+
+    public String getStTsEnd() {
+        return stTsEnd;
+    }
+
+    public void setStTsEnd(String stTsEnd) {
+        this.stTsEnd = stTsEnd;
+    }
+
+    public String getNdTsBegin() {
+        return ndTsBegin;
+    }
+
+    public void setNdTsBegin(String ndTsBegin) {
+        this.ndTsBegin = ndTsBegin;
+    }
+
+    public String getNdTsend() {
+        return ndTsend;
+    }
+
+    public void setNdTsend(String ndTsend) {
+        this.ndTsend = ndTsend;
+    }
+
+    public String getThTsBegin() {
+        return thTsBegin;
+    }
+
+    public void setThTsBegin(String thTsBegin) {
+        this.thTsBegin = thTsBegin;
+    }
+
+    public String getThTsEnd() {
+        return thTsEnd;
+    }
+
+    public void setThTsEnd(String thTsEnd) {
+        this.thTsEnd = thTsEnd;
+    }
 
     public String getQrPath() {
         return qrPath;
@@ -94,10 +182,18 @@ public class DeviceUser implements Serializable {
         return "DeviceUser{" +
                 "id=" + id +
                 ", devNodeId='" + devNodeId + '\'' +
-                ", userId='" + userId + '\'' +
-                ", userPermission='" + userPermission + '\'' +
-                ", userStatus='" + userStatus + '\'' +
+                ", userId=" + userId +
+                ", userPermission=" + userPermission +
+                ", userStatus=" + userStatus +
                 ", createTime=" + createTime +
+                ", lcBegin=" + lcBegin +
+                ", lcEnd=" + lcEnd +
+                ", stTsBegin=" + stTsBegin +
+                ", stTsEnd=" + stTsEnd +
+                ", ndTsBegin=" + ndTsBegin +
+                ", ndTsend=" + ndTsend +
+                ", thTsBegin=" + thTsBegin +
+                ", thTsEnd=" + thTsEnd +
                 ", userName='" + userName + '\'' +
                 ", qrPath='" + qrPath + '\'' +
                 '}';

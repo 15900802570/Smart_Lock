@@ -52,9 +52,11 @@ import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.PwdManagerActivity;
 import com.smart.lock.ui.TempPwdActivity;
+import com.smart.lock.ui.TempUserActivity;
 import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MyGridView;
@@ -81,6 +83,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private TextView mShowTimeTv;
     private TextView mLockStatusTv;
     private TextView mBleConnectTv;
+    private Button mInstructionBtn;
 
     private ViewPagerAdapter mAdapter; //news adapter
     private LockManagerAdapter mLockAdapter; //gridView adapter
@@ -142,6 +145,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mShowTimeTv = mHomeView.findViewById(R.id.tv_update);
         mLockStatusTv = mHomeView.findViewById(R.id.tv_status);
         mBleConnectTv = mHomeView.findViewById(R.id.tv_connect);
+        mInstructionBtn = mHomeView.findViewById(R.id.btn_instruction);
         initEvent();
         return mHomeView;
     }
@@ -169,6 +173,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mLockSettingTv.setOnClickListener(this);
         mMyGridView.setOnItemClickListener(this);
         mBleConnectTv.setOnClickListener(this);
+        mInstructionBtn.setOnClickListener(this);
     }
 
     public void initDate() {
@@ -246,7 +251,9 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 }
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+
                     mNodeId = mDefaultDevice.getDeviceNodeId();
+                    Log.d(TAG, "mDefaultUser = " + mDefaultDevice.getUserId());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mMyGridView.setAdapter(mLockAdapter);
                 }
@@ -324,10 +331,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     private void checkUserId(ArrayList<Short> userIds) {
         ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-
+        Log.d(TAG, "userIds = " + userIds.toString());
         if (!userIds.isEmpty()) {
             for (DeviceUser user : users) {
+                Log.d(TAG, "user1 = " + user.toString());
                 if (userIds.contains(user.getUserId())) {
+                    Log.d(TAG, "del user = " + user.toString());
                     DeviceUserDao.getInstance(mActivity).delete(user);
                     userIds.remove((Short) user.getUserId());
                 }
@@ -365,28 +374,29 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                 LogUtil.d(TAG, "battery = " + mBattery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
                 LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+                LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
                 byte[] buf = new byte[4];
                 System.arraycopy(syncUsers, 0, buf, 0, 4);
-                String status1 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
                 LogUtil.d(TAG, "status1 = " + status1);
 
                 System.arraycopy(syncUsers, 4, buf, 0, 4);
-                String status2 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                long status2 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
                 LogUtil.d(TAG, "status2 = " + status2);
 
                 System.arraycopy(syncUsers, 8, buf, 0, 4);
-                String status3 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                long status3 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
                 LogUtil.d(TAG, "status3 = " + status3);
 
                 System.arraycopy(syncUsers, 12, buf, 0, 4);
-                String status4 = String.valueOf(Integer.parseInt(StringUtil.bytesToHexString(buf), 16));
+                long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
                 LogUtil.d(TAG, "status4 = " + status4);
 
                 if (mDefaultDevice != null) {
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status1), mDefaultDevice.getDeviceNodeId(), 1));
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status2), mDefaultDevice.getDeviceNodeId(), 2));
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status3), mDefaultDevice.getDeviceNodeId(), 3));
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(Integer.parseInt(status4), mDefaultDevice.getDeviceNodeId(), 4));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status1, mDefaultDevice.getDeviceNodeId(), 1));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status2, mDefaultDevice.getDeviceNodeId(), 2));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status3, mDefaultDevice.getDeviceNodeId(), 3));
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status4, mDefaultDevice.getDeviceNodeId(), 4));
                     DeviceUserDao.getInstance(mActivity).checkUserState(mDefaultDevice.getDeviceNodeId(), userState);
 
                     mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
@@ -419,13 +429,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     mDefaultUser.setUserStatus(userInfo[0]);
                     DeviceUserDao.getInstance(mHomeView.getContext()).updateDeviceUser(mDefaultUser);
 
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[1], "PWD", "1");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[2], "NFC", "1");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[3], "FP", "1");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[4], "FP", "2");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[5], "FP", "3");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[6], "FP", "4");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[7], "FP", "5");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
+                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
 
                     mDefaultDevice.setMixUnlock(userInfo[8]);
                     DeviceInfoDao.getInstance(mHomeView.getContext()).updateDeviceInfo(mDefaultDevice);
@@ -451,6 +461,16 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             if (action.equals(BleMsg.STR_RSP_OPEN_TEST)) {
                 setTestMode(intent.getBooleanExtra(ConstantUtil.OPEN_TEST, false));
             }
+
+            if (action.equals(BleMsg.STR_RSP_MSG2E_ERRCODE)) {
+                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
+                Log.d(TAG, "errCode[3] = " + errCode[3]);
+                if (errCode[3] == 0x00) {
+                    showMessage(getString(R.string.remote_unlock_success));
+                }
+                mHandler.removeCallbacks(mRunnable);
+                DialogUtils.closeDialog(mLoadDialog);
+            }
         }
     };
 
@@ -462,6 +482,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
         intentFilter.addAction(BleMsg.STR_RSP_MSG26_USERINFO);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG2E_ERRCODE);
         return intentFilter;
     }
 
@@ -508,6 +529,22 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                 startIntent(LockSettingActivity.class, bundle);
                 LogUtil.d(TAG, "设置信息");
+
+            case R.id.btn_instruction:
+
+                if (mNodeId.getBytes().length == 15) {
+                    mNodeId = "0" + mNodeId;
+                }
+                LogUtil.d(TAG, "nodeId = " + mNodeId);
+
+                byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
+
+                StringUtil.exchange(nodeId);
+
+                if (BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
+                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().sendCmd21(nodeId);
+                } else
+                    showMessage("未连接");
             default:
                 break;
         }

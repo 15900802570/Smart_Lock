@@ -22,6 +22,7 @@ import android.util.Log;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.BleReceiver;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.utils.ConstantUtil;
@@ -524,6 +525,7 @@ public class BleCardService extends Service {
     public boolean sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, int pwd) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_15);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
 
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
@@ -532,7 +534,13 @@ public class BleCardService extends Service {
         bundle.putByte(BleMsg.KEY_LOCK_ID, lockId);
         bundle.putInt(BleMsg.KEY_PWD, pwd);
 
-        return mBleProvider.send(msg);
+        DeviceKey deviceKey = new DeviceKey();
+        deviceKey.setKeyType(keyType);
+        bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
+
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+
+        return ct.request();
     }
 
     /**
@@ -550,6 +558,24 @@ public class BleCardService extends Service {
     }
 
     /**
+     * MSG 1B
+     */
+    public boolean sendCmd1B(final byte cmdType, final short userId, byte[] unlockTime) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_1B);
+
+        Bundle bundle = msg.getData();
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        if (unlockTime != null && unlockTime.length != 0) {
+            bundle.putByteArray(BleMsg.KEY_UNLOCK_IMEI, unlockTime);
+        }
+
+        return mBleProvider.send(msg);
+    }
+
+    /**
      * APK智能锁。APK给智能锁下发的进入OTA模式命令
      *
      * @param ota OTA命令秘钥
@@ -557,7 +583,7 @@ public class BleCardService extends Service {
      */
     public boolean sendCmdOta(final byte[] ota, final byte[] key) {
         Message msg = Message.obtain();
-        msg.setType(Message.TYPE_BLE_SEND_CMD_OTA);
+//        msg.setType(Message.TYPE_BLE_SEND_CMD_OTA);
 
         Bundle bundle = msg.getData();
         if (ota != null && ota.length != 0) {
@@ -596,7 +622,7 @@ public class BleCardService extends Service {
      * @param nodeId 设备编号
      * @return 是否发送成功
      */
-    public boolean sendCmd21(final byte[] nodeId, final byte[] key) {
+    public boolean sendCmd21(final byte[] nodeId) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_21);
 
@@ -605,17 +631,13 @@ public class BleCardService extends Service {
             bundle.putByteArray(BleMsg.KEY_NODE_ID, nodeId);
         }
 
-        if (key != null && key.length != 0) {
-            bundle.putByteArray(BleMsg.KEY_AK, key);
-        }
-
         return mBleProvider.send(msg);
     }
 
     /**
      * MSG25是apk发给智能锁查询某用户所有用户相关信息的消息，通过MSG26返回查询结果。管理员可以查询所有用户，普通用户可以查询自己，其他情况返回MSG2E错误。
      *
-     * @param userId  用户编号
+     * @param userId 用户编号
      * @return 是否发送成功
      */
     public boolean sendCmd25(final short userId) {
@@ -632,6 +654,23 @@ public class BleCardService extends Service {
         ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
 
         return ct.request();
+    }
+
+    /**
+     * MSG 29
+     */
+    public boolean sendCmd29(final short userId, byte[] lifeCycle) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_29);
+
+        Bundle bundle = msg.getData();
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        if (lifeCycle != null && lifeCycle.length != 0) {
+            bundle.putByteArray(BleMsg.KEY_LIFE_CYCLE, lifeCycle);
+        }
+
+        return mBleProvider.send(msg);
     }
 
     /**

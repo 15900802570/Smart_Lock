@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 
-public abstract class  BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment {
     public Activity mActivity;
 
     public abstract View initView();
@@ -72,6 +72,7 @@ public abstract class  BaseFragment extends Fragment {
     protected String mNodeId;
     protected DeviceInfo mDefaultDevice; //默认设备
     protected DeviceUser mDefaultUser;//当前用户
+    protected DeviceUser mTempUser;
     /**
      * 超时提示框启动器
      */

@@ -17,7 +17,7 @@ import java.util.Map;
  *
  */
 public class DateTimeUtil {
-    private static final String log = "DatetimeUtil";
+    private static final String TAG = "DatetimeUtil";
 
     private static Map<String, DateFormat> formatMap = new HashMap<>();
 
@@ -110,13 +110,38 @@ public class DateTimeUtil {
         return format.format(dateString);
     }
 
+    /**
+     * 比较两个日期的大小，日期格式为yyyy-MM-dd
+     *
+     * @param str1 the first date
+     * @param str2 the second date
+     * @return true <br/>false
+     */
+    public static boolean isDateOneBigger(String str1, String str2) {
+        boolean isBigger = false;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dt1 = null;
+        Date dt2 = null;
+        try {
+            dt1 = sdf.parse(str1);
+            dt2 = sdf.parse(str2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (dt1.getTime() > dt2.getTime()) {
+            isBigger = true;
+        } else if (dt1.getTime() < dt2.getTime()) {
+            isBigger = false;
+        }
+        return isBigger;
+    }
+
 
     /**
-     * 6      * 时间戳转换成日期格式字符串
-     * 7      * @param seconds 精确到秒的字符串
-     * 8      * @param formatStr
-     * 9      * @return
-     * 10
+     * 时间戳转换成日期格式字符串
+     *
+     * @param seconds 精确到秒的字符串
+     * @return
      */
     public static String timeStamp2Date(String seconds, String format) {
         if (seconds == null || seconds.isEmpty() || seconds.equals("null")) {
@@ -661,7 +686,6 @@ public class DateTimeUtil {
     }
 
     /**
-     * yangkai17025
      * 给定时间判断此时间所在周的周一*（周日）
      **/
     public String convertWeekByDate(Date time) {
@@ -684,7 +708,6 @@ public class DateTimeUtil {
     }
 
     /**
-     * yangkai17025
      **/
     public static class MyDate {
         int day;
@@ -717,7 +740,6 @@ public class DateTimeUtil {
 
     /**
      * 两个时间之间的查（天）
-     * yangkai17025
      **/
     public static long getDateDiffe(Date a, Date b) {
         MyDate d1 = new MyDate(a);
@@ -727,7 +749,6 @@ public class DateTimeUtil {
 
     /**
      * 获取本月有多少天）
-     * yangkai17025
      **/
     public static int getDateOfMonth() {
         Calendar cal = Calendar.getInstance();
@@ -865,8 +886,51 @@ public class DateTimeUtil {
     /**
      * 临时密码失效时间计算
      */
-    public static long getFailureTime(long createdTime){
-        return (long)Math.ceil(createdTime/1800.0+1)*1800;
+    public static long getFailureTime(long createdTime) {
+        return (long) Math.ceil(createdTime / 1800.0 + 1) * 1800;
     }
 
+    /**
+     * 比较两个时间段数组是否有重合
+     *
+     * @param timeArray1
+     * @param timeArray2
+     * @return 有重合 true;
+     */
+    public static boolean compareDate(ArrayList<Integer> timeArray1, ArrayList<Integer> timeArray2) {
+        LogUtil.d(TAG, "timeArray1 = " + timeArray1.toString());
+        LogUtil.d(TAG, "timeArray2 = " + timeArray2.toString());
+        for (int i : timeArray1) {
+            if (timeArray2.contains(i))
+                LogUtil.d(TAG, "i = " + i);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 将时间段转换成数组
+     *
+     * @return
+     */
+    public static ArrayList<Integer> checkDate(String startDate, String endDate) {
+        // 先将时间转换成分来计算
+        int timeStart = Integer.parseInt(startDate.split(":")[0]) * 60 + Integer.parseInt(startDate.split(":")[1]);
+        int timeEnd = Integer.parseInt(endDate.split(":")[0]) * 60 + Integer.parseInt(endDate.split(":")[1]);
+        // 将时间段封装成一个数组
+        ArrayList<Integer> timeArray = new ArrayList<Integer>();
+        if (timeEnd > timeStart) {// 开始时间小于结束时间
+            for (int i = timeStart; i <= timeEnd; i++) {
+                timeArray.add(i);// 添加开始时间至结束时间为止的时间
+            }
+        } else {// 开始时间大于结束时间
+            for (int i = timeStart; i < 24 * 60; i++) {
+                timeArray.add(i);// 添加开始时间至当天0点以前的剩余时间
+            }
+            for (int i = 0; i <= timeEnd; i++) {
+                timeArray.add(i);// 添加0点以后到结束时间为止的时间
+            }
+        }
+        return timeArray;
+    }
 }

@@ -33,6 +33,7 @@ import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.ui.TempUserActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -228,15 +229,17 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
 //                String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + null);
-//                if (path != null) {
-                    mTempAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), null, ConstantUtil.DEVICE_TEMP));
-//                }
 
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
+                DeviceUser deviceUser;
+                deviceUser = createDeviceUser(Short.parseShort(userId, 16), null, ConstantUtil.DEVICE_TEMP);
+
+                if (deviceUser != null) {
+                    mTempAdapter.addItem(deviceUser);
+                    mHandler.removeCallbacks(mRunnable);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
             }
 
-            //MSG1E �豸->apk��������Ϣ
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
                 if (user != null) {
@@ -474,27 +477,13 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     }
                 });
 
-                holder.mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
+                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
 
                     @Override
-                    public boolean onLongClick(View v) {
-//                        String path = userInfo.getQrPath();
-//                        Log.d(TAG, "path = " + path);
-//                        if (StringUtil.checkNotNull(path)) {
-//                            String qrName = StringUtil.getFileName(path);
-//                            if (System.currentTimeMillis() - Long.parseLong(qrName) > 30 * 60 * 60) {
-//                                Log.d(TAG, "qrName = " + qrName);
-//                                displayImage(path);
-//                            } else {
-//                                String newPath = createQr(userInfo);
-//                                Log.d(TAG, "newPath = " + newPath);
-//                            }
-//
-//                        } else {
-//                            String newPath = createQr(userInfo);
-//                            Log.d(TAG, "newPath = " + newPath);
-//                        }
-                        return true;
+                    public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
+                        startIntent(TempUserActivity.class, bundle);
                     }
                 });
 

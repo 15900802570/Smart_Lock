@@ -90,7 +90,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 } else if (errCode[3] == 0x10) {
                     showMessage(CardManagerActivity.this.getResources().getString(R.string.delete_nfc_success));
                     DeviceKeyDao.getInstance(CardManagerActivity.this).delete(mCardAdapter.mCardList.get(mCardAdapter.positionDelete));
-                    mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC"));
+                    mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_NFC));
                     mCardAdapter.notifyDataSetChanged();
                 }
 
@@ -108,10 +108,10 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 deviceKey.setUserId(mDefaultDevice.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 deviceKey.setKeyName("NFC" + (Integer.parseInt(mLockId)));
-                deviceKey.setKeyType("NFC");
+                deviceKey.setKeyType(ConstantUtil.USER_NFC);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(CardManagerActivity.this).insert(deviceKey);
-                mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC"));
+                mCardAdapter.setDataSource(DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_NFC));
                 mCardAdapter.notifyDataSetChanged();
             }
 
@@ -152,7 +152,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
 
                 break;
             case R.id.btn_add:
-                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC").size();
+                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_NFC).size();
 
                 if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -180,7 +180,6 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
         mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 
-
     public class CardManagerAdapter extends RecyclerView.Adapter<CardManagerAdapter.MyViewHolder> {
         private Context mContext;
         public ArrayList<DeviceKey> mCardList;
@@ -189,7 +188,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
 
         public CardManagerAdapter(Context context) {
             mContext = context;
-            mCardList = DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "NFC");
+            mCardList = DeviceKeyDao.getInstance(CardManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_NFC);
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {

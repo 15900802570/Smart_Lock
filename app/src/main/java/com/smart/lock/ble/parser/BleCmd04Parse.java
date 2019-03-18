@@ -4,6 +4,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 
@@ -11,6 +12,8 @@ import java.util.Arrays;
  * 是智能锁对MSG01消息的响应
  */
 public class BleCmd04Parse implements BleCommandParse {
+
+    private static final String TAG = BleCmd04Parse.class.getSimpleName();
 
     @Override
     public String getTag() {
@@ -32,6 +35,8 @@ public class BleCmd04Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
+        LogUtil.d(TAG,"buf = " + Arrays.toString(buf));
+
         byte[] batPerscent = new byte[1];
         byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];
@@ -48,6 +53,8 @@ public class BleCmd04Parse implements BleCommandParse {
         System.arraycopy(buf, 19, unLockTime, 0, 1);
         System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
         System.arraycopy(buf, 148, userState, 0, 100);
+        LogUtil.d(TAG,"tmpPwdSk = " + Arrays.toString(tmpPwdSk));
+        LogUtil.d(TAG,"userState = " + Arrays.toString(userState));
 
         return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState);
     }

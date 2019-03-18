@@ -15,7 +15,7 @@ public class DeviceKey implements Serializable {
     private String deviceNodeId;
 
     @DatabaseField(columnName = "key_type")
-    private String keyType;
+    private byte keyType;
 
     @DatabaseField(columnName = "user_id")
     private short userId;
@@ -56,11 +56,11 @@ public class DeviceKey implements Serializable {
         this.deviceNodeId = deviceNodeId;
     }
 
-    public String getKeyType() {
+    public byte getKeyType() {
         return keyType;
     }
 
-    public void setKeyType(String keyType) {
+    public void setKeyType(byte keyType) {
         this.keyType = keyType;
     }
 
