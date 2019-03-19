@@ -6,17 +6,18 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
 
 /**
- * MSG 21是APK/GW给智能锁下发的远程开锁消息。
+ * APK配置智能锁临时用户的生命周期，不配置则生命周期一直存在，同普通用户，通过MSG2E返回结果
  */
-public class BleCmd21Creator implements BleCreator {
+public class BleCmd29Creator implements BleCreator {
 
 
-    private static final String TAG = BleCmd21Creator.class.getSimpleName();
+    private static final String TAG = BleCmd29Creator.class.getSimpleName();
 
     @Override
     public String getTag() {
@@ -26,33 +27,36 @@ public class BleCmd21Creator implements BleCreator {
     @Override
     public byte[] create(Message message) {
 
-        Bundle extra = message.getData();
+        Bundle data = message.getData();
 
-        if (extra == null) throw new RuntimeException("AK is error!");
-
-        byte[] nodeId = extra.getByteArray(BleMsg.KEY_NODE_ID);
+        short userId = data.getShort(BleMsg.KEY_USER_ID);
+        byte[] lifeCycle = data.getByteArray(BleMsg.KEY_LIFE_CYCLE);
 
         short cmdLen = 16;
         byte[] cmd = new byte[128];
 
-        cmd[0] = 0x21;
+        cmd[0] = 0x29;
         byte[] buf = new byte[16];
         StringUtil.short2Bytes(cmdLen, buf);
         System.arraycopy(buf, 0, cmd, 1, 2);
 
         byte[] cmdBuf = new byte[16];
-        //写入nodeid
-        System.arraycopy(nodeId, 0, cmdBuf, 0, 8);
-        //写入0
-        Arrays.fill(cmdBuf, 8, 16, (byte) 8);
+        byte[] userIdBuf = new byte[2];
+
+        StringUtil.short2Bytes(userId, userIdBuf);
+        System.arraycopy(userIdBuf, 0, cmdBuf, 0, 2);
+
+        if (lifeCycle != null) {
+            System.arraycopy(lifeCycle, 0, cmdBuf, 2, 8);
+            Arrays.fill(cmdBuf, 10, 16, (byte) 6);
+            LogUtil.d(getTag(), "cmdBuf = " + Arrays.toString(cmdBuf));
+        }
 
         try {
             AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        //写入F1
         System.arraycopy(buf, 0, cmd, 3, 16);
 
         short crc = StringUtil.crc16(cmd, 19);

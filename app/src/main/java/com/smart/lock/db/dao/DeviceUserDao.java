@@ -7,6 +7,7 @@ import android.util.Log;
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
+import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -240,8 +241,8 @@ public class DeviceUserDao {
      *
      * @return 获取本地用户状态字
      */
-    public int getUserStatus(String nodeId, int num) {
-        int ret = 0;
+    public long getUserStatus(String nodeId, int num) {
+        long ret = 0;
         int index = 0;
         ArrayList<Short> userIds = queryDeviceUserIds(nodeId);
         if (userIds != null && !userIds.isEmpty()) {
@@ -280,6 +281,8 @@ public class DeviceUserDao {
                 } else if (id > 200 && id <= 300) { //临时用户
                     index = id - 196;
                 }
+                LogUtil.d(TAG, "status[index] = " + status[index]);
+                LogUtil.d(TAG, "user.getUserStatus() = " + user.getUserStatus());
                 if (status[index] != user.getUserStatus()) {
                     user.setUserStatus(status[index]);
                     updateDeviceUser(user);
@@ -294,22 +297,22 @@ public class DeviceUserDao {
      *
      * @param status 秘钥状态字
      */
-    public ArrayList<Short> checkUserStatus(int status, String nodeId, int num) {
+    public ArrayList<Short> checkUserStatus(long status, String nodeId, int num) {
         ArrayList<Short> diffIds = new ArrayList<>();
-        int ret = 0;
-        int tmp = 0;
-        int userStatus = getUserStatus(nodeId, num);
+        long ret = 0;
+        long tmp = 0;
+        long userStatus = getUserStatus(nodeId, num);
         Log.d(TAG, "userStatus = " + userStatus);
 
-        ret = status ^ userStatus;
+        ret = status ^ (userStatus & 0xFFFFFFFF);
 
         Log.d(TAG, "ret = " + ret);
         synchronized (this) {
             if (ret != 0) {
-                for (int i = 0; i < 32; i++) {
+                for (int i = (num - 1) * 32; i < 32 * num; i++) {
                     tmp = ret & (1 << i);
                     if (tmp != 0) {
-                        Log.d(TAG, "tmp = " + tmp);
+                        Log.d(TAG, "I = " + i);
                         if (i < 5) { //管理员
                             diffIds.add((short) (i + 1));
                         } else if (i < 10) {

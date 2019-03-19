@@ -63,6 +63,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         switch (v.getId()) {
             case R.id.btn_add:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mMumberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
+                LogUtil.d(TAG, "users.size() = " + users.size());
                 if (users != null && users.size() >= 90) {
                     showMessage(mMumberView.getContext().getResources().getString(R.string.members) + mMumberView.getContext().getResources().getString(R.string.add_user_tips));
                     return;
@@ -231,13 +232,18 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
+                DeviceUser deviceUser;
                 if (path != null) {
-                    mMumberAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MEMBER));
+                    deviceUser = createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MEMBER);
+
+                    if (deviceUser != null) {
+                        mMumberAdapter.addItem(deviceUser);
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                    }
                 }
 
 
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
             }
 
             //MSG1E 设备->apk，返回信息
@@ -476,10 +482,10 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     }
                 });
 
-                holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
 
                     @Override
-                    public boolean onLongClick(View v) {
+                    public void onClick(View v) {
                         String path = userInfo.getQrPath();
                         Log.d(TAG, "path = " + path);
                         if (StringUtil.checkNotNull(path)) {
@@ -496,7 +502,6 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                             String newPath = createQr(userInfo);
                             Log.d(TAG, "newPath = " + newPath);
                         }
-                        return true;
                     }
                 });
 

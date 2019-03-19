@@ -31,8 +31,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
+import com.smart.lock.ble.Device;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.widget.CustomDialog;
@@ -293,6 +296,28 @@ public class DialogUtils {
                 String name = editText.getText().toString().trim();
                 user.setUserName(name);
                 DeviceUserDao.getInstance(context).updateDeviceUser(user);
+            }
+        });
+        AlertDialog dialog = builder.create();
+        return dialog;
+    }
+
+    public static AlertDialog showEditKeyDialog(final Context context, String msg, final DeviceKey key) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final EditText editText = new EditText(context);
+        builder.setTitle(msg)
+                .setView(editText)
+                .setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).setPositiveButton(context.getString(R.string.confirm), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String name = editText.getText().toString().trim();
+                key.setKeyName(name);
+                DeviceKeyDao.getInstance(context).updateDeviceKey(key);
             }
         });
         AlertDialog dialog = builder.create();

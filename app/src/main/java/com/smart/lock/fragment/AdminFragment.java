@@ -254,12 +254,17 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 String path = createQRcodeImage(buf);
                 Log.d(TAG, "path = " + path);
+                DeviceUser deviceUser;
                 if (path != null) {
-                    mAdminAdapter.addItem(createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MASTER));
+                    deviceUser = createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MASTER);
+
+                    if (deviceUser != null) {
+                        mAdminAdapter.addItem(deviceUser);
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                    }
                 }
 
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
             }
 
             //MSG1E 设备->apk，返回信息
@@ -423,7 +428,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         @Override
         public void onBindViewHolder(@NonNull final AdminViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
-
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
@@ -501,10 +505,10 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     }
                 });
 
-                holder.mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
+                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
 
                     @Override
-                    public boolean onLongClick(View v) {
+                    public void onClick(View v) {
                         String path = userInfo.getQrPath();
                         Log.d(TAG, "path = " + path);
                         if (StringUtil.checkNotNull(path)) {
@@ -523,7 +527,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                             String newPath = createQr(userInfo);
                             Log.d(TAG, "newPath = " + newPath);
                         }
-                        return true;
                     }
                 });
 

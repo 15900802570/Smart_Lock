@@ -4,6 +4,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 
@@ -11,6 +12,8 @@ import java.util.Arrays;
  * MSG 2E是智能锁在远程开锁命令后的回应。
  */
 public class BleCmd2EParse implements BleCommandParse {
+
+    private static final String TAG = BleCmd2EParse.class.getSimpleName();
 
     @Override
     public String getTag() {
@@ -36,8 +39,10 @@ public class BleCmd2EParse implements BleCommandParse {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
         byte[] errCode = Arrays.copyOfRange(buf, 0, 4);
+
+        LogUtil.d(TAG, "errCode = " + Arrays.toString(errCode));
 
         return MessageCreator.getCmd2EMessage(getParseKey(), errCode);
     }
@@ -45,37 +50,6 @@ public class BleCmd2EParse implements BleCommandParse {
     @Override
     public byte getParseKey() {
         return Message.TYPE_BLE_RECEV_CMD_2E;
-    }
-
-    /**
-     * 比较两个byte数组数据是否相同,相同返回 true
-     *
-     * @param data1
-     * @param data2
-     * @param len
-     * @return
-     */
-    public static boolean memcmp(byte[] data1, byte[] data2, int len) {
-        if (data1 == null && data2 == null) {
-            return true;
-        }
-        if (data1 == null || data2 == null) {
-            return false;
-        }
-        if (data1 == data2) {
-            return true;
-        }
-
-        boolean bEquals = true;
-        int i;
-        for (i = 0; i < data1.length && i < data2.length && i < len; i++) {
-            if (data1[i] != data2[i]) {
-                bEquals = false;
-                break;
-            }
-        }
-
-        return bEquals;
     }
 
 }

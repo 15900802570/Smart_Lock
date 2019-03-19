@@ -96,7 +96,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                     showMessage(FingerPrintManagerActivity.this.getResources().getString(R.string.delete_fp_success));
 
                     DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).delete(mFpAdapter.mFpList.get(mFpAdapter.positionDelete));
-                    mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP"));
+                    mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_FINGERPRINT));
                     mFpAdapter.notifyDataSetChanged();
                 }
 
@@ -118,10 +118,10 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                 deviceKey.setUserId(mDefaultDevice.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 deviceKey.setKeyName(FingerPrintManagerActivity.this.getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
-                deviceKey.setKeyType("FP");
+                deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).insert(deviceKey);
-                mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP"));
+                mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_FINGERPRINT));
                 mFpAdapter.notifyDataSetChanged();
             }
 
@@ -158,7 +158,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
 
                 break;
             case R.id.btn_add:
-                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP").size();
+                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
 
                 if (count >= 0 && count <= 5) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -195,7 +195,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
 
         public FpManagerAdapter(Context context) {
             mContext = context;
-            mFpList = DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP");
+            mFpList = DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_FINGERPRINT);
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {
@@ -299,7 +299,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
             showMessage(getResources().getString(R.string.plz_reconnect));
             finish();
         }
-        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "FP"));
+        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_FINGERPRINT));
         mFpAdapter.notifyDataSetChanged();
     }
 

@@ -33,7 +33,7 @@ public class DeviceLog implements Serializable{
 
     //日志类型
     @DatabaseField(columnName = "log_type")
-    private String logType;
+    private byte logType;
 
     //日志主动删除状态
     @DatabaseField(columnName = "log_state")
@@ -99,12 +99,12 @@ public class DeviceLog implements Serializable{
         this.deviceType = deviceType;
     }
 
-    public String getLogType() {
+    public byte getLogType() {
         return logType;
     }
 
-    public void setLogType(String log_type) {
-        this.logType = log_type;
+    public void setLogType(byte logType) {
+        this.logType = logType;
     }
 
     public int getLogState() {

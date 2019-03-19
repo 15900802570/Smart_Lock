@@ -256,15 +256,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      */
     private void createDeviceUser(short userId) {
         DeviceUser user = new DeviceUser();
-        int userIdInt = Integer.valueOf(userId);
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(userId);
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-        if (userIdInt < 101) {
+        if (userId < 101) {
             user.setUserPermission(ConstantUtil.DEVICE_MASTER);
             user.setUserName(getString(R.string.administrator) + userId);
-        } else if (userIdInt < 201) {
+        } else if (userId < 201) {
             user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
             user.setUserName(getString(R.string.members) + userId);
         } else {
@@ -273,7 +272,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         }
 
         user.setUserStatus(ConstantUtil.USER_UNENABLE);
-
+        LogUtil.d(TAG, "user = " + user.toString());
         DeviceUserDao.getInstance(this).insert(user);
     }
 

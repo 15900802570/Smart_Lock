@@ -23,6 +23,7 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -45,6 +46,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
     private Controller controller; //提示框
     private DeviceInfo mDefaultDevice; //默认设备
     private DeviceKey mModifyDeviceKey;
+    private DeviceUser mTempUser;
 
     private Dialog mLoadDialog;//等待框
     private Handler mHandler;
@@ -95,8 +97,10 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         controller.setAcitivty(this);
         mCmdType = getIntent().getStringExtra(BleMsg.KEY_CMD_TYPE);
 
+
         if (mCmdType.equals(ConstantUtil.CREATE)) {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+            mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
             mNodeId = mDefaultDevice.getDeviceNodeId();
             mUserNameEt.setText(getResources().getString(R.string.password) + 1);
             mTitleTv.setText(R.string.create_pwd);
@@ -155,24 +159,31 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
+                DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
+                if (key == null || (key.getKeyType() != 0)) {
+                    mHandler.removeCallbacks(mRunnable);
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+
                 final byte[] lockId = intent.getByteArrayExtra(BleMsg.KEY_LOCK_ID);
-                LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 mLockId = String.valueOf(lockId[0]);
                 LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
-                deviceKey.setUserId(mDefaultDevice.getUserId());
+                deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 deviceKey.setKeyName(mUserNameEt.getText().toString().trim());
-                deviceKey.setKeyType("PWD");
+                deviceKey.setKeyType(ConstantUtil.USER_PWD);
                 deviceKey.setLockId(mLockId);
                 deviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
                 DeviceKeyDao.getInstance(PwdSetActivity.this).insert(deviceKey);
 
                 showMessage(PwdSetActivity.this.getResources().getString(R.string.set_pwd_success));
-                mSetPwdBtn.setEnabled(false);
+                mHandler.removeCallbacks(mRunnable);
+                DialogUtils.closeDialog(mLoadDialog);
+
+                finish();
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG1A_STATUS)) {
@@ -209,13 +220,17 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             controller.alertDialog(getResources().getString(R.string.plz_input_username));
         } else {
             if (mCmdType.equals(ConstantUtil.CREATE)) {
-                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), "PWD").size();
+                int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_PWD).size();
 
                 if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
                     closeDialog(5);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mDefaultDevice.getUserId(), (byte) 0, Integer.parseInt(firstPwd));
+                    if (mTempUser != null)
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mTempUser.getUserId(), (byte) 0, Integer.parseInt(firstPwd));
+                    else
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mDefaultDevice.getUserId(), (byte) 0, Integer.parseInt(firstPwd));
+
                 } else {
                     showMessage(getResources().getString(R.string.add_pwd_tips));
                 }

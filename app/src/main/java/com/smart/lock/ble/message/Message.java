@@ -131,6 +131,11 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_17 = 0x17;
 
     /**
+     * APK配置智能锁临时用户的时效类型
+     */
+    public static final byte TYPE_BLE_SEND_CMD_1B = 0x1B;
+
+    /**
      * MSG19是APK给智能锁下发的同步查询指令
      */
     public static final byte TYPE_BLE_SEND_CMD_19 = 0x19;
@@ -148,10 +153,10 @@ public class Message implements Serializable {
      */
     public static final byte TYPE_BLE_RECEV_CMD_1A = 0x1A;
 
-    /**
-     * OTA升级
-     */
-    public static final byte TYPE_BLE_SEND_CMD_OTA = 0x1B;
+//    /**
+//     * OTA升级
+//     */
+//    public static final byte TYPE_BLE_SEND_CMD_OTA = 0x1B;
 
     /**
      * 设备版本信息
@@ -171,6 +176,11 @@ public class Message implements Serializable {
      * MSG 26是智能锁回复给APK的用户相关信息，其中密钥及临时用户有效时间段如果没有全部设置，则默认为0。
      */
     public static final byte TYPE_BLE_RECEV_CMD_26 = 0x26;
+
+    /**
+     * APK配置智能锁临时用户的生命周期，不配置则生命周期一直存在，同普通用户，通过MSG2E返回结果
+     */
+    public static final byte TYPE_BLE_SEND_CMD_29 = 0x29;
 
     /**
      * 日志查询

@@ -113,6 +113,7 @@ public class ConstantUtil {
      */
     public static final int DEVICE_TEMP = 0x03;
 
+
     /**
      * 用户状态 -未启用 -0
      */
@@ -127,5 +128,26 @@ public class ConstantUtil {
      * 用户状态 -暂停 -2
      */
     public static final int USER_PAUSE = 0x02;
+
+
+    /**
+     * 用户密码
+     */
+    public static final byte USER_PWD = 0x0;
+
+    /**
+     * 用户指纹
+     */
+    public static final byte USER_FINGERPRINT = 0x01;
+
+    /**
+     * 用户卡片
+     */
+    public static final byte USER_NFC = 0x02;
+
+    /**
+     * 用户卡片
+     */
+    public static final byte USER_REMOTE = 0x02;
 
 }

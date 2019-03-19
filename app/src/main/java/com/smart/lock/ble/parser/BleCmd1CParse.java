@@ -1,7 +1,5 @@
 package com.smart.lock.ble.parser;
 
-import android.support.v4.content.LocalBroadcastManager;
-
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;

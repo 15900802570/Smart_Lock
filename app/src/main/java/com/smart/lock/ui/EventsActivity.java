@@ -194,17 +194,15 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 devLog.setNodeId(StringUtil.bytesToHexString(nodeId));
                 devLog.setLogState(state[0]);
                 String keyName = "";
+
+                devLog.setLogType(type[0]);
                 if (type[0] == 0) {
-                    devLog.setLogType("PWD");
                     keyName = EventsActivity.this.getResources().getString(R.string.password);
                 } else if (type[0] == 1) {
-                    devLog.setLogType("FP");
                     keyName = EventsActivity.this.getResources().getString(R.string.fingerprint);
                 } else if (type[0] == 2) {
-                    devLog.setLogType("NFC");
                     keyName = "NFC";
                 } else {
-                    devLog.setLogType("RM");
                     keyName = EventsActivity.this.getResources().getString(R.string.remote);
                 }
 
@@ -391,16 +389,16 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             DeviceUser user = DeviceUserDao.getInstance(EventsActivity.this).queryUser(logInfo.getNodeId(), logInfo.getUserId());
 
             if (logInfo != null) {
-                if (logInfo.getLogType().equals("PWD")) {
+                if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
                     viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.password) + "开锁");
                     viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.password) + "打开了智能门锁!");
-                } else if (logInfo.getLogType().equals("FP")) {
+                } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
                     viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.fingerprint) + "开锁");
                     viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.fingerprint) + "打开了智能门锁!");
-                } else if (logInfo.getLogType().equals("NFC")) {
+                } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
                     viewHolder.mEventType.setText(logInfo.getLogType() + "开锁");
                     viewHolder.mEventInfo.setText(user.getUserName() + "使用" + logInfo.getLogType() + "打开了智能门锁!");
-                } else {
+                } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
                     viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.remote) + "开锁");
                     viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.remote) + "打开了智能门锁!");
                 }
