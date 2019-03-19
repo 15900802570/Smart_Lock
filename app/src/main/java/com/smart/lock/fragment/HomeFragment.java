@@ -69,7 +69,7 @@ import java.util.Arrays;
 
 
 public class HomeFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemClickListener {
-
+    private static final String TAG = HomeFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private View mHomeView;
     private ViewPager mViewPager;
@@ -100,6 +100,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public static final int BIND_DEVICE = 0; //用户已添加设备
     public static final int UNBIND_DEVICE = 1;//未添加设备
+
+    public static final int DEVICE_CONNECTING = 2;//未添加设备
 
     public static final int BATTER_0 = 0;//电量10%
     public static final int BATTER_10 = 10;//电量10%
@@ -219,15 +221,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         });
 
         LocalBroadcastManager.getInstance(mHomeView.getContext()).registerReceiver(deviceReciver, intentFilter());
-
-        mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
-        LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
-        if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
-            setSk();
-            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
-            mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-            refreshView(BIND_DEVICE);
-        } else refreshView(UNBIND_DEVICE);
     }
 
     /**
@@ -235,6 +228,21 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
      */
     private void refreshView(int status) {
         switch (status) {
+            case DEVICE_CONNECTING:
+                LogUtil.d(TAG, "DEVICE_CONNECTING");
+                mAddLockRl.setVisibility(View.GONE);
+                mLockManagerLl.setVisibility(View.VISIBLE);
+                mLockStatusTv.setText(R.string.bt_connecting);
+                mBleConnectTv.setVisibility(View.GONE);
+                if (mDefaultDevice != null) {
+                    mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+                    LogUtil.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
+                    mNodeId = mDefaultDevice.getDeviceNodeId();
+                    mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
+                    mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
+                    mMyGridView.setAdapter(mLockAdapter);
+                }
+                break;
             case BIND_DEVICE:
                 mAddLockRl.setVisibility(View.GONE);
                 mLockManagerLl.setVisibility(View.VISIBLE);
@@ -335,12 +343,9 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     private void checkUserId(ArrayList<Short> userIds) {
         ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-        Log.d(TAG, "userIds = " + userIds.toString());
         if (!userIds.isEmpty()) {
             for (DeviceUser user : users) {
-                Log.d(TAG, "user1 = " + user.toString());
                 if (userIds.contains(user.getUserId())) {
-                    Log.d(TAG, "del user = " + user.toString());
                     DeviceUserDao.getInstance(mActivity).delete(user);
                     userIds.remove(user.getUserId());
                 }
@@ -397,14 +402,14 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 LogUtil.d(TAG, "status4 = " + status4);
 
                 if (mDefaultDevice != null) {
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status1, mDefaultDevice.getDeviceNodeId(), 1));
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status2, mDefaultDevice.getDeviceNodeId(), 2));
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status3, mDefaultDevice.getDeviceNodeId(), 3));
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status4, mDefaultDevice.getDeviceNodeId(), 4));
-                    DeviceUserDao.getInstance(mActivity).checkUserState(mDefaultDevice.getDeviceNodeId(), userState);
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status1, mDefaultDevice.getDeviceNodeId(), 1)); //第一字节状态字
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status2, mDefaultDevice.getDeviceNodeId(), 2));//第二字节状态字
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status3, mDefaultDevice.getDeviceNodeId(), 3));//第三字节状态字
+                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status4, mDefaultDevice.getDeviceNodeId(), 4));//第四字节状态字
+                    DeviceUserDao.getInstance(mActivity).checkUserState(mDefaultDevice.getDeviceNodeId(), userState); //开锁信息状态字
 
                     mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
-                    mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), mNodeId, false);
+
                     if (mBleManagerHelper.getServiceConnection()) {
                         mBleManagerHelper.getBleCardService().sendCmd25(mDefaultDevice.getUserId());
                     }
@@ -474,10 +479,19 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                 mIsConnected = false;
                 refreshView(BIND_DEVICE);
-                if (mDefaultDevice != null) {
-                    setSk();
-                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
-                } else refreshView(UNBIND_DEVICE);
+
+                new Handler().postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (mDefaultDevice != null) {
+                            refreshView(DEVICE_CONNECTING);
+                            setSk();
+                            mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId());
+                        } else refreshView(UNBIND_DEVICE);
+                    }
+                }, 2000);
+
             }
 
             if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
@@ -517,9 +531,20 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     public void onResume() {
         super.onResume();
         mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
-        if (mDefaultDevice != null) {
-            refreshView(BIND_DEVICE);
-        } else refreshView(UNBIND_DEVICE);
+        if (mDefaultDevice == null) {
+            refreshView(UNBIND_DEVICE);
+            return;
+        }
+        mNodeId = mDefaultDevice.getDeviceNodeId();
+        mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false);
+        mIsConnected = mBleManagerHelper.getServiceConnection();
+        if (!mIsConnected) {
+            LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
+            setSk();
+            refreshView(DEVICE_CONNECTING);
+            mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId());
+            mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+        }
     }
 
     public void onPause() {
@@ -550,7 +575,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 startIntent(AddDeviceActivity.class, null);
                 break;
             case R.id.tv_connect:
-                mBleConnectTv.setEnabled(false);
+                refreshView(DEVICE_CONNECTING);
                 setSk();
                 BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 break;
@@ -591,14 +616,10 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         byte[] macByte = StringUtil.hexStringToBytes(mac);
 
         String defaultNodeId = mDefaultDevice.getDeviceNodeId();
-        LogUtil.d(TAG, "defaultNodeId = " + defaultNodeId);
 
         byte[] nodeId = StringUtil.hexStringToBytes(defaultNodeId);
 
         StringUtil.exchange(nodeId);
-
-        LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
-        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
 
         System.arraycopy(nodeId, 0, MessageCreator.mSK, 0, 8); //写入IMEI
 

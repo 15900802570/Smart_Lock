@@ -228,4 +228,5 @@
     <string name="eight_num">8</string>
     <string name="nine_num">9</string>
     <string name="zero_num">0</string>
+    <string name="bt_connecting">Connecting</string>
 </resources>

@@ -75,8 +75,6 @@ public class LockSettingActivity extends AppCompatActivity {
     }
 
     private void initView() {
-
-
         mIntelligentLockTs = findViewById(R.id.ts_intelligent_lock);
         mAntiPrizingAlarmTs = findViewById(R.id.ts_anti_prizing_alarm);
         mCombinationLockTs = findViewById(R.id.ts_combination_lock);

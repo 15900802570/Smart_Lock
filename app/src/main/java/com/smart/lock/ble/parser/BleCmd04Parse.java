@@ -35,8 +35,6 @@ public class BleCmd04Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
-        LogUtil.d(TAG,"buf = " + Arrays.toString(buf));
-
         byte[] batPerscent = new byte[1];
         byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];
@@ -53,8 +51,6 @@ public class BleCmd04Parse implements BleCommandParse {
         System.arraycopy(buf, 19, unLockTime, 0, 1);
         System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
         System.arraycopy(buf, 148, userState, 0, 100);
-        LogUtil.d(TAG,"tmpPwdSk = " + Arrays.toString(tmpPwdSk));
-        LogUtil.d(TAG,"userState = " + Arrays.toString(userState));
 
         return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState);
     }

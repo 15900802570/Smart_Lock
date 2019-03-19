@@ -35,6 +35,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -540,7 +541,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     mTempUser.setNdTsend(mSecondEndTime.getText().toString());
                     mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
                     mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
-
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(UnlockTimeActivity.this).updateDeviceUser(mTempUser);
                     showMessage(getString(R.string.set_unlock_time_success));
                 } else if (errCode[3] == 0x21) {

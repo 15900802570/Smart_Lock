@@ -56,6 +56,7 @@ import com.smart.lock.fragment.AdminFragment;
 import com.smart.lock.fragment.BaseFragment;
 import com.smart.lock.fragment.MumberFragment;
 import com.smart.lock.fragment.TempFragment;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -223,6 +224,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 } else if (errCode[3] == 0x03) {
                     mTempUser.setLcBegin(mStartDate.getText().toString());
                     mTempUser.setLcEnd(mEndDate.getText().toString());
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(TempUserActivity.this).updateDeviceUser(mTempUser);
                     showMessage(getString(R.string.set_life_cycle_success));
                 }

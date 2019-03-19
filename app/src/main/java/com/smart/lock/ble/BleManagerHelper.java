@@ -99,7 +99,7 @@ public class BleManagerHelper {
     /**
      * 等待提示框
      */
-    private Dialog mLoadDialog;
+//    private Dialog mLoadDialog;
 
     /**
      * 连接方式 0-扫描二维码 1-普通安全连接
@@ -111,10 +111,12 @@ public class BleManagerHelper {
      */
     private short mUserId = 0;
 
+    private long mStartTime = 0;
+    private long mEndTime = 0;
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
-            DialogUtils.closeDialog(mLoadDialog);
+//            DialogUtils.closeDialog(mLoadDialog);
             Toast.makeText(mContext, R.string.retry_connect, Toast.LENGTH_LONG).show();
             Intent intent = new Intent();
             intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
@@ -168,9 +170,10 @@ public class BleManagerHelper {
 
                 LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                 if (!mIsConnected && mService != null) {
+                    mStartTime = System.currentTimeMillis();
                     mService.connect(mBleMac);
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
+//                    DialogUtils.closeDialog(mLoadDialog);
+//                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
                     closeDialog(15);
                 }
 
@@ -327,32 +330,36 @@ public class BleManagerHelper {
             }
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
-                Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
-                for (BluetoothGattService gattService : mService.getSupportedGattServices()) {
-                    HashMap<String, String> currentServiceData = new HashMap<String, String>();
+                if (mService != null) {
+                    Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
+                    for (BluetoothGattService gattService : mService.getSupportedGattServices()) {
+                        HashMap<String, String> currentServiceData = new HashMap<String, String>();
 
-                    // 取得当前service的uuid；
-                    String uuid = gattService.getUuid().toString();
-                    Log.d(TAG, "uuid = " + uuid);
-                    List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+                        // 取得当前service的uuid；
+                        String uuid = gattService.getUuid().toString();
+                        Log.d(TAG, "uuid = " + uuid);
+                        List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
 
+                    }
+
+                    if (mOtaMode == 0) {
+                        mService.enableTXNotification();
+                        new Handler().postDelayed(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                mService.sendCmd01(mConnectType, mUserId);
+                            }
+                        }, 1000);
+                    } else {
+                        Intent result = new Intent();
+                        result.putExtra(BleMsg.KEY_AK, (byte[]) null);
+                        result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION);
+                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
+                    }
                 }
 
-                if (mOtaMode == 0) {
-                    mService.enableTXNotification();
-                    new Handler().postDelayed(new Runnable() {
 
-                        @Override
-                        public void run() {
-                            mService.sendCmd01(mConnectType, mUserId);
-                        }
-                    }, 1000);
-                } else {
-                    Intent result = new Intent();
-                    result.putExtra(BleMsg.KEY_AK, (byte[]) null);
-                    result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION);
-                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
-                }
             }
 
             if (action.equals(BleMsg.ACTION_DOES_NOT_SUPPORT_UART)) {
@@ -376,7 +383,9 @@ public class BleManagerHelper {
             if (action.equals(BleMsg.EXTRA_DATA_MSG_04)) {
                 mIsConnected = true;
                 mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
+//                DialogUtils.closeDialog(mLoadDialog);
+                mEndTime = System.currentTimeMillis();
+                LogUtil.d("connecting ble time : " + (mEndTime - mStartTime));
                 Bundle extra = intent.getExtras();
                 Intent result = new Intent();
                 result.putExtras(extra);

@@ -45,7 +45,7 @@ public class BleCmd1DCreator implements BleCreator {
         LogUtil.d(TAG, "cmd =" + Arrays.toString(cmdBuf));
 
         try {
-            AES_ECB_PKCS7.AES256Decode(cmdBuf, buf, MessageCreator.mAK);
+            AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
         } catch (Exception e) {
             e.printStackTrace();
         }

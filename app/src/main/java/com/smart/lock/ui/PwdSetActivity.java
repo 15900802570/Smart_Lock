@@ -25,6 +25,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -155,7 +156,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 } else if (errCode[3] == 0x0d) {
                     showMessage(PwdSetActivity.this.getResources().getString(R.string.delete_pwd_success));
                 }
-
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
@@ -178,7 +178,8 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 deviceKey.setLockId(mLockId);
                 deviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
                 DeviceKeyDao.getInstance(PwdSetActivity.this).insert(deviceKey);
-
+                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                DeviceUserDao.getInstance(PwdSetActivity.this).updateDeviceUser(mTempUser);
                 showMessage(PwdSetActivity.this.getResources().getString(R.string.set_pwd_success));
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);

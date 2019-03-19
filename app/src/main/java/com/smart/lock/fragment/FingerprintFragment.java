@@ -191,6 +191,8 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
+                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                DeviceUserDao.getInstance(mFpView.getContext()).updateDeviceUser(mTempUser);
                 mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
                 mFpAdapter.notifyDataSetChanged();
             }

@@ -60,7 +60,7 @@ public class BleReceiver extends BroadcastReceiver {
     }
 
     /**
-     * 注销AT广播接收器
+     * 注销BLE广播接收器
      *
      * @param context
      */

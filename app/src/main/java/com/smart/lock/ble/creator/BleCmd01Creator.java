@@ -65,10 +65,8 @@ public class BleCmd01Creator implements BleCreator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LogUtil.d(TAG, "buf1 = " + Arrays.toString(buf));
 
         System.arraycopy(buf, 0, cmd, 4, 16);
-        LogUtil.d(TAG, "cmd = " + Arrays.toString(cmd));
 
         try {
             AES_ECB_PKCS7.AES256Encode(MessageCreator.pwdRandom, buf, MessageCreator.mSK);
@@ -82,7 +80,6 @@ public class BleCmd01Creator implements BleCreator {
 
         StringUtil.short2Bytes(crc, buf);
         System.arraycopy(buf, 0, cmd, 36, 2);
-        LogUtil.d(TAG, "crc = " + crc);
         byte[] bleCmd = new byte[38];
         System.arraycopy(cmd, 0, bleCmd, 0, 38);
 
