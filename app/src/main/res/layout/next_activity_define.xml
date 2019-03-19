@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/rl_next_activity"
-    android:background="@color/white">
+    android:background="@drawable/button_selector">
 
     <TextView
         android:id="@+id/tv_next_des"

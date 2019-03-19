@@ -10,6 +10,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.CountDownTimer;
+import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
+import android.support.design.widget.BottomSheetDialog;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -106,6 +110,48 @@ public class DialogUtils {
         return loadingDialog;
     }
 
+    public static Dialog createWarningDialog(final Context context, String msg){
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_warning, null);// 得到加载view
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_warning_view);  // 加载布局
+        TextView tipTextView = (TextView) v.findViewById(R.id.warning_tip_tv);          // 提示文字
+        final Button confirm = v.findViewById(R.id.warning_confirm_btn);
+        new CountDownTimer(10000, 1000) {              //确认按键倒计时
+            @Override
+            public void onTick(long millisUntilFinished) {
+                confirm.setText(context.getResources().getString(R.string.confirm)+ "("+
+                        String.valueOf(millisUntilFinished/1000+1)+")"+
+                        context.getResources().getString(R.string.s));
+            }
+            @Override
+            public void onFinish() {
+                confirm.setText(R.string.confirm);
+                confirm.setTextColor(context.getResources().getColor(R.color.white));
+                confirm.setEnabled(true);
+            }
+        }.start();
+        tipTextView.setText(msg);// 设置加载信息
+
+        Dialog warningDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        warningDialog.setCancelable(true); // 是否可以按“返回键”消失
+        warningDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
+        warningDialog.setContentView(layout, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));// 设置布局
+        /**
+         *将显示Dialog的方法封装在这里面
+         */
+        Window window = warningDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+        window.setGravity(Gravity.CENTER);
+        window.setAttributes(lp);
+        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+
+        return warningDialog;
+    }
+
     public static Dialog createPromptDialog(final Activity mActivity, String msg, final Class<?> cls) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
@@ -165,6 +211,19 @@ public class DialogUtils {
         mAlertDialog.show();
 
         return mAlertDialog;
+    }
+
+    public static BottomSheetDialog createBottomSheetDialog(Context context, @LayoutRes int layoutResId, @IdRes int bottom_sheet) {
+        BottomSheetDialog bottomSheet = new BottomSheetDialog(context);    //实例化
+        bottomSheet.setCancelable(true);    //设置点击外部是否可以取消
+        bottomSheet.setContentView(layoutResId);   //设置对框框中的布局
+        if (bottom_sheet != 0) {
+            bottomSheet.getDelegate().findViewById(bottom_sheet).setBackgroundColor(
+                    context.getResources().getColor(R.color.transparent)    //设置背景为透明
+            );
+        }
+        bottomSheet.setCanceledOnTouchOutside(true);
+        return bottomSheet;
     }
 
     public static Dialog createTempPwdDialog(final Context context, final String msg) {

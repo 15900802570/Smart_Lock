@@ -38,9 +38,11 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
@@ -89,6 +91,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private LockManagerAdapter mLockAdapter; //gridView adapter
     private DeviceInfo mDefaultDevice; //默认设备
     private DeviceUser mDefaultUser; //默认用户
+    private DeviceStatus mDefaultStatus; //用户状态
     private ArrayList<DeviceInfo> mDeviceInfos; //设备集合
     private ArrayList<View> mDots; //spot list
 
@@ -152,7 +155,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void setTestMode(boolean openTest) {
         mOpenTest = openTest;
-
         if (mOpenTest) {
             new Handler().postDelayed(new Runnable() {
 
@@ -223,6 +225,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
             setSk();
             BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
+            mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
     }
@@ -255,6 +258,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     Log.d(TAG, "mDefaultUser = " + mDefaultDevice.getUserId());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
+                    mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
                 }
                 break;
@@ -338,7 +342,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 if (userIds.contains(user.getUserId())) {
                     Log.d(TAG, "del user = " + user.toString());
                     DeviceUserDao.getInstance(mActivity).delete(user);
-                    userIds.remove((Short) user.getUserId());
+                    userIds.remove(user.getUserId());
                 }
             }
             for (Short userId : userIds) {
@@ -404,6 +408,30 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     if (mBleManagerHelper.getServiceConnection()) {
                         mBleManagerHelper.getBleCardService().sendCmd25(mDefaultDevice.getUserId());
                     }
+                }
+                if (mDefaultStatus != null) {
+                    switch (stStatus) {
+                        case 0:
+                            mDefaultStatus.setVoicePrompt(false);
+                            mDefaultStatus.setNormallyOpen(false);
+                            break;
+                        case 1:
+                            mDefaultStatus.setVoicePrompt(false);
+                            mDefaultStatus.setNormallyOpen(true);
+                            break;
+                        case 2:
+                            mDefaultStatus.setVoicePrompt(true);
+                            mDefaultStatus.setNormallyOpen(false);
+                            break;
+                        case 3:
+                            mDefaultStatus.setVoicePrompt(true);
+                            mDefaultStatus.setNormallyOpen(true);
+                            break;
+                        default:
+                            break;
+                    }
+                    mDefaultStatus.setRolledBackTime(unLockTime);
+                    DeviceStatusDao.getInstance(mHomeView.getContext()).updateDeviceStatus(mDefaultStatus);
                 }
 
                 mIsConnected = true;
@@ -488,6 +516,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void onResume() {
         super.onResume();
+        mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             refreshView(BIND_DEVICE);
         } else refreshView(UNBIND_DEVICE);
@@ -514,7 +543,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onClick(View v) {
-
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
         switch (v.getId()) {
             case R.id.btn_add_lock:
                 startIntent(AddDeviceActivity.class, null);
@@ -525,11 +555,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 break;
             case R.id.bt_setting:
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                startIntent(LockSettingActivity.class, bundle);
-                LogUtil.d(TAG, "设置信息");
-
+                if (mIsConnected) {
+                    startIntent(LockSettingActivity.class, bundle);
+                } else {
+                    showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
+                }
+                break;
             case R.id.btn_instruction:
 
                 if (mNodeId.getBytes().length == 15) {

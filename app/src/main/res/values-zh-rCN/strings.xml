@@ -196,12 +196,12 @@
     <string name="version_info">版本信息</string>
     <string name="self_check">自检修复</string>
     <string name="ota_update">OTA升级</string>
-    <string name="turn_off_voice">关闭语音提示</string>
+    <string name="voice_prompt">语音提示</string>
     <string name="set_up_time">设置时间</string>
     <string name="restore_the_factory_settings">恢复出厂设置</string>
     <string name="serial_number">序列号</string>
     <string name="imei">IMEI</string>
-    <string name="bluetooth_mac_address">蓝牙MAC地址</string>
+    <string name="bluetooth_mac_address">蓝牙MAC</string>
     <string name="software_version">软件版本</string>
     <string name="hardware_version">硬件版本</string>
     <string name="modify_note_name">请修改备注名</string>
@@ -211,4 +211,22 @@
     <string name="add_unlock_time">添加时段</string>
     <string name="set_unlock_time_success">设置临时用户有效期成功</string>
     <string name= "set_life_cycle_success">临时用户生命周期设置成功</string>
+    <string name="s">秒</string>
+    <string name="s_5">5秒</string>
+    <string name="s_8">8秒</string>
+    <string name="s_10">10秒</string>
+    <string name="restore_warning">恢复出厂设置将删除设备与APP中所有数据。\t 是否继续？</string>
+    <string name="warning">警告</string>
+    <string name="restore_the_factory_settings_success">恢复出厂设置成功</string>
+    <string name="restore_the_factory_settings_failed">恢复出厂设置失败</string>
+    <string name="one_num">1</string>
+    <string name="two_num">2</string>
+    <string name="three_num">3</string>
+    <string name="four_num">4</string>
+    <string name="five_num">5</string>
+    <string name="six_num">6</string>
+    <string name="seven_num">7</string>
+    <string name="eight_num">8</string>
+    <string name="nine_num">9</string>
+    <string name="zero_num">0</string>
 </resources>

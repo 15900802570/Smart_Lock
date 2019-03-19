@@ -191,7 +191,7 @@
     <string name="version_info">Version</string>
     <string name="self_check">Self-Check</string>
     <string name="ota_update">OTA</string>
-    <string name="turn_off_voice">Turn OFF Voice Prompts</string>
+    <string name="voice_prompt">Voice Prompts</string>
     <string name="set_up_time">Set-up Time</string>
     <string name="restore_the_factory_settings">Restore the factory settings</string>
     <string name="title_activity_version_info">VersionInfoActivity</string>
@@ -210,4 +210,22 @@
     <string name="unlock_key">Unlock time</string>
     <string name="set_life_cycle_success">Set temp user life cycle success</string>
     <string name="remote_unlock_success">Remote unlock success</string>
+    <string name="s">s</string>
+    <string name="s_5">5s</string>
+    <string name="s_8">8s</string>
+    <string name="s_10">10s</string>
+    <string name="restore_warning">Restoring factory settings will delete data in the device and APP.\tAre you sure you want to continue?</string>
+    <string name="warning">Warning</string>
+    <string name="restore_the_factory_settings_success">Testore The Factory Settings Success</string>
+    <string name="restore_the_factory_settings_failed">Restore the factory settings Failed</string>
+    <string name="one_num">1</string>
+    <string name="two_num">2</string>
+    <string name="three_num">3</string>
+    <string name="four_num">4</string>
+    <string name="five_num">5</string>
+    <string name="six_num">6</string>
+    <string name="seven_num">7</string>
+    <string name="eight_num">8</string>
+    <string name="nine_num">9</string>
+    <string name="zero_num">0</string>
 </resources>

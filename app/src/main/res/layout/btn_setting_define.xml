@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:id="@+id/rl_btn_setting"
-    android:background="@color/white">
+    android:background="@drawable/button_selector">
 
     <TextView
         android:id="@+id/tv_btn_info_des"
@@ -20,19 +20,20 @@
     <LinearLayout
         android:id="@+id/ll_btn_setting_btn"
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:orientation="vertical"
-        android:gravity="center">
-        <Button
+        android:gravity="center"
+        android:paddingRight="30dp">
+        <TextView
             android:id="@+id/btn_setting_des"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@string/unbind"
             android:gravity="center"
-            android:background="@color/white"
-            android:textColor="@color/lite_blue"/>
+            android:textColor="@color/lite_blue"
+            android:textSize="16sp"/>
     </LinearLayout>
 
     <View

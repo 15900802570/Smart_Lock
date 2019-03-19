@@ -8,11 +8,15 @@ import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.CancellationSignal;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ToggleButton;
 
@@ -53,13 +57,15 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     private Dialog mFingerprintDialog;
 
-    private int mIsFP = 0; //是否支持指纹，0 1 不支持 2 3 未设置 4 支持
-    private FingerprintManager mFPM;
     private CancellationSignal mCancellationSignal;
-    private KeyStore mKeyStore;
 
     private boolean mIsFPRequired = false;
     private boolean mIsPwdRequired = false;
+
+    private EditText mNumPwd1Et;
+    private EditText mNumPwd2Et;
+    private EditText mNumPwd3Et;
+    private EditText mNumPwd4Et;
 
 
     @Override
@@ -72,10 +78,10 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     }
 
     public void initView() {
-        ivBack = findViewById(R.id.iv_back);
-        mNumPwdSwitchTv = this.findViewById(R.id.switch_password);
+        ivBack = findViewById(R.id.system_set_iv_back);
+        mNumPwdSwitchTv = this.findViewById(R.id.system_set_switch_password);
         mNumPwdSwitchLight = mNumPwdSwitchTv.getIv_switch_light();
-        mFingersPrintSwitchTv = this.findViewById(R.id.switch_fingerprint);
+        mFingersPrintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
         mFingersPrintSwitchLight = mFingersPrintSwitchTv.getIv_switch_light();
         mOpenTestTv = findViewById(R.id.tw_open_test);
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
@@ -85,7 +91,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
 
         //指纹设置
-        mFingerprintSwitchTv = this.findViewById(R.id.switch_fingerprint);
+        mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
         mIsFP = supportFP();
         if (mIsFP > 1) {
             mFingerprintSwitchTv.setDes("指纹验证");
@@ -146,69 +152,14 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mNumPwdSwitchLightTBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (v.getId() == R.id.iv_switch_light) {
-
-                    if (mNumPwdSwitchLightTBtn.isChecked()) {
-                        mPromptDialog = DialogUtils.createPromptDialog(SystemSettingsActivity.this,
-                                "您还未添加密码信息，是否立即设置？",
-                                LockScreenActivity.class);
-                        mPromptDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                mNumPwdSwitchLightTBtn.setChecked(false);
-                            }
-                        });
-                        if (!mPromptDialog.isShowing()) {
-                            mPromptDialog.show();
-                        }
-                    } else {
-                        Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
-                        intent.putExtra(ConstantUtil.IS_RETURN, true);
-                        SystemSettingsActivity.this.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), 1);
-                    }
-                }
+                doOnClick(R.id.system_set_switch_password);
             }
         });
         if (mIsFP > 1) {
             mFingerprintSwitchLightTbtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (v.getId() == R.id.iv_switch_light) {
-                        if (mFingerprintSwitchLightTbtn.isChecked()) {
-                            if (!mIsPwdRequired) {
-                                mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
-                                        "您未开启密码验证，请先开启密码验证");
-                                mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialog) {
-                                        mFingerprintSwitchLightTbtn.setChecked(false);
-                                    }
-                                });
-                            } else if (mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE) {
-                                mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
-                                        "您未设置锁屏，请设置锁屏并添加指纹");
-                                mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialog) {
-                                        mFingerprintSwitchLightTbtn.setChecked(false);
-                                    }
-                                });
-                            } else if (mIsFP == ConstantUtil.FP_NO_FINGERPRINT) {
-                                mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
-                                        "您至少在系统设置中添加一个指纹");
-                                mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                    @Override
-                                    public void onDismiss(DialogInterface dialog) {
-                                        mFingerprintSwitchLightTbtn.setChecked(false);
-                                    }
-                                });
-                            } else if (mIsFP == ConstantUtil.FP_SUPPORT) {
-                                doFingerprintDialog();
-                            }
-                        } else {
-                            doFingerprintDialog();
-                        }
-                    }
+                    doOnClick(R.id.system_set_switch_fingerprint);
                 }
             });
         }
@@ -216,84 +167,9 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mOpenTestTb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).writeBoolean(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
-                Intent result = new Intent();
-                result.putExtra(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
-                result.setAction(BleMsg.STR_RSP_OPEN_TEST);
-                LocalBroadcastManager.getInstance(SystemSettingsActivity.this).sendBroadcast(result);
+                doOnClick(R.id.tw_open_test);
             }
         });
-    }
-
-
-    /**
-     * 检测设备是否支持指纹
-     *
-     * @return 0 系统不支持 1 手机不支持 2 未设置锁屏 3 未设置指纹 4 支持指纹
-     */
-    private int supportFP() {
-        if (Build.VERSION.SDK_INT < 23) {
-            LogUtil.i(TGA, "系统版本低,不支持指纹功能");
-            return ConstantUtil.FP_LOW_VERSION;
-        } else {
-            KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
-            mFPM = getSystemService(FingerprintManager.class);
-            if (!mFPM.isHardwareDetected()) {
-                LogUtil.i(TGA, "手机不支持指纹");
-                return ConstantUtil.FP_NO_HARDWARE;
-            } else if (!keyguardManager.isKeyguardSecure()) {
-                LogUtil.i(TGA, "未设置锁屏，需设置锁屏并添加指纹");
-                return ConstantUtil.FP_NO_KEYGUARDSECURE;
-            } else if (!mFPM.hasEnrolledFingerprints()) {
-                LogUtil.i(TGA, "系统中至少需要添加一个指纹");
-                return ConstantUtil.FP_NO_FINGERPRINT;
-            }
-        }
-        LogUtil.i(TGA, "支持指纹");
-        return ConstantUtil.FP_SUPPORT;
-    }
-
-    /**
-     * 开启指纹验证
-     */
-    @TargetApi(23)
-    private void doFingerprintDialog() {
-        Cipher lCipher;
-        //初始化key
-        try {
-            mKeyStore = KeyStore.getInstance("AndroidKeyStore");
-            mKeyStore.load(null);
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(DEVICE_POLICY_SERVICE,
-                    KeyProperties.PURPOSE_ENCRYPT |
-                            KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            keyGenerator.init(builder.build());
-            keyGenerator.generateKey();
-        } catch (Exception e) {
-            LogUtil.e(TGA, "初始化key出错" + e);
-        }
-        // 初始化Cipher
-        try {
-            SecretKey key = (SecretKey) mKeyStore.getKey(DEVICE_POLICY_SERVICE, null);
-            lCipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + '/'
-                    + KeyProperties.BLOCK_MODE_CBC + '/'
-                    + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            lCipher.init(Cipher.ENCRYPT_MODE, key);
-            showFingerprintDialog(lCipher);
-        } catch (Exception e) {
-            LogUtil.e(TGA, "初始化Cipher出错" + e);
-        }
-
-    }
-
-    @TargetApi(23)
-    private void showFingerprintDialog(Cipher cipher) {
-        FingerprintDialogFragment fingerprintDialogFragment = new FingerprintDialogFragment();
-        fingerprintDialogFragment.setCipher(cipher);
-        fingerprintDialogFragment.show(getFragmentManager(), "FINGERPRINT");
     }
 
     @Override
@@ -318,11 +194,168 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.iv_back) {
-            finish();
-            return;
+        switch (v.getId()) {
+            case R.id.system_set_iv_back:
+                finish();
+                break;
+
+            case R.id.system_set_modify_pwd:
+                BottomSheetDialog bottomDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_modify_pwd, R.id.system_set_modify_pwd_ll);
+                mNumPwd1Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd1_et);
+                mNumPwd2Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd2_et);
+                mNumPwd3Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd3_et);
+                mNumPwd4Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd4_et);
+
+                bottomDialog.show();
+                break;
+
+            default:
+                doOnClick(v.getId());
+                break;
+        }
+    }
+
+    private void doOnClick(@IdRes int idRes) {
+        switch (idRes) {
+            case R.id.system_set_switch_password:
+                if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+                    mPromptDialog = DialogUtils.createPromptDialog(SystemSettingsActivity.this,
+                            "您还未添加密码信息，是否立即设置？",
+                            LockScreenActivity.class);
+                    mPromptDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            mNumPwdSwitchLightTBtn.setChecked(false);
+                        }
+                    });
+                    if (!mPromptDialog.isShowing()) {
+                        mPromptDialog.show();
+                    }
+                } else {
+                    Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
+                    intent.putExtra(ConstantUtil.IS_RETURN, true);
+                    SystemSettingsActivity.this.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), 1);
+                }
+                break;
+
+            case R.id.system_set_switch_fingerprint:
+                if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
+                    if (!mIsPwdRequired) {
+                        mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
+                                "您未开启密码验证，请先开启密码验证");
+                        mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                mFingerprintSwitchLightTbtn.setChecked(false);
+                            }
+                        });
+                    } else if (mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE) {
+                        mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
+                                "您未设置锁屏，请设置锁屏并添加指纹");
+                        mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                mFingerprintSwitchLightTbtn.setChecked(false);
+                            }
+                        });
+                    } else if (mIsFP == ConstantUtil.FP_NO_FINGERPRINT) {
+                        mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
+                                "您至少在系统设置中添加一个指纹");
+                        mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                mFingerprintSwitchLightTbtn.setChecked(false);
+                            }
+                        });
+                    } else if (mIsFP == ConstantUtil.FP_SUPPORT) {
+                        doFingerprintDialog();
+                    }
+                } else {
+                    doFingerprintDialog();
+                }
+                break;
+
+            case R.id.tw_open_test:
+                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).writeBoolean(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
+                Intent result = new Intent();
+                result.putExtra(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
+                result.setAction(BleMsg.STR_RSP_OPEN_TEST);
+                LocalBroadcastManager.getInstance(SystemSettingsActivity.this).sendBroadcast(result);
+                break;
+        }
+    }
+
+    public void numOnClick(@NonNull View view) {
+        int num = -1;
+        switch (view.getId()) {
+            case R.id.num_one_tv:
+                num = 1;
+                break;
+            case R.id.num_two_tv:
+                num = 2;
+                break;
+            case R.id.num_three_tv:
+                num = 3;
+                break;
+            case R.id.num_four_tv:
+                num = 4;
+                break;
+            case R.id.num_five_tv:
+                num = 5;
+                break;
+            case R.id.num_six_tv:
+                num = 6;
+                break;
+            case R.id.num_seven_tv:
+                num = 7;
+                break;
+            case R.id.num_eight_tv:
+                num = 8;
+                break;
+            case R.id.num_nine_tv:
+                num = 9;
+                break;
+            case R.id.num_zero_tv:
+                num = 0;
+                break;
+            case R.id.num_back_tv:
+                num = -1;
+                break;
+        }
+        if (num != -1) {
+            setPwd(String.valueOf(num));
         } else {
-            return;
+            delPwd();
+        }
+        LogUtil.d(TAG, "TAG = " + mNumPwd1Et.getText());
+    }
+
+    private void setPwd(String num) {
+        if (mNumPwd1Et.getText().toString().equals("")) {
+            mNumPwd1Et.setText(num);
+            LogUtil.d(TAG, "TAG = 1");
+            mNumPwd2Et.setFreezesText(true);
+        } else if (mNumPwd2Et.getText().toString().equals("")) {
+            mNumPwd2Et.setText(num);
+            LogUtil.d(TAG, "TAG = 2");
+            mNumPwd3Et.setFreezesText(true);
+        } else if (mNumPwd3Et.getText().toString().equals("")) {
+            mNumPwd3Et.setText(num);
+            mNumPwd4Et.setFreezesText(true);
+        } else if (mNumPwd4Et.getText().toString().equals("")) {
+            mNumPwd4Et.setText(num);
+        }
+    }
+
+    private void delPwd() {
+        if (!mNumPwd4Et.getText().toString().equals("")) {
+            mNumPwd4Et.getText().delete(0, 1);
+        } else if (!mNumPwd3Et.getText().toString().equals("")) {
+            mNumPwd3Et.getText().delete(0, 1);
+        } else if (!mNumPwd2Et.getText().toString().equals("")) {
+            mNumPwd2Et.getText().delete(0, 1);
+        } else if (!mNumPwd1Et.getText().toString().equals("")) {
+            mNumPwd1Et.getText().delete(0, 1);
         }
     }
 

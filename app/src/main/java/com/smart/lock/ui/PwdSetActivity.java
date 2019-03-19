@@ -66,7 +66,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 DialogUtils.closeDialog(mLoadDialog);
 
                 mBleManagerHelper = BleManagerHelper.getInstance(PwdSetActivity.this, mNodeId, false);
-                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
 
                 Toast.makeText(PwdSetActivity.this, PwdSetActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }

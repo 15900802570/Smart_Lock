@@ -184,6 +184,19 @@ public class StringUtil {
     }
 
     /**
+     * 十进制码转CharString
+     * @param bytes 字节组
+     * @return String
+     */
+    public static String AsciiDeBytesToCharString(byte[] bytes){
+        String string = "";
+        for (int i : bytes){
+            string = string + (char)i;
+        }
+        return string;
+    }
+
+    /**
      * ASCII码字符串转数字字符串
      *
      * @param content 字符串

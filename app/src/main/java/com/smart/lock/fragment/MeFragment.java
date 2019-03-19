@@ -109,8 +109,10 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 Log.e("self_message", "0012012");
                 break;
             case R.id.mc_manage:
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                 Intent devManageInstant = new Intent(this.mActivity, DeviceManagementActivity.class);
-                this.startActivity(devManageInstant);
+                this.startActivity(devManageInstant,bundle);
                 break;
             case R.id.sent_repair:
                 Log.e("sent_repair", "0012012");

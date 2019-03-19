@@ -42,7 +42,7 @@ public class DeviceInfoDao {
         return instance;
     }
 
-    public void insert(DeviceInfo DeviceInfo) {
+    public synchronized void insert(DeviceInfo DeviceInfo) {
 
         try {
             dao.create(DeviceInfo);

@@ -13,7 +13,7 @@ public class BtnSettingDefineView extends RelativeLayout {
     public static ToggleSwitchDefineView.OnCustomClickListener onCustomClickListener;
     private View view;
     private TextView mBtnInfoDesTv;
-    private Button mBtnSettingBtn;
+    private TextView mBtnSettingBtn;
 
     public interface OnCustomClickListener {
         void click(View view, View view2);
@@ -38,8 +38,11 @@ public class BtnSettingDefineView extends RelativeLayout {
         this.mBtnSettingBtn = view.findViewById(R.id.btn_setting_des);
     }
 
-    public void setDes(String info, String des){
+    public void setDes(String info){
         mBtnInfoDesTv.setText(info);
-        mBtnSettingBtn.setText(des);
+    }
+
+    public void setBtnDes(String info){
+        mBtnSettingBtn.setText(info);
     }
 }

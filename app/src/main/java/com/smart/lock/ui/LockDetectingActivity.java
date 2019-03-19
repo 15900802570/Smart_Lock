@@ -128,8 +128,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mBleMac = getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
             mSn = extras.getString(BleMsg.KEY_NODE_SN);
             mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
-            mUserType = extras.getString(BleMsg.KEY_USER_TYPE);
-            mUserType = mUserType != null ? mUserType : "0";
         }
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -153,9 +151,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         LocalBroadcastManager.getInstance(this).registerReceiver(detectReciver, makeGattUpdateIntentFilter());
 
-        scanLeDevice(true);
-
-
+            scanLeDevice(true);
     }
 
     private void initEvent() {
@@ -190,7 +186,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
                 closeDialog(10);
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11(Byte.valueOf(mUserType), (short) 0);
+                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11((byte)0,(short)0);
             }
 
             // 4.2.3 MSG 12

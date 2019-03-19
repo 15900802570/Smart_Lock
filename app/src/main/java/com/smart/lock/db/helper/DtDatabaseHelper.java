@@ -11,6 +11,7 @@ import com.j256.ormlite.table.TableUtils;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.bean.UserProfile;
 import com.smart.lock.db.bean.TempPwd;
@@ -38,6 +39,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, DeviceLog.class);
             TableUtils.createTable(connectionSource, UserProfile.class);
             TableUtils.createTable(connectionSource, TempPwd.class);
+            TableUtils.createTable(connectionSource, DeviceStatus.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }
