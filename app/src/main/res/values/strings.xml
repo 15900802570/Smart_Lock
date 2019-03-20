@@ -231,4 +231,8 @@
     <string name="me">Me</string>
     <string name="device_has_been_added">Device has been added.</string>
     <string name="disconnect_ble_first">Please disconnect all BLE connections of smart locks first</string>
+    <string name="unlock">Unlock</string>
+    <string name="use">Use</string>
+    <string name="open">open</string>
+    <string name="rejected_permission">You rejected the permission application</string>
 </resources>

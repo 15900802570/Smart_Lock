@@ -159,7 +159,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
                 DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
-                if (key == null || (key.getKeyType() != 0)) {
+                if (key == null || (key.getKeyType() != ConstantUtil.USER_PWD)) {
                     mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     return;

@@ -32,6 +32,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceUserDao;
@@ -362,24 +363,25 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             return new MyViewHolder(inflate);
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             final DeviceLog logInfo = mLogList.get(position);
-            DeviceUser user = DeviceUserDao.getInstance(EventsActivity.this).queryUser(logInfo.getNodeId(), logInfo.getUserId());
-
+            DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
+            DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", user.getDevNodeId());
             if (logInfo != null) {
                 if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                    viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.password) + "开锁");
-                    viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.password) + "打开了智能门锁!");
+                    viewHolder.mEventType.setText(mContext.getString(R.string.password) + mContext.getString(R.string.unlock));
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                    viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.fingerprint) + "开锁");
-                    viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.fingerprint) + "打开了智能门锁!");
+                    viewHolder.mEventType.setText(mContext.getString(R.string.fingerprint) + mContext.getString(R.string.unlock));
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    viewHolder.mEventType.setText("NDC开锁");
-                    viewHolder.mEventInfo.setText(user.getUserName() + "使用" + "NFC" + "打开了智能门锁!");
+                    viewHolder.mEventType.setText("NFC" + mContext.getString(R.string.unlock));
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                    viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.remote) + "开锁");
-                    viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.remote) + "打开了智能门锁!");
+                    viewHolder.mEventType.setText(mContext.getString(R.string.remote) + mContext.getString(R.string.unlock));
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 }
 
                 viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));

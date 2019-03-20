@@ -151,7 +151,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
                 DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
-                if (key == null || (key.getKeyType() != 2)) {
+                if (key == null || (key.getKeyType() != ConstantUtil.USER_NFC)) {
                     mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     return;

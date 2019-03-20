@@ -159,7 +159,7 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener, 
         config.setDecodeBarCode(false);//是否扫描条形码 默认为true
         config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
         config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(newIntent, REQUEST_CODE_SCAN);
     }
@@ -190,7 +190,7 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener, 
     @Override
     public void requestPermissionsFail(int callBackCode) {
         Log.d(TAG, "failed callBackCode = " + callBackCode);
-        showMessage("您拒绝了权限申请！");
+        showMessage(getString(R.string.rejected_permission));
     }
 
     @Override

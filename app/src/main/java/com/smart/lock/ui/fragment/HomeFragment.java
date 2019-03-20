@@ -664,7 +664,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_permission:
-                LogUtil.d(TAG, "ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) = " + ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE));
                 if (mIsConnected) {
                     if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -691,7 +690,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    AskForPermission();
+                    askForPermission();
                 }
             }
 
@@ -699,7 +698,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     }
 
-    private void AskForPermission() {
+    private void askForPermission() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mHomeView.getContext());
         builder.setTitle("Need Permission!");
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

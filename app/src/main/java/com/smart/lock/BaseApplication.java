@@ -21,7 +21,7 @@ public class BaseApplication extends Application {
         mContext = getApplicationContext();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
-            BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+            BleManagerHelper.getInstance(getContext(), mDefaultDevice.getBleMac(), false);
         }
     }
 

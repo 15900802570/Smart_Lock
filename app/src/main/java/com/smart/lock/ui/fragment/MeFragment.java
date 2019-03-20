@@ -44,7 +44,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     public View initView() {
@@ -124,17 +123,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             case R.id.mv_scan_qr:
                 scanQr();
                 break;
-            case R.id.self_message:
-                Log.e("self_message", "0012012");
-                break;
             case R.id.mc_manage:
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                 Intent devManageInstant = new Intent(this.mActivity, DeviceManagementActivity.class);
                 this.startActivity(devManageInstant, bundle);
-                break;
-            case R.id.sent_repair:
-                Log.e("sent_repair", "0012012");
                 break;
             case R.id.system_set:
                 Intent intent = new Intent(this.mActivity, SystemSettingsActivity.class);
@@ -160,7 +153,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         config.setDecodeBarCode(false);//是否扫描条形码 默认为true
         config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
         config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setFullScreenScan(false);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
         newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
         startActivityForResult(newIntent, REQUEST_CODE_SCAN);
     }

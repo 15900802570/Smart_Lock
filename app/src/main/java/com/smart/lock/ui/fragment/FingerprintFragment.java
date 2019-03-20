@@ -161,14 +161,12 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
                 DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
-                if (key == null || (key.getKeyType() != 1)) {
+                if (key == null || (key.getKeyType() != ConstantUtil.USER_FINGERPRINT)) {
                     mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
 
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
                 final byte[] lockId = intent.getByteArrayExtra(BleMsg.KEY_LOCK_ID);
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 mLockId = String.valueOf(lockId[0]);
@@ -180,13 +178,16 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setKeyName(mFpView.getContext().getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
+                DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
                 if (mTempUser != null) {
-                    DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
                     mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                    DeviceUserDao.getInstance(mFpView.getContext()).updateDeviceUser(mTempUser);
                 }
-                DeviceUserDao.getInstance(mFpView.getContext()).updateDeviceUser(mTempUser);
+
                 mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
                 mFpAdapter.notifyDataSetChanged();
+                DialogUtils.closeDialog(mLoadDialog);
+                mHandler.removeCallbacks(mRunnable);
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {

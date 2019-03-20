@@ -61,20 +61,9 @@
                 android:layout_height="wrap_content" />
 
             <com.smart.lock.widget.MeDefineView
-                android:id="@+id/self_message"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-
-            <com.smart.lock.widget.MeDefineView
                 android:id="@+id/mc_manage"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
-
-            <com.smart.lock.widget.MeDefineView
-                android:id="@+id/sent_repair"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-
 
             <com.smart.lock.widget.MeDefineView
                 android:id="@+id/system_set"
