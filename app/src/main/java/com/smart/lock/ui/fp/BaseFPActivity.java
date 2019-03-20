@@ -1,4 +1,4 @@
-package com.smart.lock.fp;
+package com.smart.lock.ui.fp;
 
 import android.annotation.TargetApi;
 import android.app.KeyguardManager;

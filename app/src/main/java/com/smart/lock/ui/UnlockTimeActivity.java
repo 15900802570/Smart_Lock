@@ -135,20 +135,20 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getDeviceNodeId(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
         mCalendar = Calendar.getInstance();
         mSecondUnlockTimeLl.setVisibility(View.GONE);
         mThirtUnlockTimeLl.setVisibility(View.GONE);
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
 
-        mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "00:00" : mTempUser.getStTsBegin());
-        mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "00:00" : mTempUser.getStTsEnd());
+        mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "08:00" : mTempUser.getStTsBegin());
+        mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "09:00" : mTempUser.getStTsEnd());
 
-        mSecondStartTime.setText(mTempUser.getNdTsBegin() == null ? "00:00" : mTempUser.getNdTsBegin());
-        mSecondEndTime.setText(mTempUser.getNdTsend() == null ? "00:00" : mTempUser.getNdTsend());
+        mSecondStartTime.setText(mTempUser.getNdTsBegin() == null ? "11:00" : mTempUser.getNdTsBegin());
+        mSecondEndTime.setText(mTempUser.getNdTsend() == null ? "12:00" : mTempUser.getNdTsend());
 
-        mThirdStartTime.setText(mTempUser.getThTsBegin() == null ? "00:00" : mTempUser.getThTsBegin());
-        mThirtEndTime.setText(mTempUser.getThTsEnd() == null ? "00:00" : mTempUser.getThTsEnd());
+        mThirdStartTime.setText(mTempUser.getThTsBegin() == null ? "17:00" : mTempUser.getThTsBegin());
+        mThirtEndTime.setText(mTempUser.getThTsEnd() == null ? "18:00" : mTempUser.getThTsEnd());
     }
 
     @Override
@@ -209,7 +209,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                                 break;
                             case TEMP_KEY_FIRST_END_TIME:
                                 if (!timeCompare(mFirstStartTime.getText().toString(), hour + ":" + minute)) {
-                                    showMessage("开始时间大于结束时间");
+                                    showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_FIRST_END_TIME);
                                 } else
                                     mFirstEndTime.setText(hour + ":" + minute);
@@ -219,7 +219,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                                 break;
                             case TEMP_KEY_SECOND_END_TIME:
                                 if (!timeCompare(mSecondStartTime.getText().toString(), hour + ":" + minute)) {
-                                    showMessage("开始时间大于结束时间");
+                                    showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_SECOND_END_TIME);
                                 } else
                                     mSecondEndTime.setText(hour + ":" + minute);
@@ -229,7 +229,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                                 break;
                             case TEMP_KEY_THIRD_END_TIME:
                                 if (!timeCompare(mSecondStartTime.getText().toString(), hour + ":" + minute)) {
-                                    showMessage("开始时间大于结束时间");
+                                    showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_THIRD_END_TIME);
                                 } else {
                                     mThirtEndTime.setText(hour + ":" + minute);

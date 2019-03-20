@@ -152,8 +152,9 @@ public class MessageCreator {
 
     /**
      * 获取消息 MESSAGE.TYPE_BLE_RECEV_CMD_1C
-     * @param type 消息类型
-     * @param sn 设备序列号
+     *
+     * @param type   消息类型
+     * @param sn     设备序列号
      * @param sw_ver 软件版本
      * @param hw_ver 硬件版本
      * @return
@@ -167,7 +168,7 @@ public class MessageCreator {
         if (sn != null && sn.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_NODE_SN, sn);
         }
-        if (sw_ver!= null && sw_ver.length != 0) {
+        if (sw_ver != null && sw_ver.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_SW_VER, sw_ver);
         }
         if (hw_ver != null && hw_ver.length != 0) {
@@ -187,7 +188,15 @@ public class MessageCreator {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+        if (errCode[3] == 0x2 || errCode[3] == 0x3 || errCode[3] == 0x4
+                || errCode[3] == 0x00 || errCode[3] == 0x1 || errCode[3] == 0x6
+                || errCode[3] == 0x05 || errCode[3] == 0x7) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+        } else if (errCode[3] == 0x8 || errCode[3] == 0x09 || errCode[3] == 0x0a
+                || errCode[3] == 0x0b || errCode[3] == 0x0c || errCode[3] == 0x0d
+                || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+        }
 
         if (errCode != null && errCode.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
@@ -206,7 +215,6 @@ public class MessageCreator {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-
 
         if (errCode != null && errCode.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
@@ -282,7 +290,7 @@ public class MessageCreator {
      * @param msg  信息
      * @return
      */
-    public static Message getCmd25Message(byte type, byte[] msg) {
+    public static Message getCmd26Message(byte type, byte[] msg) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");

@@ -12,7 +12,6 @@
     <string name="home_rd">home</string>
     <string name="me_rd">me</string>
     <string name="lock_manager">Lock Manager</string>
-    <string name="personal_conter">Personal Center</string>
     <string name="back_message">Click exit again Smart·Lock</string>
     <string name="bt_state">Bluetooth status:</string>
     <string name="bt_unconnected">Unconnected</string>
@@ -229,4 +228,5 @@
     <string name="nine_num">9</string>
     <string name="zero_num">0</string>
     <string name="bt_connecting">Connecting</string>
+    <string name="me">Me</string>
 </resources>

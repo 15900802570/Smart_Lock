@@ -2,23 +2,15 @@ package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,21 +21,17 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.fragment.AdminFragment;
-import com.smart.lock.fragment.BaseFragment;
-import com.smart.lock.fragment.CardFragment;
-import com.smart.lock.fragment.FingerprintFragment;
-import com.smart.lock.fragment.MumberFragment;
-import com.smart.lock.fragment.PwdFragment;
-import com.smart.lock.fragment.TempFragment;
+import com.smart.lock.ui.fragment.BaseFragment;
+import com.smart.lock.ui.fragment.CardFragment;
+import com.smart.lock.ui.fragment.FingerprintFragment;
+import com.smart.lock.ui.fragment.PwdFragment;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
 
-public class TempKeyActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
-    private final static String TAG = TempKeyActivity.class.getSimpleName();
+public class DeviceKeyActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+    private final static String TAG = DeviceKeyActivity.class.getSimpleName();
 
     private TabLayout mUserPermissionTl;
     private NoScrollViewPager mUserPermissionVp;
@@ -73,7 +61,7 @@ public class TempKeyActivity extends AppCompatActivity implements View.OnClickLi
 
                 DialogUtils.closeDialog(mLoadDialog);
 
-                Toast.makeText(TempKeyActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+                Toast.makeText(DeviceKeyActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 
         }
@@ -107,7 +95,10 @@ public class TempKeyActivity extends AppCompatActivity implements View.OnClickLi
 
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getDeviceNodeId(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+
+        int currentItem = getIntent().getExtras().getInt(BleMsg.KEY_CURRENT_ITEM);
+
 
         mUsersList = new ArrayList<>();
         PwdFragment pwdFragment = new PwdFragment();
@@ -126,6 +117,7 @@ public class TempKeyActivity extends AppCompatActivity implements View.OnClickLi
         initTabLayout();
         mUserPermissionVp.setOffscreenPageLimit(2);
         mUserPermissionVp.setNoScroll(false);
+        mUserPermissionVp.setCurrentItem(currentItem);
         mHandler = new Handler();
 
     }
@@ -144,8 +136,6 @@ public class TempKeyActivity extends AppCompatActivity implements View.OnClickLi
                 finish();
             }
         });
-        setSupportActionBar(mUsetSetTb);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
 

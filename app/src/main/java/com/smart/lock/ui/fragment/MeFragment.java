@@ -1,5 +1,5 @@
 
-package com.smart.lock.fragment;
+package com.smart.lock.ui.fragment;
 
 import android.content.Intent;
 import android.os.Build;
@@ -8,10 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
@@ -30,6 +33,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private MeDefineView mSystemSetTv;
     private MeDefineView mScanQrMv;
     private MeDefineView mDevManagementTv;
+    private TextView mNameTv;
 
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI
@@ -47,6 +51,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mSystemSetTv = mMeView.findViewById(R.id.system_set);
         mScanQrMv = mMeView.findViewById(R.id.mv_scan_qr);
         mDevManagementTv = mMeView.findViewById(R.id.mc_manage);
+        mNameTv = mMeView.findViewById(R.id.me_center_head_name);
+        mDefaultDevice = DeviceInfoDao.getInstance(mMeView.getContext()).queryFirstData("device_default", true);
+        if (mDefaultDevice != null) {
+            mDefaultUser = DeviceUserDao.getInstance(mMeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+        }
         Log.d(TAG, "initView");
         initEvent();
         return mMeView;
@@ -62,6 +71,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mSystemSetTv.setDes(mMeView.getContext().getResources().getString(R.string.system_setting));
         mScanQrMv.setDes(mMeView.getContext().getResources().getString(R.string.scan_qr));
         mDevManagementTv.setDes(mMeView.getResources().getString(R.string.device_management));
+        if (mDefaultUser != null) {
+            mNameTv.setText(mDefaultUser.getUserName());
+        }
 
     }
 
@@ -112,7 +124,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                 Intent devManageInstant = new Intent(this.mActivity, DeviceManagementActivity.class);
-                this.startActivity(devManageInstant,bundle);
+                this.startActivity(devManageInstant, bundle);
                 break;
             case R.id.sent_repair:
                 Log.e("sent_repair", "0012012");

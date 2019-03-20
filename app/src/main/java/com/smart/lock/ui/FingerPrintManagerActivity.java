@@ -137,7 +137,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
     private void initData() {
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
         mTitle.setText(R.string.fingerprint_manager);
 
         mFpAdapter = new FpManagerAdapter(this);

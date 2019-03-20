@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_bg">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_key"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/listview_bg_grey"
+        android:divider="@null"
+        android:scrollbarSize="10dp"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbars="vertical" />
+
+    <FrameLayout
+        android:id="@+id/fl_add"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/mask">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/ll_add_key"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="3dp"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_add"
+                    style="@style/RountButtonStyle"
+                    android:layout_gravity="center"
+                    android:text="@string/create_user"
+                    android:visibility="visible" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/black" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+    </FrameLayout>
+
+</RelativeLayout>

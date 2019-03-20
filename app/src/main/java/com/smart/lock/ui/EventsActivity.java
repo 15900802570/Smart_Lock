@@ -83,7 +83,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getUserId());
 
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
 
         DeviceLogDao.getInstance(this).deleteAll();
 
@@ -122,26 +122,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             }
         });
 
-    }
-
-    /**
-     * 显示的View
-     */
-    private ArrayList<DeviceLog> refreshView() {
-
-        ArrayList<DeviceLog> logList = new ArrayList<>();
-        if (mLogs != null && !mLogs.isEmpty()) {
-            if (mLogs.size() >= mBaseCount) {
-                logList = new ArrayList<>(mLogs.subList(0, mBaseCount));
-                mLogs.subList(0, mBaseCount).clear();
-            } else {
-                logList = new ArrayList<>(mLogs.subList(0, mLogs.size()));
-                mLogs.subList(0, mLogs.size()).clear();
-            }
-
-            Log.d(TAG, "logList = " + logList.size());
-        }
-        return logList;
     }
 
     private static IntentFilter intentFilter() {
@@ -206,9 +186,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     keyName = EventsActivity.this.getResources().getString(R.string.remote);
                 }
 
-
                 devLog.setLockId(String.valueOf(lockId[0]));
-                DeviceKey deviceKey = DeviceKeyDao.getInstance(EventsActivity.this).queryByLockId(StringUtil.bytesToHexString(nodeId), StringUtil.bytesToHexString(userId), String.valueOf(lockId[0]));
+                DeviceKey deviceKey = DeviceKeyDao.getInstance(EventsActivity.this).queryByLockId(StringUtil.bytesToHexString(nodeId), StringUtil.bytesToHexString(userId), String.valueOf(lockId[0]), type[0]);
                 if (deviceKey != null) {
                     devLog.setKeyName(deviceKey.getKeyName());
                 } else
@@ -396,8 +375,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.fingerprint) + "开锁");
                     viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.fingerprint) + "打开了智能门锁!");
                 } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    viewHolder.mEventType.setText(logInfo.getLogType() + "开锁");
-                    viewHolder.mEventInfo.setText(user.getUserName() + "使用" + logInfo.getLogType() + "打开了智能门锁!");
+                    viewHolder.mEventType.setText("NDC开锁");
+                    viewHolder.mEventInfo.setText(user.getUserName() + "使用" + "NFC" + "打开了智能门锁!");
                 } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
                     viewHolder.mEventType.setText(EventsActivity.this.getResources().getString(R.string.remote) + "开锁");
                     viewHolder.mEventInfo.setText(user.getUserName() + "使用" + EventsActivity.this.getResources().getString(R.string.remote) + "打开了智能门锁!");

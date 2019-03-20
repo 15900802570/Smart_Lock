@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -15,13 +14,9 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,28 +24,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
-import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.fragment.AdminFragment;
-import com.smart.lock.fragment.BaseFragment;
-import com.smart.lock.fragment.HomeFragment;
-import com.smart.lock.fragment.MeFragment;
-import com.smart.lock.fragment.MumberFragment;
-import com.smart.lock.fragment.TempFragment;
-import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.ui.fragment.AdminFragment;
+import com.smart.lock.ui.fragment.BaseFragment;
+import com.smart.lock.ui.fragment.MumberFragment;
+import com.smart.lock.ui.fragment.TempFragment;
 import com.smart.lock.utils.DialogUtils;
-import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
@@ -126,7 +113,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mUserPermissionVp.setNoScroll(false);
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getDeviceNodeId(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
     }
 
     private void initEvent() {

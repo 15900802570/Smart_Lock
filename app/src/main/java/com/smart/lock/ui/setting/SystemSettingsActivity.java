@@ -1,20 +1,14 @@
 package com.smart.lock.ui.setting;
 
-import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.app.KeyguardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.fingerprint.FingerprintManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.CancellationSignal;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,20 +16,13 @@ import android.widget.ToggleButton;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.fp.BaseFPActivity;
-import com.smart.lock.fp.FingerprintDialogFragment;
+import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.widget.ToggleSwitchDefineView;
-
-import java.security.KeyStore;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 
 public class SystemSettingsActivity extends BaseFPActivity implements View.OnClickListener {

@@ -168,17 +168,20 @@ public class BleManagerHelper {
                     mContext.startActivity(enableIntent);
                 }
 
-                LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
+                LogUtil.d(TAG, "mIsConnected = " + mIsConnected + " mService = " + (mService == null));
                 if (!mIsConnected && mService != null) {
                     mStartTime = System.currentTimeMillis();
-                    mService.connect(mBleMac);
+                    boolean result = mService.connect(mBleMac);
+                    LogUtil.d(TAG, "result = " + result);
 //                    DialogUtils.closeDialog(mLoadDialog);
 //                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
                     closeDialog(15);
+                } else {
+
                 }
 
             }
-        }, 500);
+        }, 1000);
         return mIsConnected;
     }
 
@@ -477,7 +480,6 @@ public class BleManagerHelper {
      */
     private void closeDialog(int seconds) {
         mHandler.removeCallbacks(mRunnable);
-        LogUtil.d(TAG, "mRunnable ");
         mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 

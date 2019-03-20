@@ -1,4 +1,4 @@
-package com.smart.lock.fragment;
+package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,35 +16,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
-import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
-import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.PwdManagerActivity;
 import com.smart.lock.ui.PwdSetActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -85,9 +74,9 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
 
     @Override
     public View initView() {
-        mPwdView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
+        mPwdView = View.inflate(mActivity, R.layout.fragment_device_key, null);
         mAddBtn = mPwdView.findViewById(R.id.btn_add);
-        mListView = mPwdView.findViewById(R.id.rv_users);
+        mListView = mPwdView.findViewById(R.id.rv_key);
         return mPwdView;
     }
 
@@ -103,7 +92,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mPwdView.getContext()).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mPwdView.getContext(), mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mPwdView.getContext(), mDefaultDevice.getBleMac(), false);
 
         mPwdAdapter = new PwdManagerAdapter(mPwdView.getContext());
         mListView.setLayoutManager(new LinearLayoutManager(mPwdView.getContext(), LinearLayoutManager.VERTICAL, false));
@@ -207,20 +196,20 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog = DialogUtils.createLoadingDialog(mPwdView.getContext(), mPwdView.getContext().getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), Integer.parseInt(pwdInfo.getPwd()));
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), 0);
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                         bundle.putSerializable(BleMsg.KEY_MODIFY_DEVICE_KEY, pwdInfo);
                         bundle.putString(BleMsg.KEY_CMD_TYPE, ConstantUtil.MODIFY);
                         startIntent(PwdSetActivity.class, bundle);
 
                     }
                 });
-
 
                 final AlertDialog editDialog = DialogUtils.showEditKeyDialog(mContext, mContext.getString(R.string.modify_note_name), pwdInfo);
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
@@ -234,7 +223,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                     editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(pwdInfo.getDeviceNodeId(), pwdInfo.getUserId(), pwdInfo.getLockId()).getKeyName());
+                            viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(pwdInfo.getDeviceNodeId(), pwdInfo.getUserId(), pwdInfo.getLockId(), ConstantUtil.USER_PWD).getKeyName());
                         }
                     });
                 }

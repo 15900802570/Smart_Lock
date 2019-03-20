@@ -32,7 +32,7 @@ public class BleCmd26Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
-        return MessageCreator.getCmd25Message(getParseKey(),buf);
+        return MessageCreator.getCmd26Message(getParseKey(),buf);
     }
 
     @Override

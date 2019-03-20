@@ -287,4 +287,9 @@ public class BleMsg {
      * 硬件版本信息
      */
     public static final String KEY_HW_VER = "hwVER";
+
+    /**
+     * 设置默认页
+     */
+    public static final String KEY_CURRENT_ITEM = "currentItem";
 }

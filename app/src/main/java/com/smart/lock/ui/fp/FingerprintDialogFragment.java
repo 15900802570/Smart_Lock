@@ -1,10 +1,8 @@
-package com.smart.lock.fp;
+package com.smart.lock.ui.fp;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -13,18 +11,13 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.Gravity;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
-import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.LogUtil;
-import com.yzq.zxinglibrary.common.Constant;
 
 import javax.crypto.Cipher;
 

@@ -61,19 +61,19 @@ public class BleCmd15Creator implements BleCreator {
 
         byte[] pwdBuf = getPsw(cmdType, keyType, pwd);
 
-        LogUtil.d(getTag(),"cmdBuf = " + Arrays.toString(cmdBuf));
-        LogUtil.d(getTag(),"cmdType = " + cmdType);
-        LogUtil.d(getTag(),"keyType = " + keyType);
-        LogUtil.d(getTag(),"userIdBuf = " + Arrays.toString(userIdBuf));
-        LogUtil.d(getTag(),"lockId = " + lockId);
+        LogUtil.d(getTag(), "cmdBuf = " + Arrays.toString(cmdBuf));
+        LogUtil.d(getTag(), "cmdType = " + cmdType);
+        LogUtil.d(getTag(), "keyType = " + keyType);
+        LogUtil.d(getTag(), "userIdBuf = " + Arrays.toString(userIdBuf));
+        LogUtil.d(getTag(), "lockId = " + lockId);
 
         if (pwdBuf != null) {
             System.arraycopy(pwdBuf, 0, cmdBuf, 5, 6);
             Arrays.fill(cmdBuf, 11, 16, (byte) 5);
-            LogUtil.d(getTag(),"pwdBuf = " + Arrays.toString(pwdBuf));
+            LogUtil.d(getTag(), "pwdBuf = " + Arrays.toString(pwdBuf));
         } else {
             Arrays.fill(cmdBuf, 5, 16, (byte) 11);
-            LogUtil.d(getTag(),"pwdBuf = " + Arrays.toString(pwdBuf));
+            LogUtil.d(getTag(), "pwdBuf = " + Arrays.toString(pwdBuf));
         }
 
         try {
@@ -103,8 +103,13 @@ public class BleCmd15Creator implements BleCreator {
      */
     private byte[] getPsw(int cmdType, int keyType, int pwd) {
         byte[] psw = null;
-        if ((cmdType == 0 || cmdType == 2) && keyType == 0 && String.valueOf(pwd).getBytes().length == 6) {
-            psw = String.valueOf(pwd).getBytes();
+        if ((cmdType == 0 || cmdType == 2) && keyType == 0) {
+            if (String.valueOf(pwd).getBytes().length == 6) {
+                psw = String.valueOf(pwd).getBytes();
+            } else if (String.valueOf(pwd).getBytes().length == 1){
+                psw = new byte[6];
+                Arrays.fill(psw, 0, 6, (byte) 0x0);
+            }
             return psw;
         }
 

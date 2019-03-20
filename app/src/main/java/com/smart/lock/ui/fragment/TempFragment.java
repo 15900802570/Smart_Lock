@@ -1,17 +1,12 @@
-package com.smart.lock.fragment;
+package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -23,52 +18,35 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
 import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.BaseListViewActivity;
-import com.smart.lock.ui.LockDetectingActivity;
+import com.smart.lock.ui.TempUserActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
-import com.smart.lock.utils.SystemUtils;
-import com.smart.lock.widget.CustomDialog;
 
-import java.io.File;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Hashtable;
 
-public class AdminFragment extends BaseFragment implements View.OnClickListener {
-    private final static String TAG = AdminFragment.class.getSimpleName();
+public class TempFragment extends BaseFragment implements View.OnClickListener {
+    private final static String TAG = TempFragment.class.getSimpleName();
 
-    private View mAdminView;
+    private View mTempView;
     private RecyclerView mUsersRv;
-    private AdminAdapter mAdminAdapter;
+    private TempAdapter mTempAdapter;
     private LinearLayoutManager mLinerLayoutManager;
     private Button mAddUserBtn;
     private RelativeLayout mSelectDeleteRl;
@@ -84,24 +62,24 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_add:
-                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mAdminView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mTempView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
                 if (users != null && users.size() >= 5) {
-                    showMessage(mAdminView.getContext().getResources().getString(R.string.administrator) + mAdminView.getContext().getResources().getString(R.string.add_user_tips));
+                    showMessage(mTempView.getContext().getResources().getString(R.string.tmp_user) + mTempView.getContext().getResources().getString(R.string.add_user_tips));
                     return;
                 }
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
+                mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 1, (short) 0);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 3, (short) 0);
                 }
                 break;
             case R.id.btn_select_all:
                 LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
 
                 if ((int) mSelectBtn.getTag() == R.string.all_election) {
-                    ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mAdminView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
-                    mAdminAdapter.mDeleteUsers.clear();
+                    ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mTempView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+                    mTempAdapter.mDeleteUsers.clear();
                     int index = -1;
                     for (DeviceUser user : deleteUsers) {
                         if (user.getUserId() == mDefaultUser.getUserId()) {
@@ -111,25 +89,25 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     if (index != -1) {
                         deleteUsers.remove(index);
                     }
-                    mAdminAdapter.mDeleteUsers.addAll(deleteUsers);
-                    mAdminAdapter.chioseALLDelete(true);
+                    mTempAdapter.mDeleteUsers.addAll(deleteUsers);
+                    mTempAdapter.chioseALLDelete(true);
                     mSelectBtn.setText(R.string.cancel);
                     mSelectBtn.setTag(R.string.cancel);
                 } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
-                    mAdminAdapter.mDeleteUsers.clear();
+                    mTempAdapter.mDeleteUsers.clear();
                     mSelectBtn.setText(R.string.all_election);
-                    mAdminAdapter.chioseALLDelete(false);
+                    mTempAdapter.chioseALLDelete(false);
                     mSelectBtn.setTag(R.string.all_election);
                 }
-                mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
-                mAdminAdapter.notifyDataSetChanged();
+                mChoiseMumTv.setText(String.valueOf(mTempAdapter.mDeleteUsers.size()));
+                mTempAdapter.notifyDataSetChanged();
                 break;
             case R.id.btn_delete:
 
-                if (mAdminAdapter.mDeleteUsers.size() != 0) {
+                if (mTempAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getString(R.string.data_loading));
-                    for (DeviceUser devUser : mAdminAdapter.mDeleteUsers) {
+                    mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getString(R.string.data_loading));
+                    for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
                         mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
                     }
                     closeDialog(10);
@@ -149,43 +127,42 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         } else {
             mSelectDeleteRl.setVisibility(View.GONE);
         }
-        mAdminAdapter.chioseALLDelete(false);
-        mAdminAdapter.chioseItemDelete(choise);
-        mAdminAdapter.notifyDataSetChanged();
+        mTempAdapter.chioseALLDelete(false);
+        mTempAdapter.chioseItemDelete(choise);
+        mTempAdapter.notifyDataSetChanged();
     }
 
     public void refreshView() {
-        mAdminAdapter.setDataSource();
-        mAdminAdapter.notifyDataSetChanged();
+        mTempAdapter.setDataSource();
+        mTempAdapter.notifyDataSetChanged();
     }
-
 
     @Override
     public View initView() {
-        mAdminView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
-        mUsersRv = mAdminView.findViewById(R.id.rv_users);
-        mAddUserBtn = mAdminView.findViewById(R.id.btn_add);
-        mSelectDeleteRl = mAdminView.findViewById(R.id.rl_select_delete);
-        mChoiseMumTv = mAdminView.findViewById(R.id.tv_select_num);
-        mSelectBtn = mAdminView.findViewById(R.id.btn_select_all);
+        mTempView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
+        mUsersRv = mTempView.findViewById(R.id.rv_users);
+        mAddUserBtn = mTempView.findViewById(R.id.btn_add);
+        mSelectDeleteRl = mTempView.findViewById(R.id.rl_select_delete);
+        mChoiseMumTv = mTempView.findViewById(R.id.tv_select_num);
+        mSelectBtn = mTempView.findViewById(R.id.btn_select_all);
         mSelectBtn.setTag(R.string.all_election);
-        mDeleteBtn = mAdminView.findViewById(R.id.btn_delete);
-        return mAdminView;
+        mDeleteBtn = mTempView.findViewById(R.id.btn_delete);
+        return mTempView;
     }
 
     public void initDate() {
-        mDefaultDevice = DeviceInfoDao.getInstance(mAdminView.getContext()).queryFirstData("device_default", true);
+        mDefaultDevice = DeviceInfoDao.getInstance(mTempView.getContext()).queryFirstData("device_default", true);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-        mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext(), mNodeId, false);
-        mAdminAdapter = new AdminAdapter(mAdminView.getContext());
-        mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mTempView.getContext(), mDefaultDevice.getBleMac(), false);
+        mTempAdapter = new TempAdapter(mTempView.getContext());
+        mLinerLayoutManager = new LinearLayoutManager(mTempView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
         mUsersRv.setItemAnimator(new DefaultItemAnimator());
-        mUsersRv.setAdapter(mAdminAdapter);
+        mUsersRv.setAdapter(mTempAdapter);
 
-        LocalBroadcastManager.getInstance(mAdminView.getContext()).registerReceiver(userReciver, intentFilter());
+        LocalBroadcastManager.getInstance(mTempView.getContext()).registerReceiver(userReciver, intentFilter());
 
         mAddUserBtn.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
@@ -208,9 +185,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         return intentFilter;
     }
 
-    /**
-     * 广播接收
-     */
     private final BroadcastReceiver userReciver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
@@ -219,7 +193,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             // 4.2.3 MSG 12
             if (action.equals(BleMsg.EXTRA_DATA_MSG_12)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                if (user == null || user.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
+                if (user == null || user.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
                     mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
@@ -227,7 +201,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
-                authBuf[0] = 0x01;
+                authBuf[0] = 0x03;
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_USER_ID), 0, authBuf, 1, 2);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
@@ -252,27 +226,24 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
 
-                String path = createQRcodeImage(buf);
-                Log.d(TAG, "path = " + path);
+//                String path = createQRcodeImage(buf);
+                Log.d(TAG, "path = " + null);
+
                 DeviceUser deviceUser;
-                if (path != null) {
-                    deviceUser = createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MASTER);
+                deviceUser = createDeviceUser(Short.parseShort(userId, 16), null, ConstantUtil.DEVICE_TEMP);
 
-                    if (deviceUser != null) {
-                        mAdminAdapter.addItem(deviceUser);
-                        mHandler.removeCallbacks(mRunnable);
-                        DialogUtils.closeDialog(mLoadDialog);
-                    }
+                if (deviceUser != null) {
+                    mTempAdapter.addItem(deviceUser);
+                    mHandler.removeCallbacks(mRunnable);
+                    DialogUtils.closeDialog(mLoadDialog);
                 }
-
             }
 
-            //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
                 if (user != null) {
-                    DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
+                    DeviceUser delUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mNodeId, user.getUserId());
+                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
                         mHandler.removeCallbacks(mRunnable);
                         DialogUtils.closeDialog(mLoadDialog);
                         return;
@@ -283,40 +254,44 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
-                if (errCode[3] == 0x02) {
-                    showMessage(mAdminView.getContext().getString(R.string.add_user_success));
-                } else if (errCode[3] == 0x03) {
-                    showMessage(mAdminView.getContext().getString(R.string.add_user_failed));
-                } else if (errCode[3] == 0x04) {
-                    showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
+                if (errCode[3] == 0x2) {
+                    showMessage(mTempView.getContext().getString(R.string.add_user_success));
+                } else if (errCode[3] == 0x3) {
+                    showMessage(mTempView.getContext().getString(R.string.add_user_failed));
+                } else if (errCode[3] == 0x4) {
+                    showMessage(mTempView.getContext().getString(R.string.delete_user_success));
 
-                    DeviceUser deleteUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    DeviceUser deleteUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mNodeId, user.getUserId());
                     Log.d(TAG, "deleteUser = " + deleteUser.toString());
-                    mAdminAdapter.removeItem(deleteUser);
+                    mTempAdapter.removeItem(deleteUser);
+
+                    if (mTempAdapter.mDeleteUsers.size() == 0) {
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                    } else return;
 
                 } else if (errCode[3] == 0x05) {
-                    showMessage(mAdminView.getContext().getString(R.string.delete_user_failed));
+                    showMessage(mTempView.getContext().getString(R.string.delete_user_failed));
                 } else if (errCode[3] == 0x00) {
-                    showMessage(mAdminView.getContext().getString(R.string.pause_user_success));
+                    showMessage(mTempView.getContext().getString(R.string.pause_user_success));
 
-                    DeviceUser pauseUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    DeviceUser pauseUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mNodeId, user.getUserId());
                     pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
-                    DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(pauseUser);
-                    mAdminAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                    DeviceUserDao.getInstance(mTempView.getContext()).updateDeviceUser(pauseUser);
+                    mTempAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
 
                 } else if (errCode[3] == 0x01) {
-                    showMessage(mAdminView.getContext().getString(R.string.pause_user_failed));
+                    showMessage(mTempView.getContext().getString(R.string.pause_user_failed));
                 } else if (errCode[3] == 0x06) {
-                    showMessage(mAdminView.getContext().getString(R.string.recovery_user_success));
+                    showMessage(mTempView.getContext().getString(R.string.recovery_user_success));
 
-                    DeviceUser pauseUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    DeviceUser pauseUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mNodeId, user.getUserId());
                     pauseUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                    DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(pauseUser);
-                    mAdminAdapter.changeUserState(pauseUser, ConstantUtil.USER_ENABLE);
+                    DeviceUserDao.getInstance(mTempView.getContext()).updateDeviceUser(pauseUser);
+                    mTempAdapter.changeUserState(pauseUser, ConstantUtil.USER_ENABLE);
                 } else if (errCode[3] == 0x07) {
-                    showMessage(mAdminView.getContext().getString(R.string.recovery_user_failed));
+                    showMessage(mTempView.getContext().getString(R.string.recovery_user_failed));
                 }
-
 
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
@@ -325,7 +300,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         }
     };
 
-    private class AdminAdapter extends RecyclerView.Adapter<AdminAdapter.AdminViewHoler> {
+    private class TempAdapter extends RecyclerView.Adapter<TempAdapter.TempViewHoler> {
         private Context mContext;
         private ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
@@ -333,9 +308,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         public boolean mAllDelete = false;
         private SwipeLayout mSwipelayout;
 
-        public AdminAdapter(Context context) {
+        public TempAdapter(Context context) {
             mContext = context;
-            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId() == mDefaultUser.getUserId()) {
@@ -349,16 +324,16 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
         @NonNull
         @Override
-        public AdminViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public TempViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
             mSwipelayout = inflate.findViewById(R.id.item_ll_user);
             mSwipelayout.setClickToClose(true);
             mSwipelayout.setRightSwipeEnabled(true);
-            return new AdminViewHoler(inflate);
+            return new TempViewHoler(inflate);
         }
 
         public void setDataSource() {
-            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId() == mDefaultUser.getUserId()) {
@@ -409,7 +384,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 boolean result = mDeleteUsers.remove(del);
                 Log.d(TAG, "result = " + result);
-                DeviceUserDao.getInstance(mAdminView.getContext()).delete(del);
+                DeviceUserDao.getInstance(mTempView.getContext()).delete(del);
                 notifyItemRemoved(index);
             }
 
@@ -422,34 +397,35 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             if (delIndex != -1) {
                 mDeleteUsers.remove(delIndex);
             }
-            mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
+            mChoiseMumTv.setText(String.valueOf(mTempAdapter.mDeleteUsers.size()));
+
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final AdminViewHoler holder, final int position) {
+        public void onBindViewHolder(@NonNull final TempViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.unenable));
+                    holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.normal));
+                    holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.normal));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
                     mSwipelayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.pause));
+                    holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
                 } else {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.invalid));
+                    holder.mUserStateTv.setText(mTempView.getContext().getResources().getString(R.string.invalid));
                     mSwipelayout.setRightSwipeEnabled(false);
                 }
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                final AlertDialog editDialog = DialogUtils.showEditDialog(mAdminView.getContext(), mContext.getString(R.string.modify_note_name), userInfo);
+                final AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -471,7 +447,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
@@ -483,7 +459,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());
@@ -501,7 +477,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                         } else {
                             mDeleteUsers.remove(userInfo);
                         }
-                        mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
+                        mChoiseMumTv.setText(String.valueOf(mTempAdapter.mDeleteUsers.size()));
                     }
                 });
 
@@ -509,24 +485,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                     @Override
                     public void onClick(View v) {
-                        String path = userInfo.getQrPath();
-                        Log.d(TAG, "path = " + path);
-                        if (StringUtil.checkNotNull(path)) {
-                            String qrName = StringUtil.getFileName(path);
-                            if (System.currentTimeMillis() - Long.parseLong(qrName) > 30 * 60 * 60) {
-                                Log.d(TAG, "qrName = " + qrName);
-                                displayImage(path);
-                            } else {
-                                File delQr = new File(path);
-                                delQr.delete();
-                                String newPath = createQr(userInfo);
-                                Log.d(TAG, "newPath = " + newPath);
-                            }
-
-                        } else {
-                            String newPath = createQr(userInfo);
-                            Log.d(TAG, "newPath = " + newPath);
-                        }
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
+                        startIntent(TempUserActivity.class, bundle);
                     }
                 });
 
@@ -537,33 +498,29 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 holder.mDeleteCb.setChecked(mAllDelete);
             }
+
+
         }
 
-        @Override
-        public void onViewAttachedToWindow(@NonNull AdminViewHoler holder) {
-            super.onViewAttachedToWindow(holder);
-            holder.mNameTv.setEnabled(false);
-            holder.mNameTv.setEnabled(true);
-        }
 
         @Override
         public int getItemCount() {
             return mUserList.size();
         }
 
-        public class AdminViewHoler extends RecyclerView.ViewHolder {
+        public class TempViewHoler extends RecyclerView.ViewHolder {
             RelativeLayout mDeleteRl;
             TextView mUserStateTv;
             ImageButton mEditIbtn;
             SwipeLayout mSwipeLayout;
             TextView mNameTv;
             TextView mUserNumberTv;
+            CheckBox mDeleteCb;
             LinearLayout mUserRecovery;
             LinearLayout mUserPause;
-            CheckBox mDeleteCb;
             LinearLayout mUserContent;
 
-            public AdminViewHoler(View itemView) {
+            public TempViewHoler(View itemView) {
                 super(itemView);
                 mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);
@@ -576,6 +533,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
                 mUserContent = itemView.findViewById(R.id.ll_content);
             }
+
+
         }
     }
 
@@ -583,7 +542,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     public void onDestroy() {
         super.onDestroy();
         try {
-            LocalBroadcastManager.getInstance(mAdminView.getContext()).unregisterReceiver(userReciver);
+            LocalBroadcastManager.getInstance(mTempView.getContext()).unregisterReceiver(userReciver);
         } catch (Exception ignore) {
             Log.e(TAG, ignore.toString());
         }

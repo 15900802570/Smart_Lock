@@ -1,4 +1,4 @@
-package com.smart.lock.fragment;
+package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,34 +16,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
-import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.FingerPrintManagerActivity;
-import com.smart.lock.ui.PwdSetActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -84,9 +74,9 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public View initView() {
-        mFpView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
+        mFpView = View.inflate(mActivity, R.layout.fragment_device_key, null);
         mAddBtn = mFpView.findViewById(R.id.btn_add);
-        mListView = mFpView.findViewById(R.id.rv_users);
+        mListView = mFpView.findViewById(R.id.rv_key);
         return mFpView;
     }
 
@@ -102,7 +92,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mFpView.getContext()).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mFpView.getContext(), mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mFpView.getContext(), mDefaultDevice.getBleMac(), false);
 
         mFpAdapter = new FpManagerAdapter(mFpView.getContext());
         mListView.setLayoutManager(new LinearLayoutManager(mFpView.getContext(), LinearLayoutManager.VERTICAL, false));
@@ -190,8 +180,10 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setKeyName(mFpView.getContext().getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
-                DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
-                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                if (mTempUser != null) {
+                    DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                }
                 DeviceUserDao.getInstance(mFpView.getContext()).updateDeviceUser(mTempUser);
                 mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
                 mFpAdapter.notifyDataSetChanged();
@@ -272,7 +264,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(fpInfo.getDeviceNodeId(), fpInfo.getUserId(), fpInfo.getLockId()).getKeyName());
+                            viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(fpInfo.getDeviceNodeId(), fpInfo.getUserId(), fpInfo.getLockId(),ConstantUtil.USER_FINGERPRINT).getKeyName());
                         }
                     });
                 }

@@ -111,7 +111,7 @@ public class LockSettingActivity extends AppCompatActivity {
         try {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
-            mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getDeviceNodeId(), false);
+            mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
             LocalBroadcastManager.getInstance(this).registerReceiver(LockSettingReceiver, intentFilter());
         } catch (NullPointerException e) {
             e.printStackTrace();

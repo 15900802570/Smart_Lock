@@ -4,68 +4,40 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.LocalActivityManager;
-import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.fragment.AdminFragment;
-import com.smart.lock.fragment.BaseFragment;
-import com.smart.lock.fragment.MumberFragment;
-import com.smart.lock.fragment.TempFragment;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
-import com.smart.lock.widget.NoScrollViewPager;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -132,7 +104,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getDeviceNodeId(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
 
@@ -200,7 +172,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 startIntent(UnlockTimeActivity.class, bundle, -1);
                 break;
             case R.id.item_set_unlock_key:
-                startIntent(TempKeyActivity.class, bundle, -1);
+                bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                startIntent(DeviceKeyActivity.class, bundle, -1);
                 break;
             default:
                 break;
@@ -258,7 +231,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                     return;
                 }
 
-                if (!DateTimeUtil.isDateOneBigger(mStartDate.getText().toString(), mEndDate.getText().toString())) {
+                if (DateTimeUtil.isDateOneBigger(mStartDate.getText().toString(), mEndDate.getText().toString())) {
                     if (mBleManagerHelper.getServiceConnection()) {
                         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
                         closeDialog(15);
@@ -268,7 +241,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                     }
 
                 } else {
-                    showMessage("起始日期不能大于结束日期！");
+                    showMessage("起始日期不能大于或等于结束日期！");
                 }
 
                 break;

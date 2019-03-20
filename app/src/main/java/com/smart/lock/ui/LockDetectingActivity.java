@@ -213,12 +213,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 if (defaultDevice != null) mDetectingDevice.setDeviceDefault(false);
                 else mDetectingDevice.setDeviceDefault(true);
                 mDetectingDevice.setDeviceSn(mSn);
-                mDetectingDevice.setDeviceName(ConstantUtil.LOCK_DEFAULT_NAME);
+                mDetectingDevice.setDeviceName(getString(R.string.lock_default_name));
                 mDetectingDevice.setDeviceSecret(randCode);
                 DeviceInfoDao.getInstance(LockDetectingActivity.this).insert(mDetectingDevice);
 
+                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).stopService();
+
                 createDeviceUser(Short.parseShort(userId, 16));
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().disconnect();
+
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
             }
@@ -371,8 +373,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     protected void onDestroy() {
         super.onDestroy();
 
-        BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).stopService();
-
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(detectReciver);
         } catch (Exception ignore) {
@@ -391,12 +391,13 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 finish();
                 break;
             case R.id.btn_confirm:
+                String deviceName = mRemarkEt.getText().toString().trim();
+                mDetectingDevice.setDeviceName((deviceName.equals("") == true) ? getString(R.string.lock_default_name) : deviceName);
+                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
+
                 startIntent(MainActivity.class, null, Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 break;
             case R.id.et_remark:
-                String deviceName = mRemarkEt.getText().toString().trim();
-                mDetectingDevice.setDeviceName(deviceName);
-                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
                 break;
             default:
                 break;

@@ -2,6 +2,8 @@
 package com.smart.lock.db.dao;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
@@ -9,6 +11,7 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.utils.LogUtil;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -88,6 +91,20 @@ public class DeviceUserDao {
 
     public synchronized void delete(DeviceUser info) {
         try {
+            if (info.getQrPath() != null) {
+                File delQr = new File(info.getQrPath());
+                if (delQr.exists()) {
+                    LogUtil.d(TAG, "isFile = " + delQr.isFile());
+                    boolean result = delQr.delete();
+                    if (result) {
+                        mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + info.getQrPath())));
+                    }
+                    LogUtil.d(TAG, "result = " + result + " isFile = " + delQr.isFile());
+                } else
+                    LogUtil.d(TAG, "删除文件失败");
+            }
+
+
             dao.delete(info);
         } catch (SQLException e) {
             e.printStackTrace();

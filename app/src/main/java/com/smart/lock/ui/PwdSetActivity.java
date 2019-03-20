@@ -66,7 +66,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
 
                 DialogUtils.closeDialog(mLoadDialog);
 
-                mBleManagerHelper = BleManagerHelper.getInstance(PwdSetActivity.this, mNodeId, false);
+//                mBleManagerHelper = BleManagerHelper.getInstance(PwdSetActivity.this, mNodeId, false);
 
                 Toast.makeText(PwdSetActivity.this, PwdSetActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
@@ -97,10 +97,9 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         controller = Controller.getInstants();
         controller.setAcitivty(this);
         mCmdType = getIntent().getStringExtra(BleMsg.KEY_CMD_TYPE);
-
+        mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
 
         if (mCmdType.equals(ConstantUtil.CREATE)) {
-            mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
             mNodeId = mDefaultDevice.getDeviceNodeId();
             mUserNameEt.setText(getResources().getString(R.string.password) + 1);
@@ -112,7 +111,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             mTitleTv.setText(R.string.modify_pwd);
         }
 
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
         mHandler = new Handler();
         LocalBroadcastManager.getInstance(this).registerReceiver(pwdReceiver, intentFilter());
     }
@@ -178,8 +177,10 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 deviceKey.setLockId(mLockId);
                 deviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
                 DeviceKeyDao.getInstance(PwdSetActivity.this).insert(deviceKey);
-                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                DeviceUserDao.getInstance(PwdSetActivity.this).updateDeviceUser(mTempUser);
+                if (mTempUser != null) {
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                    DeviceUserDao.getInstance(PwdSetActivity.this).updateDeviceUser(mTempUser);
+                }
                 showMessage(PwdSetActivity.this.getResources().getString(R.string.set_pwd_success));
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);

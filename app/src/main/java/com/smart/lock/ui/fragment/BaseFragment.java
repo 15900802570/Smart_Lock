@@ -1,34 +1,22 @@
-package com.smart.lock.fragment;
+package com.smart.lock.ui.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.daimajia.swipe.SwipeLayout;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
@@ -38,21 +26,18 @@ import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.Device;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.BaseActivity;
-import com.smart.lock.ui.BaseListViewActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.widget.CustomDialog;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 
@@ -233,20 +218,21 @@ public abstract class BaseFragment extends Fragment {
         byte[] userId = StringUtil.hexStringToBytes(StringUtil.stringToAsciiString(String.valueOf(user.getUserId()), 4));
         DeviceInfo info = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", user.getDevNodeId());
         byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac());
+        byte[] randCode = StringUtil.hexStringToBytes(info.getDeviceSecret());
 
-
-        byte[] buf = new byte[32];
-        byte[] authBuf = new byte[32];
+        byte[] buf = new byte[64];
+        byte[] authBuf = new byte[64];
         authBuf[0] = 0x01;
         System.arraycopy(userId, 0, authBuf, 1, 2);
         System.arraycopy(nodeId, 0, authBuf, 3, 8);
         System.arraycopy(bleMac, 0, authBuf, 11, 6);
+        System.arraycopy(randCode, 0, authBuf, 17, 18);
 
-        String time = Long.toHexString(System.currentTimeMillis() + 30 * 60 * 60);
-        byte[] timeBuf = StringUtil.hexStringToBytes(time);
-        System.arraycopy(timeBuf, 0, authBuf, 17, 4);
+        byte[] timeBuf = new byte[4];
+        StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
+        System.arraycopy(timeBuf, 0, authBuf, 35, 4);
 
-        Arrays.fill(authBuf, 21, 32, (byte) 0x11);
+        Arrays.fill(authBuf, 39, 64, (byte) 0x25);
 
         try {
             AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -284,7 +270,6 @@ public abstract class BaseFragment extends Fragment {
     protected void showMessage(String msg) {
         Toast.makeText(BaseFragment.this.getContext(), msg, Toast.LENGTH_SHORT).show();
     }
-
 
     @Override
     public void onDestroy() {

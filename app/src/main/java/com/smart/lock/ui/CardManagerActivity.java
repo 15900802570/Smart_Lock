@@ -131,7 +131,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
     private void initData() {
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
         mTitle.setText(R.string.card_manager);
 
         mCardAdapter = new CardManagerAdapter(this);
@@ -207,8 +207,9 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
         @Override
         public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             final DeviceKey cardInfo = mCardList.get(position);
+            LogUtil.d(TAG, "cardInfo = " + cardInfo.toString());
             if (cardInfo != null) {
-                viewHolder.mName.setText(cardInfo.getKeyName());
+                viewHolder.mNameTv.setText(cardInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.record_nfc);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(cardInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
@@ -236,7 +237,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        cardInfo.setKeyName(viewHolder.mName.getText().toString().trim());
+                        cardInfo.setKeyName(viewHolder.mNameTv.getText().toString().trim());
                         DeviceKeyDao.getInstance(CardManagerActivity.this).updateDeviceKey(cardInfo);
                     }
                 });
@@ -252,7 +253,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
         class MyViewHolder extends RecyclerView.ViewHolder {
 
             SwipeLayout mSwipeLayout;
-            EditText mName;
+            TextView mNameTv;
             ImageView mType;
             TextView mCreateTime;
             LinearLayout mDelete;
@@ -264,7 +265,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
 
                 mSwipeLayout = (SwipeLayout) itemView;
                 mType = itemView.findViewById(R.id.iv_type);
-                mName = itemView.findViewById(R.id.et_username);
+                mNameTv = itemView.findViewById(R.id.tv_username);
                 mDelete = itemView.findViewById(R.id.ll_delete);
                 mCreateTime = itemView.findViewById(R.id.tv_create_time);
                 mModifyLl = itemView.findViewById(R.id.ll_modify);

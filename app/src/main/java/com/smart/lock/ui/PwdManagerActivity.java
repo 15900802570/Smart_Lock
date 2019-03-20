@@ -107,7 +107,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
     private void initData() {
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mNodeId, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
         mTitle.setText(R.string.password_manager);
 
         mPwdAdapter = new PwdManagerAdapter(this);

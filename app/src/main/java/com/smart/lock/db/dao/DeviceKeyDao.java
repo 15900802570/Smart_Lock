@@ -18,6 +18,7 @@ import java.util.List;
 
 public class DeviceKeyDao {
 
+    private static final String TAG = DeviceKeyDao.class.getSimpleName();
     private DtDatabaseHelper mHelper;
     private Dao<DeviceKey, Integer> dao;
     private Context mContext;
@@ -214,11 +215,11 @@ public class DeviceKeyDao {
         return list;
     }
 
-    public DeviceKey queryByLockId(Object nodeId, Object userId, Object lockId) {
+    public DeviceKey queryByLockId(Object nodeId, Object userId, Object lockId, Object type) {
         DeviceKey deviceKey = new DeviceKey();
         try {
             deviceKey = dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId).
-                    and().eq("lock_id", lockId).queryForFirst();
+                    and().eq("lock_id", lockId).and().eq("key_type", type).queryForFirst();
             if (deviceKey != null) {
                 return deviceKey;
             }
@@ -228,18 +229,28 @@ public class DeviceKeyDao {
         return deviceKey;
     }
 
+    /**
+     * 同步用户开锁信息
+     *
+     * @param nodeId
+     * @param userId
+     * @param key
+     * @param type
+     * @param lockId
+     */
     public void checkDeviceKey(Object nodeId, short userId, byte key, byte type, String lockId) {
         if (key != 0) {
-            DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId);
+            DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId, type);
+            LogUtil.d(TAG, "deviceKey =  " + (deviceKey == null ? true : deviceKey.toString()));
             if (deviceKey == null) {
                 deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId((String) nodeId);
                 deviceKey.setUserId(userId);
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 if (type == ConstantUtil.USER_PWD) {
-                    deviceKey.setKeyName(R.string.password + lockId);
+                    deviceKey.setKeyName(mContext.getResources().getString(R.string.password) + lockId);
                 } else if (type == ConstantUtil.USER_FINGERPRINT)
-                    deviceKey.setKeyName(R.string.fingerprint + lockId);
+                    deviceKey.setKeyName(mContext.getResources().getString(R.string.fingerprint) + lockId);
                 else if (type == ConstantUtil.USER_NFC)
                     deviceKey.setKeyName("NFC" + lockId);
 
@@ -249,7 +260,7 @@ public class DeviceKeyDao {
                 insert(deviceKey);
             }
         } else {
-            DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId);
+            DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId, type);
             if (deviceKey != null) {
                 delete(deviceKey);
             }

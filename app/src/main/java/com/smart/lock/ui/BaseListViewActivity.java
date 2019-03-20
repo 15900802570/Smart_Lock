@@ -66,7 +66,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
 
                 DialogUtils.closeDialog(mLoadDialog);
 
-                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mNodeId, false);
+//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mDefaultDevice.getBleMac(), false);
 //                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
 
                 Toast.makeText(BaseListViewActivity.this, BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();

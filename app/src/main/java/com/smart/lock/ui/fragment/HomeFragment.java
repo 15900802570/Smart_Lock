@@ -1,5 +1,5 @@
 
-package com.smart.lock.fragment;
+package com.smart.lock.ui.fragment;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -32,29 +32,21 @@ import android.widget.TextView;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
-import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.permission.PermissionHelper;
-import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.AddDeviceActivity;
-import com.smart.lock.ui.CardManagerActivity;
+import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
-import com.smart.lock.ui.FingerPrintManagerActivity;
-import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LockSettingActivity;
-import com.smart.lock.ui.PwdManagerActivity;
 import com.smart.lock.ui.TempPwdActivity;
-import com.smart.lock.ui.TempUserActivity;
 import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
@@ -63,7 +55,6 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MyGridView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -234,6 +225,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 mLockManagerLl.setVisibility(View.VISIBLE);
                 mLockStatusTv.setText(R.string.bt_connecting);
                 mBleConnectTv.setVisibility(View.GONE);
+                refreshView(BATTER_UNKNOW);
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                     LogUtil.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
@@ -459,6 +451,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 short userId = (short) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
                 if (userId == mDefaultDevice.getUserId()) {
                     byte[] userInfo = intent.getByteArrayExtra(BleMsg.KEY_USER_MSG);
+                    LogUtil.d(TAG, "userInfo = " + Arrays.toString(userInfo));
                     mDefaultUser.setUserStatus(userInfo[0]);
                     DeviceUserDao.getInstance(mHomeView.getContext()).updateDeviceUser(mDefaultUser);
 
@@ -644,25 +637,26 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
         switch (((Integer) view.getTag()).intValue()) {
             case R.mipmap.manager_pwd:
-                if (mIsConnected)
-                    startIntent(PwdManagerActivity.class, bundle);
-                else
+                if (mIsConnected) {
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
             case R.mipmap.manager_card:
-                if (mIsConnected)
-                    startIntent(CardManagerActivity.class, bundle);
-                else
+                if (mIsConnected) {
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
-
                 break;
             case R.mipmap.manager_finger:
-                if (mIsConnected)
-                    startIntent(FingerPrintManagerActivity.class, bundle);
-                else
+                if (mIsConnected) {
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 1);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
-
             case R.mipmap.manager_event:
                 if (mIsConnected)
                     startIntent(EventsActivity.class, bundle);

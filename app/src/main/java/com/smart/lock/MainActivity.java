@@ -1,18 +1,16 @@
 package com.smart.lock;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
-import com.smart.lock.fragment.BaseFragment;
-import com.smart.lock.fragment.HomeFragment;
-import com.smart.lock.fragment.MeFragment;
+import com.smart.lock.ui.fragment.BaseFragment;
+import com.smart.lock.ui.fragment.HomeFragment;
+import com.smart.lock.ui.fragment.MeFragment;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
@@ -68,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 return mPagerList.size();
             }
         });
+        mTabVg.setNoScroll(true);
     }
 
 
