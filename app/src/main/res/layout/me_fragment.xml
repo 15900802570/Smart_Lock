@@ -63,7 +63,8 @@
             <com.smart.lock.widget.MeDefineView
                 android:id="@+id/self_message"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
 
             <com.smart.lock.widget.MeDefineView
                 android:id="@+id/mc_manage"
@@ -73,7 +74,8 @@
             <com.smart.lock.widget.MeDefineView
                 android:id="@+id/sent_repair"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
 
 
             <com.smart.lock.widget.MeDefineView
