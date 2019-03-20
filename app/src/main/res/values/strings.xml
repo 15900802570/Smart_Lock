@@ -229,4 +229,6 @@
     <string name="zero_num">0</string>
     <string name="bt_connecting">Connecting</string>
     <string name="me">Me</string>
+    <string name="device_has_been_added">Device has been added.</string>
+    <string name="disconnect_ble_first">Please disconnect all BLE connections of smart locks first</string>
 </resources>

@@ -195,22 +195,39 @@ public class DialogUtils {
     }
 
     public static Dialog createAlertDialog(Context context, String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("提示")
-                .setMessage(msg)
-                .setCancelable(true);
-        Dialog mAlertDialog = builder.create();
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_tips, null);// 得到加载view
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_ll);  // 加载布局
+        TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
+        Button cancelButton = v.findViewById(R.id.dialog_cancel_btn);
 
-        Window window = mAlertDialog.getWindow();
+        tipTextView.setText(msg);// 设置加载信息
+
+        final Dialog alertDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        alertDialog.setCancelable(true); // 是否可以按“返回键”消失
+        alertDialog.setCanceledOnTouchOutside(true); // 点击加载框以外的区域
+        alertDialog.setContentView(layout, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));// 设置布局
+        /**
+         *将显示Dialog的方法封装在这里面
+         */
+        Window window = alertDialog.getWindow();
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         window.setGravity(Gravity.CENTER);
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
-        mAlertDialog.show();
 
-        return mAlertDialog;
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.cancel();
+            }
+        });
+
+        return alertDialog;
     }
 
     public static BottomSheetDialog createBottomSheetDialog(Context context, @LayoutRes int layoutResId, @IdRes int bottom_sheet) {
@@ -224,6 +241,34 @@ public class DialogUtils {
         }
         bottomSheet.setCanceledOnTouchOutside(true);
         return bottomSheet;
+    }
+
+    public static Dialog createTipsDialog(Context context, String msg){
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_tips_with_confirm_cancel, null);// 得到加载view
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_cancel_ll);  // 加载布局
+        TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
+
+        tipTextView.setText(msg);// 设置加载信息
+
+        Dialog tipsDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        tipsDialog.setCancelable(true); // 是否可以按“返回键”消失
+        tipsDialog.setCanceledOnTouchOutside(true); // 点击加载框以外的区域
+        tipsDialog.setContentView(layout, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));// 设置布局
+        /**
+         *将显示Dialog的方法封装在这里面
+         */
+        Window window = tipsDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setGravity(Gravity.CENTER);
+        window.setAttributes(lp);
+        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+
+        return tipsDialog;
     }
 
     public static Dialog createTempPwdDialog(final Context context, final String msg) {

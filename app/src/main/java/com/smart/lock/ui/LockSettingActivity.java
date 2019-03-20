@@ -315,7 +315,7 @@ public class LockSettingActivity extends AppCompatActivity {
                 doClick(R.string.normally_open);
                 break;
 
-            case R.id.ts_voice_prompt:          //防撬报警
+            case R.id.ts_voice_prompt:          //语言提示
                 doClick(R.string.voice_prompt);
                 break;
 

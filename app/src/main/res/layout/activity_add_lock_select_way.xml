@@ -101,7 +101,8 @@
                 android:layout_marginTop="17.0dip"
                 android:background="@drawable/box_corners_white"
                 android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"

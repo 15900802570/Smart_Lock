@@ -2,11 +2,13 @@
 package com.smart.lock.db.dao;
 
 import android.content.Context;
+import android.widget.Toast;
 
 
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.helper.DtDatabaseHelper;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.sql.SQLException;
@@ -19,6 +21,9 @@ public class DeviceInfoDao {
     private Dao<DeviceInfo, Integer> dao;
     private Context mContext;
     private static DeviceInfoDao instance;
+
+    public static String NODE_ID = "device_nodeId";
+
 
     protected DeviceInfoDao(Context context) {
         this.mContext = context;
@@ -105,6 +110,17 @@ public class DeviceInfoDao {
             e.printStackTrace();
         }
         return number;
+    }
+
+    public DeviceInfo queryByField(String field, String value){
+        DeviceInfo deviceInfo = null;
+        try {
+            deviceInfo = dao.queryBuilder().where().eq(field,value).queryForFirst();
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        LogUtil.d("DAO " +deviceInfo);
+        return deviceInfo;
     }
 
     public ArrayList<Boolean> queryConnectType(String pram) {
