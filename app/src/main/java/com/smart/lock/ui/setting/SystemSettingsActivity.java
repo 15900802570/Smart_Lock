@@ -243,6 +243,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     if (!mIsPwdRequired) {
                         mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
                                 "您未开启密码验证，请先开启密码验证");
+                        mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface dialog) {
@@ -252,6 +253,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     } else if (mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE) {
                         mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
                                 "您未设置锁屏，请设置锁屏并添加指纹");
+                        mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface dialog) {
@@ -261,6 +263,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     } else if (mIsFP == ConstantUtil.FP_NO_FINGERPRINT) {
                         mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
                                 "您至少在系统设置中添加一个指纹");
+                        mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
                             public void onDismiss(DialogInterface dialog) {

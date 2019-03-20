@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.utils.LogUtil;
@@ -57,12 +59,17 @@ public class AddDeviceActivity extends BaseActivity implements OnClickListener, 
                     mBleMac = dvInfo[1];
                     mNodeId = dvInfo[2];
 
-                    Bundle bundle = new Bundle();
-                    bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-                    bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                    bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+                    if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
 
-                    startIntent(LockDetectingActivity.class, bundle);
+                        startIntent(LockDetectingActivity.class, bundle);
+                    } else {
+                        ToastUtil.show(AddDeviceActivity.this, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+                    }
+
                 } else {
                     ToastUtil.show(AddDeviceActivity.this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
                 }

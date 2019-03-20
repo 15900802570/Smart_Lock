@@ -1,5 +1,6 @@
 package com.smart.lock.ui.setting;
 
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
@@ -29,13 +31,11 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.BaseActivity;
-import com.smart.lock.ui.LockDetectingActivity;
-import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
@@ -68,18 +68,22 @@ public class DeviceManagementActivity extends AppCompatActivity {
     private String mTime;
     private DeviceInfo mNewDevice;
 
+    private Dialog mAddNewDevDialog;
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
+                LogUtil.d(TAG, "content = " + content);
                 byte[] mByte;
                 if (content.length() == 127) {
                     mByte = StringUtil.hexStringToBytes('0' + content);
                 } else if (content.length() == 128) {
                     mByte = StringUtil.hexStringToBytes(content);
                 } else {
-                    DialogUtils.createAlertDialog(this, content);
+                    Dialog alterDialog = DialogUtils.createAlertDialog(this, content);
+                    alterDialog.show();
                     return;
                 }
                 LogUtil.d(TAG, "mByte=" + Arrays.toString(mByte));
@@ -122,9 +126,22 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.btn_dev_management_add_new_lock:
-                scanQr();
+                mAddNewDevDialog = DialogUtils.createTipsDialog(this, getString(R.string.disconnect_ble_first));
+                mAddNewDevDialog.show();
                 break;
             default:
+                break;
+        }
+    }
+
+    public void tipsOnClick(View view) {
+        switch (view.getId()) {
+            case R.id.dialog_cancel_btn:
+                mAddNewDevDialog.cancel();
+                break;
+            case R.id.dialog_confirm_btn:
+                mAddNewDevDialog.cancel();
+                scanQr();
                 break;
         }
     }
@@ -150,14 +167,25 @@ public class DeviceManagementActivity extends AppCompatActivity {
         mBleMac = StringUtil.bytesToHexString(bleMACBytes).toUpperCase();
         mRandCode = StringUtil.bytesToHexString(randCodeBytes);
         mTime = StringUtil.byte2Int(timeBytes);
+
+        LogUtil.d(TAG, "New Device : " + '\n' +
+                "userType = " + mUserType + '\n' +
+                "UserId = " + mUserId + '\n' +
+                "NodeId = " + mNodeId + '\n' +
+                "Time = " + mTime);
     }
 
     private void addDev() {
-        if ((Long.valueOf(mTime)) < System.currentTimeMillis()) {
-            DialogUtils.createAlertDialog(this, "授权码已过期，请重新请求");
+        if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
+            Dialog alterDialog = DialogUtils.createAlertDialog(this, "授权码已过期，请重新请求");
+            alterDialog.show();
+        } else if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
+            ToastUtil.show(this, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
-            DeviceInfo deviceDev = (DeviceInfo) getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-            BleManagerHelper.getInstance(this, deviceDev.getBleMac(),false).stopService();
+            if (getIntent().getExtras() != null) {
+                DeviceInfo deviceDev = (DeviceInfo) getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
+                BleManagerHelper.getInstance(this, deviceDev.getBleMac(), false).stopService();
+            }
             LocalBroadcastManager.getInstance(this).registerReceiver(devCheckReceiver, intentFilter());
             BleManagerHelper.setSk(mBleMac, mNodeId, mRandCode);
             BleManagerHelper.getInstance(this, getMacAdr(mBleMac), false).connectBle((byte) 1, Short.parseShort(mUserId, 16));
@@ -196,8 +224,8 @@ public class DeviceManagementActivity extends AppCompatActivity {
      * 创建设备
      */
     private void createDevice() {
-        DeviceInfo oldDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_nodeId",mNodeId);
-        if(oldDevice == null) {
+        DeviceInfo oldDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_nodeId", mNodeId);
+        if (oldDevice == null) {
             DeviceInfo defaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
             LogUtil.d(TAG, "newDevice: " + "BLEMAC =" + mBleMac);
             mNewDevice = new DeviceInfo();

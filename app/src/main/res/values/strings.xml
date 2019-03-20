@@ -228,4 +228,6 @@
     <string name="eight_num">8</string>
     <string name="nine_num">9</string>
     <string name="zero_num">0</string>
+    <string name="device_has_been_added">Device has been added.</string>
+    <string name="disconnect_ble_first">Please disconnect all BLE connections of smart locks first</string>
 </resources>

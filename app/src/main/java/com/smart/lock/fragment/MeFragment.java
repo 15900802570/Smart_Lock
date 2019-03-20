@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
@@ -86,12 +87,18 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                     mBleMac = dvInfo[1];
                     mNodeId = dvInfo[2];
 
-                    Bundle bundle = new Bundle();
-                    bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-                    bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                    bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
-
-                    startIntent(LockDetectingActivity.class, bundle);
+                    if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+                        LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
+                                " sn = " + mSn + "\n" +
+                                "mNodeId = " + mNodeId);
+                        startIntent(LockDetectingActivity.class, bundle);
+                    } else {
+                        ToastUtil.show(mActivity, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+                    }
                 } else {
                     ToastUtil.show(mMeView.getContext(), getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
                 }
@@ -112,7 +119,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                 Intent devManageInstant = new Intent(this.mActivity, DeviceManagementActivity.class);
-                this.startActivity(devManageInstant,bundle);
+                this.startActivity(devManageInstant, bundle);
                 break;
             case R.id.sent_repair:
                 Log.e("sent_repair", "0012012");
