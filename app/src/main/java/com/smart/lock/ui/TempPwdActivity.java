@@ -1,10 +1,11 @@
 package com.smart.lock.ui;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,7 +81,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         mSecretList.add(tempSecret.substring(64, 128));
         mSecretList.add(tempSecret.substring(128, 192));
         mSecretList.add(tempSecret.substring(192, 256));
-        LogUtil.d(TAG,"mSecretList = " + mSecretList.toString());
+        LogUtil.d(TAG, "mSecretList = " + mSecretList.toString());
 
         mTempPwdAdapter = new TempPwdAdapter(this);
         mTempPwdListViewRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
@@ -244,8 +246,30 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      *
      * @param string 临时密码
      */
-    private void showPwdDialog(String string) {
-        DialogUtils.createTempPwdDialog(this, "*" + string);
+    private void showPwdDialog(final String string) {
+        final Dialog dialog = DialogUtils.createAlertDialog(this, "*" + string);
+        TextView tips = dialog.findViewById(R.id.tips_tv);
+        tips.setTextSize(20);
+        Button button = dialog.findViewById(R.id.dialog_cancel_btn);
+        button.setText(getText(R.string.click_to_copy));
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    ClipboardManager clipboardManager = (ClipboardManager) TempPwdActivity.this.
+                            getSystemService(Context.CLIPBOARD_SERVICE);
+
+                    ClipData clipData = ClipData.newPlainText(getResources().getString(R.string.temp_pwd), "*" + string);
+                    clipboardManager.setPrimaryClip(clipData);
+                    Toast.makeText(TempPwdActivity.this, getResources().getString(R.string.replicating_success), Toast.LENGTH_SHORT).show();
+
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+                dialog.cancel();
+            }
+        });
+        dialog.show();
     }
 
 

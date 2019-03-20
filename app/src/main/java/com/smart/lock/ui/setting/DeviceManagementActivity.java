@@ -99,6 +99,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LogUtil.d(TAG,"Device");
         setContentView(R.layout.activity_device_manager);
         initView();
         initData();
@@ -362,10 +363,6 @@ public class DeviceManagementActivity extends AppCompatActivity {
 
         private void addItem(DeviceInfo deviceInfo) {
             mDevList.add(0, deviceInfo);
-        }
-
-        private void unBind(int positionUnbind) {
-            mDevList.remove(positionUnbind);
         }
 
         @NonNull

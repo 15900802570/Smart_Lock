@@ -202,26 +202,35 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
     }
 
+    public void tipsOnClick(View view) {
+        switch (view.getId()) {
+            case R.id.dialog_cancel_btn:
+                mNumPwdSwitchLightTBtn.setChecked(false);
+                break;
+            case R.id.dialog_confirm_btn:
+                Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
+                intent.putExtra(ConstantUtil.IS_RETURN, true);
+                SystemSettingsActivity.this.startActivityForResult(intent.
+                        putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), 1);
+                break;
+        }
+        mPromptDialog.cancel();
+    }
+
     private void doOnClick(@IdRes int idRes) {
         switch (idRes) {
             case R.id.system_set_switch_password:
                 if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
-                    mPromptDialog = DialogUtils.createPromptDialog(SystemSettingsActivity.this,
-                            "您还未添加密码信息，是否立即设置？",
-                            LockScreenActivity.class);
-                    mPromptDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            mNumPwdSwitchLightTBtn.setChecked(false);
-                        }
-                    });
+                    mPromptDialog = DialogUtils.createTipsDialog(SystemSettingsActivity.this,
+                            "您还未添加密码信息，是否立即设置？");
                     if (!mPromptDialog.isShowing()) {
                         mPromptDialog.show();
                     }
                 } else {
                     Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                     intent.putExtra(ConstantUtil.IS_RETURN, true);
-                    SystemSettingsActivity.this.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), 1);
+                    SystemSettingsActivity.this.startActivityForResult(intent.
+                            putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), 1);
                 }
                 break;
 
@@ -351,6 +360,16 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     @Override
     protected void onResume() {
+        if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK) &&
+                SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD) != "") {
+            SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+            mNumPwdSwitchLightTBtn.setChecked(true);
+            mIsPwdRequired = true;
+        } else {
+            SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
+            mNumPwdSwitchLightTBtn.setChecked(false);
+            mIsPwdRequired = false;
+        }
         super.onResume();
     }
 
@@ -370,12 +389,16 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 case -1:
                     SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                             writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
+                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                            writeString(ConstantUtil.NUM_PWD, "");
                     mNumPwdSwitchLightTBtn.setChecked(false);
                     mIsPwdRequired = false;
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
-                    mFingerprintSwitchLightTbtn.setChecked(false);
-                    mIsFPRequired = false;
+                    if (mIsFP > 1) {
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
+                        mFingerprintSwitchLightTbtn.setChecked(false);
+                        mIsFPRequired = false;
+                    }
                     break;
                 default:
                     break;

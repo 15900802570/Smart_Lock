@@ -15,7 +15,6 @@ import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
@@ -125,12 +124,14 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 break;
             case R.id.mc_manage:
                 Bundle bundle = new Bundle();
-                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                Intent devManageInstant = new Intent(this.mActivity, DeviceManagementActivity.class);
-                this.startActivity(devManageInstant, bundle);
+                if (mDefaultDevice != null) {
+                    bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                }
+                startIntent(DeviceManagementActivity.class, bundle);
+                LogUtil.d(TAG, "ERROR");
                 break;
             case R.id.system_set:
-                Intent intent = new Intent(this.mActivity, SystemSettingsActivity.class);
+                Intent intent = new Intent(mMeView.getContext(), SystemSettingsActivity.class);
                 this.startActivity(intent);
                 break;
         }

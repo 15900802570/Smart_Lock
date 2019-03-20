@@ -59,16 +59,6 @@
         android:layout_marginBottom="40dp"
         android:paddingLeft="30dp"
         android:paddingRight="30dp">
-        <!-- 重输按钮 -->
-        <TextView
-            android:id="@+id/tv_forget_pwd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:onClick="doClick"
-            android:text="@string/forget_pwd"
-            android:textColor="#0f93df" />
         <!-- 删除按钮 -->
         <TextView
             android:id="@+id/tv_delete"

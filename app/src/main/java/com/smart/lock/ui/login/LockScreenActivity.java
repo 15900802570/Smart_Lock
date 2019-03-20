@@ -32,10 +32,9 @@ import javax.crypto.SecretKey;
 
 public class LockScreenActivity extends Activity implements View.OnClickListener {
 
-    private static String TGA ="LockScreenActivity";
+    private static String TAG ="LockScreenActivity";
 
     private TextView mDeleteTv;
-    private TextView mForgetPwdTv;
     private TextView mInfoTv; //提示信息
 
 
@@ -63,6 +62,8 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         //获取界面传递的值
         type = getIntent().getIntExtra("type", 1);
         isReturn = getIntent().getBooleanExtra(ConstantUtil.IS_RETURN, false);
+        LogUtil.d(TAG,"intent type = "+type+'\n'+
+                "isReturn = "+ isReturn);
         initView();
         initListener();// 事件处理
 
@@ -74,23 +75,23 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
      */
     private boolean supportFP(){
         if(Build.VERSION.SDK_INT<23){
-            LogUtil.i(TGA,"系统版本低,不支持指纹功能");
+            LogUtil.i(TAG,"系统版本低,不支持指纹功能");
             return false;
         }else {
             KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
             mFPM = getSystemService(FingerprintManager.class);
             if(!mFPM.isHardwareDetected()){
-                LogUtil.i(TGA,"手机不支持指纹");
+                LogUtil.i(TAG,"手机不支持指纹");
                 return false;
             }else if(!keyguardManager.isKeyguardSecure()){
-                LogUtil.i(TGA,"未设置锁屏，需设置锁屏并添加指纹");
+                LogUtil.i(TAG,"未设置锁屏，需设置锁屏并添加指纹");
                 return false;
             }else if(!mFPM.hasEnrolledFingerprints()){
-                LogUtil.i(TGA,"系统中至少需要添加一个指纹");
+                LogUtil.i(TAG,"系统中至少需要添加一个指纹");
                 return false;
             }
         }
-        LogUtil.i(TGA,"支持指纹");
+        LogUtil.i(TAG,"支持指纹");
         return true;
     }
 
@@ -103,7 +104,6 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         num_pwd4 = findViewById(R.id.num_pwd4);
         mInfoTv = findViewById(R.id.info_tv);//提示信息
         mDeleteTv = findViewById(R.id.tv_delete);
-        mForgetPwdTv = findViewById(R.id.tv_forget_pwd);
 
         /**
          * 初始化指纹
@@ -111,11 +111,11 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         isFP=supportFP();
         try{
            isFPRequired = SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK);
-           LogUtil.e(TGA, "isFPRequired = "+isFPRequired);
+           LogUtil.e(TAG, "isFPRequired = "+isFPRequired);
 
         }catch (NullPointerException e){
             isFPRequired = false;
-            LogUtil.e(TGA,"获取是否开启指纹验证信息失败");
+            LogUtil.e(TAG,"获取是否开启指纹验证信息失败");
         }
         if(isFP && isFPRequired && !isReturn){
             mInfoTv.setText("指纹 / 输入密码");
@@ -139,7 +139,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
             keyGenerator.init(builder.build());
             keyGenerator.generateKey();
         }catch (Exception e){
-            LogUtil.e(TGA,"初始化key出错"+e);
+            LogUtil.e(TAG,"初始化key出错"+e);
         }
         // 初始化Cipher
         try{
@@ -149,7 +149,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     +KeyProperties.ENCRYPTION_PADDING_PKCS7);
             mCipher.init(Cipher.ENCRYPT_MODE,key);
         }catch ( Exception e){
-            LogUtil.e(TGA,"初始化Cipher出错"+e);
+            LogUtil.e(TAG,"初始化Cipher出错"+e);
         }
         //启动监听事件
     }
@@ -164,7 +164,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     @Override
                     public void onAuthenticationError(int errorCode, CharSequence errString) {
                         super.onAuthenticationError(errorCode, errString);
-                        LogUtil.i(TGA, "指纹验证错误");
+                        LogUtil.i(TAG, "指纹验证错误");
                         if(errorCode == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT){
                             mInfoTv.setText("指纹验证失败达到上限，请输入密码解锁");
                         }
@@ -178,14 +178,14 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
                     @Override
                     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
-                        LogUtil.i(TGA,"指纹验证成功");
+                        LogUtil.i(TAG,"指纹验证成功");
                         setAllText(true);
                     }
 
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
-                        LogUtil.i(TGA, "指纹验证失败");
+                        LogUtil.i(TAG, "指纹验证失败");
                         setAllText(false);
                     }
                 },
@@ -268,7 +268,6 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
             }
         });
         mDeleteTv.setOnClickListener(this);
-        mForgetPwdTv.setOnClickListener(this);
     }
 
     private Handler handler = new Handler() {
@@ -373,9 +372,6 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     public void onClick(View view) {
         //判断点击的按钮
         switch (view.getId()) {
-            case R.id.tv_forget_pwd://忘记密码?
-                finish();
-                break;
             case R.id.tv_delete://删除
                 deleteText();//删除刚刚输入的内容
                 break;

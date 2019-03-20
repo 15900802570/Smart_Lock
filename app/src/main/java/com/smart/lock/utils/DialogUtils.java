@@ -163,10 +163,7 @@ public class DialogUtils {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (cls != null) {
-                                    Intent intent = new Intent(mActivity, LockScreenActivity.class);
-                                    intent.putExtra(ConstantUtil.IS_RETURN, true);
-                                    mActivity.startActivityForResult(intent.
-                                            putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), 1);
+
                                 }
                             }
                         })
@@ -251,7 +248,7 @@ public class DialogUtils {
 
         tipTextView.setText(msg);// 设置加载信息
 
-        Dialog tipsDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        final Dialog tipsDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
         tipsDialog.setCancelable(true); // 是否可以按“返回键”消失
         tipsDialog.setCanceledOnTouchOutside(true); // 点击加载框以外的区域
         tipsDialog.setContentView(layout, new LinearLayout.LayoutParams(
