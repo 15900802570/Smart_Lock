@@ -31,7 +31,6 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:padding="10.0sp"
-            android:onClick="onClick"
             android:background="@drawable/icon_arrow_blue_left" />
     </RelativeLayout>
     <View

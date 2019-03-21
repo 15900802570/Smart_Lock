@@ -3,12 +3,12 @@ package com.smart.lock.ui;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.utils.LogUtil;
 
 public class VersionInfoActivity extends Activity {
 
@@ -27,6 +27,7 @@ public class VersionInfoActivity extends Activity {
             e.printStackTrace();
         }
         initView();
+        initEvent();
     }
 
     private void initView() {
@@ -57,11 +58,14 @@ public class VersionInfoActivity extends Activity {
         }
 
     }
-
-    public void onClick(View view) {
-        if (view.getId() == R.id.iv_version_info_back) {
-            finish();
-        }
+    private void initEvent(){
+        ImageView imageView = findViewById(R.id.iv_version_info_back);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
 }
