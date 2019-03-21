@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/transparent_grey"
+    android:background="@mipmap/bg"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
@@ -141,7 +141,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -153,8 +153,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="25.0dip"
                 android:layout_marginTop="1.0dip"
-                android:background="@color/white"
                 android:gravity="center_vertical"
+                android:background="@color/white"
                 android:orientation="horizontal">
 
                 <TextView
@@ -298,32 +298,51 @@
             <com.smart.lock.widget.MyGridView
                 android:id="@+id/gv_lock"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginLeft="18.0dip"
+                android:layout_marginRight="18.0dip"
+                android:layout_marginBottom="31dp"
                 android:background="@color/white"
                 android:gravity="center"
-                android:numColumns="3"
-                android:paddingLeft="20.0dip"
-                android:paddingRight="20.0dip"
+                android:numColumns="2"
                 android:scrollbars="none"
                 android:stretchMode="columnWidth"
-                android:verticalSpacing="1.0dip" />
+                android:verticalSpacing="1.0dip"
+                app:cardCornerRadius="4.0dip" />
+
+            <!--  <FrameLayout
+                  android:id="@+id/fl_instruction"
+                  android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentBottom="true"
+                  android:layout_centerHorizontal="true"
+                  android:background="@drawable/mask"
+                  android:visibility="gone">
+
+                  <Button
+                      android:id="@+id/btn_instruction"
+                      style="@style/RountButtonStyle"
+                      android:layout_width="140dp"
+                      android:layout_height="50dp"
+                      android:layout_gravity="center_horizontal"
+                      android:text="@string/ble_instruction"
+                      android:visibility="visible" />
+              </FrameLayout>-->
 
             <FrameLayout
                 android:id="@+id/fl_instruction"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/mask">
+                android:layout_marginBottom="-31dp"
+                android:layout_alignParentBottom="true">
 
-                <Button
-                    android:id="@+id/btn_instruction"
-                    style="@style/RountButtonStyle"
-                    android:layout_width="140dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/ble_instruction"
-                    android:visibility="visible" />
+                <ImageButton
+                    android:id="@+id/one_click_unlock_ib"
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:layout_gravity="center"
+                    android:background="@mipmap/btn_oneclickunlock" />
+
             </FrameLayout>
         </RelativeLayout>
     </LinearLayout>
