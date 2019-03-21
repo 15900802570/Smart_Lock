@@ -19,8 +19,8 @@ public class ViewPagerAdapter extends PagerAdapter {
     public ViewPagerAdapter(Context context) {
 
         imageIds = new int[] {
-                R.mipmap.banner_1080,
-                R.mipmap.banner_1080
+                R.mipmap.homepage_adv1,
+                R.mipmap.homepage_adv2
         };
 
         images = new ArrayList<ImageView>();

@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
-    tools:context=".WelcomeActivity">
+    android:background="@mipmap/ic_welcome_logo2">
 
-    <!-- 倒计时文本 -->
-    <TextView
-        android:id="@+id/id_countdownTextView"
-        android:layout_width="@dimen/countdown_width"
-        android:layout_height="@dimen/countdown_width"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="@dimen/countdown_margin"
-        android:layout_marginEnd="@dimen/countdown_margin"
-        android:text=""
-        android:textSize="@dimen/countdown_text_size"
-        android:textColor="#ffffff"
-        android:gravity="center"
-        android:background="@drawable/countdown_text_circle_bg_drawable"
-        tools:ignore="ObsoleteLayoutParam" />
+        <!-- 倒计时文本 -->
+        <TextView
+            android:id="@+id/id_countdownTextView"
+            android:layout_width="70dp"
+            android:layout_height="35dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="90dp"
+            android:text=""
+            android:textSize="@dimen/countdown_text_size"
+            android:textColor="#ffffff"
+            android:gravity="center"
+            android:background="@drawable/countdown_text_circle_bg_drawable"
+            tools:ignore="ObsoleteLayoutParam" />
 
-
-</FrameLayout>
+</RelativeLayout>

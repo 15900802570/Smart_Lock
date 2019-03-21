@@ -3,10 +3,10 @@
     android:shape="rectangle">
 
     <!-- 矩形的圆角半径（宽度的一半） -->
-    <corners android:radius="@dimen/countdown_radius"/>
+    <corners android:radius="18dp"/>
 
     <!-- 填充 -->
-    <solid android:color="#414141"/><!-- 填充的颜色 -->
+    <solid android:color="@color/viewfinder_mask"/><!-- 填充的颜色 -->
     <!-- <solid android:color="#E0B3B3B3"/> -->
 
 </shape>
