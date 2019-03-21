@@ -99,7 +99,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LogUtil.d(TAG,"Device");
+        LogUtil.d(TAG, "Device");
         setContentView(R.layout.activity_device_manager);
         initView();
         initData();
@@ -389,6 +389,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
                     myViewHolder.mDefaultFlag.setImageResource(R.drawable.ic_dev_management_square_full);
                     mDefaultInfo = deviceInfo;
                     mDefaultPosition = position;
+                    myViewHolder.mSetDefault.setVisibility(View.GONE);
                 } else {
                     myViewHolder.mDefaultFlag.setImageResource(R.drawable.ic_dev_management_square_null);
                 }
