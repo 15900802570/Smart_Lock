@@ -15,7 +15,7 @@
 
     <style name="WelcomeTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowFullscreen">true</item>
-        <item name="android:background">@drawable/ic_cartoon</item>
+        <item name="android:background">@mipmap/ic_welcome_logo</item>
     </style>
 
     <style name="LockScreen">

@@ -191,8 +191,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             public void onPageSelected(int position) {
                 // TODO Auto-generated method stub
 
-                mDots.get(mOldPosition).setBackgroundResource(R.drawable.dot_normal);
-                mDots.get(position).setBackgroundResource(R.drawable.dot_focused);
+                mDots.get(mOldPosition).setBackgroundResource(R.drawable.dot_focused);
+                mDots.get(position).setBackgroundResource(R.drawable.dot_normal);
 
                 mOldPosition = position;
                 mCurrentItem = position;

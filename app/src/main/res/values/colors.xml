@@ -3,7 +3,7 @@
 
     <color name="colorLockBackground">#4a5559</color>
 
-    <color name="dot_tilte">#ff37474f</color>
+    <color name="dot_title">#ff37474f</color>
     <color name="pressed_true">#e8e8e3</color>
     <color name="pressed_false">#ffffffff</color>
 
@@ -86,7 +86,7 @@
     <color name="material_deep_teal_200">#ff80cbc4</color>
     <color name="material_deep_teal_500">#ff009688</color>
     <color name="orange">#ffffa500</color>
-    <color name="page_backgroud">#ffeeeeee</color>
+    <color name="page_background">#ffeeeeee</color>
     <color name="pickerview_bg_topbar">#fff5f5f5</color>
     <color name="pickerview_timebtn_nor">#ff057dff</color>
     <color name="pickerview_timebtn_pre">#ffc2daf5</color>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--第一层阴影-->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="@color/transparent"
+                android:endColor="@color/page_background"
+                android:angle="270"
+                />
+        </shape>
+    </item>
+    <!--第二层前景-->
+    <item
+        android:left="18dp"
+        android:right="19dp"
+        android:bottom="45dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white"/>
+            <corners android:radius="10dp" />
+        </shape>
+    </item>
+</layer-list>
