@@ -28,8 +28,11 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -410,9 +413,16 @@ public class DeviceManagementActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (deviceInfo.getDeviceDefault()) {
-                            BleManagerHelper.getInstance(DeviceManagementActivity.this, deviceInfo.getBleMac(), false).stopService();
+                            BleManagerHelper.getInstance(DeviceManagementActivity.this, deviceInfo.getBleMac(), false).getBleCardService().disconnect();
                         }
-                        DeviceInfoDao.getInstance(DeviceManagementActivity.this).delete(deviceInfo);
+                        DeviceUserDao.getInstance(DeviceManagementActivity.this).
+                                deleteByKey(DeviceUserDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
+                        DeviceKeyDao.getInstance(DeviceManagementActivity.this).
+                                deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
+                        DeviceStatusDao.getInstance(DeviceManagementActivity.this).
+                                deleteByKey(DeviceStatusDao.DEVICE_NODEID, deviceInfo.getDeviceNodeId());
+                        DeviceInfoDao.getInstance(DeviceManagementActivity.this).
+                                delete(deviceInfo);
                         mDevList.remove(position);
                         mDevManagementAdapter.notifyDataSetChanged();
                     }

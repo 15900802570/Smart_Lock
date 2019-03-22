@@ -24,6 +24,8 @@ public class DeviceKeyDao {
     private Context mContext;
     private static DeviceKeyDao instance;
 
+    public static String DEVICE_NODE_ID = "device_nodeId";
+
     protected DeviceKeyDao(Context context) {
         this.mContext = context;
         try {

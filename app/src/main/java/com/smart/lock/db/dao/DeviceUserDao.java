@@ -23,6 +23,8 @@ public class DeviceUserDao {
     private Context mContext;
     private static DeviceUserDao instance;
 
+    public static String DEVICE_NODE_ID = "dev_node_id";
+
     protected DeviceUserDao(Context context) {
         this.mContext = context;
         try {

@@ -8,6 +8,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -58,6 +60,8 @@ public abstract class BaseFragment extends Fragment {
     protected DeviceInfo mDefaultDevice; //默认设备
     protected DeviceUser mDefaultUser;//当前用户
     protected DeviceUser mTempUser;
+    protected ImageView mInstructionBtn; //一键开锁
+
     /**
      * 超时提示框启动器
      */

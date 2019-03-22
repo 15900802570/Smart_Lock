@@ -14,8 +14,8 @@
         android:background="@mipmap/bg"
         android:overScrollMode="never" />
 
-
     <RelativeLayout
+        android:id="@+id/rl_home"
         android:layout_width="fill_parent"
         android:layout_height="74dp"
         android:layout_alignParentBottom="true">
@@ -42,5 +42,22 @@
                 android:text="@string/me_rd" />
         </RadioGroup>
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_one_click"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_alignParentBottom="true">
+        <ImageView
+            android:id="@+id/one_click_unlock_ib"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="31dp"
+            android:src="@mipmap/btn_oneclickunlock"/>
+    </LinearLayout>
+
+
+
 
 </RelativeLayout>

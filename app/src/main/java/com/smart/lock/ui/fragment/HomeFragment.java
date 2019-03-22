@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,15 +21,20 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
@@ -42,9 +48,11 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.ui.AddDeviceActivity;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
+import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
@@ -53,7 +61,11 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MyGridView;
+import com.yzq.zxinglibrary.android.CaptureActivity;
+import com.yzq.zxinglibrary.bean.ZxingConfig;
+import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,18 +77,19 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private View mHomeView;
     private ViewPager mViewPager;
     private MyGridView mMyGridView;
-    private RelativeLayout mAddLockRl;
-    private LinearLayout mLockManagerLl;
+    private LinearLayout mAddLockLl;
+    private RelativeLayout mNewsVpRL;
+    private RelativeLayout mLockManagerRl;
     private Button mAddLockBt;
     private TextView mLockNameTv;
-    private TextView mLockSettingTv;
+    private LinearLayout mLockSettingLl;
     private ImageView mEqIv; //电量的图片
     private TextView mEqTv; //电量的显示
     private TextView mUpdateTimeTv;
     private TextView mShowTimeTv;
     private TextView mLockStatusTv;
-    private TextView mBleConnectTv;
-    private Button mInstructionBtn;
+    private ImageView mBleConnectIv;
+    private ImageView mInstructionBtn;
 
     private ViewPagerAdapter mAdapter; //news adapter
     private LockManagerAdapter mLockAdapter; //gridView adapter
@@ -122,28 +135,46 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
      */
     private boolean mIsConnected = false;
 
+    private int mHeight;
+
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mHeight = this.getResources().getDisplayMetrics().heightPixels;
     }
 
     public View initView() {
         mHomeView = View.inflate(mActivity, R.layout.home_fragment, null);
+        mNewsVpRL = mHomeView.findViewById(R.id.rl_news_vp);
         mViewPager = mHomeView.findViewById(R.id.news_vp);
         mMyGridView = mHomeView.findViewById(R.id.gv_lock);
-        mAddLockRl = mHomeView.findViewById(R.id.rl_add_lock);
-        mLockManagerLl = mHomeView.findViewById(R.id.ll_lock_manager);
+        mAddLockLl = mHomeView.findViewById(R.id.rl_add_lock);
+        mLockManagerRl = mHomeView.findViewById(R.id.ll_lock_manager);
         mAddLockBt = mHomeView.findViewById(R.id.btn_add_lock);
         mLockNameTv = mHomeView.findViewById(R.id.tv_lock_name);
-        mLockSettingTv = mHomeView.findViewById(R.id.bt_setting);
+        mLockSettingLl = mHomeView.findViewById(R.id.ll_setting);
         mEqIv = mHomeView.findViewById(R.id.iv_electric_quantity);
         mEqTv = mHomeView.findViewById(R.id.tv_electric_quantity);
         mUpdateTimeTv = mHomeView.findViewById(R.id.tv_update_time);
         mShowTimeTv = mHomeView.findViewById(R.id.tv_update);
         mLockStatusTv = mHomeView.findViewById(R.id.tv_status);
-        mBleConnectTv = mHomeView.findViewById(R.id.tv_connect);
-        mInstructionBtn = mHomeView.findViewById(R.id.btn_instruction);
+        mBleConnectIv = mHomeView.findViewById(R.id.iv_connect);
         initEvent();
+        LogUtil.d(TAG, "mHeight = "+mHeight);
+        //设置界面比例
+        RelativeLayout.LayoutParams mLockManagerRlParams = (RelativeLayout.LayoutParams) mLockManagerRl.getLayoutParams();
+        mLockManagerRlParams.setMargins(0,-(int)(mHeight * 0.12),0,0);
+
+        mMyGridView.getLayoutParams().height = (int)(mHeight * 0.3);
+        mHomeView.findViewById(R.id.ll_management).getLayoutParams().height = (int)(mHeight * 0.14);
+
+        mHomeView.findViewById(R.id.ll_gv_lock).setPadding(0,(int)(mHeight * 0.025),0,0);
+
         return mHomeView;
+    }
+
+    public void setmInstructionBtn(View view){
+        mInstructionBtn = (ImageView) view;
     }
 
     public void setTestMode(boolean openTest) {
@@ -165,9 +196,9 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     private void initEvent() {
         mAddLockBt.setOnClickListener(this);
-        mLockSettingTv.setOnClickListener(this);
+        mLockSettingLl.setOnClickListener(this);
         mMyGridView.setOnItemClickListener(this);
-        mBleConnectTv.setOnClickListener(this);
+        mBleConnectIv.setOnClickListener(this);
         mInstructionBtn.setOnClickListener(this);
     }
 
@@ -221,10 +252,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         switch (status) {
             case DEVICE_CONNECTING:
                 LogUtil.d(TAG, "DEVICE_CONNECTING");
-                mAddLockRl.setVisibility(View.GONE);
-                mLockManagerLl.setVisibility(View.VISIBLE);
+                mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.41);
+                mAddLockLl.setVisibility(View.GONE);
+                mInstructionBtn.setVisibility(View.VISIBLE);
+                mLockManagerRl.setVisibility(View.VISIBLE);
                 mLockStatusTv.setText(R.string.bt_connecting);
-                mBleConnectTv.setVisibility(View.GONE);
+                mBleConnectIv.setClickable(false);
+                mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                 refreshView(BATTER_UNKNOW);
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
@@ -236,25 +270,29 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 }
                 break;
             case BIND_DEVICE:
-                mAddLockRl.setVisibility(View.GONE);
-                mLockManagerLl.setVisibility(View.VISIBLE);
+                mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.41);
+                mAddLockLl.setVisibility(View.GONE);
+                mInstructionBtn.setVisibility(View.VISIBLE);
+                mLockManagerRl.setVisibility(View.VISIBLE);
                 LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
+
                 if (mIsConnected) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
-                    mBleConnectTv.setVisibility(View.GONE);
+                    mBleConnectIv.setClickable(false);
+                    mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                     if (mDefaultDevice != null)
                         mLockNameTv.setText(mDefaultDevice.getDeviceName());
 
                     refreshBattery(mBattery);
                 } else {
                     mLockStatusTv.setText(R.string.bt_connect_failed);
-                    mBleConnectTv.setVisibility(View.VISIBLE);
-                    mBleConnectTv.setEnabled(true);
+                    mBleConnectIv.setClickable(true);
+                    mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth);
                     refreshView(BATTER_UNKNOW);
                 }
+                mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     Log.d(TAG, "mDefaultUser = " + mDefaultDevice.getUserId());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
@@ -263,8 +301,10 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 }
                 break;
             case UNBIND_DEVICE:
-                mAddLockRl.setVisibility(View.VISIBLE);
-                mLockManagerLl.setVisibility(View.GONE);
+                mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.61);
+                mAddLockLl.setVisibility(View.VISIBLE);
+                mLockManagerRl.setVisibility(View.GONE);
+                mInstructionBtn.setVisibility(View.GONE);
                 break;
             case BATTER_FULL:
                 mEqIv.setBackgroundResource(R.mipmap.ic_battery_100);
@@ -296,7 +336,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mUpdateTimeTv.setVisibility(View.VISIBLE);
         mShowTimeTv.setVisibility(View.VISIBLE);
         mEqTv.setText(String.valueOf(battery) + "%");
-        mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(System.currentTimeMillis() / 1000), "yyyy-MM-dd HH:mm:ss"));
+        mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(System.currentTimeMillis() / 1000), "MM-dd HH:mm"));
         switch (battery / 10) {
             case 0:
                 mEqIv.setBackgroundResource(R.mipmap.ic_battery_10);
@@ -567,19 +607,19 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case R.id.btn_add_lock:
                 startIntent(AddDeviceActivity.class, null);
                 break;
-            case R.id.tv_connect:
+            case R.id.iv_connect:
                 refreshView(DEVICE_CONNECTING);
                 setSk();
                 BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
                 break;
-            case R.id.bt_setting:
+            case R.id.ll_setting:
                 if (mIsConnected) {
                     startIntent(LockSettingActivity.class, bundle);
                 } else {
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 }
                 break;
-            case R.id.btn_instruction:
+            case R.id.one_click_unlock_ib:
 
                 if (mNodeId.getBytes().length == 15) {
                     mNodeId = "0" + mNodeId;
@@ -636,34 +676,34 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         Bundle bundle = new Bundle();
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
         switch (((Integer) view.getTag()).intValue()) {
-            case R.mipmap.manager_pwd:
+            case R.mipmap.icon_password:
                 if (mIsConnected) {
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
                     startIntent(DeviceKeyActivity.class, bundle);
                 } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
-            case R.mipmap.manager_card:
+            case R.mipmap.icon_nfc:
                 if (mIsConnected) {
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
                     startIntent(DeviceKeyActivity.class, bundle);
                 } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
-            case R.mipmap.manager_finger:
+            case R.mipmap.icon_fingerprint:
                 if (mIsConnected) {
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 1);
                     startIntent(DeviceKeyActivity.class, bundle);
                 } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
-            case R.mipmap.manager_event:
+            case R.mipmap.icon_events:
                 if (mIsConnected)
                     startIntent(EventsActivity.class, bundle);
                 else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
-            case R.mipmap.manager_permission:
+            case R.mipmap.icon_userguanl:
                 if (mIsConnected) {
                     if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -674,7 +714,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
                 break;
-            case R.mipmap.manager_token:
+            case R.mipmap.icon_temporarypassword:
                 startIntent(TempPwdActivity.class, bundle);
                 break;
             default:

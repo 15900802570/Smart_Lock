@@ -2,6 +2,7 @@ package com.smart.lock.ui;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -10,7 +11,7 @@ import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
 
-public class VersionInfoActivity extends Activity {
+public class VersionInfoActivity extends AppCompatActivity {
 
     private String TAG = "VersionInfoActivity";
     private DeviceInfo mDefaultDevice;

@@ -65,7 +65,7 @@ public class LockManagerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewGroup.LayoutParams layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 3);
+        ViewGroup.LayoutParams layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 2);
         View inflate = View.inflate(mContext, R.layout.item_lock_manager, null);
         inflate.setLayoutParams(layoutParams);
         View findViewById = inflate.findViewById(R.id.grid_item);
