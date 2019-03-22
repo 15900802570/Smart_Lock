@@ -70,7 +70,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     return;
                 }
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(mMumberView.getContext(), getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd11((byte) 2, (short) 0);
@@ -108,7 +108,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 
                 if (mMumberAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mMumberView.getContext(), getString(R.string.data_loading));
+                    mLoadDialog.show();
                     for (DeviceUser devUser : mMumberAdapter.mDeleteUsers) {
 
                         mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
@@ -159,7 +159,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-        mBleManagerHelper = BleManagerHelper.getInstance(mMumberView.getContext(), mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mMumberView.getContext(), false);
         mMumberAdapter = new MumberAdapter(mMumberView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mMumberView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
@@ -169,6 +169,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         LocalBroadcastManager.getInstance(mMumberView.getContext()).registerReceiver(mumberUserReciver, intentFilter());
         mAddUserBtn.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
+        mLoadDialog = DialogUtils.createLoadingDialog(mMumberView.getContext(), getResources().getString(R.string.data_loading));
         initEvent();
     }
 
@@ -454,7 +455,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mMumberView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
@@ -466,7 +467,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mMumberView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());

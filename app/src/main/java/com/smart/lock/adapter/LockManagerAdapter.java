@@ -27,23 +27,23 @@ public class LockManagerAdapter extends BaseAdapter {
         mGridView = gridView;
 
         mNames.add(Integer.valueOf(R.string.password_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.icon_password));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_pwd));
 
         mNames.add(Integer.valueOf(R.string.fingerprint_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.icon_fingerprint));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_finger));
 
         mNames.add(Integer.valueOf(R.string.card_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.icon_nfc));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_card));
 
         mNames.add(Integer.valueOf(R.string.event_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.icon_events));
+        mIcons.add(Integer.valueOf(R.mipmap.manager_event));
 
         if(permission == ConstantUtil.DEVICE_MASTER) {
             mNames.add(Integer.valueOf(R.string.token_manager));
-            mIcons.add(Integer.valueOf(R.mipmap.icon_temporarypassword));
+            mIcons.add(Integer.valueOf(R.mipmap.manager_token));
 
             mNames.add(Integer.valueOf(R.string.permission_manager));
-            mIcons.add(Integer.valueOf(R.mipmap.icon_userguanl));
+            mIcons.add(Integer.valueOf(R.mipmap.manager_permission));
         }
 
     }

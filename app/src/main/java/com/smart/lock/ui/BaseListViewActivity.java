@@ -91,24 +91,8 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         Bundle bundle = getIntent().getExtras();
         mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(baseReciver, intentFilter());
     }
 
-    /**
-     * 广播接收
-     */
-    private final BroadcastReceiver baseReciver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
-                showMessage(BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect));
-                finish();
-            }
-
-        }
-    };
 
     private static IntentFilter intentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
@@ -185,10 +169,5 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(baseReciver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
     }
 }

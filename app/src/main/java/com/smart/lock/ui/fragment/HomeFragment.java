@@ -34,6 +34,7 @@ import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.ClientTransaction;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
@@ -121,6 +122,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
      * 服务连接标志
      */
     private boolean mIsConnected = false;
+    private long mStartTime = 0, mEndTime = 0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,11 +155,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                 @Override
                 public void run() {
-                    if (mDefaultDevice != null && !BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
+                    if (mDefaultDevice != null && !mBleManagerHelper.getServiceConnection()) {
                         setSk();
-                        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultUser.getUserId());
+                        mBleManagerHelper.connectBle((byte) 1, mDefaultUser.getUserId(), mDefaultDevice.getBleMac());
                     } else
-                        BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().disconnect();
+                        mBleManagerHelper.getBleCardService().disconnect();
                 }
             }, 2000);
         }
@@ -339,7 +341,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             for (DeviceUser user : users) {
                 if (userIds.contains(user.getUserId())) {
                     DeviceUserDao.getInstance(mActivity).delete(user);
-                    userIds.remove(user.getUserId());
+                    userIds.remove((Short) user.getUserId());
                 }
             }
             for (Short userId : userIds) {
@@ -365,6 +367,10 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
+                if (mBleManagerHelper.getServiceConnection()) {
+                    mStartTime = System.currentTimeMillis();
+                    mBleManagerHelper.getBleCardService().sendCmd25(mDefaultDevice.getUserId());
+                }
                 mBattery = intent.getByteExtra(BleMsg.KEY_BAT_PERSCENT, (byte) 0);
                 int userStatus = intent.getByteExtra(BleMsg.KEY_USER_STATUS, (byte) 0);
                 int stStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
@@ -402,9 +408,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                     mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
 
-                    if (mBleManagerHelper.getServiceConnection()) {
-                        mBleManagerHelper.getBleCardService().sendCmd25(mDefaultDevice.getUserId());
-                    }
                 }
                 if (mDefaultStatus != null) {
                     switch (stStatus) {
@@ -440,7 +443,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                         @Override
                         public void run() {
-                            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().disconnect();
+                            mBleManagerHelper.getBleCardService().disconnect();
                         }
                     }, 5000);
                 }
@@ -448,6 +451,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG26_USERINFO)) {
+                mEndTime = System.currentTimeMillis();
+                LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
                 short userId = (short) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
                 if (userId == mDefaultDevice.getUserId()) {
                     byte[] userInfo = intent.getByteArrayExtra(BleMsg.KEY_USER_MSG);
@@ -472,25 +477,14 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                 mIsConnected = false;
                 refreshView(BIND_DEVICE);
-
-                new Handler().postDelayed(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        if (mDefaultDevice != null) {
-                            refreshView(DEVICE_CONNECTING);
-                            setSk();
-                            mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId());
-                        } else refreshView(UNBIND_DEVICE);
-                    }
-                }, 2000);
-
             }
 
             if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
                 if (mDefaultDevice != null) {
                     refreshView(BIND_DEVICE);
                 } else refreshView(UNBIND_DEVICE);
+
+
             }
 
             if (action.equals(BleMsg.STR_RSP_OPEN_TEST)) {
@@ -529,13 +523,13 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             return;
         }
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), false);
         mIsConnected = mBleManagerHelper.getServiceConnection();
         if (!mIsConnected) {
             LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
             setSk();
             refreshView(DEVICE_CONNECTING);
-            mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId());
+            mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId(), mDefaultDevice.getBleMac());
             mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         }
     }
@@ -546,7 +540,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     public void onDestroy() {
         super.onDestroy();
-
+        LogUtil.d(TAG, "onDestroy");
         try {
             LocalBroadcastManager.getInstance(mHomeView.getContext()).unregisterReceiver(deviceReciver);
         } catch (Exception ignore) {
@@ -554,8 +548,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         }
         mIsConnected = false;
 
-        if (mDefaultDevice != null)
-            BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).stopService();
     }
 
 
@@ -570,7 +562,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case R.id.tv_connect:
                 refreshView(DEVICE_CONNECTING);
                 setSk();
-                BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).connectBle((byte) 1, mDefaultDevice.getUserId());
+                mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId(), mDefaultDevice.getBleMac());
                 break;
             case R.id.bt_setting:
                 if (mIsConnected) {
@@ -590,8 +582,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                 StringUtil.exchange(nodeId);
 
-                if (BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getServiceConnection()) {
-                    BleManagerHelper.getInstance(mHomeView.getContext(), mDefaultDevice.getBleMac(), false).getBleCardService().sendCmd21(nodeId);
+                if (mBleManagerHelper.getServiceConnection()) {
+                    mBleManagerHelper.getBleCardService().sendCmd21(nodeId);
                 } else
                     showMessage("未连接");
             default:

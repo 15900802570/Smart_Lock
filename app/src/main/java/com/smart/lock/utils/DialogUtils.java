@@ -105,12 +105,13 @@ public class DialogUtils {
         window.setGravity(Gravity.CENTER);
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
-        loadingDialog.show();
+
+        loadingDialog.setCancelable(false);
 
         return loadingDialog;
     }
 
-    public static Dialog createWarningDialog(final Context context, String msg){
+    public static Dialog createWarningDialog(final Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_warning, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_warning_view);  // 加载布局
@@ -119,10 +120,11 @@ public class DialogUtils {
         new CountDownTimer(10000, 1000) {              //确认按键倒计时
             @Override
             public void onTick(long millisUntilFinished) {
-                confirm.setText(context.getResources().getString(R.string.confirm)+ "("+
-                        String.valueOf(millisUntilFinished/1000+1)+")"+
+                confirm.setText(context.getResources().getString(R.string.confirm) + "(" +
+                        String.valueOf(millisUntilFinished / 1000 + 1) + ")" +
                         context.getResources().getString(R.string.s));
             }
+
             @Override
             public void onFinish() {
                 confirm.setText(R.string.confirm);
@@ -240,7 +242,7 @@ public class DialogUtils {
         return bottomSheet;
     }
 
-    public static Dialog createTipsDialog(Context context, String msg){
+    public static Dialog createTipsDialog(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_tips_with_confirm_cancel, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_cancel_ll);  // 加载布局

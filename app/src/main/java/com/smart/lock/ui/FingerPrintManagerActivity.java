@@ -121,6 +121,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).insert(deviceKey);
+
                 mFpAdapter.setDataSource(DeviceKeyDao.getInstance(FingerPrintManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_FINGERPRINT));
                 mFpAdapter.notifyDataSetChanged();
             }
@@ -137,7 +138,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
     private void initData() {
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         mTitle.setText(R.string.fingerprint_manager);
 
         mFpAdapter = new FpManagerAdapter(this);
@@ -162,9 +163,9 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
 
                 if (count >= 0 && count <= 5) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, mDefaultDevice.getUserId(), (byte) 0, 0);
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, mDefaultDevice.getUserId(), (byte) 0, String.valueOf(0));
                 } else {
                     showMessage(getResources().getString(R.string.add_fp_tips));
                 }
@@ -187,7 +188,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
     }
 
 
-    public class FpManagerAdapter extends RecyclerView.Adapter<FingerPrintManagerActivity.FpManagerAdapter.MyViewHolder> {
+    public class FpManagerAdapter extends RecyclerView.Adapter<FpManagerAdapter.MyViewHolder> {
         private Context mContext;
         public ArrayList<DeviceKey> mFpList;
         public int positionDelete = -1;
@@ -203,16 +204,16 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
         }
 
         @Override
-        public FpManagerAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler, parent, false);
             SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_recycler);
             swipeLayout.setClickToClose(true);
             swipeLayout.setRightSwipeEnabled(true);
-            return new FpManagerAdapter.MyViewHolder(inflate);
+            return new MyViewHolder(inflate);
         }
 
         @Override
-        public void onBindViewHolder(final FpManagerAdapter.MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             final DeviceKey fpInfo = mFpList.get(position);
             if (fpInfo != null) {
                 viewHolder.mName.setText(fpInfo.getKeyName());
@@ -226,7 +227,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                         mLoadDialog = DialogUtils.createLoadingDialog(FingerPrintManagerActivity.this, FingerPrintManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
@@ -236,7 +237,7 @@ public class FingerPrintManagerActivity extends BaseListViewActivity implements 
                         mLoadDialog = DialogUtils.createLoadingDialog(FingerPrintManagerActivity.this, FingerPrintManagerActivity.this.getResources().getString(R.string.data_loading));
                         closeDialog(10);
                         positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
                     }
                 });
 

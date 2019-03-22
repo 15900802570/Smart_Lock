@@ -38,7 +38,7 @@ public class BleCmd15Creator implements BleCreator {
 
         byte lockId = data.getByte(BleMsg.KEY_LOCK_ID);
 
-        int pwd = data.getInt(BleMsg.KEY_PWD);
+        String pwd = data.getString(BleMsg.KEY_PWD);
 
         short cmdLen = 16;
         byte[] cmd = new byte[128];
@@ -101,12 +101,12 @@ public class BleCmd15Creator implements BleCreator {
      * @param pwd     密码
      * @return
      */
-    private byte[] getPsw(int cmdType, int keyType, int pwd) {
+    private byte[] getPsw(int cmdType, int keyType, String pwd) {
         byte[] psw = null;
         if ((cmdType == 0 || cmdType == 2) && keyType == 0) {
-            if (String.valueOf(pwd).getBytes().length == 6) {
+            if (pwd.getBytes().length == 6) {
                 psw = String.valueOf(pwd).getBytes();
-            } else if (String.valueOf(pwd).getBytes().length == 1){
+            } else if (pwd.getBytes().length == 1){
                 psw = new byte[6];
                 Arrays.fill(psw, 0, 6, (byte) 0x0);
             }

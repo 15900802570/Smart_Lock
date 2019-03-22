@@ -104,12 +104,13 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this,  false);
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
 
         mStartDate.setText(mTempUser.getLcBegin() == null ? ("1970-01-01") : mTempUser.getLcBegin());
         mEndDate.setText(mTempUser.getLcEnd() == null ? ("1970-01-01") : mTempUser.getLcEnd());
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
     }
 
     @Override
@@ -233,7 +234,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
                 if (DateTimeUtil.isDateOneBigger(mStartDate.getText().toString(), mEndDate.getText().toString())) {
                     if (mBleManagerHelper.getServiceConnection()) {
-                        mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
                         closeDialog(15);
                         mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifyCycle(mStartDate.getText().toString(), mEndDate.getText().toString()));
                     } else {

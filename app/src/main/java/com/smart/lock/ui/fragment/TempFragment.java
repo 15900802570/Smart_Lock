@@ -68,7 +68,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     return;
                 }
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd11((byte) 3, (short) 0);
@@ -106,7 +106,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
                 if (mTempAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getString(R.string.data_loading));
+                    mLoadDialog.show();
                     for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
                         mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
                     }
@@ -155,7 +155,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-        mBleManagerHelper = BleManagerHelper.getInstance(mTempView.getContext(), mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mTempView.getContext(), false);
         mTempAdapter = new TempAdapter(mTempView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mTempView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
@@ -166,6 +166,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
         mAddUserBtn.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
+
+        mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
 
         initEvent();
     }
@@ -447,7 +449,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
@@ -459,7 +461,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mTempView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());

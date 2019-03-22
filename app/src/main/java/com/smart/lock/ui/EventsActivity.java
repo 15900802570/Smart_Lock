@@ -84,11 +84,12 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getUserId());
 
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
 
         DeviceLogDao.getInstance(this).deleteAll();
 
         mLoadDialog = DialogUtils.createLoadingDialog(EventsActivity.this, EventsActivity.this.getResources().getString(R.string.data_loading));
+        mLoadDialog.show();
         closeDialog(60);
 
         LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.toString());
@@ -266,7 +267,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 } else {
                     if (mEventAdapter.mDeleteLogs.size() != 0) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+                       mLoadDialog.show();
                         for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
                             int logId = devLog.getLogId();
                             LogUtil.d(TAG, "logId = " + logId);

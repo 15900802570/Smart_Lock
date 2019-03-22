@@ -131,7 +131,7 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
     private void initData() {
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         mTitle.setText(R.string.card_manager);
 
         mCardAdapter = new CardManagerAdapter(this);
@@ -156,9 +156,9 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
 
                 if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mDefaultDevice.getUserId(), (byte) 0, 0);
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mDefaultDevice.getUserId(), (byte) 0, String.valueOf(0));
                 } else {
                     showMessage(getResources().getString(R.string.add_nfc_tips));
                 }
@@ -216,10 +216,10 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(CardManagerActivity.this, CardManagerActivity.this.getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
                     }
                 });
 
@@ -227,10 +227,10 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(CardManagerActivity.this, CardManagerActivity.this.getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
                     }
                 });
 

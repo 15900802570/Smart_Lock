@@ -92,7 +92,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mPwdView.getContext()).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mPwdView.getContext(), mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mPwdView.getContext(), false);
 
         mPwdAdapter = new PwdManagerAdapter(mPwdView.getContext());
         mListView.setLayoutManager(new LinearLayoutManager(mPwdView.getContext(), LinearLayoutManager.VERTICAL, false));
@@ -104,6 +104,8 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         mAddBtn.setText(R.string.add_password);
 
         initEvent();
+
+        mLoadDialog = DialogUtils.createLoadingDialog(mPwdView.getContext(), mPwdView.getContext().getResources().getString(R.string.data_loading));
 
         LocalBroadcastManager.getInstance(mPwdView.getContext()).registerReceiver(pwdReceiver, intentFilter());
     }
@@ -131,16 +133,16 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
 
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
                 if (errCode[3] == 0x0d) {
                     showMessage(mPwdView.getContext().getResources().getString(R.string.delete_pwd_success));
-                    DeviceKeyDao.getInstance(mPwdView.getContext()).delete(mPwdAdapter.mPwdList.get(mPwdAdapter.positionDelete));
-                    mPwdAdapter.setDataSource(DeviceKeyDao.getInstance(mPwdView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD));
-                    mPwdAdapter.notifyDataSetChanged();
+
+                    mPwdAdapter.removeItem(mPwdAdapter.positionDelete);
                 }
+
+                DialogUtils.closeDialog(mLoadDialog);
+                mHandler.removeCallbacks(mRunnable);
 
             }
 
@@ -172,6 +174,21 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
             mPwdList = pwdList;
         }
 
+        public void addItem(DeviceKey key) {
+            mPwdList.add(mPwdList.size(), key);
+            notifyItemInserted(mPwdList.size());
+        }
+
+        public void removeItem(int index) {
+            if (index != -1) {
+                DeviceKey del = mPwdList.remove(index);
+
+                DeviceKeyDao.getInstance(mContext).delete(del);
+                notifyItemRemoved(index);
+            }
+
+        }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler, parent, false);
@@ -193,10 +210,10 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mPwdView.getContext(), mPwdView.getContext().getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0));
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {

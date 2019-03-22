@@ -480,7 +480,7 @@ public class BleCardService extends Service {
     /**
      * MSG 11
      */
-    public boolean sendCmd11(final byte cmdType, final short userId) {
+    public ClientTransaction sendCmd11(final byte cmdType, final short userId) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_11);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
@@ -493,9 +493,9 @@ public class BleCardService extends Service {
         user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
-
-        return ct.request();
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ct.request();
+        return ct;
 
     }
 
@@ -522,7 +522,7 @@ public class BleCardService extends Service {
      * @param pwd     录入密码
      * @return
      */
-    public boolean sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, int pwd) {
+    public ClientTransaction sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, String pwd) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_15);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
@@ -532,15 +532,15 @@ public class BleCardService extends Service {
         bundle.putByte(BleMsg.KEY_TYPE, keyType);
         bundle.putShort(BleMsg.KEY_USER_ID, userId);
         bundle.putByte(BleMsg.KEY_LOCK_ID, lockId);
-        bundle.putInt(BleMsg.KEY_PWD, pwd);
+        bundle.putString(BleMsg.KEY_PWD, pwd);
 
         DeviceKey deviceKey = new DeviceKey();
         deviceKey.setKeyType(keyType);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
-
-        return ct.request();
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ct.request();
+        return ct;
     }
 
     /**
@@ -613,6 +613,7 @@ public class BleCardService extends Service {
         }
         return mBleProvider.send(msg);
     }
+
     /**
      * APK智能锁。APK给智能锁设置回锁时间
      *
@@ -654,7 +655,7 @@ public class BleCardService extends Service {
      * @param userId 用户编号
      * @return 是否发送成功
      */
-    public boolean sendCmd25(final short userId) {
+    public ClientTransaction sendCmd25(final short userId) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_25);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
@@ -665,9 +666,9 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
-
-        return ct.request();
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ct.request();
+        return ct;
     }
 
     /**
@@ -734,7 +735,7 @@ public class BleCardService extends Service {
      * @param logId   日志编号
      * @return 是否发送成功
      */
-    public boolean sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
+    public ClientTransaction sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_33);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
@@ -748,9 +749,9 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
-
-        return ct.request();
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ct.request();
+        return ct;
     }
 
     private synchronized void write(Object o) {

@@ -12,17 +12,14 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 
 public class BaseApplication extends Application {
     private final static String TAG = "BaseApplication";
-    public static Context mContext;
-    private DeviceInfo mDefaultDevice; //默认设备
+    private static Context mContext;
+    private BleManagerHelper mBleManagerHelper;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
-        mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        if (mDefaultDevice != null) {
-            BleManagerHelper.getInstance(getContext(), mDefaultDevice.getBleMac(), false);
-        }
+        mBleManagerHelper = BleManagerHelper.getInstance(mContext, false);
     }
 
 
@@ -30,10 +27,5 @@ public class BaseApplication extends Application {
         return mContext;
     }
 
-    @Override
-    public void onTerminate() {
-        super.onTerminate();
-        Log.d(TAG, "onTerminate");
-    }
 
 }
