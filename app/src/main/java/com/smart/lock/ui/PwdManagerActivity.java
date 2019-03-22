@@ -78,8 +78,6 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
 
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
                 if (errCode[3] == 0x0d) {
@@ -88,7 +86,6 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                     mPwdAdapter.setDataSource(DeviceKeyDao.getInstance(PwdManagerActivity.this).queryDeviceKey(mNodeId, mDefaultDevice.getUserId(), ConstantUtil.USER_PWD));
                     mPwdAdapter.notifyDataSetChanged();
                 }
-
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG1A_STATUS)) {
@@ -101,13 +98,16 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                 Log.d(TAG, "seconds = " + Arrays.toString(seconds));
                 closeDialog((int) seconds[0], mHandler, mRunnable);
             }
+
+            DialogUtils.closeDialog(mLoadDialog);
+            mHandler.removeCallbacks(mRunnable);
         }
     };
 
     private void initData() {
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         mTitle.setText(R.string.password_manager);
 
         mPwdAdapter = new PwdManagerAdapter(this);
@@ -115,6 +115,7 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mPwdAdapter);
 
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
         LocalBroadcastManager.getInstance(this).registerReceiver(pwdReceiver, intentFilter());
     }
 
@@ -191,10 +192,10 @@ public class PwdManagerActivity extends BaseListViewActivity implements View.OnC
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(PwdManagerActivity.this, PwdManagerActivity.this.getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), Integer.parseInt(pwdInfo.getPwd()));
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), pwdInfo.getPwd());
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {

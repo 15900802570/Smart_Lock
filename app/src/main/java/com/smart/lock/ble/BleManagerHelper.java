@@ -5,22 +5,26 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.ui.BaseListViewActivity;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -114,9 +118,16 @@ public class BleManagerHelper {
     private long mStartTime = 0;
     private long mEndTime = 0;
 
+    private static final long SCAN_PERIOD = 10000;
+    private boolean mScanning;
+
     private Runnable mRunnable = new Runnable() {
         public void run() {
 //            DialogUtils.closeDialog(mLoadDialog);
+            if (mScanning) {
+                mScanning = false;
+                mBtAdapter.stopLeScan(mLeScanCallback);
+            }
             Toast.makeText(mContext, R.string.retry_connect, Toast.LENGTH_LONG).show();
             Intent intent = new Intent();
             intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
@@ -124,28 +135,31 @@ public class BleManagerHelper {
         }
     };
 
-    public BleManagerHelper(Context context, String bleMac, Boolean isOtaMode) {
+
+    public BleManagerHelper(Context context, Boolean isOtaMode) {
         mContext = context;
-        mBleMac = bleMac;
         mTempMode = isOtaMode;
         mHandler = new Handler();
-
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
         serviceInit();
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
+        // Use this check to determine whether BLE is supported on the device.  Then you can
+        // selectively disable BLE-related features.
+        if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(mContext, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public static BleManagerHelper getInstance(Context context, String bleMac, Boolean isOtaMode) {
+    public static BleManagerHelper getInstance(Context context, Boolean isOtaMode) {
         if (instance == null) {
             synchronized (BleManagerHelper.class) {
                 if (instance == null) {
-                    instance = new BleManagerHelper(context, bleMac, isOtaMode);
+                    instance = new BleManagerHelper(context, isOtaMode);
                 }
             }
         } else {
             instance.setTempMode(isOtaMode);
-            instance.mBleMac = bleMac;
-
         }
         return instance;
     }
@@ -155,35 +169,46 @@ public class BleManagerHelper {
      *
      * @return
      */
-    public boolean connectBle(final byte type, final short userId) {
-        new Handler().postDelayed(new Runnable() {
+    public void connectBle(final byte type, final short userId, String bleMac) {
+        mConnectType = type;
+        mUserId = userId;
+        mBleMac = bleMac;
+        if (!mBtAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mContext.startActivity(enableIntent);
+        } else {
+            LogUtil.d(TAG, "mScanning = " + mScanning);
+            if (!mScanning) {
+                mScanning = true;
+                closeDialog((int) (SCAN_PERIOD / 1000));
+                mBtAdapter.startLeScan(mLeScanCallback);
+            }
+        }
 
-            @Override
-            public void run() {
-                mConnectType = type;
-                mUserId = userId;
 
-                if (!mBtAdapter.isEnabled()) {
-                    Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    mContext.startActivity(enableIntent);
-                }
+    }
 
-                LogUtil.d(TAG, "mIsConnected = " + mIsConnected + " mService = " + (mService == null));
+    /**
+     * 蓝牙搜索结果回调
+     */
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+            LogUtil.d(TAG, "ble mac = " + device.getAddress());
+            LogUtil.d(TAG, "dev mac = " + mBleMac);
+            if (device.getAddress().equals(mBleMac)) {
+                LogUtil.d(TAG, "dev rssi = " + rssi);
+                mBtAdapter.stopLeScan(mLeScanCallback);
+                LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                 if (!mIsConnected && mService != null) {
-                    mStartTime = System.currentTimeMillis();
                     boolean result = mService.connect(mBleMac);
                     LogUtil.d(TAG, "result = " + result);
-//                    DialogUtils.closeDialog(mLoadDialog);
-//                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.checking_security));
-                    closeDialog(15);
-                } else {
 
                 }
-
             }
-        }, 1000);
-        return mIsConnected;
-    }
+        }
+    };
 
     /**
      * 设置秘钥
@@ -233,15 +258,13 @@ public class BleManagerHelper {
     /**
      * 初始化蓝牙服务
      */
-    private void serviceInit() {
+    public void serviceInit() {
         Intent bindIntent = new Intent(mContext, BleCardService.class);
         LogUtil.d(TAG, "mIsBind = " + mIsBind);
         if (!mIsBind) {
+            mStartTime = System.currentTimeMillis();
             mIsBind = mContext.bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         }
-
-        LocalBroadcastManager.getInstance(mContext).registerReceiver(UARTStatusChangeReceiver,
-                makeGattUpdateIntentFilter());
     }
 
     /**
@@ -274,7 +297,8 @@ public class BleManagerHelper {
         public void onServiceConnected(ComponentName className, IBinder rawBinder) {
             mService = ((BleCardService.LocalBinder) rawBinder).getService();
             Log.e(TAG, "mService is connection");
-
+            mEndTime = System.currentTimeMillis();
+            LogUtil.d("connecting ble time : " + (mEndTime - mStartTime));
             if (!mService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
             }
@@ -324,12 +348,11 @@ public class BleManagerHelper {
                     mService.disconnect();
                     mService.close();
                 }
-
                 mIsConnected = false;
                 mOtaMode = mTempMode ? 1 : 0;
                 mConnectType = 0;
                 mUserId = 0;
-                startScanDevice();
+//                startScanDevice();
             }
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
@@ -362,7 +385,7 @@ public class BleManagerHelper {
                     }
                 }
 
-
+                mHandler.removeCallbacks(mRunnable);
             }
 
             if (action.equals(BleMsg.ACTION_DOES_NOT_SUPPORT_UART)) {
@@ -387,8 +410,6 @@ public class BleManagerHelper {
                 mIsConnected = true;
                 mHandler.removeCallbacks(mRunnable);
 //                DialogUtils.closeDialog(mLoadDialog);
-                mEndTime = System.currentTimeMillis();
-                LogUtil.d("connecting ble time : " + (mEndTime - mStartTime));
                 Bundle extra = intent.getExtras();
                 Intent result = new Intent();
                 result.putExtras(extra);
@@ -457,7 +478,6 @@ public class BleManagerHelper {
             }
 
             mContext.unbindService(mServiceConnection);
-
             mIsBind = false;
         }
 

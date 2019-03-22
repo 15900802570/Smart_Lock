@@ -1,21 +1,27 @@
 package com.smart.lock;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.smart.lock.permission.PermissionHelper;
+import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
@@ -24,9 +30,12 @@ import com.smart.lock.utils.SharedPreferenceUtil;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class WelcomeActivity extends Activity {
+public class WelcomeActivity extends AppCompatActivity implements PermissionInterface {
 
-    /** 设置倒计时文本*/
+    private static final String TAG = WelcomeActivity.class.getSimpleName();
+    /**
+     * 设置倒计时文本
+     */
     private TextView mCountdownTextView;
 
     private static final int MSG_COUNT_WHAT = 99;
@@ -35,6 +44,10 @@ public class WelcomeActivity extends Activity {
     private static Timer timer;//计时器
     private MyHandler countdownHandle;//用于控制倒计时子线程
     private Runnable runnable;//倒计时子线程
+    private PermissionHelper mPermissionHelper;
+    private static final int REQ_CODE_CAMERA = 1;
+    private static final int ACCESS_COARSE_LOCATION = 2;
+    private static final int ACCESS_FINE_LOCATION = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +55,7 @@ public class WelcomeActivity extends Activity {
         /*set it to be no title*/
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         /*set it to be full screen*/
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_welcome);
 
         //初始化控件
@@ -50,24 +63,27 @@ public class WelcomeActivity extends Activity {
 
         //初始化Handler和Runnable
         initThread();
+        mPermissionHelper = new PermissionHelper(this, this);
     }
+
     /**
      * 初始化控件
-     * */
-    private void initView(){
+     */
+    private void initView() {
         mCountdownTextView = findViewById(R.id.id_countdownTextView);
         mCountdownTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopThread();
-                openNextActivity(WelcomeActivity.this);//打开下一个界面
+                mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_COARSE_LOCATION);
             }
         });
     }
+
     /**
      * 初始化Handler和Runnable
-     * */
-    private void initThread(){
+     */
+    private void initThread() {
         //倒计时变量
         initCountdownNum();
         //handler对象
@@ -81,29 +97,83 @@ public class WelcomeActivity extends Activity {
                 timer = new Timer();
                 TimerTask task = new TimerTask() {
                     public void run() {
-                        countdownNum --;
+                        countdownNum--;
+                        if (countdownNum >= 0) {
+                            Message msg = countdownHandle.obtainMessage();
+                            msg.what = MSG_COUNT_WHAT;//message的what值
+                            msg.arg1 = countdownNum;//倒计时的秒数
 
-                        Message msg = countdownHandle.obtainMessage();
-                        msg.what = MSG_COUNT_WHAT;//message的what值
-                        msg.arg1 = countdownNum;//倒计时的秒数
+                            countdownHandle.sendMessage(msg);
+                        }
 
-                        countdownHandle.sendMessage(msg);
                     }
                 };
-                timer.schedule(task,0,1000);
+                timer.schedule(task, 0, 1000);
             }
         };
     }
 
-    /**必须使用静态类：解决问题：This Handler class should be static or leaks might occur Android
-     * http://www.cnblogs.com/jevan/p/3168828.html*/
-    private  class MyHandler extends Handler {
+
+    /**
+     * 重写Activity的权限请求返回结果方法
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        mPermissionHelper.requestPermissionsResult(requestCode, permissions, grantResults); // 接管结果判断
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+    @Override
+    public void requestPermissionsSuccess(int callBackCode) {
+        Log.d(TAG, "success callBackCode = " + callBackCode);
+
+        if (callBackCode == REQ_CODE_CAMERA) {
+//            scanQr();
+            openNextActivity(WelcomeActivity.this);//打开下一个界面
+        } else if (callBackCode == ACCESS_COARSE_LOCATION) {
+            mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
+        } else if (callBackCode == ACCESS_FINE_LOCATION) {
+            mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, REQ_CODE_CAMERA);
+        }
+    }
+
+    @Override
+    public void requestPermissionsFail(int callBackCode) {
+        Log.d(TAG, "failed callBackCode = " + callBackCode);
+        showMessage(getString(R.string.rejected_permission));
+    }
+
+    /**
+     * 吐司提示
+     *
+     * @param msg 提示信息
+     */
+    protected void showMessage(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CAMERA
+        };
+    }
+
+    /**
+     * 必须使用静态类：解决问题：This Handler class should be static or leaks might occur Android
+     * http://www.cnblogs.com/jevan/p/3168828.html
+     */
+    private class MyHandler extends Handler {
         // WeakReference to the outer class's instance.
         private WeakReference<WelcomeActivity> mOuter;
 
         private MyHandler(WelcomeActivity activity) {
             mOuter = new WeakReference<>(activity);
         }
+
         @Override
         public void handleMessage(Message msg) {
 
@@ -113,18 +183,18 @@ public class WelcomeActivity extends Activity {
 
                 switch (msg.what) {
                     case MSG_COUNT_WHAT:
-                        if(msg.arg1 == 0){//表示倒计时完成
+                        if (msg.arg1 == 0) {//表示倒计时完成
 
                             //在这里执行的话，不会出现-1S的情况
-                            if(timer != null){
+                            if (timer != null) {
                                 timer.cancel();//销毁计时器
                             }
 
-                            openNextActivity(theActivity);//打开下一个界面
+//                            openNextActivity(theActivity);//打开下一个界面
+                            mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_COARSE_LOCATION);
 
-
-                        }else{
-                            theActivity.mCountdownTextView.setText("跳过"+msg.arg1 + "s");
+                        } else {
+                            theActivity.mCountdownTextView.setText("跳过" + msg.arg1 + "s");
                         }
                         break;
 
@@ -172,9 +242,9 @@ public class WelcomeActivity extends Activity {
     }
 
     //停止倒计时
-    private void stopThread(){
+    private void stopThread() {
         //在这里执行的话，用户点击home键后，不会继续倒计时进入登录界面
-        if(timer != null){
+        if (timer != null) {
             timer.cancel();//销毁计时器
         }
 
@@ -185,13 +255,13 @@ public class WelcomeActivity extends Activity {
     //打开下一个界面
     private void openNextActivity(Activity mActivity) {
         //跳转到登录界面并销毁当前界面
-        try{
-            if(SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)){
+        try {
+            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                 jLockScreenActivity(mActivity);
-            }else {
+            } else {
                 jManiActivity(mActivity);
             }
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             jManiActivity(mActivity);
         }
         mActivity.finish();
@@ -199,26 +269,28 @@ public class WelcomeActivity extends Activity {
 
     /**
      * 跳转到主界面
-     *@param mActivity 上下文
+     *
+     * @param mActivity 上下文
      */
-    private void jManiActivity(Activity mActivity){
+    private void jManiActivity(Activity mActivity) {
         Intent intent = new Intent(mActivity, MainActivity.class);
         mActivity.startActivity(intent);
     }
 
     /**
-     *  跳转到验证界面
+     * 跳转到验证界面
+     *
      * @param mActivity 上下文
      */
-    private void jLockScreenActivity(Activity mActivity){
+    private void jLockScreenActivity(Activity mActivity) {
         int param;
-        try{
+        try {
             if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD).isEmpty()) {
                 param = ConstantUtil.LOGIN_PASSWORD;
-            }else {
+            } else {
                 param = ConstantUtil.SETTING_PASSWORD;
             }
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             param = ConstantUtil.SETTING_PASSWORD;
         }
         Intent intent = new Intent(mActivity, LockScreenActivity.class);
@@ -231,7 +303,7 @@ public class WelcomeActivity extends Activity {
     }
 
     /*初始化倒计时的秒数*/
-    private void initCountdownNum(){
+    private void initCountdownNum() {
         countdownNum = NUM;
     }
 

@@ -135,7 +135,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         mCalendar = Calendar.getInstance();
         mSecondUnlockTimeLl.setVisibility(View.GONE);
         mThirtUnlockTimeLl.setVisibility(View.GONE);
@@ -149,6 +149,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
         mThirdStartTime.setText(mTempUser.getThTsBegin() == null ? "17:00" : mTempUser.getThTsBegin());
         mThirtEndTime.setText(mTempUser.getThTsEnd() == null ? "18:00" : mTempUser.getThTsEnd());
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
     }
 
     @Override
@@ -331,7 +332,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
                     mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
                     mBleManagerHelper.getBleCardService().sendCmd1B((byte) 3, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                             mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
@@ -348,7 +349,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
 
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
                     mBleManagerHelper.getBleCardService().sendCmd1B((byte) 2, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
@@ -365,7 +366,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
         } else if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.GONE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
             if (mBleManagerHelper.getServiceConnection()) {
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 mBleManagerHelper.getBleCardService().sendCmd1B((byte) 1, mTempUser.getUserId(),
                         getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
@@ -377,7 +378,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
         } else if (mSecondUnlockTimeLl.getVisibility() == View.VISIBLE && mFirstUnlockTimeLl.getVisibility() == View.GONE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
             if (mBleManagerHelper.getServiceConnection()) {
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 mBleManagerHelper.getBleCardService().sendCmd1B((byte) 1, mTempUser.getUserId(),
                         getUnlockTime(null, null,
@@ -389,7 +390,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
         } else if (mThirtUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.GONE && mFirstUnlockTimeLl.getVisibility() == View.GONE) {
             if (mBleManagerHelper.getServiceConnection()) {
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 mBleManagerHelper.getBleCardService().sendCmd1B((byte) 1, mTempUser.getUserId(),
                         getUnlockTime(null, null,
@@ -403,7 +404,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
                     mBleManagerHelper.getBleCardService().sendCmd1B((byte) 2, mTempUser.getUserId(),
                             getUnlockTime(null, null,
@@ -422,7 +423,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
                     mBleManagerHelper.getBleCardService().sendCmd1B((byte) 2, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),

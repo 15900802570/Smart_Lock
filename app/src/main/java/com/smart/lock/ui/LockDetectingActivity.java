@@ -12,6 +12,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -42,6 +43,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.Arrays;
 
@@ -66,6 +68,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private Handler mHandler;
     private boolean mScanning;
     private BluetoothAdapter mBluetoothAdapter;//蓝牙适配器
+    private BleManagerHelper mBleManagerHelper;
 
     private boolean mIsConnected = false;//服务连接标志
     private static final int UART_PROFILE_CONNECTED = 20;//蓝牙卡连接成功
@@ -74,14 +77,19 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private Dialog mLoadDialog;
     private DeviceInfo mDetectingDevice;
 
+    //back time
+    private long mBackPressedTime;
+
     private Runnable mRunnable = new Runnable() {
         public void run() {
             DialogUtils.closeDialog(mLoadDialog);
             Toast.makeText(LockDetectingActivity.this, R.string.retry_connect, Toast.LENGTH_LONG).show();
 
-            Intent intent = new Intent();
-            intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
-            LocalBroadcastManager.getInstance(LockDetectingActivity.this).sendBroadcast(intent);
+            mBleManagerHelper.getBleCardService().disconnect();
+
+            mRescanLl.setVisibility(View.VISIBLE);
+            mTipsLl.setVisibility(View.VISIBLE);
+            mScanLockTv.setText(R.string.bt_connect_failed);
         }
     };
 
@@ -148,9 +156,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             finish();
             return;
         }
-
+        mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
+        mLoadDialog.show();
         LocalBroadcastManager.getInstance(this).registerReceiver(detectReciver, makeGattUpdateIntentFilter());
-
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         scanLeDevice(true);
     }
 
@@ -184,16 +193,13 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
-                mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
+                mLoadDialog.show();
                 closeDialog(10);
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).getBleCardService().sendCmd11((byte) 0, (short) 0);
+                mBleManagerHelper.getBleCardService().sendCmd11((byte) 0, (short) 0);
             }
 
             // 4.2.3 MSG 12
             if (action.equals(BleMsg.EXTRA_DATA_MSG_12)) {
-                mTitleTv.setText(R.string.add_lock_success);
-                mSearchingRl.setVisibility(View.GONE);
-                mAddLockSuccessLl.setVisibility(View.VISIBLE);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
                 LogUtil.d(TAG, "userId = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID)));
@@ -217,19 +223,27 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setDeviceSecret(randCode);
                 DeviceInfoDao.getInstance(LockDetectingActivity.this).insert(mDetectingDevice);
 
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).stopService();
+                mBleManagerHelper.getBleCardService().disconnect();
 
                 createDeviceUser(Short.parseShort(userId, 16));
+                new Handler().postDelayed(new Runnable() {
 
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
+                    @Override
+                    public void run() {
+                        mTitleTv.setText(R.string.add_lock_success);
+                        mSearchingRl.setVisibility(View.GONE);
+                        mAddLockSuccessLl.setVisibility(View.VISIBLE);
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                    }
+                }, 2000);
+
             }
 
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
+
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
                 if (errCode[3] == 0x2) {
@@ -237,12 +251,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 } else if (errCode[3] == 0x3) {
                     showMessage(LockDetectingActivity.this.getString(R.string.add_user_failed));
                 }
+                DialogUtils.closeDialog(mLoadDialog);
+                mHandler.removeCallbacks(mRunnable);
 
             }
 
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
-                BleManagerHelper.getInstance(LockDetectingActivity.this, mBleMac, false).stopService();
+                mBleManagerHelper.getBleCardService().disconnect();
 
                 mRescanLl.setVisibility(View.VISIBLE);
                 mTipsLl.setVisibility(View.VISIBLE);
@@ -334,7 +350,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             scanLeDevice(false);
             mRescanLl.setVisibility(View.GONE);
             mTipsLl.setVisibility(View.GONE);
-            mScanLockTv.setText("");
+            mScanLockTv.setText("安全校验中");
             String mac = device.getAddress().replace(":", "");
 
             byte[] macByte = StringUtil.hexStringToBytes(mac);
@@ -357,9 +373,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             Arrays.fill(MessageCreator.mSK, 14, 32, (byte) 0);
 
             LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.mSK));
-            mIsConnected = BleManagerHelper.getInstance(this, mBleMac, false).getServiceConnection();
+            mIsConnected = mBleManagerHelper.getServiceConnection();
+            LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
             if (!mIsConnected)
-                BleManagerHelper.getInstance(this, mBleMac, false).connectBle((byte) 0, (short) 0);
+                mBleManagerHelper.getBleCardService().connect(mBleMac);
         }
 
     }
@@ -413,5 +430,15 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mHandler.removeCallbacks(mRunnable);
 
         mHandler.postDelayed(mRunnable, seconds * 1000);
+    }
+
+    public void onBackPressed() {
+        long curTime = SystemClock.uptimeMillis();
+        if (curTime - mBackPressedTime < 3000) {
+            mHandler.removeCallbacks(mRunnable);
+            finish();
+            return;
+        }
+        mBackPressedTime = curTime;
     }
 }

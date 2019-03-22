@@ -111,7 +111,7 @@ public class LockSettingActivity extends AppCompatActivity {
         try {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
-            mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+            mBleManagerHelper = BleManagerHelper.getInstance(this, false);
             LocalBroadcastManager.getInstance(this).registerReceiver(LockSettingReceiver, intentFilter());
         } catch (NullPointerException e) {
             e.printStackTrace();
@@ -285,6 +285,7 @@ public class LockSettingActivity extends AppCompatActivity {
                                     LockSettingActivity.this,
                                     R.string.restore_the_factory_settings_success,
                                     Toast.LENGTH_LONG);
+                            mBleManagerHelper.getBleCardService().disconnect();
                             finish();
                         }
                         break;
@@ -320,7 +321,7 @@ public class LockSettingActivity extends AppCompatActivity {
                 break;
 
             case R.id.bs_rolled_back_time:      //设置回锁时间
-                switch (mSetTime){
+                switch (mSetTime) {
                     case 5:
                         mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.lite_blue));
                         mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));
@@ -330,7 +331,7 @@ public class LockSettingActivity extends AppCompatActivity {
                         mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
                         mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.lite_blue));
                         mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        break ;
+                        break;
                     case 10:
                         mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
                         mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));

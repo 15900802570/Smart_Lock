@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.ui.BaseListViewActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -67,8 +69,28 @@ public class DeviceManagementActivity extends AppCompatActivity {
     private String mRandCode;
     private String mTime;
     private DeviceInfo mNewDevice;
+    private Dialog mLoadDialog;
 
     private Dialog mAddNewDevDialog;
+    protected Handler mHandler;
+
+    /**
+     * 超时提示框启动器
+     */
+    protected Runnable mRunnable = new Runnable() {
+        public void run() {
+            if (mLoadDialog != null && mLoadDialog.isShowing()) {
+
+                DialogUtils.closeDialog(mLoadDialog);
+
+//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mDefaultDevice.getBleMac(), false);
+//                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
+
+                Toast.makeText(DeviceManagementActivity.this, DeviceManagementActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+            }
+
+        }
+    };
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -111,10 +133,12 @@ public class DeviceManagementActivity extends AppCompatActivity {
     }
 
     private void initData() {
+        mHandler = new Handler();
         mDevManagementAdapter = new DevManagementAdapter(this);
         mDevManagementRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDevManagementRv.setItemAnimator(new DefaultItemAnimator());
         mDevManagementRv.setAdapter(mDevManagementAdapter);
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
 
     private void initEvent() {
@@ -185,11 +209,16 @@ public class DeviceManagementActivity extends AppCompatActivity {
         } else {
             if (getIntent().getExtras() != null) {
                 DeviceInfo deviceDev = (DeviceInfo) getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-                BleManagerHelper.getInstance(this, deviceDev.getBleMac(), false).stopService();
+                if (BleManagerHelper.getInstance(this, false).getBleCardService() != null && BleManagerHelper.getInstance(this, false).getServiceConnection()) {
+                    BleManagerHelper.getInstance(this, false).getBleCardService().disconnect();
+                }
+
             }
             LocalBroadcastManager.getInstance(this).registerReceiver(devCheckReceiver, intentFilter());
+            mLoadDialog.show();
+            closeDialog(10);
             BleManagerHelper.setSk(mBleMac, mNodeId, mRandCode);
-            BleManagerHelper.getInstance(this, getMacAdr(mBleMac), false).connectBle((byte) 1, Short.parseShort(mUserId, 16));
+            BleManagerHelper.getInstance(this, false).connectBle((byte) 1, Short.parseShort(mUserId, 16), getMacAdr(mBleMac));
         }
     }
 
@@ -249,7 +278,6 @@ public class DeviceManagementActivity extends AppCompatActivity {
     protected static IntentFilter intentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
-        intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         return intentFilter;
     }
@@ -268,6 +296,8 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 createDevice();
                 mDevManagementAdapter.addItem(mNewDevice);
                 mDevManagementAdapter.notifyDataSetChanged();
+                mHandler.removeCallbacks(mRunnable);
+                DialogUtils.closeDialog(mLoadDialog);
             }
         }
     };
@@ -389,7 +419,6 @@ public class DeviceManagementActivity extends AppCompatActivity {
                     myViewHolder.mDefaultFlag.setImageResource(R.drawable.ic_dev_management_square_full);
                     mDefaultInfo = deviceInfo;
                     mDefaultPosition = position;
-                    myViewHolder.mSetDefault.setVisibility(View.GONE);
                 } else {
                     myViewHolder.mDefaultFlag.setImageResource(R.drawable.ic_dev_management_square_null);
                 }
@@ -409,8 +438,8 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 myViewHolder.mUnbind.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (deviceInfo.getDeviceDefault()) {
-                            BleManagerHelper.getInstance(DeviceManagementActivity.this, deviceInfo.getBleMac(), false).stopService();
+                        if (deviceInfo.getDeviceDefault() && BleManagerHelper.getInstance(mContext, false).getBleCardService() != null && BleManagerHelper.getInstance(mContext, false).getServiceConnection()) {
+                            BleManagerHelper.getInstance(DeviceManagementActivity.this, false).getBleCardService().disconnect();
                         }
                         DeviceInfoDao.getInstance(DeviceManagementActivity.this).delete(deviceInfo);
                         mDevList.remove(position);
@@ -448,4 +477,15 @@ public class DeviceManagementActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 超时提醒
+     *
+     * @param seconds
+     */
+    private void closeDialog(final int seconds) {
+
+        mHandler.removeCallbacks(mRunnable);
+
+        mHandler.postDelayed(mRunnable, seconds * 1000);
+    }
 }

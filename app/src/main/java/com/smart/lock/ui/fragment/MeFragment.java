@@ -92,7 +92,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 LogUtil.d(TAG, "content = " + content);
                 String[] dvInfo = content.split(",");
-                if (dvInfo.length == 3 && dvInfo[0].length() == 12 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
+                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
                     mSn = dvInfo[0];
                     mBleMac = dvInfo[1];
                     mNodeId = dvInfo[2];

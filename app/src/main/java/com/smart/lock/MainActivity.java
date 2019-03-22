@@ -8,9 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 import android.widget.RadioGroup;
 
+import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.HomeFragment;
 import com.smart.lock.ui.fragment.MeFragment;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
@@ -20,6 +22,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     //back time
     private long mBackPressedTime;
 
@@ -82,6 +85,13 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        LogUtil.d(TAG, "onDestroy!");
+        super.onDestroy();
+        BleManagerHelper.getInstance(this, false).stopService();
     }
 
     public void onBackPressed() {

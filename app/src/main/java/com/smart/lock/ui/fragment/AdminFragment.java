@@ -69,7 +69,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     return;
                 }
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd11((byte) 1, (short) 0);
@@ -107,7 +107,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
                 if (mAdminAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getString(R.string.data_loading));
+                    mLoadDialog.show();
                     for (DeviceUser devUser : mAdminAdapter.mDeleteUsers) {
                         mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
                     }
@@ -157,7 +157,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-        mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext(), mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext(), false);
         mAdminAdapter = new AdminAdapter(mAdminView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
@@ -168,6 +168,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
         mAddUserBtn.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
+
+        mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
 
         initEvent();
     }
@@ -448,7 +450,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
@@ -460,7 +462,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
                             mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());

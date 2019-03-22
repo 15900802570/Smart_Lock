@@ -95,7 +95,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
 
         int currentItem = getIntent().getExtras().getInt(BleMsg.KEY_CURRENT_ITEM);
 
@@ -116,8 +116,8 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
         initTabLayout();
         mUserPermissionVp.setOffscreenPageLimit(2);
-        mUserPermissionVp.setNoScroll(false);
         mUserPermissionVp.setCurrentItem(currentItem);
+        mUserPermissionVp.setNoScroll(true);
         mHandler = new Handler();
 
     }

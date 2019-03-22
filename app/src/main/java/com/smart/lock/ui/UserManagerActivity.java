@@ -113,7 +113,8 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mUserPermissionVp.setNoScroll(false);
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
 
     private void initEvent() {
@@ -166,7 +167,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.del_all_pwd:
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd17((byte) 4, mDefaultDevice.getUserId());
@@ -174,7 +175,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.del_all_fp:
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd17((byte) 5, mDefaultDevice.getUserId());
@@ -182,7 +183,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.del_all_card:
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd17((byte) 6, mDefaultDevice.getUserId());
@@ -190,7 +191,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.del_all_user:
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+                mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd13((byte) 3);

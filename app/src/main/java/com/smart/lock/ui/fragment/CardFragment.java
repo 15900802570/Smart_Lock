@@ -12,6 +12,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,13 +58,14 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.btn_add:
                 int count = DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
-                if (count >= 0 && count <= 1) {
+                LogUtil.d(TAG, "count = " + count);
+                if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mCardView.getContext(), getResources().getString(R.string.data_loading));
+                    mLoadDialog.show();
                     closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, 0);
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0));
                 } else {
-                    showMessage(getResources().getString(R.string.add_fp_tips));
+                    showMessage(getResources().getString(R.string.add_nfc_tips));
                 }
                 break;
 
@@ -92,7 +94,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mCardView.getContext()).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mCardView.getContext(), mDefaultDevice.getBleMac(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCardView.getContext(), false);
 
         mCardAdapter = new CardManagerAdapter(mCardView.getContext());
         mListView.setLayoutManager(new LinearLayoutManager(mCardView.getContext(), LinearLayoutManager.VERTICAL, false));
@@ -106,6 +108,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         initEvent();
 
         LocalBroadcastManager.getInstance(mCardView.getContext()).registerReceiver(cardReceiver, intentFilter());
+
     }
 
     private void initEvent() {
@@ -140,9 +143,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     mCardAdapter.notifyDataSetChanged();
                 } else if (errCode[3] == 0x10) {
                     showMessage(mCardView.getContext().getResources().getString(R.string.delete_nfc_success));
-                    DeviceKeyDao.getInstance(mCardView.getContext()).delete(mCardAdapter.mCardList.get(mCardAdapter.positionDelete));
-                    mCardAdapter.setDataSource(DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC));
-                    mCardAdapter.notifyDataSetChanged();
+                    mCardAdapter.removeItem(mCardAdapter.positionDelete);
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
@@ -173,8 +174,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(mCardView.getContext()).updateDeviceUser(mTempUser);
                 }
-                mCardAdapter.setDataSource(DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC));
-                mCardAdapter.notifyDataSetChanged();
+                mCardAdapter.addItem(deviceKey);
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
             }
@@ -207,6 +207,20 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
             mCardList = cardList;
         }
 
+        public void addItem(DeviceKey key) {
+            mCardList.add(mCardList.size(), key);
+            notifyItemInserted(mCardList.size());
+        }
+
+        public void removeItem(int index) {
+            if (index != -1) {
+                DeviceKey del = mCardList.remove(index);
+
+                DeviceKeyDao.getInstance(mCardView.getContext()).delete(del);
+                notifyItemRemoved(index);
+            }
+        }
+
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler, parent, false);
@@ -228,10 +242,10 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCardView.getContext(), mCardView.getContext().getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
                     }
                 });
 
@@ -239,10 +253,10 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCardView.getContext(), mCardView.getContext().getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), 0);
+                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
                     }
                 });
 
@@ -303,6 +317,21 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
         mCardAdapter.setDataSource(DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC));
         mCardAdapter.notifyDataSetChanged();
+
+        mLoadDialog = DialogUtils.createLoadingDialog(mCardView.getContext(), mCardView.getContext().getResources().getString(R.string.data_loading));
+
+        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+
+            @Override
+            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+                    LogUtil.d(TAG, "按了返回键");
+                    return true;
+                }
+                return false;
+            }
+
+        });
     }
 
     @Override
@@ -314,4 +343,5 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
             Log.e(TAG, ignore.toString());
         }
     }
+
 }
