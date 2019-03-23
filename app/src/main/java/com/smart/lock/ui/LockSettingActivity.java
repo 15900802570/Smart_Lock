@@ -64,6 +64,8 @@ public class LockSettingActivity extends AppCompatActivity {
     private TextView mSetRolledBackTime8sTv;
     private TextView mSetRolledBackTime10sTv;
 
+    private boolean mIsConnected = true; //蓝牙连接状态
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +120,13 @@ public class LockSettingActivity extends AppCompatActivity {
         }
         // 查询或者创建状态表
         mDeviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+        setStatus();
+    }
+
+    /**
+     * 设置状态
+     */
+    private void setStatus() {
         if (mDeviceStatus != null) {
             mIntelligentLockTs.setChecked(mDeviceStatus.isIntelligentLockCore());
             mAntiPrizingAlarmTs.setChecked(mDeviceStatus.isAntiPrizingAlarm());
@@ -179,6 +188,8 @@ public class LockSettingActivity extends AppCompatActivity {
 
     private static IntentFilter intentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
+        intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
@@ -207,9 +218,6 @@ public class LockSettingActivity extends AppCompatActivity {
                 mDefaultDevice.setDeviceHwVersion(hwVer);
                 DeviceInfoDao.getInstance(LockSettingActivity.this).updateDeviceInfo(mDefaultDevice);
                 Intent mIntent = new Intent(LockSettingActivity.this, VersionInfoActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                mIntent.putExtras(bundle);
                 startActivity(mIntent);
             }
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
@@ -292,104 +300,120 @@ public class LockSettingActivity extends AppCompatActivity {
                 }
                 DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
             }
+            if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
+                mIsConnected = false;
+            }
+            if (action.equals(BleMsg.ACTION_GATT_CONNECTED)) {
+                mIsConnected = true;
+            }
         }
     };
 
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.iv_back:
-                finish();
+        if (mIsConnected) {
+            switch (view.getId()) {
+                case R.id.iv_back:
+                    finish();
 
-            case R.id.ts_intelligent_lock:  //智能锁芯
-                doClick(R.string.intelligent_lock);
-                break;
+                case R.id.ts_intelligent_lock:  //智能锁芯
+                    doClick(R.string.intelligent_lock);
+                    break;
 
-            case R.id.ts_anti_prizing_alarm:    //防撬报警
-                doClick(R.string.anti_prizing_alarm);
-                break;
+                case R.id.ts_anti_prizing_alarm:    //防撬报警
+                    doClick(R.string.anti_prizing_alarm);
+                    break;
 
-            case R.id.ts_combination_lock:      //组合开锁
-                doClick(R.string.combination_lock);
-                break;
+                case R.id.ts_combination_lock:      //组合开锁
+                    doClick(R.string.combination_lock);
+                    break;
 
-            case R.id.ts_normally_open:         //常开功能
-                doClick(R.string.normally_open);
-                break;
+                case R.id.ts_normally_open:         //常开功能
+                    doClick(R.string.normally_open);
+                    break;
 
-            case R.id.ts_voice_prompt:          //语言提示
-                doClick(R.string.voice_prompt);
-                break;
+                case R.id.ts_voice_prompt:          //语言提示
+                    doClick(R.string.voice_prompt);
+                    break;
 
-            case R.id.bs_rolled_back_time:      //设置回锁时间
-                switch (mSetTime) {
-                    case 5:
-                        mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.lite_blue));
-                        mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        break;
-                    case 8:
-                        mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.lite_blue));
-                        mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        break;
-                    case 10:
-                        mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));
-                        mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.lite_blue));
-                        break;
-                }
-                mBottomSheetDialog.show();      //显示弹窗
-                break;
-            case R.id.next_version_info:        //查看版本信息
-                mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
-                break;
-            case R.id.next_factory_reset:
-                mWarningDialog = DialogUtils.createWarningDialog(this, getResources().getString(R.string.restore_warning));
-                mWarningDialog.show();
-                break;
+                case R.id.bs_rolled_back_time:      //设置回锁时间
+                    switch (mSetTime) {
+                        case 5:
+                            mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                            mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            break;
+                        case 8:
+                            mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                            mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            break;
+                        case 10:
+                            mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                            break;
+                    }
+                    mBottomSheetDialog.show();      //显示弹窗
+                    break;
+                case R.id.next_version_info:        //查看版本信息
+                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
+                    break;
+                case R.id.next_factory_reset:
+                    mWarningDialog = DialogUtils.createWarningDialog(this, getResources().getString(R.string.restore_warning));
+                    mWarningDialog.show();
+                    break;
+            }
+        } else {
+            ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
+            setStatus();
         }
     }
 
     private void doClick(int value) {
-        switch (value) {
-            case R.string.intelligent_lock: //智能锁芯
-                if (mDeviceStatus.isIntelligentLockCore()) {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 13);
-                } else {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 12);
-                }
-                break;
+        if (mIsConnected) {
+            switch (value) {
+                case R.string.intelligent_lock: //智能锁芯
+                    if (mDeviceStatus.isIntelligentLockCore()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 13);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 12);
+                    }
+                    break;
 
-            case R.string.anti_prizing_alarm:   //防撬报警
-                if (mDeviceStatus.isAntiPrizingAlarm()) {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 15);
-                } else {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 14);
-                }
-                break;
+                case R.string.anti_prizing_alarm:   //防撬报警
+                    if (mDeviceStatus.isAntiPrizingAlarm()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 15);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 14);
+                    }
+                    break;
 
-            case R.string.combination_lock:     //组合开锁
-                if (mDeviceStatus.isCombinationLock()) {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 2);
-                } else {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 1);
-                }
-                break;
+                case R.string.combination_lock:     //组合开锁
+                    if (mDeviceStatus.isCombinationLock()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 2);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 1);
+                    }
+                    break;
 
-            case R.string.normally_open:    //常开功能
-                if (mDeviceStatus.isNormallyOpen()) {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 4);
-                } else {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 3);
-                }
-                break;
-            case R.string.voice_prompt:     //语言提示
-                if (mDeviceStatus.isVoicePrompt()) {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 6);
-                } else {
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 5);
-                }
-                break;
+                case R.string.normally_open:    //常开功能
+                    if (mDeviceStatus.isNormallyOpen()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 4);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 3);
+                    }
+                    break;
+                case R.string.voice_prompt:     //语言提示
+                    if (mDeviceStatus.isVoicePrompt()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 6);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 5);
+                    }
+                    break;
+            }
+        } else {
+            ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
+            setStatus();
         }
     }
 
