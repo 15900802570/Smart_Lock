@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private ImageView mOneClickOpen;
     private int mHeight;
 
+    private HomeFragment mHomeFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private void initDate() {
         BleManagerHelper.getInstance(this, false);
         mPagerList = new ArrayList();
-        HomeFragment homeFragment = new HomeFragment();
-        homeFragment.setmInstructionBtn(mOneClickOpen);
-        mPagerList.add(homeFragment);
+        mHomeFragment = new HomeFragment();
+        mHomeFragment.setmInstructionBtn(mOneClickOpen);
+        mPagerList.add(mHomeFragment);
         mPagerList.add(new MeFragment());
         mTabVg.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             public Fragment getItem(int i) {
@@ -155,5 +157,6 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }else {
             findViewById(R.id.one_click_unlock_ib).setVisibility(View.GONE);
         }
+        mHomeFragment.setmInstructionBtn(mOneClickOpen);
     }
 }
