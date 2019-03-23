@@ -133,7 +133,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
                 if (errCode[3] == 0x0e) {
@@ -147,7 +146,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
-
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
@@ -161,7 +159,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                 final byte[] lockId = intent.getByteArrayExtra(BleMsg.KEY_LOCK_ID);
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 mLockId = String.valueOf(lockId[0]);
-                LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());

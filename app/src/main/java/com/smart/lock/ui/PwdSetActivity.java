@@ -211,13 +211,13 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         final String secPwd = mSecondPwdEt.getText().toString().trim();
         final String userName = mUserNameEt.getText().toString().trim();
 
-        if (TextUtils.isEmpty(firstPwd) || firstPwd.length() != 6) {
+        if (TextUtils.isEmpty(firstPwd) || firstPwd.length() != 6 || TextUtils.isEmpty(secPwd) || secPwd.length() != 6) {
             try {
                 controller.alertDialog(getResources().getString(R.string.valid_password));
             } catch (Exception e2) {
                 e2.printStackTrace();
             }
-        } else if (!TextUtils.isEmpty(secPwd) && !firstPwd.equals(secPwd)) {
+        } else if (!firstPwd.equals(secPwd)) {
             controller.alertDialog(getResources().getString(R.string.pwd_twice_error));
         } else if (TextUtils.isEmpty(userName)) {
             controller.alertDialog(getResources().getString(R.string.plz_input_username));

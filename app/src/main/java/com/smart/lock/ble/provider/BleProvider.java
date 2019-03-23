@@ -579,12 +579,12 @@ public class BleProvider {
                         + " transactionBleMsgListenerMap size : "
                         + transactionBleMsgListenerMap.size());
             }
-            if (transactionBleMsgListenerMap.size() == 0) {
-                synchronized (sendThread) {
-                    sendThread.notify();
-                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
-                }
-            }
+//            if (transactionBleMsgListenerMap.size() == 0) {
+//                synchronized (sendThread) {
+//                    sendThread.notify();
+//                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
+//                }
+//            }
             bleMsgListener.onReceive(this, msg);
         }
     }
@@ -680,16 +680,16 @@ public class BleProvider {
                         // 直接发送消息
                         ClientTransaction transaction = (ClientTransaction) obj;
                         sendMessage(transaction.getMessage(), transaction, bleCommandList);
-                        if (transactionBleMsgListenerMap.size() != 0) {
-                            synchronized (sendThread) {
-                                try {
-                                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
-                                    sendThread.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }
+//                        if (transactionBleMsgListenerMap.size() != 0) {
+//                            synchronized (sendThread) {
+//                                try {
+//                                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
+//                                    sendThread.wait();
+//                                } catch (InterruptedException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        }
 
                     } else {
                         // 未知类型消息

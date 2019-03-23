@@ -26,6 +26,7 @@ import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.LogUtil;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -334,6 +335,7 @@ public class BleCardService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
+        LogUtil.d(TAG, "service disconnect!");
         mBluetoothGatt.disconnect();
         mBleChannel.Close();
 

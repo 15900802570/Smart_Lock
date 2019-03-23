@@ -344,10 +344,9 @@ public class BleManagerHelper {
                 Log.d(TAG, "UART_DISCONNECT_MSG");
                 mState = UART_PROFILE_DISCONNECTED;
                 MessageCreator.mAK = null;
-                if (mIsConnected) {
-                    mService.disconnect();
-                    mService.close();
-                }
+                mService.disconnect();
+                mService.close();
+                mScanning = false;
                 mIsConnected = false;
                 mOtaMode = mTempMode ? 1 : 0;
                 mConnectType = 0;

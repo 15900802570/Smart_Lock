@@ -77,11 +77,15 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mMac = mDefaultDevice.getBleMac().replace(":", "");
         String tempSecret = mDefaultDevice.getTempSecret();
-        mSecretList.add(tempSecret.substring(0, 64));
-        mSecretList.add(tempSecret.substring(64, 128));
-        mSecretList.add(tempSecret.substring(128, 192));
-        mSecretList.add(tempSecret.substring(192, 256));
-        LogUtil.d(TAG, "mSecretList = " + mSecretList.toString());
+        if (StringUtil.checkNotNull(tempSecret)) {
+            mSecretList.add(tempSecret.substring(0, 64));
+            mSecretList.add(tempSecret.substring(64, 128));
+            mSecretList.add(tempSecret.substring(128, 192));
+            mSecretList.add(tempSecret.substring(192, 256));
+            LogUtil.d(TAG, "mSecretList = " + mSecretList.toString());
+        } else {
+            Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
+        }
 
         mTempPwdAdapter = new TempPwdAdapter(this);
         mTempPwdListViewRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
