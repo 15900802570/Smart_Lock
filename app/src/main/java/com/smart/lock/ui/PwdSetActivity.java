@@ -152,7 +152,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                     mModifyDeviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
                     LogUtil.d(TAG, "mModifyDeviceKey = " + mModifyDeviceKey.toString());
                     DeviceKeyDao.getInstance(PwdSetActivity.this).updateDeviceKey(mModifyDeviceKey);
-                    mSetPwdBtn.setEnabled(false);
+                    finish();
                 } else if (errCode[3] == 0x0d) {
                     showMessage(PwdSetActivity.this.getResources().getString(R.string.delete_pwd_success));
                 }

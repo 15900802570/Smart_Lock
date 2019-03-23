@@ -31,6 +31,10 @@ public class ViewPagerAdapter extends PagerAdapter {
         }
     }
 
+    public void setImageIds(int[] imageIds) {
+        this.imageIds = imageIds;
+    }
+
     @Override
     public int getCount() {
         // TODO Auto-generated method stub

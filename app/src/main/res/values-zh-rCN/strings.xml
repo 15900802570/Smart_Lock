@@ -20,7 +20,7 @@
     <string name="me_rd">我的</string>
     <string name="lock_manager">门锁管理</string>
     <string name="me">我的</string>
-    <string name="back_message">再次点击退出 智能·门锁</string>
+    <string name="back_message">再次点击退出 智能门锁</string>
     <string name="bt_state">蓝牙状态:</string>
     <string name="bt_unconnected">未连接</string>
     <string name="unconnected_device">未连接设备</string>

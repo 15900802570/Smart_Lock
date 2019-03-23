@@ -27,23 +27,23 @@ public class LockManagerAdapter extends BaseAdapter {
         mGridView = gridView;
 
         mNames.add(Integer.valueOf(R.string.password_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.manager_pwd));
+        mIcons.add(Integer.valueOf(R.mipmap.icon_password));
 
         mNames.add(Integer.valueOf(R.string.fingerprint_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.manager_finger));
+        mIcons.add(Integer.valueOf(R.mipmap.icon_fingerprint));
 
         mNames.add(Integer.valueOf(R.string.card_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.manager_card));
+        mIcons.add(Integer.valueOf(R.mipmap.icon_nfc));
 
         mNames.add(Integer.valueOf(R.string.event_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.manager_event));
+        mIcons.add(Integer.valueOf(R.mipmap.icon_events));
 
         if(permission == ConstantUtil.DEVICE_MASTER) {
             mNames.add(Integer.valueOf(R.string.token_manager));
-            mIcons.add(Integer.valueOf(R.mipmap.manager_token));
+            mIcons.add(Integer.valueOf(R.mipmap.icon_temporarypassword));
 
             mNames.add(Integer.valueOf(R.string.permission_manager));
-            mIcons.add(Integer.valueOf(R.mipmap.manager_permission));
+            mIcons.add(Integer.valueOf(R.mipmap.icon_userguanl));
         }
 
     }
@@ -65,7 +65,7 @@ public class LockManagerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewGroup.LayoutParams layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 3);
+        ViewGroup.LayoutParams layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 2);
         View inflate = View.inflate(mContext, R.layout.item_lock_manager, null);
         inflate.setLayoutParams(layoutParams);
         View findViewById = inflate.findViewById(R.id.grid_item);

@@ -157,7 +157,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             return;
         }
         mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
-        mLoadDialog.show();
         LocalBroadcastManager.getInstance(this).registerReceiver(detectReciver, makeGattUpdateIntentFilter());
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         scanLeDevice(true);
@@ -193,6 +192,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
+                DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
                 closeDialog(10);
                 mBleManagerHelper.getBleCardService().sendCmd11((byte) 0, (short) 0);

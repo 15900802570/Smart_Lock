@@ -11,13 +11,13 @@
         </shape>
     </item>
     <!--第二层前景-->
-    <item
-        android:left="18dp"
-        android:right="19dp"
-        android:bottom="45dp">
-        <shape android:shape="rectangle">
-            <solid android:color="@android:color/white"/>
-            <corners android:radius="10dp" />
-        </shape>
-    </item>
+    <!--<item-->
+        <!--android:left="18dp"-->
+        <!--android:right="19dp"-->
+        <!--android:bottom="45dp">-->
+        <!--<shape android:shape="rectangle">-->
+            <!--<solid android:color="@android:color/white"/>-->
+            <!--<corners android:radius="10dp" />-->
+        <!--</shape>-->
+    <!--</item>-->
 </layer-list>

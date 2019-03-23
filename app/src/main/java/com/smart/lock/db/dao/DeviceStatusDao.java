@@ -7,6 +7,7 @@ import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class DeviceStatusDao {
     private DtDatabaseHelper mHelper;
@@ -60,6 +61,19 @@ public class DeviceStatusDao {
         return deviceStatus;
     }
 
+    public void deleteByKey(String key, String values) {
+        ArrayList<DeviceStatus> list = null;
+        try {
+            list = (ArrayList<DeviceStatus>) dao.queryForEq(key, values);
+            if (list != null) {
+                for (DeviceStatus bean : list) {
+                    dao.delete(bean);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
     public synchronized void insert(DeviceStatus deviceStatus) {
         try {
             dao.create(deviceStatus);
