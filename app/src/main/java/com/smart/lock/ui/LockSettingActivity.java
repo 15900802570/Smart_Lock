@@ -295,7 +295,10 @@ public class LockSettingActivity extends AppCompatActivity {
                                     Toast.LENGTH_LONG);
                             mBleManagerHelper.getBleCardService().disconnect();
                             finish();
+                        } else {
+                            finish();
                         }
+                        LogUtil.d(TAG, "恢复出厂设置成功");
                         break;
                 }
                 DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
