@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             case R.id.home_rd:
                 if (DeviceInfoDao.getInstance(this).queryFirstData("device_default", true) != null) {
                     findViewById(R.id.one_click_unlock_ib).setVisibility(View.VISIBLE);
+                }else {
+                    findViewById(R.id.one_click_unlock_ib).setVisibility(View.GONE);
                 }
                 mTabVg.setCurrentItem(0, false);
                 break;
@@ -144,5 +146,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         }
         mBackPressedTime = curTime;
         ToastUtil.showShort(this, getString(R.string.back_message));
+    }
+
+    public void onResume(){
+        super.onResume();
+        if (DeviceInfoDao.getInstance(this).queryFirstData("device_default", true) != null) {
+            findViewById(R.id.one_click_unlock_ib).setVisibility(View.VISIBLE);
+        }else {
+            findViewById(R.id.one_click_unlock_ib).setVisibility(View.GONE);
+        }
     }
 }

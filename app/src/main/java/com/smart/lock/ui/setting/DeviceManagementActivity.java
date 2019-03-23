@@ -154,8 +154,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.btn_dev_management_add_new_lock:
-                mAddNewDevDialog = DialogUtils.createTipsDialog(this, getString(R.string.disconnect_ble_first));
-                mAddNewDevDialog.show();
+                scanQr();
                 break;
             default:
                 break;
@@ -301,6 +300,10 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 mDevManagementAdapter.notifyDataSetChanged();
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
+            }
+            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)){
+                mAddNewDevDialog = DialogUtils.createTipsDialog(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
+                mAddNewDevDialog.show();
             }
         }
     };
