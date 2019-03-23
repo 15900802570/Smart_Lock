@@ -412,7 +412,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setDeviceName((deviceName.equals("") == true) ? getString(R.string.lock_default_name) : deviceName);
                 DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
 
-                startIntent(MainActivity.class, null, Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                startIntent(MainActivity.class, null, Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                finish();
                 break;
             case R.id.et_remark:
                 break;

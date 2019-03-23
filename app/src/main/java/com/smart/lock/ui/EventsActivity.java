@@ -203,7 +203,10 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
                 Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                closeDialog((int) seconds[0], mHandler, mRunnable);
+                if (!mLoadDialog.isShowing()) {
+                    mLoadDialog.show();
+                }
+                closeDialog((int) seconds[0]);
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG3E_ERROR)) {

@@ -46,6 +46,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     protected Button mAddBtn;
 
     private PwdManagerAdapter mPwdAdapter;
+    private boolean mIsVisibleFragment = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,11 +154,24 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
             if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                closeDialog((int) seconds[0]);
+                if (mIsVisibleFragment) {
+                    Log.d(TAG, "seconds = " + Arrays.toString(seconds));
+                    if (!mLoadDialog.isShowing()) {
+                        mLoadDialog.show();
+                    }
+                    closeDialog((int) seconds[0]);
+                }
+
             }
         }
     };
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleFragment = isVisibleToUser;
+        LogUtil.d(TAG, "pwd isVisibleToUser = " + isVisibleToUser);
+    }
 
     public class PwdManagerAdapter extends RecyclerView.Adapter<PwdManagerAdapter.ViewHolder> {
         private Context mContext;
@@ -180,11 +194,11 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         }
 
         public void removeItem(int index) {
-            if (index != -1) {
+            if (index != -1 && !mPwdList.isEmpty()) {
                 DeviceKey del = mPwdList.remove(index);
 
                 DeviceKeyDao.getInstance(mContext).delete(del);
-                notifyItemRemoved(index);
+                notifyDataSetChanged();
             }
 
         }

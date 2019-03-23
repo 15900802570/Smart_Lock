@@ -48,6 +48,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
     private CardManagerAdapter mCardAdapter;
     private String mLockId = null;
+    private boolean mIsVisibleFragment = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,6 +151,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
                 DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
+                LogUtil.d(TAG, "key = " + ((key == null) ? true : key.toString()));
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_NFC)) {
                     mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
@@ -183,11 +185,24 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
             if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                closeDialog((int) seconds[0]);
+                if (mIsVisibleFragment) {
+                    Log.d(TAG, "seconds = " + Arrays.toString(seconds));
+                    if (!mLoadDialog.isShowing()) {
+                        mLoadDialog.show();
+                    }
+                    closeDialog((int) seconds[0]);
+                }
+
             }
         }
     };
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        LogUtil.d(TAG, "card isVisibleToUser = " + isVisibleToUser);
+        mIsVisibleFragment = isVisibleToUser;
+    }
 
     public class CardManagerAdapter extends RecyclerView.Adapter<CardManagerAdapter.ViewHolder> {
         private Context mContext;
@@ -210,11 +225,11 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         }
 
         public void removeItem(int index) {
-            if (index != -1) {
+            if (index != -1 && !mCardList.isEmpty()) {
                 DeviceKey del = mCardList.remove(index);
 
                 DeviceKeyDao.getInstance(mCardView.getContext()).delete(del);
-                notifyItemRemoved(index);
+                notifyDataSetChanged();
             }
         }
 

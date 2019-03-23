@@ -23,7 +23,7 @@
     <string name="card_manager">Card Manager</string>
     <string name="password_manager">Password Manager</string>
     <string name="fingerprint_manager">Fingerprint Manager</string>
-    <string name="permission_manager">Permission Manager</string>
+    <string name="permission_manager">User Manager</string>
     <string name="token_manager">Token Manager</string>
     <string name="event_manager">Event Manager</string>
     <string name="title_activity_login">Sign in</string>

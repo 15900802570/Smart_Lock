@@ -35,7 +35,7 @@
     <string name="password_manager">密码管理</string>
     <string name="fingerprint_manager">指纹管理</string>
     <string name="device_manager">设备管理</string>
-    <string name="permission_manager">用户与权限</string>
+    <string name="permission_manager">用户管理</string>
     <string name="unlock_key">开锁信息管理</string>
     <string name="temp_user_setting">临时用户管理</string>
     <string name="token_manager">临时密码</string>

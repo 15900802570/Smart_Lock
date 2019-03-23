@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -47,6 +48,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     private FpManagerAdapter mFpAdapter;
     private String mLockId = null;
+    private boolean mIsVisibleFragment = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -190,13 +192,32 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                closeDialog((int) seconds[0]);
+                if (mIsVisibleFragment) {
+                    Log.d(TAG, "seconds = " + Arrays.toString(seconds));
+                    if (!mLoadDialog.isShowing()) {
+                        mLoadDialog.show();
+                    }
+                    closeDialog((int) seconds[0]);
+                }
+
             }
 
 
         }
     };
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        mIsVisibleFragment = isVisibleToUser;
+        LogUtil.d(TAG, " fp isVisibleToUser = " + isVisibleToUser);
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        LogUtil.d(TAG, "hidden = " + hidden);
+        super.onHiddenChanged(hidden);
+    }
 
     public class FpManagerAdapter extends RecyclerView.Adapter<FpManagerAdapter.ViewHolder> {
         private Context mContext;
@@ -219,11 +240,12 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         }
 
         public void removeItem(int index) {
-            if (index != -1) {
+            LogUtil.d(TAG, "mFpList = " + mFpList.toString());
+            if (index != -1 && !mFpList.isEmpty()) {
                 DeviceKey del = mFpList.remove(index);
 
                 DeviceKeyDao.getInstance(mContext).delete(del);
-                notifyItemRemoved(index);
+                notifyDataSetChanged();
             }
 
         }
@@ -250,7 +272,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     @Override
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog .show();
+                        mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
                         mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));

@@ -123,7 +123,10 @@ public class CardManagerActivity extends BaseListViewActivity implements View.On
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
                 Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                closeDialog((int) seconds[0], mHandler, mRunnable);
+                if (!mLoadDialog.isShowing()) {
+                    mLoadDialog.show();
+                }
+                closeDialog((int) seconds[0]);
             }
         }
     };

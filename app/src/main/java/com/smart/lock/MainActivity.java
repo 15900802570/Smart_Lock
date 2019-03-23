@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     }
 
     private void initDate() {
+        BleManagerHelper.getInstance(this, false);
         mPagerList = new ArrayList();
         HomeFragment homeFragment = new HomeFragment();
         homeFragment.setmInstructionBtn(mOneClickOpen);

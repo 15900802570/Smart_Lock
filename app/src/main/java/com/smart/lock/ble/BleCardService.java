@@ -495,7 +495,7 @@ public class BleCardService extends Service {
         user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
 
@@ -538,9 +538,11 @@ public class BleCardService extends Service {
 
         DeviceKey deviceKey = new DeviceKey();
         deviceKey.setKeyType(keyType);
+        deviceKey.setUserId(userId);
+        deviceKey.setLockId(String.valueOf(lockId));
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
@@ -668,7 +670,7 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
@@ -751,7 +753,7 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
