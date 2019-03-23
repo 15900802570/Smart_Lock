@@ -2,6 +2,7 @@
 package com.smart.lock.ui.fragment;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -91,6 +92,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     private TextView mLockStatusTv;
     private ImageView mBleConnectIv;
     private ImageView mInstructionBtn;
+    private ImageView mScanQrIv;
 
     private ViewPagerAdapter mAdapter; //news adapter
     private LockManagerAdapter mLockAdapter; //gridView adapter
@@ -141,6 +143,40 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     private int mHeight;
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        String mSn;
+        String mBleMac;
+        // 扫描二维码/条码回传
+        if (requestCode == Activity.RESULT_FIRST_USER && resultCode == Activity.RESULT_OK) {
+            if (data != null) {
+                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                LogUtil.d(TAG, "content = " + content);
+                String[] dvInfo = content.split(",");
+                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
+                    mSn = dvInfo[0];
+                    mBleMac = dvInfo[1];
+                    mNodeId = dvInfo[2];
+
+                    if (DeviceInfoDao.getInstance(getContext()).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+
+                        startIntent(LockDetectingActivity.class, bundle);
+                    } else {
+                        ToastUtil.show(mHomeView.getContext(), getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+                    }
+
+                } else {
+                    ToastUtil.show(mHomeView.getContext(), getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+                }
+            }
+        }
+    }
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,6 +199,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mShowTimeTv = mHomeView.findViewById(R.id.tv_update);
         mLockStatusTv = mHomeView.findViewById(R.id.tv_status);
         mBleConnectIv = mHomeView.findViewById(R.id.iv_connect);
+        mScanQrIv = mHomeView.findViewById(R.id.iv_scan_qr);
         initEvent();
         LogUtil.d(TAG, "mHeight = " + mHeight);
         //设置界面比例
@@ -204,6 +241,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mMyGridView.setOnItemClickListener(this);
         mBleConnectIv.setOnClickListener(this);
         mInstructionBtn.setOnClickListener(this);
+        mScanQrIv.setOnClickListener(this);
     }
 
     public void initDate() {
@@ -256,6 +294,22 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     /**
+     * 打开第三方二维码扫描库
+     */
+    private void scanQr() {
+        Intent newIntent = new Intent(mHomeView.getContext(), CaptureActivity.class);
+        ZxingConfig config = new ZxingConfig();
+        config.setPlayBeep(true);//是否播放扫描声音 默认为true
+        config.setShake(true);//是否震动  默认为true
+        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
+        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
+        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+        startActivityForResult(newIntent, Activity.RESULT_FIRST_USER);
+    }
+
+    /**
      * 刷新显示界面
      */
     private void refreshView(int status) {
@@ -264,7 +318,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 LogUtil.d(TAG, "DEVICE_CONNECTING");
                 mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.41);
                 mAddLockLl.setVisibility(View.GONE);
-                mInstructionBtn.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
                 mLockStatusTv.setText(R.string.bt_connecting);
                 mBleConnectIv.setClickable(false);
@@ -284,7 +337,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             case BIND_DEVICE:
                 mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.41);
                 mAddLockLl.setVisibility(View.GONE);
-                mInstructionBtn.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
                 LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
 
@@ -318,7 +370,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.61);
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.GONE);
-                mInstructionBtn.setVisibility(View.GONE);
                 mAdapter.setImageIds(mAdapter.imageIds);
                 mAdapter.notifyDataSetChanged();
                 break;
@@ -611,7 +662,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
         switch (v.getId()) {
             case R.id.btn_add_lock:
-                startIntent(AddDeviceActivity.class, null);
+//                startIntent(AddDeviceActivity.class, null);
+                scanQr();
+                break;
+            case R.id.iv_scan_qr:
+                scanQr();
                 break;
             case R.id.iv_connect:
                 refreshView(DEVICE_CONNECTING);

@@ -1,7 +1,6 @@
 package com.smart.lock.ui;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.dao.DeviceInfoDao;
 
 public class VersionInfoActivity extends AppCompatActivity {
 
@@ -23,7 +23,7 @@ public class VersionInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_version_info);
 
         try {
-            mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+            mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
