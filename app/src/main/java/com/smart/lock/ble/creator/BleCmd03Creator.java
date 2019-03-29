@@ -5,7 +5,11 @@ import android.os.Bundle;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+
+import java.util.Arrays;
 
 /**
  * apk->设备,通知智能锁进行锁体秘钥录入
@@ -30,14 +34,22 @@ public class BleCmd03Creator implements BleCreator {
         short cmdLen = 20;
         byte[] cmd = new byte[128];
 
+        byte[] respRandom = extra.getByteArray(BleMsg.KEY_RANDOM);
 
         cmd[0] = 0x3;
         byte[] buf = new byte[16];
         StringUtil.short2Bytes(cmdLen, buf);
         System.arraycopy(buf, 0, cmd, 1, 2);
 
+        LogUtil.d(TAG, "respRandom = " + Arrays.toString(respRandom));
+
+        LogUtil.d(TAG, "m128AK = " + Arrays.toString(MessageCreator.m128AK));
+        LogUtil.d(TAG, "m256AK = " + Arrays.toString(MessageCreator.m256AK));
         try {
-            AES_ECB_PKCS7.AES256Encode(extra.getByteArray(BleMsg.KEY_RANDOM), buf, extra.getByteArray(BleMsg.KEY_AK));
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(respRandom, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Encode(respRandom, buf, MessageCreator.m256AK);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -26,23 +26,22 @@ public class BleCmd12Parse implements BleCommandParse {
 
         byte[] buf = new byte[64];
 
-        try {
-            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mAK);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        if (MessageCreator.mIs128Code)
+            AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
+        else
+            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
 
         byte[] userId = new byte[2];
         byte[] nodeId = new byte[8];
         byte[] bleMac = new byte[6];
-        byte[] randCode = new byte[18];
+        byte[] randCode = new byte[10];
         byte[] time = new byte[4];
 
         System.arraycopy(buf, 0, userId, 0, 2);
         System.arraycopy(buf, 2, nodeId, 0, 8);
         System.arraycopy(buf, 10, bleMac, 0, 6);
-        System.arraycopy(buf, 16, randCode, 0, 18);
-        System.arraycopy(buf, 34, time, 0, 4);
+        System.arraycopy(buf, 16, randCode, 0, 10);
+        System.arraycopy(buf, 26, time, 0, 4);
 
         return MessageCreator.getCmd12Message(getParseKey(), userId, nodeId, bleMac, randCode, time);
     }
@@ -50,37 +49,6 @@ public class BleCmd12Parse implements BleCommandParse {
     @Override
     public byte getParseKey() {
         return Message.TYPE_BLE_RECEV_CMD_12;
-    }
-
-    /**
-     * 比较两个byte数组数据是否相同,相同返回 true
-     *
-     * @param data1
-     * @param data2
-     * @param len
-     * @return
-     */
-    public static boolean memcmp(byte[] data1, byte[] data2, int len) {
-        if (data1 == null && data2 == null) {
-            return true;
-        }
-        if (data1 == null || data2 == null) {
-            return false;
-        }
-        if (data1 == data2) {
-            return true;
-        }
-
-        boolean bEquals = true;
-        int i;
-        for (i = 0; i < data1.length && i < data2.length && i < len; i++) {
-            if (data1[i] != data2[i]) {
-                bEquals = false;
-                break;
-            }
-        }
-
-        return bEquals;
     }
 
 }

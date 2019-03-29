@@ -12,39 +12,53 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.Device;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LockDetectingActivity extends BaseActivity implements View.OnClickListener {
@@ -62,6 +76,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private TextView mTitleTv;
     private Button mConfirmBtn;
     private EditText mRemarkEt;
+    private LinearLayout mRefreshDevLl;
+    private RecyclerView mDevList;
+    private FrameLayout mScanDev;
+    private LinearLayout mScanEmpty;
+    private ProgressBar mScanDevBar;
 
     private Animation mRotateAnimation;
     private static final long SCAN_PERIOD = 10000; //scanning for 10 seconds
@@ -76,6 +95,12 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private int mState = UART_PROFILE_DISCONNECTED;//蓝牙状态
     private Dialog mLoadDialog;
     private DeviceInfo mDetectingDevice;
+    private ArrayList<BluetoothDevice> deviceList;
+    private BleAdapter mBleAdapter;
+
+    private final int DETECTING_LOCK = 0x1;
+    private final int SEARCH_LOCK = 0x2;
+    private int mMode = DETECTING_LOCK;
 
     //back time
     private long mBackPressedTime;
@@ -126,6 +151,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mAddLockSuccessLl = findViewById(R.id.ll_result_view);
         mConfirmBtn = findViewById(R.id.btn_confirm);
         mRemarkEt = findViewById(R.id.et_remark);
+        mRefreshDevLl = findViewById(R.id.refresh_dev_ll);
+        mDevList = findViewById(R.id.dev_list_rv);
+        mScanDev = findViewById(R.id.fl_scan_dev);
+        mScanEmpty = findViewById(R.id.scan_empty);
+        mScanDevBar = findViewById(R.id.pb_scan_ble_dev);
     }
 
     private void initDate() {
@@ -136,6 +166,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mBleMac = getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
             mSn = extras.getString(BleMsg.KEY_NODE_SN);
             mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
+        } else {
+            mMode = SEARCH_LOCK;
+            deviceList = new ArrayList<>();
+            mTitleTv.setText(getString(R.string.search_lock));
+            mBleAdapter = new BleAdapter(this, deviceList);
+            mDevList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+            mDevList.setItemAnimator(new DefaultItemAnimator());
+            mDevList.setAdapter(mBleAdapter);
         }
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -193,9 +231,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
-                closeDialog(10);
-                mBleManagerHelper.getBleCardService().sendCmd11((byte) 0, (short) 0);
+                if (mMode == SEARCH_LOCK) {
+                    mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getResources().getString(R.string.plz_press_setting));
+                    mLoadDialog.show();
+                    closeDialog(10);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 7, (short) 0);
+                } else {
+                    mLoadDialog.show();
+                    closeDialog(10);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 0, (short) 0);
+                }
             }
 
             // 4.2.3 MSG 12
@@ -203,6 +248,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
                 LogUtil.d(TAG, "userId = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID)));
+                byte[] nodeIdBuf = intent.getByteArrayExtra(BleMsg.KEY_NODE_ID);
+                StringUtil.exchange(nodeIdBuf);
+                String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
+                LogUtil.d(TAG, "nodId = " + nodeId);
                 String time = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_LOCK_TIME));
                 String randCode = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE));
                 LogUtil.d(TAG, "KEY_RAND_CODE = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE)));
@@ -213,7 +262,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDetectingDevice.setBleMac(mBleMac);
                 mDetectingDevice.setConnectType(false);
                 mDetectingDevice.setUserId(Short.parseShort(userId, 16));
-                mDetectingDevice.setDeviceNodeId(mNodeId);
+                mDetectingDevice.setDeviceNodeId(nodeId);
                 mDetectingDevice.setNodeType(ConstantUtil.SMART_LOCK);
                 mDetectingDevice.setDeviceDate(System.currentTimeMillis() / 1000);
                 if (defaultDevice != null) mDetectingDevice.setDeviceDefault(false);
@@ -225,7 +274,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
                 mBleManagerHelper.getBleCardService().disconnect();
 
-                createDeviceUser(Short.parseShort(userId, 16));
+                createDeviceUser(Short.parseShort(userId, 16), nodeId);
+
                 new Handler().postDelayed(new Runnable() {
 
                     @Override
@@ -250,6 +300,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     showMessage(LockDetectingActivity.this.getString(R.string.add_user_success));
                 } else if (errCode[3] == 0x3) {
                     showMessage(LockDetectingActivity.this.getString(R.string.add_user_failed));
+                    if (mIsConnected) {
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
@@ -272,9 +325,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      *
      * @param userId
      */
-    private void createDeviceUser(short userId) {
+    private void createDeviceUser(short userId, String nodeId) {
         DeviceUser user = new DeviceUser();
-        user.setDevNodeId(mNodeId);
+        user.setDevNodeId(nodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(userId);
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
@@ -301,21 +354,57 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      */
     private void scanLeDevice(final boolean enable) {
         if (enable) {
-            // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(mStopScan, SCAN_PERIOD);
-
-            mRescanLl.setVisibility(View.GONE);
-            mTipsLl.setVisibility(View.GONE);
-            mSearchingIv.startAnimation(mRotateAnimation);
+            if (mMode == DETECTING_LOCK) {
+                mHandler.postDelayed(mStopScan, SCAN_PERIOD);
+                mRefreshDevLl.setVisibility(View.GONE);
+                mRescanLl.setVisibility(View.GONE);
+                mTipsLl.setVisibility(View.GONE);
+                mSearchingIv.startAnimation(mRotateAnimation);
+                mScanLockTv.setText(R.string.tv_scan_lock);
+            } else if (mMode == SEARCH_LOCK) {
+                mRefreshDevLl.setVisibility(View.VISIBLE);
+                mBleAdapter.mBluetoothDevlist.clear();
+                mBleAdapter.notifyDataSetChanged();
+                mScanDev.setVisibility(View.GONE);
+                mScanEmpty.setVisibility(View.GONE);
+                mRescanLl.setVisibility(View.VISIBLE);
+                mRescanBtn.setText(R.string.stop_scan);
+                startRefresh();
+            }
             mScanning = true;
-            mScanLockTv.setText(R.string.tv_scan_lock);
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
-            mSearchingIv.clearAnimation();
+            if (mMode == DETECTING_LOCK) {
+                mSearchingIv.clearAnimation();
+            } else if (mMode == SEARCH_LOCK) {
+                mRescanBtn.setText(R.string.rescanning);
+                stopRefresh();
+            }
+
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        }
 
+        }
+    }
+
+    /**
+     * 开始刷新动画
+     */
+    public void startRefresh() {
+        mScanDevBar.setIndeterminateDrawable(getResources().getDrawable(
+                R.drawable.progressbar_loading));
+        mScanDevBar.setProgressDrawable(getResources().getDrawable(
+                R.drawable.progressbar_loading));
+    }
+
+    /**
+     * 停止刷新动画
+     */
+    public void stopRefresh() {
+        mScanDevBar.setIndeterminateDrawable(getResources().getDrawable(
+                R.mipmap.dialog_loading_img));
+        mScanDevBar.setProgressDrawable(getResources().getDrawable(
+                R.mipmap.dialog_loading_img));
     }
 
     /**
@@ -327,52 +416,57 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    addDevice(device, rssi, scanRecord);
+
+
+                    if (mMode == DETECTING_LOCK) {
+                        detectDevice(device);
+                    } else if (mMode == SEARCH_LOCK) {
+                        if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                            Log.d(TAG, "device.getName() = " + device.getName());
+                            addDevice(device);
+                        }
+                    }
+
                 }
             });
         }
     };
 
+    private void addDevice(BluetoothDevice device) {
+        mBleAdapter.addItem(device);
+    }
+
     /**
      * 搜索结果处理
      *
      * @param device
-     * @param rssi
-     * @param scanRecord
      */
-    private void addDevice(BluetoothDevice device, int rssi, byte[] scanRecord) {
+    private void detectDevice(BluetoothDevice device) {
 
         LogUtil.d(TAG, "ble mac = " + device.getAddress());
         LogUtil.d(TAG, "dev mac = " + mBleMac);
         if (device.getAddress().equals(mBleMac)) {
-            LogUtil.d(TAG, "dev rssi = " + rssi);
             mHandler.removeCallbacks(mStopScan);
             scanLeDevice(false);
             mRescanLl.setVisibility(View.GONE);
             mTipsLl.setVisibility(View.GONE);
             mScanLockTv.setText("安全校验中");
             String mac = device.getAddress().replace(":", "");
-
+            LogUtil.d(TAG, "mac = " + mac);
             byte[] macByte = StringUtil.hexStringToBytes(mac);
-            if (mNodeId.getBytes().length == 15) {
-                mNodeId = "0" + mNodeId;
-            }
-            LogUtil.d(TAG, "nodeId = " + mNodeId);
 
-            byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
-
-            StringUtil.exchange(nodeId);
-
-            LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
             LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
 
-            System.arraycopy(nodeId, 0, MessageCreator.mSK, 0, 8); //写入IMEI
+            if (MessageCreator.mIs128Code) {
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入IMEI
+                Arrays.fill(MessageCreator.m128SK, 6, 16, (byte) 0);
+                LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.m128SK));
+            } else {
+                System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
+                Arrays.fill(MessageCreator.m256SK, 6, 32, (byte) 0);
+                LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.m256SK));
+            }
 
-            System.arraycopy(macByte, 0, MessageCreator.mSK, 8, 6); //写入MAC
-
-            Arrays.fill(MessageCreator.mSK, 14, 32, (byte) 0);
-
-            LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.mSK));
             mIsConnected = mBleManagerHelper.getServiceConnection();
             LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
             if (!mIsConnected)
@@ -389,6 +483,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (mScanning) {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
 
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(detectReciver);
@@ -402,7 +499,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_rescanning:
-                scanLeDevice(true);
+                if (mScanning)
+                    scanLeDevice(false);
+                else
+                    scanLeDevice(true);
                 break;
             case R.id.iv_back:
                 finish();
@@ -421,6 +521,85 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 break;
         }
     }
+
+    public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
+        private Context mContext;
+        public ArrayList<BluetoothDevice> mBluetoothDevlist;
+
+        public BleAdapter(Context context, ArrayList<BluetoothDevice> devList) {
+            mContext = context;
+            mBluetoothDevlist = devList;
+        }
+
+        public void setDataSource(ArrayList<BluetoothDevice> devList) {
+            mBluetoothDevlist = devList;
+        }
+
+        public void addItem(BluetoothDevice bleDev) {
+            int index = mBluetoothDevlist.indexOf(bleDev);
+            LogUtil.d(TAG, "result = " + index);
+            if (index == -1) {
+                mBluetoothDevlist.add(mBluetoothDevlist.size(), bleDev);
+                LogUtil.d(TAG, "mBluetoothDevlist = " + mBluetoothDevlist.size());
+                notifyItemInserted(mBluetoothDevlist.size());
+            }
+
+        }
+
+        @Override
+        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dev, parent, false);
+            SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev);
+            swipeLayout.setClickToClose(false);
+            swipeLayout.setRightSwipeEnabled(false);
+            return new ViewHolder(inflate);
+        }
+
+        @Override
+        public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
+            final BluetoothDevice dev = mBluetoothDevlist.get(position);
+            if (dev != null) {
+                viewHolder.mDevName.setText(dev.getName());
+                viewHolder.mDevMac.setText(dev.getAddress());
+
+                viewHolder.mDevContent.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        if (mScanning) {
+                            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                        }
+                        mBleMac = dev.getAddress();
+                        detectDevice(dev);
+                    }
+                });
+            }
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return mBluetoothDevlist.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+
+            SwipeLayout mSwipeLayout;
+            TextView mDevMac;
+            TextView mDevName;
+            LinearLayout mDevContent;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+
+                mSwipeLayout = (SwipeLayout) itemView;
+                mDevMac = itemView.findViewById(R.id.tv_dev_mac);
+                mDevName = itemView.findViewById(R.id.tv_dev_name);
+                mDevContent = itemView.findViewById(R.id.ll_content);
+            }
+        }
+    }
+
 
     /**
      * 超时提示框

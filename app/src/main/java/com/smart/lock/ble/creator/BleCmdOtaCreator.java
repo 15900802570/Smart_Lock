@@ -6,6 +6,7 @@ import android.util.Log;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
@@ -45,7 +46,10 @@ public class BleCmdOtaCreator implements BleCreator {
         Arrays.fill(nodeId, 8, 16, (byte) 8);
 
         try {
-            AES_ECB_PKCS7.AES256Encode(nodeId, buf, extra.getByteArray(BleMsg.KEY_AK));
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(nodeId, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Encode(nodeId, buf, MessageCreator.m256AK);
         } catch (Exception e) {
             e.printStackTrace();
         }

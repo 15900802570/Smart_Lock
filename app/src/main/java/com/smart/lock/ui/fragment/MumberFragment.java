@@ -211,18 +211,15 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_USER_ID), 0, authBuf, 1, 2);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
-                System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 18);
+                System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 10);
 
                 byte[] timeBuf = new byte[4];
                 StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
-                LogUtil.d(TAG, "time = " + Arrays.toString(timeBuf));
-                System.arraycopy(timeBuf, 0, authBuf, 35, 4);
+                System.arraycopy(timeBuf, 0, authBuf, 27, 4);
 
-                Arrays.fill(authBuf, 39, 64, (byte) 0x25);
+                Arrays.fill(authBuf, 31, 32, (byte) 0x01);
 
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
-
-                LogUtil.d(TAG, "authBuf = " + Arrays.toString(authBuf));
 
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -556,8 +553,6 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
                 mUserContent = itemView.findViewById(R.id.ll_content);
             }
-
-
         }
 
     }

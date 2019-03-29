@@ -49,7 +49,10 @@ public class BleCmd13Creator implements BleCreator {
         Arrays.fill(cmdBuf, 1, 16, (byte) 15);
 
         try {
-            AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(cmdBuf, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.m256AK);
         } catch (Exception e) {
             e.printStackTrace();
         }

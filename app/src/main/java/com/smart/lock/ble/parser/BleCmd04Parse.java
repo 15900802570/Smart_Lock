@@ -30,7 +30,10 @@ public class BleCmd04Parse implements BleCommandParse {
         byte[] buf = new byte[256];
 
         try {
-            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mAK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
         } catch (Exception e) {
             e.printStackTrace();
         }

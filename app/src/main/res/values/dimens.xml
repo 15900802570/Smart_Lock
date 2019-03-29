@@ -20,4 +20,8 @@
 
     <dimen name="dialog_height">346dp</dimen>
     <dimen name="dialog_width">300dp</dimen>
+
+    <dimen name="progress_size">46dp</dimen>
+    <dimen name="frame_inner_margin">15dp</dimen>
+    <dimen name="normal_size">15dp</dimen>
 </resources>

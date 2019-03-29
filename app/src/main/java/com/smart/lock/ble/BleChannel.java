@@ -298,6 +298,11 @@ public class BleChannel implements Runnable {
         final UUID RX_CMD_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb");
         final UUID RX_DATA_UUID = UUID.fromString("0000ffa2-0000-1000-8000-00805f9b34fb");
 
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException ex) {
+        }
+
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 
         Log.d(TAG, "RxService = " + (RxService == null));
@@ -320,7 +325,7 @@ public class BleChannel implements Runnable {
         changeChannelState(STATUS_CHANNEL_WRITE);
 
         Log.d(TAG, "value = " + Arrays.toString(value));
-
+        RxChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         RxChar.setValue(value);
         return mBleGatt.writeCharacteristic(RxChar);
     }

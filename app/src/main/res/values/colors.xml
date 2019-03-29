@@ -59,7 +59,7 @@
     <color name="fab_stroke_top_outer_color">#2effffff</color>
     <color name="gray1">#ff666666</color>
     <color name="gray2">#ffaaaaaa</color>
-    <color name="gray3">#ffeeeeee</color>
+    <color name="page_backgroud">#ffeeeeee</color>
     <color name="highlighted_text_material_dark">#6680cbc4</color>
     <color name="highlighted_text_material_light">#66009688</color>
     <color name="hint_foreground_material_dark">@color/bright_foreground_disabled_material_dark

@@ -2,6 +2,7 @@
 package com.smart.lock.ble.parser;
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
+import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 
@@ -34,7 +35,10 @@ public class BleCmd1AParse implements BleCommandParse {
 
         byte[] buf = new byte[16];
         try {
-            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mAK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
         } catch (Exception e) {
             e.printStackTrace();
         }

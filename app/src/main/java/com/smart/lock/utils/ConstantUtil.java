@@ -2,6 +2,9 @@ package com.smart.lock.utils;
 
 public class ConstantUtil {
 
+    public static String BASE_URL = "https://api.dttsh.cn";
+    public static final String CHECK_VERSION = BASE_URL + "/api/v1.0/version/update";
+
     /**
      * 是否开启密码验证
      */
@@ -86,7 +89,7 @@ public class ConstantUtil {
     /**
      * 智能门锁默认名称
      */
-    public static final String LOCK_DEFAULT_NAME = "智能门锁";
+    public static final String LOCK_DEFAULT_NAME = "DTLOCKER";
 
     /**
      * 修改
@@ -149,5 +152,17 @@ public class ConstantUtil {
      * 用户卡片
      */
     public static final byte USER_REMOTE = 0x02;
+
+    public static final String APPLICATION = "application";
+    public static final String BIN_EXTENSION = "bin";
+
+    public interface ParamName {
+        String RESULT = "result";
+        String RESD_CODE = "respCode";
+        String RESD_DESC = "respDesc";
+        String FILENAME = "filename";
+        String DEVICE_SN = "deviceSn";
+        String EXTENSION = "extension";
+    }
 
 }

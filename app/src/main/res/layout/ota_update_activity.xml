@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@mipmap/bg"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white">
+
+        <ImageView
+            android:id="@+id/iv_back_sysset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="@color/transparent"
+            android:padding="10.0dip"
+            android:src="@drawable/icon_arrow_blue_left" />
+
+        <TextView
+            android:id="@+id/tv_message_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="10.0dip"
+            android:text="@string/lock_update"
+            android:textColor="#ff000000"
+            android:textSize="18.0dip" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/check_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progress_check"
+            android:layout_width="@dimen/progress_size"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="@dimen/activity_horizontal_margin" />
+
+        <TextView
+            android:id="@+id/tv_check_version"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center|left"
+            android:paddingLeft="5dp"
+            android:textColor="@color/black"
+            android:text="@string/check_version"
+            android:textSize="15dp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/update_version"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/page_backgroud"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/ll_version_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/frame_inner_margin"
+                android:background="@drawable/linearlayout_frame_bg"
+                android:orientation="vertical">
+
+
+                <LinearLayout
+                    android:id="@+id/block_search_dfu_device"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:layout_marginTop="@dimen/frame_inner_margin"
+                    android:background="@color/white"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/current_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentLeft='true'
+                        android:gravity="center"
+                        android:text="@string/current_version"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/normal_size"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/version_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical|left"
+                        android:layout_marginLeft="@dimen/frame_inner_margin"
+                        android:text="v1.0"
+                        android:textColor="@color/black" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:layout_marginTop="@dimen/frame_inner_margin"
+                    android:gravity="center|left"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/dev_mac_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentLeft='true'
+                        android:gravity="center"
+                        android:text="@string/device_nodeid"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/normal_size"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/dev_mac"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:layout_marginLeft="@dimen/frame_inner_margin"
+                        android:text="mac"
+                        android:textColor="@color/black" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/update_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/current_version"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:layout_marginTop="@dimen/frame_inner_margin"
+                    android:gravity="center_vertical|left"
+                    android:text="1.优化连接"
+                    android:textColor="@color/black" />
+
+                <Button
+                    android:id="@+id/version_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:layout_marginTop="@dimen/frame_inner_margin"
+                    android:text="@string/download_version" />
+
+                <TextView
+                    android:id="@+id/connect_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:layout_marginTop="@dimen/frame_inner_margin"
+                    android:gravity="center"
+                    android:text="@string/disconnected"
+                    android:textColor="@color/black" />
+
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    style="@style/progress_style"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/frame_inner_margin"
+                    android:gravity="center"
+                    android:max="100"
+                    android:progress="0" />
+
+                <TextView
+                    android:id="@+id/progress_size"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="@dimen/frame_inner_margin"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:text="- / -"
+                    android:textColor="@color/black" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

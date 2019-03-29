@@ -45,8 +45,9 @@
     <string name="about_us">关于我们</string>
     <string name="system_setting">系统设置</string>
     <string name="scan_qr">扫一扫</string>
+    <string name="scan_dev">搜一搜</string>
     <string name="check_fingerprint">请验证已有指纹</string>
-
+    <string name="searched_dev">搜索到的门锁</string>
 
     <string name="add_lock">添加门锁</string>
     <string name="choose_add_way">选择以下一种方式添加</string>
@@ -61,6 +62,7 @@
     <string name="tv_scan_lock">正在搜索</string>
     <string name="please_approach_lock">请将手机靠近门锁</string>
     <string name="rescanning">重新扫描</string>
+    <string name="stop_scan">停止扫描</string>
     <string name="please_check">请检查：</string>
     <string name="please_check1">1、设备是否已接通电源，并开机启动</string>
     <string name="please_check2">2、蓝牙连接是否正常</string>
@@ -211,7 +213,7 @@
     <string name="note_name">备注:</string>
     <string name="add_unlock_time">添加时段</string>
     <string name="set_unlock_time_success">设置临时用户有效期成功</string>
-    <string name= "set_life_cycle_success">临时用户生命周期设置成功</string>
+    <string name="set_life_cycle_success">临时用户生命周期设置成功</string>
     <string name="s">秒</string>
     <string name="s_5">5秒</string>
     <string name="s_8">8秒</string>
@@ -239,4 +241,51 @@
 
     <string name="disconnect_ble">连接已断开</string>
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
+    <string name="search_lock">搜索附件的门锁</string>
+    <string name="plz_press_setting">请按设置键</string>
+    <string name="self_message">个人中心</string>
+    <string name="web_site">官网</string>
+    <string name="customer_service">客服</string>
+    <string name="company">大唐半导体科技有限公司</string>
+
+    <string name="check_version">正在检查更新...</string>
+    <string name="current_version">当前版本:</string>
+    <string name="update_version">更新版本:</string>
+    <string name="isnew_version">当前已经是最新的版本了 </string>
+
+    <string name="ota_connection">正在连接OTA模式</string>
+    <string name="ota_connection_success">OTA连接成功</string>
+    <string name="ota_connect_failed">OTA连接失败</string>
+    <string name="update">升级 </string>
+    <string name="update_title">版本更新提示 </string>
+    <string name="download_error">下载出错了 </string>
+    <string name="net_error"> 网络出现异常 </string>
+    <string name="down_finish">下载完成 </string>
+    <string name="down_alert"> 下载提示 </string>
+
+    <string name="fix_alert">已经下载完成,点击安装 </string>
+    <string name="friend_tip_title">温馨提示 </string>
+    <string name="dialog_load_data">正在加载数据 </string>
+    <string name="new_version">新版本</string>
+    <string name="downloading">正在下载</string>
+    <string name="start_update">开始更新</string>
+    <string name="new_dev_version">有新的版本可以更新</string>
+    <string name="ready_download">下载准备 </string>
+    <string name="device_nodeid">设备编号:</string>
+    <string name="download_version">版本下载</string>
+    <string name="disconnected">已断开连接</string>
+    <string name="lock_update">门锁升级</string>
+    <string name="connect_failed">连接失败</string>
+    <string name="unconnected">未连接</string>
+    <string name="connect_ota_mode">正在连接OTA模式</string>
+    <string name="connect_ota_success">连接OTA模式成功</string>
+    <string name="dfu_end_waiting">请等待门锁重启，大约需要6秒</string>
+    <string name="ota_complete">升级成功!</string>
+    <string name="ota_file_dan">升级文件不完整，请重试</string>
+
+    <string name="search_failed">搜索失败</string>
+    <string name="secure_connection">正在建立安全连接</string>
+    <string name="connection_success">已建立安全连接</string>
+    <string name="http_version_latest">已是最新版本，无需升级</string>
+    <string name="ota_updating">正在升级</string>
 </resources>

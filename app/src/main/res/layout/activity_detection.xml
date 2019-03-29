@@ -47,6 +47,7 @@
             android:orientation="vertical">
 
             <FrameLayout
+                android:id="@+id/fl_scan_dev"
                 android:layout_width="fill_parent"
                 android:layout_height="240.0dip">
 
@@ -97,15 +98,62 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/refresh_dev_ll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:background="@color/white"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/color_hint"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:layout_gravity="center_vertical"
+                        android:text="@string/searched_dev"
+                        android:textSize="16dp" />
+
+                    <ProgressBar
+                        android:id="@+id/pb_scan_ble_dev"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center_vertical"
+                        android:indeterminateBehavior="repeat"
+                        android:indeterminateDrawable="@mipmap/dialog_loading_img"
+                        android:indeterminateOnly="true" />
+
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/dev_list_rv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/listview_bg_grey"
+                    android:divider="@null"
+                    android:scrollbarSize="10dp"
+                    android:scrollbarStyle="insideOverlay"
+                    android:scrollbars="vertical" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/ll_tips"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="vertical"
-                android:paddingBottom="30dip"
                 android:paddingLeft="30dip"
-                android:paddingRight="30dip"
                 android:paddingTop="30.0dip"
+                android:paddingRight="30dip"
+                android:paddingBottom="30dip"
                 android:visibility="gone">
 
                 <TextView

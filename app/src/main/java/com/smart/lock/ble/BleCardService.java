@@ -29,6 +29,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -119,11 +120,10 @@ public class BleCardService extends Service {
 
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
-                Log.i(TAG,
-                        "Attempting to start service discovery:"
-                                + mBluetoothGatt.discoverServices());
+                Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_CONNECTED);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.i(TAG, "refresh ble :" + refreshDeviceCache());
                 mConnectionState = STATE_DISCONNECTED;
                 mBleChannel.changeChannelState(mBleChannel.STATUS_CHANNEL_WAIT);
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -138,6 +138,33 @@ public class BleCardService extends Service {
 
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_SERVICES_DISCOVERED);
 
+                LogUtil.d(TAG, "mBluetoothGatt = " + gatt.hashCode() + "gatt service size is" + gatt.getServices().size());
+
+                for (BluetoothGattService gattService : gatt.getServices()) {
+
+                    // 取得当前service的uuid；
+                    String servuuid = gattService.getUuid().toString();
+                    Log.d(TAG, "servuuid = " + servuuid);
+
+                    List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+
+                    // Loops through available Characteristics.
+                    for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                        String uuid = gattCharacteristic.getUuid().toString();
+                        Log.d(TAG, "~~~~~~BluetoothGattCharacteristic uuid = " + uuid);
+
+//                            // add for DFU
+//                            if (uuid.equals(SampleGattAttributes.UUID_BASIC_PREFIX
+//                                    + SampleGattAttributes.GATT_DTS1580_DFU_CMD_CHARACTERISTIC//DEVICE_NAME_CHARACTERISTIC//GATT_DTS1580_DFU_CMD_CHARACTERISTIC
+//                                    + SampleGattAttributes.UUID_BASIC_SUFFIX)) {
+//
+//                                Log.d(TAG, "~~~~~~BluetoothGattCharacteristic get mDfuCmdGattCharacteristic = " + mDfuCmdGattCharacteristic);
+//                                return gattCharacteristic;
+//                            }
+                    }
+
+                }
+
 
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
@@ -145,8 +172,7 @@ public class BleCardService extends Service {
         }
 
         @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.w(TAG, "onCharacteristicRead() status = " + status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -158,21 +184,18 @@ public class BleCardService extends Service {
         }
 
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.w(TAG, "onCharacteristicChanged()");
 
             if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
 
                 mBleProvider.onReceiveBle(characteristic.getValue());
 
-            } else {
             }
         }
 
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt,
-                                          BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.i(TAG, "onCharacteristicWrite()");
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -183,6 +206,28 @@ public class BleCardService extends Service {
             }
         }
     };
+
+    /**
+     * Clears the internal cache and forces a refresh of the services from the
+     * remote device.
+     */
+    public boolean refreshDeviceCache() {
+        if (mBluetoothGatt != null) {
+            try {
+                BluetoothGatt localBluetoothGatt = mBluetoothGatt;
+                Method localMethod = localBluetoothGatt.getClass().getMethod(
+                        "refresh", new Class[0]);
+                if (localMethod != null) {
+                    boolean bool = ((Boolean) localMethod.invoke(
+                            localBluetoothGatt, new Object[0])).booleanValue();
+                    return bool;
+                }
+            } catch (Exception localException) {
+                Log.i(TAG, "An exception occured while refreshing device");
+            }
+        }
+        return false;
+    }
 
 
 //    @SuppressLint("NewApi")
@@ -277,8 +322,7 @@ public class BleCardService extends Service {
         }
 
         // Previously connected device. Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
+        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
@@ -289,7 +333,7 @@ public class BleCardService extends Service {
         }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        Log.d(TAG, "deivce !" + device.getAddress() + device.getBondState());
+        Log.d(TAG, "deivce : " + device.getAddress() + " hashcode : " + device.hashCode());
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -297,6 +341,7 @@ public class BleCardService extends Service {
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false.
+        Log.d(TAG, "mBluetoothGatt is : " + ((mBluetoothGatt == null) ? true : mBluetoothGatt.hashCode()));
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
 
         if (null != mBluetoothGatt) {
@@ -463,14 +508,11 @@ public class BleCardService extends Service {
     /**
      * MSG 03
      */
-    public boolean sendCmd03(byte[] random, byte[] ak) {
+    public boolean sendCmd03(byte[] random) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_03);
 
         Bundle bundle = msg.getData();
-        if (ak != null && ak.length != 0) {
-            bundle.putByteArray(BleMsg.KEY_AK, ak);
-        }
 
         if (random != null && random.length != 0) {
             bundle.putByteArray(BleMsg.KEY_RANDOM, random);

@@ -358,7 +358,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                     mNodeId = mDefaultDevice.getDeviceNodeId();
-                    Log.d(TAG, "mDefaultUser = " + mDefaultDevice.getUserId());
+                    Log.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
@@ -708,28 +708,31 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         String mac = mDefaultDevice.getBleMac().replace(":", "");
 
         byte[] macByte = StringUtil.hexStringToBytes(mac);
-
-        String defaultNodeId = mDefaultDevice.getDeviceNodeId();
-
-        byte[] nodeId = StringUtil.hexStringToBytes(defaultNodeId);
-
-        StringUtil.exchange(nodeId);
-
-        System.arraycopy(nodeId, 0, MessageCreator.mSK, 0, 8); //写入IMEI
-
-        System.arraycopy(macByte, 0, MessageCreator.mSK, 8, 6); //写入MAC
-
-        byte[] code = new byte[18];
-        String secretCode = mDefaultDevice.getDeviceSecret();
-        if (secretCode == null || secretCode.equals("0")) {
-            Arrays.fill(MessageCreator.mSK, 14, 32, (byte) 0);
+        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
+        if (MessageCreator.mIs128Code) {
+            System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
+            byte[] code = new byte[10];
+            String secretCode = mDefaultDevice.getDeviceSecret();
+            if (secretCode == null || secretCode.equals("0")) {
+                Arrays.fill(MessageCreator.m128SK, 6, 16, (byte) 0);
+            } else {
+                code = StringUtil.hexStringToBytes(secretCode);
+                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
+            }
+            LogUtil.d(TAG, "m128SK = " + Arrays.toString(MessageCreator.m128SK));
         } else {
-            code = StringUtil.hexStringToBytes(secretCode);
-            System.arraycopy(code, 0, MessageCreator.mSK, 14, 18); //写入secretCode
+            System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
+            byte[] code = new byte[10];
+            String secretCode = mDefaultDevice.getDeviceSecret();
+            if (secretCode == null || secretCode.equals("0")) {
+                Arrays.fill(MessageCreator.m256SK, 6, 16, (byte) 0);
+            } else {
+                code = StringUtil.hexStringToBytes(secretCode);
+                System.arraycopy(code, 0, MessageCreator.m256SK, 6, 10); //写入secretCode
+                Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
+            }
+            LogUtil.d(TAG, "m256AK = " + Arrays.toString(MessageCreator.m256SK));
         }
-
-        LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.mSK));
-
     }
 
     @Override
@@ -737,7 +740,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         Bundle bundle = new Bundle();
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
         LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice.toString());
-        switch (((Integer) view.getTag()).intValue()) {
+        switch ((Integer) view.getTag()) {
             case R.mipmap.icon_password:
                 if (mIsConnected) {
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);

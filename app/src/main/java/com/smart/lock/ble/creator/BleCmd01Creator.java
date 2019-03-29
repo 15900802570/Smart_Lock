@@ -11,6 +11,7 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * apk->设备,通知智能锁进行锁体秘钥录入
@@ -59,17 +60,29 @@ public class BleCmd01Creator implements BleCreator {
         Arrays.fill(msgBuf, 7, 16, (byte) 0x09);
 
         LogUtil.d(TAG, "msgBuf = " + Arrays.toString(msgBuf));
-
+        LogUtil.d(TAG, "m256SK = " + Arrays.toString(MessageCreator.m256SK));
+        LogUtil.d(TAG, "m128SK = " + Arrays.toString(MessageCreator.m128SK));
         try {
-            AES_ECB_PKCS7.AES256Encode(msgBuf, buf, MessageCreator.mSK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(msgBuf, buf, MessageCreator.m128SK);
+            else
+                AES_ECB_PKCS7.AES256Encode(msgBuf, buf, MessageCreator.m256SK);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         System.arraycopy(buf, 0, cmd, 4, 16);
 
+        for (int i = 0; i < MessageCreator.pwdRandom.length; i++) {
+            MessageCreator.pwdRandom[i] = (byte) new Random().nextInt(10);
+        }
+
+        LogUtil.d(TAG, "MessageCreator.pwdRandom = " + Arrays.toString(MessageCreator.pwdRandom));
         try {
-            AES_ECB_PKCS7.AES256Encode(MessageCreator.pwdRandom, buf, MessageCreator.mSK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(MessageCreator.pwdRandom, buf, MessageCreator.m128SK);
+            else
+                AES_ECB_PKCS7.AES256Encode(MessageCreator.pwdRandom, buf, MessageCreator.m256SK);
         } catch (Exception e) {
             e.printStackTrace();
         }

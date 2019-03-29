@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Smart Lock</string>
     <string name="action_settings">Settings</string>
 
@@ -237,4 +237,50 @@
     <string name="rejected_permission">You rejected the permission application</string>
     <string name="disconnect_ble">Ble disconnection</string>
     <string name="ble_disconnect">Bluetooth is disconnected, please reconnect.</string>
+    <string name="scan_dev">Scan Device</string>
+    <string name="searched_dev">Searched Lock</string>
+    <string name="search_lock">Searching Lock</string>
+    <string name="plz_press_setting">Press the settings key, please.</string>
+    <string name="stop_scan">Stop Scan</string>
+    <string name="self_message">Self Message</string>
+    <string name="web_site">Web Site</string>
+    <string name="customer_service">Customer Service</string>
+    <string name="check_version">check version...</string>
+    <string name="company">da tang semi</string>
+    <string name="isnew_version">is new version,can\'t update!</string>
+    <string name="ota_updating">Upgrading</string>
+    <string name="http_version_latest">" It's the latest version, no need to upgrade"</string>
+    <string name="connection_success">" A secure connection has been established"</string>
+    <string name="secure_connection">" Secure connections are being established  "</string>
+    <string name="search_failed">search failed</string>
+    <string name="ota_file_dan">The upgrade file is incomplete. Please try again.</string>
+    <string name="ota_complete">Upgrade success!</string>
+    <string name="dfu_end_waiting">Please wait for the lock to restart. It will take about 6 seconds.</string>
+    <string name="connect_ota_success">Successful Connection to OTA Mode</string>
+    <string name="connect_ota_mode">Connecting OTA mode</string>
+    <string name="unconnected">Unconnected</string>
+    <string name="connect_failed">connection failed</string>
+    <string name="lock_update">Door lock upgrade</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="download_version">Version download</string>
+    <string name="device_nodeid">Equipment number:</string>
+    <string name="ready_download">Download preparation</string>
+    <string name="new_dev_version">There are new versions that can be updated</string>
+    <string name="start_update">Start updating</string>
+    <string name="downloading">Downloading</string>
+    <string name="new_version">new version</string>
+    <string name="dialog_load_data">Loading data</string>
+    <string name="friend_tip_title">Reminder</string>
+    <string name="fix_alert">Download completed, click Install</string>
+    <string name="down_alert">Download tips</string>
+    <string name="down_finish">Download complete</string>
+    <string name="net_error">Network anomaly</string>
+    <string name="download_error">Error downloading</string>
+    <string name="update_title">Version Update Tips</string>
+    <string name="update">upgrade</string>
+    <string name="ota_connect_failed">OTA connection failed</string>
+    <string name="ota_connection_success">OTA Connection Successful</string>
+    <string name="ota_connection">Connecting OTA mode</string>
+    <string name="update_version">Updated version:</string>
+    <string name="current_version">Current version:</string>
 </resources>

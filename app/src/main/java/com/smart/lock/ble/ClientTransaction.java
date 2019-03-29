@@ -28,7 +28,6 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
      */
     public ClientTransaction(Message message, int timeout, BleMessageListener agent, BleProvider bleProvider) {
         mMessage = message;
-        Log.d(TAG, "message is " + message.toString());
         mTimeout = timeout;
         listener = agent;
         BleMsgProvider = bleProvider;

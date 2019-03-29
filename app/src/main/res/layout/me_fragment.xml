@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/page_background"
+    android:background="@mipmap/bg"
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
@@ -12,77 +12,64 @@
         android:background="@color/white"
         android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
 
-        <TextView
-            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="@string/me" />
     </android.support.v7.widget.Toolbar>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="120.0dip"
+            android:background="@color/white">
+
+            <ImageView
+                android:id="@+id/me_center_head_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="37.0dip"
+                android:src="@mipmap/head_photo" />
+
+            <TextView
+                android:id="@+id/me_center_head_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/me_center_head_photo"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10.0dip"
+                android:text="没名字"
+                android:textColor="@color/black"
+                android:textSize="18.0dip" />
+
+            <ImageView
+                android:id="@+id/me_edit_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/me_center_head_name"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="37.0dip"
+                android:src="@mipmap/edit" />
+        </RelativeLayout>
+
+        <com.smart.lock.widget.MeDefineView
+            android:id="@+id/mc_manage"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginTop="30dp"/>
 
-            <RelativeLayout
-                android:layout_width="fill_parent"
-                android:layout_height="167.0dip"
-                android:background="@color/lite_blue">
-
-                <ImageView
-                    android:id="@+id/me_center_head_photo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="37.0dip"
-                    android:src="@mipmap/head_photo" />
-
-                <TextView
-                    android:id="@+id/me_center_head_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/me_center_head_photo"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="8.0dip"
-                    android:text="没名字"
-                    android:textColor="#ffffffff"
-                    android:textSize="18.0dip" />
-            </RelativeLayout>
-
-            <com.smart.lock.widget.MeDefineView
-                android:id="@+id/mv_scan_qr"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-
-            <com.smart.lock.widget.MeDefineView
-                android:id="@+id/self_message"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"/>
-
-            <com.smart.lock.widget.MeDefineView
-                android:id="@+id/mc_manage"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-
-            <com.smart.lock.widget.MeDefineView
-                android:id="@+id/sent_repair"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"/>
+        <com.smart.lock.widget.MeDefineView
+            android:id="@+id/about_us"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible" />
 
 
-            <com.smart.lock.widget.MeDefineView
-                android:id="@+id/system_set"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-    </ScrollView>
+        <com.smart.lock.widget.MeDefineView
+            android:id="@+id/system_set"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

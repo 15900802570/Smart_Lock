@@ -51,6 +51,8 @@ public class BleMsg {
     public static final String STR_RSP_SCANED = "com.datang.uart.rsp.SCANED";
 
     public static final String STR_RSP_SECURE_CONNECTION = "com.datang.uart.rsp.SECURE_CONNECTION";
+    public static final String STR_RSP_SECURE_CONNECTION_OTA = "com.datang.uart.rsp.SECURE_CONNECTION_OTA";
+
 
     public static final String STR_RSP_OPEN_TEST = "com.datang.uart.rsp.OPEN_TEST";
 

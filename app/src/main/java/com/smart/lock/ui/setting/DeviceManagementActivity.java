@@ -219,7 +219,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
             LocalBroadcastManager.getInstance(this).registerReceiver(devCheckReceiver, intentFilter());
             mLoadDialog.show();
             closeDialog(10);
-            BleManagerHelper.setSk(mBleMac, mNodeId, mRandCode);
+            BleManagerHelper.setSk(mBleMac, mRandCode);
             BleManagerHelper.getInstance(this, false).connectBle((byte) 1, Short.parseShort(mUserId, 16), getMacAdr(mBleMac));
         }
     }
@@ -271,7 +271,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
             if (defaultDevice != null) mNewDevice.setDeviceDefault(false);
             else mNewDevice.setDeviceDefault(true);
             mNewDevice.setDeviceSn("");
-            mNewDevice.setDeviceName(ConstantUtil.LOCK_DEFAULT_NAME);
+            mNewDevice.setDeviceName(DeviceManagementActivity.this.getResources().getString(R.string.lock_default_name));
             mNewDevice.setDeviceSecret(mRandCode);
             DeviceInfoDao.getInstance(this).insert(mNewDevice);
         }
@@ -301,7 +301,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
             }
-            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)){
+            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
                 mAddNewDevDialog = DialogUtils.createTipsDialog(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
                 mAddNewDevDialog.show();
             }

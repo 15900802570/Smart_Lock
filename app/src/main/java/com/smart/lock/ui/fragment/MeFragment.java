@@ -1,13 +1,20 @@
 
 package com.smart.lock.ui.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,9 +22,11 @@ import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.ui.AboutUsActivity;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MeDefineView;
@@ -31,9 +40,10 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private View mMeView;
     private Toolbar mToolbar;
     private MeDefineView mSystemSetTv;
-    private MeDefineView mScanQrMv;
     private MeDefineView mDevManagementTv;
+    private MeDefineView mAboutUsTv;
     private TextView mNameTv;
+    private ImageView mEditNameIv;
 
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI
@@ -48,18 +58,18 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     public View initView() {
         mMeView = View.inflate(mActivity, R.layout.me_fragment, null);
         mSystemSetTv = mMeView.findViewById(R.id.system_set);
-        mScanQrMv = mMeView.findViewById(R.id.mv_scan_qr);
         mDevManagementTv = mMeView.findViewById(R.id.mc_manage);
+        mAboutUsTv = mMeView.findViewById(R.id.about_us);
         mNameTv = mMeView.findViewById(R.id.me_center_head_name);
+        mEditNameIv = mMeView.findViewById(R.id.me_edit_name);
+
         mDefaultDevice = DeviceInfoDao.getInstance(mMeView.getContext()).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             mDefaultUser = DeviceUserDao.getInstance(mMeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         }
-        Log.d(TAG, "initView");
         initEvent();
         return mMeView;
     }
-
 
     public void initDate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {  //版本检测
@@ -68,18 +78,42 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         mSystemSetTv.setDes(mMeView.getContext().getResources().getString(R.string.system_setting));
-        mScanQrMv.setDes(mMeView.getContext().getResources().getString(R.string.scan_qr));
         mDevManagementTv.setDes(mMeView.getResources().getString(R.string.device_management));
+        mAboutUsTv.setDes(mMeView.getResources().getString(R.string.about_us));
         if (mDefaultUser != null) {
             mNameTv.setText(mDefaultUser.getUserName());
         }
 
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.menu_me, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                searchDev();
+                break;
+            case R.id.action_scan:
+                scanQr();
+                break;
+            default:
+                break;
+
+        }
+        return true;
     }
 
     private void initEvent() {
         mSystemSetTv.setOnClickListener(this);
-        mScanQrMv.setOnClickListener(this);
         mDevManagementTv.setOnClickListener(this);
+        mAboutUsTv.setOnClickListener(this);
+        mEditNameIv.setOnClickListener(this);
     }
 
     @Override
@@ -119,23 +153,44 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.mv_scan_qr:
-                scanQr();
-                break;
             case R.id.mc_manage:
                 Bundle bundle = new Bundle();
                 if (mDefaultDevice != null) {
                     bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                 }
                 startIntent(DeviceManagementActivity.class, bundle);
-                LogUtil.d(TAG, "ERROR");
                 break;
             case R.id.system_set:
                 Intent intent = new Intent(mMeView.getContext(), SystemSettingsActivity.class);
                 this.startActivity(intent);
                 break;
+            case R.id.about_us:
+                Intent aboutIntent = new Intent(mMeView.getContext(), AboutUsActivity.class);
+                this.startActivity(aboutIntent);
+                break;
+            case R.id.me_edit_name:
+                final AlertDialog editDialog = DialogUtils.showEditDialog(mMeView.getContext(), getString(R.string.modify_note_name), mDefaultUser);
+                editDialog.show();
+                if (editDialog != null) {
+                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            mNameTv.setText(DeviceUserDao.getInstance(mMeView.getContext()).queryUser(mDefaultUser.getDevNodeId(), mDefaultUser.getUserId()).getUserName());
+                        }
+                    });
+                }
+                break;
+            default:
+                break;
         }
     }
+
+    private void searchDev() {
+//        Bundle bundle = new Bundle();
+
+        startIntent(LockDetectingActivity.class, null);
+    }
+
 
     @Override
     public void onResume() {

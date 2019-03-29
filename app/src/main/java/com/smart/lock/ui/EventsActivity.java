@@ -78,7 +78,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     private void initData() {
         mDeleteBtn.setTag(R.mipmap.b_log_recents_delete);
         mDeleteBtn.setVisibility(View.VISIBLE);
-        mBack.setVisibility(View.GONE);
+        mBack.setVisibility(View.VISIBLE);
         mSyncTv.setVisibility(View.GONE);
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();

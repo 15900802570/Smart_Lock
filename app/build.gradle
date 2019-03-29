@@ -12,11 +12,22 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+    sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/'] } }
 }
+
 
 allprojects {
     repositories {
@@ -48,10 +59,18 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation files('libs/ormlite-android-5.1.jar')
-    implementation files('libs/ormlite-core-5.1.jar')
-    implementation files('libs/bcprov-jdk16-1.46.jar')
     implementation 'com.github.yuzhiqiang1993:zxing:2.1.8'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
     implementation 'com.android.support:design:27.1.1-alphal'
+    implementation files('libs/httpclient-4.5.2.jar')
+    implementation files('libs/httpcore-4.4.4.jar')
+    implementation files('libs/httpmime-4.5.2.jar')
+    implementation files('libs/jackson-annotations-2.5.4.jar')
+    implementation files('libs/jackson-core-2.5.4.jar')
+    implementation files('libs/jackson-databind-2.5.4.jar')
+    implementation files('libs/json-lib-2.4-jdk15.jar')
+    implementation files('libs/gson-2.8.5.jar')
+    implementation files('libs/ormlite-android-5.1.jar')
+    implementation files('libs/ormlite-core-5.1.jar')
+    implementation files('libs/bcprov-jdk16-1.46.jar')
 }

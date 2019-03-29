@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelUuid;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -197,6 +198,7 @@ public class BleManagerHelper {
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
             LogUtil.d(TAG, "ble mac = " + device.getAddress());
             LogUtil.d(TAG, "dev mac = " + mBleMac);
+
             if (device.getAddress().equals(mBleMac)) {
                 LogUtil.d(TAG, "dev rssi = " + rssi);
                 mBtAdapter.stopLeScan(mLeScanCallback);
@@ -213,35 +215,33 @@ public class BleManagerHelper {
     /**
      * 设置秘钥
      */
-    public static void setSk(String sBleMac, String sNodeId, String sDevSecret) {
+    public static void setSk(String sBleMac, String sDevSecret) {
         String mac = sBleMac.replace(":", "");
 
         byte[] macByte = StringUtil.hexStringToBytes(mac);
 
-        String defaultNodeId = sNodeId;
-        LogUtil.d(TAG, "defaultNodeId = " + defaultNodeId);
-
-        byte[] nodeId = StringUtil.hexStringToBytes(defaultNodeId);
-
-        StringUtil.exchange(nodeId);
-
-        LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
-        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
-
-        System.arraycopy(nodeId, 0, MessageCreator.mSK, 0, 8); //写入IMEI
-
-        System.arraycopy(macByte, 0, MessageCreator.mSK, 8, 6); //写入MAC
-
-        byte[] code = new byte[18];
-        String secretCode = sDevSecret;
-        if (secretCode == null || secretCode.equals("0")) {
-            Arrays.fill(MessageCreator.mSK, 14, 32, (byte) 0);
+        if (MessageCreator.mIs128Code) {
+            System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
+            byte[] code = new byte[10];
+            if (sDevSecret == null || sDevSecret.equals("0")) {
+                Arrays.fill(MessageCreator.m128SK, 6, 16, (byte) 0);
+            } else {
+                code = StringUtil.hexStringToBytes(sDevSecret);
+                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
+            }
+            LogUtil.d(TAG, "m128SK = " + Arrays.toString(MessageCreator.m128SK));
         } else {
-            code = StringUtil.hexStringToBytes(secretCode);
-            System.arraycopy(code, 0, MessageCreator.mSK, 14, 18); //写入secretCode
+            System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
+            byte[] code = new byte[10];
+            if (sDevSecret == null || sDevSecret.equals("0")) {
+                Arrays.fill(MessageCreator.m256SK, 6, 16, (byte) 0);
+            } else {
+                code = StringUtil.hexStringToBytes(sDevSecret);
+                System.arraycopy(code, 0, MessageCreator.m256SK, 6, 10); //写入secretCode
+                Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
+            }
+            LogUtil.d(TAG, "m256AK = " + Arrays.toString(MessageCreator.m256SK));
         }
-
-        LogUtil.d(TAG, "sk = " + Arrays.toString(MessageCreator.mSK));
 
     }
 
@@ -343,7 +343,8 @@ public class BleManagerHelper {
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                 Log.d(TAG, "UART_DISCONNECT_MSG");
                 mState = UART_PROFILE_DISCONNECTED;
-                MessageCreator.mAK = null;
+                MessageCreator.m128AK = null;
+                MessageCreator.m256AK = null;
                 mService.disconnect();
                 mService.close();
                 mScanning = false;
@@ -351,22 +352,15 @@ public class BleManagerHelper {
                 mOtaMode = mTempMode ? 1 : 0;
                 mConnectType = 0;
                 mUserId = 0;
-//                startScanDevice();
+                if (mOtaMode == 1) {
+                    startScanDevice();
+                }
+//
             }
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
                 if (mService != null) {
                     Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
-                    for (BluetoothGattService gattService : mService.getSupportedGattServices()) {
-                        HashMap<String, String> currentServiceData = new HashMap<String, String>();
-
-                        // 取得当前service的uuid；
-                        String uuid = gattService.getUuid().toString();
-                        Log.d(TAG, "uuid = " + uuid);
-                        List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-
-                    }
-
                     if (mOtaMode == 0) {
                         mService.enableTXNotification();
                         new Handler().postDelayed(new Runnable() {
@@ -379,7 +373,7 @@ public class BleManagerHelper {
                     } else {
                         Intent result = new Intent();
                         result.putExtra(BleMsg.KEY_AK, (byte[]) null);
-                        result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION);
+                        result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION_OTA);
                         LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
                     }
                 }
@@ -396,9 +390,9 @@ public class BleManagerHelper {
             // 4.2.3 MSG 03
             if (action.equals(BleMsg.EXTRA_DATA_MSG_02)) {
                 final byte[] random = intent.getByteArrayExtra(BleMsg.KEY_RANDOM);
-                MessageCreator.mAK = intent.getByteArrayExtra(BleMsg.KEY_AK);
-                if (random != null && random.length != 0 && MessageCreator.mAK != null && MessageCreator.mAK.length != 0) {
-                    mService.sendCmd03(random, MessageCreator.mAK);
+
+                if (random != null && random.length != 0) {
+                    mService.sendCmd03(random);
                 } else {
                     showMessage(mContext.getResources().getString(R.string.bt_connect_failed));
                 }
@@ -451,7 +445,7 @@ public class BleManagerHelper {
      * @return 会话秘钥
      */
     public byte[] getAK() {
-        return MessageCreator.mAK;
+        return MessageCreator.mIs128Code == true ? MessageCreator.m128AK : MessageCreator.m256AK;
     }
 
     /**

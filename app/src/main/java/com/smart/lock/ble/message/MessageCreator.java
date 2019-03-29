@@ -35,7 +35,9 @@ public class MessageCreator {
             0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F
     };
 
-    public static byte mSK[] = new byte[32];
+    public static byte m256SK[] = new byte[32];
+
+    public static byte m128SK[] = new byte[16];
 
     /**
      * 账号密码随机数，调试写死
@@ -46,27 +48,29 @@ public class MessageCreator {
             '6'
     };
 
+    public static boolean mIs128Code = false; //fales 256
+
     /**
-     * 会话秘钥
+     * 256会话秘钥
      */
-    public static byte mAK[] = new byte[32];
+    public static byte m256AK[] = new byte[32];
+
+    /**
+     * 128会话秘钥
+     */
+    public static byte m128AK[] = new byte[16];
 
     /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_02
      *
      * @param type   消息类型
-     * @param ak     会话秘钥
      * @param random 设备回复的随机数
      * @return
      */
-    public static Message getCmd02Message(byte type, byte[] ak, byte[] random) {
+    public static Message getCmd02Message(byte type, byte[] random) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-
-        if (ak != null && ak.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_AK, ak);
-        }
 
         if (random != null && random.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_RANDOM, random);

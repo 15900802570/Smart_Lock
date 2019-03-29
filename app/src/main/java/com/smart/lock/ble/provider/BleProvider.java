@@ -443,7 +443,7 @@ public class BleProvider {
                         // 如果是事务ble下发，启动ble事务
                         if (transaction != null) {
                             addBleMsgListener(transaction, msg.getData().getSerializable(BleMsg.KEY_SERIALIZABLE));
-                            transaction.startWatch();
+//                            transaction.startWatch();
                             Log.i(TAG, "Transaction start : " + transaction.getListenerKey());
                         } else {
                             // 消息回收

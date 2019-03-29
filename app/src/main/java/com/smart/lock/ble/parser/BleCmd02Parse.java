@@ -4,6 +4,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 
@@ -11,6 +12,8 @@ import java.util.Arrays;
  * 是智能锁对MSG01消息的响应
  */
 public class BleCmd02Parse implements BleCommandParse {
+
+    private static final String TAG = BleCmd02Parse.class.getSimpleName();
 
     @Override
     public String getTag() {
@@ -27,7 +30,10 @@ public class BleCmd02Parse implements BleCommandParse {
         byte[] buf = new byte[64];
 
         try {
-            AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.mSK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128SK);
+            else
+                AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256SK);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -36,24 +42,38 @@ public class BleCmd02Parse implements BleCommandParse {
         System.arraycopy(buf, 0, random, 0, 16);
 
         try {
-            AES_ECB_PKCS7.AES256Decode(random, random, MessageCreator.mSK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Decode(random, random, MessageCreator.m128SK);
+            else
+                AES_ECB_PKCS7.AES256Decode(random, random, MessageCreator.m256SK);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        byte[] akbuf = new byte[32];
-
         byte[] respRandom = new byte[16];
-
+        LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
+        LogUtil.d(TAG, "random = " + Arrays.toString(random));
+        LogUtil.d(TAG, "pwdRandom = " + Arrays.toString(MessageCreator.pwdRandom));
         if (memcmp(random, MessageCreator.pwdRandom, 16)) {
 
             System.arraycopy(buf, 16, respRandom, 0, 16);
-            System.arraycopy(buf, 32, akbuf, 0, 32);
+            if (MessageCreator.mIs128Code) {
+                if (MessageCreator.m128AK == null) {
+                    MessageCreator.m128AK = new byte[16];
+                }
+                System.arraycopy(buf, 32, MessageCreator.m128AK, 0, 16);
+            } else {
+                if (MessageCreator.m256AK == null) {
+                    MessageCreator.m256AK = new byte[32];
+                }
+                System.arraycopy(buf, 32, MessageCreator.m256AK, 0, 32);
+            }
+
 
         } else
             throw new RuntimeException("Random memcmp error !");
 
-        return MessageCreator.getCmd02Message(getParseKey(), akbuf, respRandom);
+        return MessageCreator.getCmd02Message(getParseKey(), respRandom);
     }
 
     @Override

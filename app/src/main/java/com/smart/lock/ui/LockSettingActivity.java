@@ -1,12 +1,21 @@
 package com.smart.lock.ui;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -66,6 +75,11 @@ public class LockSettingActivity extends AppCompatActivity {
 
     private boolean mIsConnected = true; //蓝牙连接状态
 
+    private String[] mPermission = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+    private int REQUESTCODE = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,6 +375,23 @@ public class LockSettingActivity extends AppCompatActivity {
                 case R.id.next_version_info:        //查看版本信息
                     mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
                     break;
+                case R.id.next_ota_update:
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        if (mDefaultDevice != null && mBleManagerHelper.getServiceConnection()) {
+                            Intent intent = new Intent(this, OtaUpdateActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                            intent.putExtras(bundle);
+                            startActivity(intent);
+                        } else
+                            Toast.makeText(this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+                    } else {
+                        ActivityCompat.requestPermissions(this, mPermission, REQUESTCODE);
+                    }//ota命令
+
+
+                    break;
                 case R.id.next_factory_reset:
                     mWarningDialog = DialogUtils.createWarningDialog(this, getResources().getString(R.string.restore_warning));
                     mWarningDialog.show();
@@ -472,6 +503,41 @@ public class LockSettingActivity extends AppCompatActivity {
             ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
         }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUESTCODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    askForPermission();
+                }
+            }
+
+        }
+
+    }
+
+    private void askForPermission() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Need Permission!");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName())); // 根据包名打开对应的设置界面
+                startActivity(intent);
+            }
+        });
+        builder.create().show();
     }
 
 }

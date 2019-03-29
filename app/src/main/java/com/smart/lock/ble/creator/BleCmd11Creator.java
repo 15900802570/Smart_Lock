@@ -53,9 +53,12 @@ public class BleCmd11Creator implements BleCreator {
         System.arraycopy(userIdBuf, 0, cmdBuf, 1, 2);
 
         Arrays.fill(cmdBuf, 3, 16, (byte) 13);
-        LogUtil.d(TAG,"cmdBuf = "+Arrays.toString(cmdBuf));
+        LogUtil.d(TAG, "cmdBuf = " + Arrays.toString(cmdBuf));
         try {
-            AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.mAK);
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(cmdBuf, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Encode(cmdBuf, buf, MessageCreator.m256AK);
         } catch (Exception e) {
             e.printStackTrace();
         }
