@@ -1,5 +1,6 @@
 package com.smart.lock.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -28,6 +29,7 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -46,9 +48,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
     private static String TAG = "TempPwdActivity";
 
-    private DeviceInfo mDefaultDevice;
-    private TempPwd mTempPwd;
-
     private TempPwdAdapter mTempPwdAdapter;
     private String mNodeId;
     private String mMac;
@@ -56,7 +55,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private static final List<String> mList = new ArrayList<>(
             Arrays.asList("01", "02", "03", "04"));
     private List<String> mSecretList = new ArrayList<>();
-    private int mCurTime;
 
     private RecyclerView mTempPwdListViewRv;
 
@@ -73,7 +71,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     }
 
     private void initData() {
-        mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+        DeviceInfo mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mMac = mDefaultDevice.getBleMac().replace(":", "");
         String tempSecret = mDefaultDevice.getTempSecret();
@@ -103,7 +101,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                 if (createTempPwd()) {
                     saveTempPwd();
                 }
-
                 break;
             default:
                 break;
@@ -116,33 +113,38 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      * @return bool 是否创建成功
      */
     private boolean createTempPwd() {
-        byte[] lKey;
-        mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
-        byte[] mNodeIdBytes = StringUtil.hexStringToBytes(mNodeId);
-        StringUtil.exchange(mNodeIdBytes);
-        lKey = StringUtil.byteMerger(mNodeIdBytes,
-                StringUtil.hexStringToBytes(mMac +
-                        mList.get(new Random().nextInt(4)) +  //随机序列
-                        "0000000000000000000000000000000000"));     //17字节补码
-
-        LogUtil.d(TAG, "mCurTime=" + mCurTime + '\'' + System.currentTimeMillis());
-        LogUtil.d(TAG, "NodeId=" + mNodeId + '\\' +
-                "                        mMac=" + mMac);
-        LogUtil.d(TAG, "CurrentTimeHEX=" + intToHex(mCurTime));
-        LogUtil.d(TAG, "Key=" + byteArrayToHexString(lKey));
-
-        if (lKey.length == 32) {
-            mSecret = StringUtil.getCRC32(AES256Encode(
-                    intToHex(mCurTime) + "000000000000000000000000",
-                    StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
-            showPwdDialog(String.valueOf(mSecret));
-            LogUtil.d(TAG, "mSecret=" + mSecret);
-            return true;
-        } else {
-            LogUtil.d(TAG, "mKey=" + StringUtil.bytesToHexString(lKey) + "   " + lKey.length);
+        TempPwd tempPwd = TempPwdDao.getInstance(this).queryMaxCreateTime();
+        if(System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime()) <= 0){
+            ToastUtil.showShort(this,R.string.not_regenerate_temp_pwd);
             return false;
-        }
+        }else {
+            byte[] lKey;
+            int mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
+            byte[] mNodeIdBytes = StringUtil.hexStringToBytes(mNodeId);
+            StringUtil.exchange(mNodeIdBytes);
+            lKey = StringUtil.byteMerger(mNodeIdBytes,
+                    StringUtil.hexStringToBytes(mMac +
+                            mList.get(new Random().nextInt(4)) +  //随机序列
+                            "0000000000000000000000000000000000"));     //17字节补码
 
+            LogUtil.d(TAG, "mCurTime=" + mCurTime + '\'' + System.currentTimeMillis());
+            LogUtil.d(TAG, "NodeId=" + mNodeId + '\\' +
+                    "                        mMac=" + mMac);
+            LogUtil.d(TAG, "CurrentTimeHEX=" + intToHex(mCurTime));
+            LogUtil.d(TAG, "Key=" + byteArrayToHexString(lKey));
+
+            if (lKey.length == 32) {
+                mSecret = StringUtil.getCRC32(AES256Encode(
+                        intToHex(mCurTime) + "000000000000000000000000",
+                        StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
+                showPwdDialog(String.valueOf(mSecret));
+                LogUtil.d(TAG, "mSecret=" + mSecret);
+                return true;
+            } else {
+                LogUtil.d(TAG, "mKey=" + StringUtil.bytesToHexString(lKey) + "   " + lKey.length);
+                return false;
+            }
+        }
     }
 
     /**
@@ -188,8 +190,8 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      */
     private String byteArrayToHexString(byte[] data) {
         StringBuilder sBuilder = new StringBuilder();
-        for (int i = 0; i < data.length; i++) {
-            String str1 = Integer.toHexString(data[i] & 0xFF);
+        for (byte aData : data) {
+            String str1 = Integer.toHexString(aData & 0xFF);
             sBuilder.append(str1);
         }
         return sBuilder.toString();
@@ -203,18 +205,18 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      */
     private String intToHex(int n) {
         StringBuffer s = new StringBuffer();
-        String a = "";
+        StringBuilder a = new StringBuilder();
         char[] b = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
         while (n != 0) {
             s = s.append(b[n % 16]);
             n = n / 16;
             if (s.length() % 2 == 0) {
                 s.reverse();
-                a += s.toString();
+                a.append(s.toString());
                 s = new StringBuffer();
             }
         }
-        return a;
+        return a.toString();
     }
 
     /**
@@ -222,15 +224,14 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      *
      * @param stringToEncode 输入加密信息
      * @param secretKey      byte[] 加密Secret
-     * @return
+     * @return byte[]
      */
     private byte[] AES256Encode(String stringToEncode, byte[] secretKey) {
         try {
             SecretKeySpec keySpec = new SecretKeySpec(secretKey, "AES256");
-            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+            @SuppressLint("GetInstance") Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-            byte[] result = cipher.doFinal(toByteArray(stringToEncode));
-            return result;
+            return cipher.doFinal(toByteArray(stringToEncode));
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -297,7 +298,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
         @NonNull
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_temp_pwd,
                     parent,
                     false);
@@ -308,7 +309,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         }
 
         @Override
-        public void onBindViewHolder(@NonNull MyViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(@NonNull MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final TempPwd tempPwdInfo = mTempPwdList.get(position);
             long failureTime;
             if (tempPwdInfo != null) {

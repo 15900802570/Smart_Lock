@@ -237,4 +237,6 @@
     <string name="rejected_permission">You rejected the permission application</string>
     <string name="disconnect_ble">Ble disconnection</string>
     <string name="ble_disconnect">Bluetooth is disconnected, please reconnect.</string>
+    <string name="not_regenerate_temp_pwd">There is a temporary password. Do not regenerate it.</string>
+    <string name="dev_default">Default</string>
 </resources>

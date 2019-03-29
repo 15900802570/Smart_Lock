@@ -8,7 +8,7 @@
         android:id="@+id/rv_key"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/listview_bg_grey"
+        android:background="@color/list_view_bg_grey"
         android:divider="@null"
         android:scrollbarSize="10dp"
         android:scrollbarStyle="insideOverlay"

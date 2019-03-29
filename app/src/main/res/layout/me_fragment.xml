@@ -30,30 +30,57 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_height="167.0dip"
-                android:background="@color/lite_blue">
+                android:layout_height="150dp"
+                android:gravity="center"
+                android:layout_marginBottom="20dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                android:background="@color/white">
 
-                <ImageView
+                <com.smart.lock.widget.CircleImageView
                     android:id="@+id/me_center_head_photo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="37.0dip"
-                    android:src="@mipmap/head_photo" />
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:adjustViewBounds="true"
+                    android:layout_weight="1"
+                    android:scaleType="center"
+                    android:src="@mipmap/cat"/>
 
-                <TextView
-                    android:id="@+id/me_center_head_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/me_center_head_photo"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="8.0dip"
-                    android:text="没名字"
-                    android:textColor="#ffffffff"
-                    android:textSize="18.0dip" />
-            </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="9"
+                    android:paddingLeft="30dp"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:id="@+id/me_center_head_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="张三"
+                        android:textSize="24.0sp" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingTop="25dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="13560312766"
+                            android:textSize="18.0sp" />
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:src="@drawable/ic_next_activity"/>
+                    </RelativeLayout>
+                </LinearLayout>
+
+
+            </LinearLayout>
 
             <com.smart.lock.widget.MeDefineView
                 android:id="@+id/mv_scan_qr"

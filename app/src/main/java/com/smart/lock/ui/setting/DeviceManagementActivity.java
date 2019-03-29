@@ -1,5 +1,6 @@
 package com.smart.lock.ui.setting;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,13 +30,11 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.BaseListViewActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -412,25 +411,26 @@ public class DeviceManagementActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(MyViewHolder myViewHolder, final int position) {
+        public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, @SuppressLint("RecyclerView") final int position) {
             final DeviceInfo deviceInfo = mDevList.get(position);
             if (deviceInfo != null) {
                 try {
-                    myViewHolder.mLockName.setText(deviceInfo.getDeviceName());
-                    myViewHolder.mLockUnm.setText(String.valueOf(deviceInfo.getBleMac()));
+                    myViewHolder.mLockNameTv.setText(deviceInfo.getDeviceName());
+                    myViewHolder.mLockNumTv.setText(String.valueOf(deviceInfo.getBleMac()));
                 } catch (NullPointerException e) {
                     LogUtil.d(TAG, deviceInfo.getDeviceName() + "  " + deviceInfo.getDeviceIndex());
                 }
                 if (deviceInfo.getDeviceDefault()) {
-                    myViewHolder.mDefaultFlag.setImageResource(R.drawable.ic_dev_management_square_full);
+                    myViewHolder.mDefaultFlagIv.setImageResource(R.drawable.ic_selected);
+                    myViewHolder.mDefaultTv.setVisibility(View.VISIBLE);
                     mDefaultInfo = deviceInfo;
                     mDefaultPosition = position;
-                    myViewHolder.mSetDefault.setVisibility(View.GONE);
                 } else {
-                    myViewHolder.mDefaultFlag.setImageResource(R.drawable.ic_dev_management_square_null);
+                    myViewHolder.mDefaultFlagIv.setImageResource(R.drawable.ic_select);
+                    myViewHolder.mDefaultTv.setVisibility(View.INVISIBLE);
                 }
 
-                myViewHolder.mSetDefault.setOnClickListener(new View.OnClickListener() {
+                myViewHolder.mSetDefaultLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mDefaultInfo.setDeviceDefault(false);
@@ -442,7 +442,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
                         LogUtil.d(TAG, "设置为默认设备");
                     }
                 });
-                myViewHolder.mUnbind.setOnClickListener(new View.OnClickListener() {
+                myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -472,22 +472,23 @@ public class DeviceManagementActivity extends AppCompatActivity {
 
         class MyViewHolder extends RecyclerView.ViewHolder {
             SwipeLayout mSwipeLayout;
-            private TextView mLockName;
-            private TextView mLockUnm;
-            private ImageView mDefaultFlag;
+            private TextView mLockNameTv;
+            private TextView mLockNumTv;
+            private TextView mDefaultTv;
+            private ImageView mDefaultFlagIv;
+            private LinearLayout mSetDefaultLl;
 
-            private LinearLayout mSetDefault;
-            private LinearLayout mUnbind;
+            private LinearLayout mUnbindLl;
 
             private MyViewHolder(View itemView) {
                 super(itemView);
                 mSwipeLayout = (SwipeLayout) itemView;
-                mLockName = itemView.findViewById(R.id.tv_dev_management_dev_name);
-                mLockUnm = itemView.findViewById(R.id.tv_dev_management_dev_num);
-                mDefaultFlag = itemView.findViewById(R.id.iv_dev_management_default_flag);
-
-                mSetDefault = itemView.findViewById(R.id.ll_set_default);
-                mUnbind = itemView.findViewById(R.id.ll_unbind);
+                mLockNameTv = itemView.findViewById(R.id.tv_dev_management_dev_name);
+                mLockNumTv = itemView.findViewById(R.id.tv_dev_management_dev_num);
+                mDefaultTv = itemView.findViewById(R.id.tv_dev_management_default);
+                mDefaultFlagIv = itemView.findViewById(R.id.iv_dev_management_default_flag);
+                mSetDefaultLl = itemView.findViewById(R.id.ll_dev_management_set_default);
+                mUnbindLl = itemView.findViewById(R.id.ll_unbind);
             }
         }
     }
@@ -495,7 +496,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
     /**
      * 超时提醒
      *
-     * @param seconds
+     * @param seconds 时间
      */
     private void closeDialog(final int seconds) {
 

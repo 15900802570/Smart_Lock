@@ -1,7 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_color"
+    android:background="@color/white"
     android:gravity="center">
     <!-- 提示信息 -->
     <TextView
@@ -12,7 +12,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
         android:text="@string/please_input_pwd"
-        android:textColor="@android:color/white"
         android:textSize="18sp" />
     <!-- 密码显示框 -->
     <LinearLayout
@@ -62,13 +61,13 @@
         <!-- 删除按钮 -->
         <TextView
             android:id="@+id/tv_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="70dp"
+            android:layout_height="50dp"
+            android:gravity="center"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:onClick="doClick"
             android:text="@string/delete"
-            android:textColor="@android:color/white"
             android:textSize="18sp"
             android:visibility="gone" />
     </RelativeLayout>

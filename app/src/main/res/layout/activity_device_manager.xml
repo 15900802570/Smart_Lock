@@ -51,7 +51,7 @@
                 android:id="@+id/dev_management_list_view"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:background="@color/listview_bg_grey"
+                android:background="@color/list_view_bg_grey"
                 android:layoutAnimation="@anim/layout_animation_fall_down"
                 android:divider="@null"
                 android:paddingTop="5.0dip"

@@ -239,4 +239,6 @@
 
     <string name="disconnect_ble">连接已断开</string>
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
+    <string name="not_regenerate_temp_pwd">已有临时密码，请勿重新生成.</string>
+    <string name="dev_default">默认</string>
 </resources>

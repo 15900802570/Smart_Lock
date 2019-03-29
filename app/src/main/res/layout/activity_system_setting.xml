@@ -37,29 +37,42 @@
         android:layout_width="fill_parent"
         android:layout_height="0.5dip"
         android:background="@color/line" />
-    <com.smart.lock.widget.NextActivityDefineView
-        android:id="@+id/system_set_modify_pwd"
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:onClick="onClick"/>
+        android:layout_height="wrap_content">
 
-    <com.smart.lock.widget.ToggleSwitchDefineView
-        android:id="@+id/system_set_switch_password"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp">
 
-    <com.smart.lock.widget.ToggleSwitchDefineView
-        android:id="@+id/system_set_switch_fingerprint"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"/>
+            <com.smart.lock.widget.NextActivityDefineView
+                android:id="@+id/system_set_modify_pwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"
+                android:visibility="gone" />
 
-    <com.smart.lock.widget.ToggleSwitchDefineView
-        android:id="@+id/tw_open_test"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"/>
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/system_set_switch_password"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick" />
+
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/system_set_switch_fingerprint"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick" />
+
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/tw_open_test"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick" />
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

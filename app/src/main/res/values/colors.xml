@@ -132,7 +132,7 @@
     <color name="window_background">#00000000</color>
     <color name="yellow">#fff6d94f</color>
     <color name="small_title_bule">#041428</color>
-    <color name="listview_bg_grey">#fff5f5f5</color>
+    <color name="list_view_bg_grey">#fff5f5f5</color>
     <color name="color_text_alpha">#885f646e</color>
     <color name="color_bg">#fff7f8fa</color>
     <color name="colorBlue">#ff35baff</color>
@@ -145,4 +145,6 @@
     <color name="colorRedSelected">#cce64340</color>
     <color name="color_edit">#fff1f3f5</color>
     <color name="black_overlay">#66000000</color>
+    <color name="blue_key">#FF63AEFF</color>
+    <color name="setting_bg">#FFEEEEEE</color>
 </resources>
