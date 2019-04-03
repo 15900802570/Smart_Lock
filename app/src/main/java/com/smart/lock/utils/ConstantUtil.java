@@ -3,8 +3,8 @@ package com.smart.lock.utils;
 public class ConstantUtil {
 
     public static String BASE_URL = "https://api.dttsh.cn";
-    public static final String CHECK_VERSION = BASE_URL + "/api/v1.0/version/update";
-
+    public static final String CHECK_FIRMWARE_VERSION = BASE_URL + "/api/v1.0/firmware/update";
+    public static final String CHECK_APP_VERSION = BASE_URL + "/api/v1.0/application/update";
     /**
      * 是否开启密码验证
      */
@@ -153,7 +153,7 @@ public class ConstantUtil {
      */
     public static final byte USER_REMOTE = 0x02;
 
-    public static final String APPLICATION = "application";
+    public static final String APPLICATION = "apk";
     public static final String BIN_EXTENSION = "bin";
 
     public interface ParamName {

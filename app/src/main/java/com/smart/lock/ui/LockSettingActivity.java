@@ -18,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,12 +36,15 @@ import com.smart.lock.db.dao.TempPwdDao;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.ToggleSwitchDefineView;
 import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
+
+import java.util.Arrays;
 
 public class LockSettingActivity extends AppCompatActivity {
 
@@ -75,6 +79,8 @@ public class LockSettingActivity extends AppCompatActivity {
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
     private int REQUESTCODE = 0;
+
+    private boolean mVisibility = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +129,7 @@ public class LockSettingActivity extends AppCompatActivity {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
             mBleManagerHelper = BleManagerHelper.getInstance(this, false);
-            LocalBroadcastManager.getInstance(this).registerReceiver(LockSettingReceiver, intentFilter());
+            LocalBroadcastManager.getInstance(this).registerReceiver(lockSettingReceiver, intentFilter());
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -206,19 +212,34 @@ public class LockSettingActivity extends AppCompatActivity {
         return intentFilter;
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mVisibility = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mVisibility = false;
+    }
+
     /**
      * 广播接收
      */
-    private final BroadcastReceiver LockSettingReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver lockSettingReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (action != null) {
                 // 4.2.3 MSG 1C
                 if (action.equals(BleMsg.STR_RSP_MSG1C_VERSION)) {
-                    String sn = StringUtil.AsciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_NODE_SN));
-                    String swVer = StringUtil.AsciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_SW_VER));
-                    String hwVer = StringUtil.AsciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_HW_VER));
+                    if (!mVisibility) {
+                        return;
+                    }
+                    String sn = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_NODE_SN));
+                    String swVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_SW_VER));
+                    String hwVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_HW_VER));
                     LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
                             "HW VERSION = " + hwVer + '\n' +
                             "SN = " + sn);
@@ -374,6 +395,11 @@ public class LockSettingActivity extends AppCompatActivity {
                 case R.id.next_ota_update:
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        if (!SystemUtils.isNetworkAvailable(this)) {
+                            ToastUtil.show(this, getString(R.string.plz_open_wifi), Toast.LENGTH_LONG);
+                            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                            return;
+                        }
                         if (mDefaultDevice != null && mBleManagerHelper.getServiceConnection()) {
                             Intent intent = new Intent(this, OtaUpdateActivity.class);
                             Bundle bundle = new Bundle();
@@ -385,8 +411,6 @@ public class LockSettingActivity extends AppCompatActivity {
                     } else {
                         ActivityCompat.requestPermissions(this, mPermission, REQUESTCODE);
                     }//ota命令
-
-
                     break;
                 case R.id.next_factory_reset:
                     mWarningDialog = DialogUtils.createWarningDialog(this, getResources().getString(R.string.restore_warning));
@@ -536,4 +560,9 @@ public class LockSettingActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+    @Override
+    protected void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(lockSettingReceiver);
+        super.onDestroy();
+    }
 }

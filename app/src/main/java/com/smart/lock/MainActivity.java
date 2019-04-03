@@ -6,26 +6,19 @@ import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 
 import com.smart.lock.ble.BleManagerHelper;
-import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.HomeFragment;
 import com.smart.lock.ui.fragment.MeFragment;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.NoScrollViewPager;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
-import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.ArrayList;
 import java.util.List;

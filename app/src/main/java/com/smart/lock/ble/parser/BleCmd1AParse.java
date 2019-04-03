@@ -2,7 +2,6 @@
 package com.smart.lock.ble.parser;
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
-import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 

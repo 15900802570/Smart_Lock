@@ -1,5 +1,5 @@
 
-package com.smart.dt.util;
+package com.smart.lock.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

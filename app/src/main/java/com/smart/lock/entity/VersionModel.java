@@ -1,5 +1,5 @@
 
-package com.smart.lock.model;
+package com.smart.lock.entity;
 
 /**
  */

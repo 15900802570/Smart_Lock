@@ -1,5 +1,5 @@
 
-package com.smart.lock.utils;
+package com.smart.lock.widget;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -15,9 +15,10 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.smart.lock.R;
+import com.smart.lock.utils.SystemUtils;
 
 
-public class DownLoadDialog extends Dialog {
+public class BaseDialog extends Dialog {
     /** 不显示按钮 */
     public static final int DIALOG_NO_BUTTON_VISIBLE = 0;
     /** 显示一个确定和一个取消的按钮 */
@@ -59,7 +60,7 @@ public class DownLoadDialog extends Dialog {
 
     private int visibleFlag;
 
-    public DownLoadDialog(Context context) {
+    public BaseDialog(Context context) {
         super(context, R.style.AppDialog);
         mContext = context;
     }
@@ -110,7 +111,7 @@ public class DownLoadDialog extends Dialog {
      * 
      */
     private void setButtonVisible() {
-        int ps = SystemUtil.dipToPx(mContext, 10);
+        int ps = SystemUtils.dipToPx(mContext, 10);
         switch (visibleFlag) {
             case DIALOG_NO_BUTTON_VISIBLE:
                 btOk.setVisibility(View.GONE);
@@ -133,18 +134,18 @@ public class DownLoadDialog extends Dialog {
 
                 LayoutParams btOkLin = new LayoutParams(
                         LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-                btOkLin.setMargins(ps, ps, SystemUtil.dipToPx(mContext, 3), ps);
+                btOkLin.setMargins(ps, ps, SystemUtils.dipToPx(mContext, 3), ps);
                 btOk.setLayoutParams(btOkLin);
 
                 LayoutParams btNoLin = new LayoutParams(
                         LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-                btNoLin.setMargins(SystemUtil.dipToPx(mContext, 3), ps, ps, ps);
+                btNoLin.setMargins(SystemUtils.dipToPx(mContext, 3), ps, ps, ps);
                 btNo.setLayoutParams(btNoLin);
                 break;
         }
     }
 
-    public DownLoadDialog setButtonVisible(int visibleFlag) {
+    public BaseDialog setButtonVisible(int visibleFlag) {
         this.visibleFlag = visibleFlag;
         handler.sendEmptyMessage(UPDATE_BUTTON_VISIBLE);
         return this;
@@ -153,31 +154,31 @@ public class DownLoadDialog extends Dialog {
     /**
      * 返回键设置
      */
-    public DownLoadDialog setYishuaCancelable(boolean flag) {
+    public BaseDialog setYishuaCancelable(boolean flag) {
         backKey = flag;
         handler.sendEmptyMessage(UPDATE_BACK_KEY);
         return this;
     }
 
-    public DownLoadDialog setIcon(int iconImg) {
+    public BaseDialog setIcon(int iconImg) {
         this.iconImg = iconImg;
         handler.sendEmptyMessage(UPDATE_ICON);
         return this;
     }
 
-    public DownLoadDialog setMessage(CharSequence msgText) {
+    public BaseDialog setMessage(CharSequence msgText) {
         this.msgText = msgText.toString();
         handler.sendEmptyMessage(UPDATE_MSG);
         return this;
     }
 
-    public DownLoadDialog setMessage(int msgText) {
+    public BaseDialog setMessage(int msgText) {
         this.msgText = mContext.getString(msgText);
         handler.sendEmptyMessage(UPDATE_MSG);
         return this;
     }
 
-    public DownLoadDialog setNoButtonText(String notext) {
+    public BaseDialog setNoButtonText(String notext) {
         this.notext = notext;
         handler.sendEmptyMessage(UPDATE_BT_NO);
         return this;
@@ -189,7 +190,7 @@ public class DownLoadDialog extends Dialog {
      * @param click
      * @return
      */
-    public DownLoadDialog setNoClick(View.OnClickListener click) {
+    public BaseDialog setNoClick(View.OnClickListener click) {
         if (this.noClick != null)
         {
             this.noClick = null;
@@ -198,7 +199,7 @@ public class DownLoadDialog extends Dialog {
         return this;
     }
 
-    public DownLoadDialog setOkButtonText(String okText) {
+    public BaseDialog setOkButtonText(String okText) {
         this.okText = okText;
         handler.sendEmptyMessage(UPDATE_BT_OK);
         return this;
@@ -210,7 +211,7 @@ public class DownLoadDialog extends Dialog {
      * @param click
      * @return
      */
-    public DownLoadDialog setOkClick(View.OnClickListener click) {
+    public BaseDialog setOkClick(View.OnClickListener click) {
         if (this.okclick != null)
         {
             this.okclick = null;
@@ -219,13 +220,13 @@ public class DownLoadDialog extends Dialog {
         return this;
     }
 
-    public DownLoadDialog setTit(CharSequence textTitle) {
+    public BaseDialog setTit(CharSequence textTitle) {
         this.titleText = textTitle.toString();
         handler.sendEmptyMessage(UPDATE_TITLE);
         return this;
     }
 
-    public DownLoadDialog setTit(int titleText) {
+    public BaseDialog setTit(int titleText) {
         this.titleText = mContext.getString(titleText);
         handler.sendEmptyMessage(UPDATE_TITLE);
         return this;

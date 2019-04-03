@@ -1,27 +1,41 @@
 package com.smart.lock.ui.setting;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.CancellationSignal;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ui.OtaUpdateActivity;
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
+import com.smart.lock.utils.CheckVersionThread;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
+import com.smart.lock.utils.SystemUtils;
+import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.DialogFactory;
+import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.ToggleSwitchDefineView;
 
 
@@ -39,6 +53,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private ToggleButton mNumPwdSwitchLightTBtn;
     private ToggleSwitchDefineView mFingerprintSwitchTv;
     private ToggleButton mFingerprintSwitchLightTbtn;
+    private NextActivityDefineView mCheckVersionNv;
 
     private Dialog mPromptDialog;
 
@@ -48,11 +63,20 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     private boolean mIsFPRequired = false;
     private boolean mIsPwdRequired = false;
+    private CheckVersionThread mCheckVersionThread;
+    protected DialogFactory mDialog;
 
     private EditText mNumPwd1Et;
     private EditText mNumPwd2Et;
     private EditText mNumPwd3Et;
     private EditText mNumPwd4Et;
+
+
+    private String[] mPermission = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+    private int REQUESTCODE = 0;
 
 
     @Override
@@ -66,16 +90,19 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     public void initView() {
         ivBack = findViewById(R.id.system_set_iv_back);
-        mNumPwdSwitchTv = this.findViewById(R.id.system_set_switch_password);
+        mNumPwdSwitchTv = findViewById(R.id.system_set_switch_password);
         mNumPwdSwitchLight = mNumPwdSwitchTv.getIv_switch_light();
-        mFingersPrintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
+        mFingersPrintSwitchTv = findViewById(R.id.system_set_switch_fingerprint);
         mFingersPrintSwitchLight = mFingersPrintSwitchTv.getIv_switch_light();
         mOpenTestTv = findViewById(R.id.tw_open_test);
+        mCheckVersionNv = findViewById(R.id.next_check_version);
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
         mFingersPrintSwitchTv.setDes("指纹验证");
         mOpenTestTv.setDes("测试自动连接");
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
+
+        mCheckVersionNv.setDes(getString(R.string.check_app_version));
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -131,6 +158,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             LogUtil.e(TAG, "初始化自动连接失败" + e);
             mOpenTestTb.setChecked(false);
         }
+
+        mDialog = DialogFactory.getInstance(this);
     }
 
     public void initEvent() {
@@ -150,7 +179,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 }
             });
         }
-
+        mCheckVersionNv.setOnClickListener(this);
         mOpenTestTb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,6 +225,21 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 bottomDialog.show();
                 break;
 
+            case R.id.next_check_version:
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    if (!SystemUtils.isNetworkAvailable(this)) {
+                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                        ToastUtil.show(this,getString(R.string.plz_open_wifi),Toast.LENGTH_LONG);
+                        return;
+                    }
+                    mCheckVersionThread = new CheckVersionThread(this, mDialog);
+                    mCheckVersionThread.setShowLoadDialog(true);
+                    mCheckVersionThread.run();
+                } else {
+                    ActivityCompat.requestPermissions(this, mPermission, REQUESTCODE);
+                }//版本检测
+                break;
             default:
                 doOnClick(v.getId());
                 break;
@@ -410,4 +454,40 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             mIsPwdRequired = true;
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUESTCODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    askForPermission();
+                }
+            }
+
+        }
+
+    }
+
+    private void askForPermission() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Need Permission!");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                intent.setData(Uri.parse("package:" + getPackageName())); // 根据包名打开对应的设置界面
+                startActivity(intent);
+            }
+        });
+        builder.create().show();
+    }
+
 }

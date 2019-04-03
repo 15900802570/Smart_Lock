@@ -31,19 +31,19 @@ public class BleCmd1CParse implements BleCommandParse {
         }
         LogUtil.d(TAG, Arrays.toString(buf));
         byte[] sn = new byte[18];
-        int sw_len = Integer.parseInt(String.valueOf(buf[18]), 10);
-        int hw_len = Integer.parseInt(String.valueOf(buf[19]), 10);
-        byte[] sw_ver = new byte[sw_len];
-        byte[] hw_ver = new byte[hw_len];
-        LogUtil.d(TAG, "sw_len = " + sw_len + '\n' +
-                "hw_len = " + hw_len);
+        int swLen = Integer.parseInt(String.valueOf(buf[18]), 10);
+        int hwLen = Integer.parseInt(String.valueOf(buf[19]), 10);
+        byte[] swVer = new byte[swLen];
+        byte[] hwVer = new byte[hwLen];
+        LogUtil.d(TAG, "swLen = " + swVer + '\n' +
+                "hw_len = " + hwVer);
         System.arraycopy(buf, 0, sn, 0, 18);
-        System.arraycopy(buf, 20, sw_ver, 0, sw_len);
-        System.arraycopy(buf, 20 + sw_len, hw_ver, 0, hw_len);
+        System.arraycopy(buf, 20, swVer, 0, swLen);
+        System.arraycopy(buf, 20 + swLen, hwVer, 0, hwLen);
 
-        LogUtil.d(TAG, "ASCII = "+StringUtil.AsciiDeBytesToCharString(buf));
+        LogUtil.d(TAG, "buf = "+ Arrays.toString(buf));
 
-        return MessageCreator.getCmd1CMessage(getParseKey(), sn, sw_ver, hw_ver);
+        return MessageCreator.getCmd1CMessage(getParseKey(), sn, swVer, hwVer);
     }
 
     @Override

@@ -14,6 +14,7 @@ package com.smart.lock.utils;
 import android.text.Editable;
 import android.util.Log;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -185,15 +186,28 @@ public class StringUtil {
 
     /**
      * 十进制码转CharString
+     *
      * @param bytes 字节组
      * @return String
      */
-    public static String AsciiDeBytesToCharString(byte[] bytes){
-        String string = "";
-        for (int i : bytes){
-            string = string + (char)i;
+    public static String asciiDeBytesToCharString(byte[] bytes) {
+//        String res = "";
+//        for (byte i : bytes) {
+//            res = res +  (char)i;
+//        }
+//        try {
+//            res = new String(res.getBytes(), "GBK");
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        return res;
+        String s = null;
+        try {
+            s = new String(bytes, "GB2312");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        return string;
+        return s;
     }
 
     /**
@@ -352,6 +366,47 @@ public class StringUtil {
             return pathandname.substring(start + 1, end);
         } else {
             return null;
+        }
+    }
+
+    /**
+     * 版本号比较
+     *
+     * @param newVer
+     * @param oldVer
+     * @return
+     */
+    public static int compareVersion(String newVer, String oldVer) {
+        if (newVer.equals(oldVer)) {
+            return 0;
+        }
+        String[] newVerArray = newVer.split("\\.");
+        String[] oldVerArray = oldVer.split("\\.");
+        int index = 0;
+        // 获取最小长度值
+        int minLen = Math.min(newVerArray.length, oldVerArray.length);
+        int diff = 0;
+        // 循环判断每位的大小
+        while (index < minLen && (diff = Integer.parseInt(newVerArray[index])
+                - Integer.parseInt(oldVerArray[index])) == 0) {
+            index++;
+        }
+        if (diff == 0) {
+            // 如果位数不一致，比较多余位数
+            for (int i = index; i < newVerArray.length; i++) {
+                if (Integer.parseInt(newVerArray[i]) > 0) {
+                    return 1;
+                }
+            }
+
+            for (int i = index; i < oldVerArray.length; i++) {
+                if (Integer.parseInt(oldVerArray[i]) > 0) {
+                    return -1;
+                }
+            }
+            return 0;
+        } else {
+            return diff > 0 ? 1 : -1;
         }
     }
 }

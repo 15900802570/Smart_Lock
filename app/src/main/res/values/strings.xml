@@ -285,4 +285,8 @@
     <string name="current_version">Current version:</string>
     <string name="not_regenerate_temp_pwd">There is a temporary password. Do not regenerate it.</string>
     <string name="dev_default">Default</string>
+    <string name="check_app_version">Check Version</string>
+    <string name="after_down">after down</string>
+    <string name="checking_version">checking version</string>
+    <string name="plz_open_wifi">Open wifi, please</string>
 </resources>

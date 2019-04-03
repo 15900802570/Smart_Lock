@@ -114,10 +114,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      */
     private boolean createTempPwd() {
         TempPwd tempPwd = TempPwdDao.getInstance(this).queryMaxCreateTime();
-        if(System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime()) <= 0){
-            ToastUtil.showShort(this,R.string.not_regenerate_temp_pwd);
+        if (tempPwd != null && System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime()) <= 0) {
+            ToastUtil.showShort(this, R.string.not_regenerate_temp_pwd);
             return false;
-        }else {
+        } else {
             byte[] lKey;
             int mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
             byte[] mNodeIdBytes = StringUtil.hexStringToBytes(mNodeId);
@@ -134,8 +134,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             LogUtil.d(TAG, "Key=" + byteArrayToHexString(lKey));
 
             if (lKey.length == 32) {
-                mSecret = StringUtil.getCRC32(AES256Encode(
-                        intToHex(mCurTime) + "000000000000000000000000",
+                mSecret = StringUtil.getCRC32(AES256Encode(intToHex(mCurTime) + "000000000000000000000000",
                         StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
                 showPwdDialog(String.valueOf(mSecret));
                 LogUtil.d(TAG, "mSecret=" + mSecret);

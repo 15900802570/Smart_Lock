@@ -1,59 +1,68 @@
 
-package com.smart.dt.util;
+package com.smart.lock.utils;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 
-import cc.cloudist.acplibrary.ACProgressFlower;
-
-import com.smart.dt.R;
-import com.smart.dt.action.AbstractTransaction.TransferPayResponse;
-import com.smart.dt.action.CheckVersionAction;
-import com.smart.dt.application.BaseApplication;
-import com.smart.dt.db.bean.VersionModel;
-import com.smart.dt.transfer.HttpCodeHelper;
-import com.smart.dt.widget.DialogFactory;
-import com.smart.dt.widget.DownloadDialog;
-import com.smart.dt.widget.DownloadDialog.OnDownLoadListener;
-import com.smart.dt.widget.LoadingDialog;
-import com.smart.dt.widget.YishuaDialog;
+import com.smart.lock.R;
+import com.smart.lock.action.AbstractTransaction.TransferPayResponse;
+import com.smart.lock.action.CheckVersionAction;
+import com.smart.lock.entity.VersionModel;
+import com.smart.lock.transfer.HttpCodeHelper;
+import com.smart.lock.ui.UserManagerActivity;
+import com.smart.lock.widget.BaseDialog;
+import com.smart.lock.widget.DialogFactory;
+import com.smart.lock.widget.DownloadDialog.OnDownLoadListener;
+import com.smart.lock.widget.DownloadDialog;
 
 import java.io.File;
 
 public class CheckVersionThread {
 
+    private static final String TAG = CheckVersionThread.class.getSimpleName();
     private String downloadUrl;
     private String updateMsg;
-    private CheckVersionAction versionAction = null;
+    private CheckVersionAction mVersionAction = null;
     private DialogFactory dialog;
     private Activity mContext;
-    private ACProgressFlower mLoadingDialog;
+    private Dialog mLoadingDialog;
     private boolean isShowLoadDialog = false;
+    private Handler mHandler;
+
+    /**
+     * 超时提示框启动器
+     */
+    private Runnable mRunnable = new Runnable() {
+        public void run() {
+            if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
+
+                DialogUtils.closeDialog(mLoadingDialog);
+
+                Toast.makeText(mContext, mContext.getString(R.string.retry_connect), Toast.LENGTH_LONG).show();
+            }
+
+        }
+    };
 
     public CheckVersionThread(Activity context, DialogFactory dialog) {
         mContext = context;
         this.dialog = dialog;
-        versionAction = new CheckVersionAction();
-        mLoadingDialog = new ACProgressFlower.Builder(context).direction(100)
-                .text(mContext.getString(R.string.checking_version))
-                .themeColor(-1).fadeColor(0xff444444).build();
-        mLoadingDialog.setCanceledOnTouchOutside(false);
-
-        BaseApplication app = (BaseApplication) context.getApplication();
-        if (app.getLoginInfo() == null) {
-            Toast.makeText(context, "登陆异常，请重新登陆", Toast.LENGTH_LONG).show();
-            app.gotoLoginActivity();
-        } else {
-            versionAction.setToken(app.getLoginInfo().getToken());
-            versionAction.setFilename(ConstantUtil.SMART_DT);
-            versionAction.setExtension(ConstantUtil.APK_EXTENSION);
-            versionAction.setTransferPayResponse(tPayResponse);
-        }
+        mHandler = new Handler();
+        LogUtil.d(TAG, "CheckVersionThread");
+        mVersionAction = new CheckVersionAction();
+        mLoadingDialog = DialogUtils.createLoadingDialog(context, context.getString(R.string.checking_version));
+        mLoadingDialog.show();
+        mVersionAction.setUrl(ConstantUtil.CHECK_APP_VERSION);
+        mVersionAction.setDeviceSn(SystemUtils.getMetaDataFromApp(context));
+        mVersionAction.setExtension(ConstantUtil.APPLICATION);
+        mVersionAction.setTransferPayResponse(tcheckAppVerResponse);
     }
 
     public void setShowLoadDialog(boolean isShowLoadDialog) {
@@ -72,10 +81,10 @@ public class CheckVersionThread {
         if (isShowLoadDialog) {
             mLoadingDialog.show();
         }
-        versionAction.transStart(mContext);
+        mVersionAction.transStart(mContext);
     }
 
-    TransferPayResponse tPayResponse = new TransferPayResponse() {
+    TransferPayResponse tcheckAppVerResponse = new TransferPayResponse() {
 
         @Override
         public void transFailed(String httpCode, String errorInfo) {
@@ -87,14 +96,14 @@ public class CheckVersionThread {
 
         @Override
         public void transComplete() {
-            if (HttpCodeHelper.RESPONSE_SUCCESS.equals(versionAction.respondData.respCode)) {
-                VersionModel version = versionAction.respondData.model;
+            if (HttpCodeHelper.RESPONSE_SUCCESS.equals(mVersionAction.respondData.respCode)) {
+                VersionModel version = mVersionAction.respondData.model;
                 if (mLoadingDialog != null) {
                     mLoadingDialog.cancel();
                 }
                 downloadUrl = version.path;
                 updateMsg = version.msg;
-                int code = SystemUtil.getversonCode(mContext);
+                int code = SystemUtils.getversonCode(mContext);
                 if (version.versionCode == code) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
@@ -105,7 +114,7 @@ public class CheckVersionThread {
 //                            return;
 //                        }
 //                    }
-                    if (version.forceUpdate == true) {
+                    if (version.forceUpdate) {
                         compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
                     } else {
                         compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
@@ -124,10 +133,10 @@ public class CheckVersionThread {
     private void isNewVersion() {
         String filePath = "";
         if (FileUtil.checkSDCard()) {
-            filePath = Environment.getExternalStorageDirectory() + File.separator + "SmartDT"
+            filePath = Environment.getExternalStorageDirectory() + File.separator + "SmartLock_DT"
                     + File.separator + "downloads";
         } else {
-            filePath = mContext.getCacheDir().getAbsolutePath() + File.separator + "SmartDT"
+            filePath = mContext.getCacheDir().getAbsolutePath() + File.separator + "SmartLock_DT"
                     + File.separator + "downloads";
         }
 
@@ -153,9 +162,7 @@ public class CheckVersionThread {
     public static String getLocalVersionName(Context ctx) {
         String localVersion = "";
         try {
-            PackageInfo packageInfo = ctx.getApplicationContext()
-                    .getPackageManager()
-                    .getPackageInfo(ctx.getPackageName(), 0);
+            PackageInfo packageInfo = ctx.getApplicationContext().getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
             localVersion = packageInfo.versionName;
             LogUtil.d("TAG", "本软件的版本号。。" + localVersion);
         } catch (NameNotFoundException e) {
@@ -184,26 +191,25 @@ public class CheckVersionThread {
                     dialog = null;
                     dialog = new DialogFactory(mContext);
                 }
-                dialog
-                        .getAlter(mContext.getString(R.string.update_title), updateMsg)
+                dialog.getAlter(mContext.getString(R.string.update_title), updateMsg)
                         .setOkButtonText(mContext.getString(R.string.update))
                         .setYishuaCancelable(false)
-                        .setButtonVisible(YishuaDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
+                        .setButtonVisible(BaseDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
                         .setOkClick(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                dialog.cancelYiShuaDialog();
+                                dialog.cancelDownLoadDialog();
                                 toDownload(false);
                                 LogUtil.i("version", "正在更新版本");
                             }
                         })
-                        .setNoButtonText(mContext.getString(R.string.cancel_dialog))
+                        .setNoButtonText(mContext.getString(R.string.cancel))
                         .setNoClick(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 if (!isShowLoadDialog) {
                                 }
-                                dialog.cancelYiShuaDialog();
+                                dialog.cancelDownLoadDialog();
                             }
                         })
                         .show();
@@ -219,7 +225,7 @@ public class CheckVersionThread {
     public void toDownload(boolean mastDownload) {
         if (downloadDialog == null) {
             downloadDialog = new DownloadDialog(mContext, downloadUrl,
-                    versionAction.respondData.model.versionCode, mastDownload);
+                    mVersionAction.respondData.model.versionCode, mastDownload);
             downloadDialog.setHaveBackDownload(isShowLoadDialog);
             downloadDialog.setOnDownLoadListener(onDownLoadListener);
         }
@@ -254,4 +260,15 @@ public class CheckVersionThread {
         }
     }
 
+    /**
+     * 超时提醒
+     *
+     * @param seconds
+     */
+    protected void closeDialog(final int seconds) {
+
+        mHandler.removeCallbacks(mRunnable);
+
+        mHandler.postDelayed(mRunnable, seconds * 1000);
+    }
 }

@@ -1,4 +1,4 @@
-package com.smart.dt.widget;
+package com.smart.lock.widget;
 /**
  * @version 创建时间：2014-4-9 下午4:20:38
  * 说明：
@@ -9,7 +9,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.Button;
 
-public class RedButton extends Button {
+public class RedButton extends android.support.v7.widget.AppCompatButton {
 
     public RedButton(Context context) {
         super(context);

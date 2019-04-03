@@ -1,16 +1,27 @@
 package com.smart.lock.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.format.Formatter;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -19,6 +30,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class SystemUtils {
+
+    private static final String TAG = SystemUtils.class.getSimpleName();
 
     /**
      * 获取屏幕的宽和高
@@ -58,7 +71,7 @@ public class SystemUtils {
         if (!appDir.exists()) {
             appDir.mkdir();
         }
-        File file = new File(appDir, fileName+".jpg");
+        File file = new File(appDir, fileName + ".jpg");
         try {
             FileOutputStream fos = new FileOutputStream(file);
             //通过io流的方式来压缩保存图片(80代表压缩20%)
@@ -128,6 +141,7 @@ public class SystemUtils {
 
     /**
      * 检测当的网络（WLAN、3G/2G）状态
+     *
      * @param context Context
      * @return true 表示网络可用
      */
@@ -136,11 +150,9 @@ public class SystemUtils {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null) {
             NetworkInfo info = connectivity.getActiveNetworkInfo();
-            if (info != null && info.isConnected())
-            {
+            if (info != null && info.isConnected()) {
                 // 当前网络是连接的
-                if (info.getState() == NetworkInfo.State.CONNECTED)
-                {
+                if (info.getState() == NetworkInfo.State.CONNECTED) {
                     // 当前所连接的网络可用
                     return true;
                 }
@@ -149,5 +161,177 @@ public class SystemUtils {
         return false;
     }
 
+    //获取value
+    public static String getMetaDataFromApp(Context context) {
+        String value = "";
+        try {
+            ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(),
+                    PackageManager.GET_META_DATA);
+            LogUtil.d(TAG,"APP_SN = "+ appInfo.metaData.getString("APP_SN"));
+            value = appInfo.metaData.getString("APP_SN");
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return value;
+    }
+
+    public static boolean firstStartApp = true;
+
+    public static final int TID_NOT_EXISTS = -1;
+    /**
+     * 得到分辨率高度
+     */
+    public static int heightPs = -1;
+    /**
+     * 得到分辨率宽度
+     */
+    public static int widthPs = -1;
+    /**
+     * 得到屏幕密度
+     */
+    public static int densityDpi = -1;
+    /**
+     * 得到X轴密度
+     */
+    public static float Xdpi = -1;
+    /**
+     * 得到Y轴密度
+     */
+    public static float Ydpi = -1;
+
+    private Context context;
+
+    public SystemUtils(Context context) {
+        this.context = context;
+    }
+
+    /***
+     * 得到手机的屏幕基本信息
+     *
+     * @param context
+     */
+    public static void getScreen(Activity context) {
+        DisplayMetrics metrics = new DisplayMetrics();
+        context.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        heightPs = metrics.heightPixels;
+        widthPs = metrics.widthPixels;
+        densityDpi = metrics.densityDpi;
+        Xdpi = metrics.xdpi;
+        Ydpi = metrics.ydpi;
+        LogUtil.i("手机分辨率", "分辨率：" + widthPs + "X" + heightPs + "    屏幕密度："
+                + densityDpi + "    宽高密度：" + Xdpi + "X" + Ydpi);
+    }
+
+    //屏幕宽度（像素）
+    public static int getScreenWidth(Context context) {
+        WindowManager wm = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(outMetrics);
+        return outMetrics.widthPixels;
+    }
+
+    /***
+     * 获取客户端版本
+     *
+     * @return
+     */
+    public PackageInfo getVersion() {
+        PackageInfo info = null;
+        try {
+            PackageManager manager = context.getPackageManager();
+            info = manager.getPackageInfo(context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            LogUtil.e("version", "获取版本失败");
+            e.printStackTrace();
+        }
+        return info;
+    }
+
+    /***
+     * 获取手机model
+     */
+    public static String getPhoneMode() {
+        return android.os.Build.MODEL;
+    }
+
+    /**
+     * 把密度dip单位转化为像数px单位
+     *
+     * @param context
+     * @param dip
+     * @return
+     */
+    public static int dipToPx(Context context, int dip) {
+        float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dip * scale + 0.5f * (dip >= 0 ? 1 : -1));
+    }
+
+    /***
+     * 把像数px转化为密度dip单位
+     *
+     * @param context
+     * @param px
+     * @return
+     */
+    public static int pxToDip(Context context, int px) {
+        float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (px * scale + 0.5f * (px >= 0 ? 1 : -1));
+    }
+
+
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight
+                + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+    }
+
+    public static String getverson(Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(),
+                    0);
+            String version = info.versionName;
+            return version;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "0";
+        }
+    }
+
+    public static int getversonCode(Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(),
+                    0);
+
+            return info.versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 11;
+        }
+    }
+
+    public static String getIpAddr(Context context) {
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+
+        WifiInfo info = wifiManager.getConnectionInfo();
+
+        return Formatter.formatIpAddress(info.getIpAddress());
+    }
 
 }

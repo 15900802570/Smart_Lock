@@ -1,22 +1,17 @@
 
 package com.smart.lock.action;
 
-import android.provider.SyncStateContract.Constants;
-
-import com.smart.lock.bean.VersionModel;
+import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.ConstantUtil.ParamName;
 import com.smart.lock.utils.LogUtil;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +37,9 @@ public class CheckVersionAction extends AbstractTransaction {
         sendData.deviceSn = deviceSn;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getExtension() {
         return sendData.extension;
@@ -61,7 +59,6 @@ public class CheckVersionAction extends AbstractTransaction {
     private static final String XML_TAG = "CheckVersionAction";
 
     public CheckVersionAction() {
-        url = ConstantUtil.CHECK_VERSION;
         respondData = new CheckVersionRespond();
         sendData = new ClientCheckVersionSend();
     }

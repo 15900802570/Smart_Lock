@@ -1,4 +1,4 @@
-package com.smart.lock.ble.listener;
+package com.smart.lock.ble;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -17,8 +17,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.smart.lock.R;
-import com.smart.lock.ble.BleCardService;
-import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;

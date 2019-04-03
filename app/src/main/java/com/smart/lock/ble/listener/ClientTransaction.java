@@ -1,7 +1,8 @@
-package com.smart.lock.ble;
+package com.smart.lock.ble.listener;
 
 import android.util.Log;
 
+import com.smart.lock.ble.TimerListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.TimerProvider;

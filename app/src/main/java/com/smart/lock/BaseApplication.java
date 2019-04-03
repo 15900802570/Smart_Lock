@@ -3,11 +3,8 @@ package com.smart.lock;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
 
 import com.smart.lock.ble.BleManagerHelper;
-import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.dao.DeviceInfoDao;
 
 
 public class BaseApplication extends Application {
@@ -23,9 +20,7 @@ public class BaseApplication extends Application {
     }
 
 
-    public static Context getContext() {
-        return mContext;
-    }
+
 
 
 }

@@ -290,4 +290,9 @@
     <string name="ota_updating">正在升级</string>
     <string name="not_regenerate_temp_pwd">已有临时密码，请勿重新生成.</string>
     <string name="dev_default">默认</string>
+
+    <string name="check_app_version">检测更新</string>
+    <string name="after_down">后台下载 </string>
+    <string name="checking_version">检测版本中 </string>
+    <string name="plz_open_wifi">请打开WIFI </string>
 </resources>

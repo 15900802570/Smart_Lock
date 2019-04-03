@@ -7,9 +7,9 @@ import android.util.SparseIntArray;
 
 import com.smart.lock.ble.BleChannel;
 import com.smart.lock.ble.BleCommand;
-import com.smart.lock.ble.BleMessageListener;
+import com.smart.lock.ble.listener.BleMessageListener;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.ClientTransaction;
+import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.creator.BleCmd01Creator;
 import com.smart.lock.ble.creator.BleCmd03Creator;
 import com.smart.lock.ble.creator.BleCmd11Creator;
@@ -24,7 +24,6 @@ import com.smart.lock.ble.creator.BleCmd25Creator;
 import com.smart.lock.ble.creator.BleCmd29Creator;
 import com.smart.lock.ble.creator.BleCmd31Creator;
 import com.smart.lock.ble.creator.BleCmd33Creator;
-import com.smart.lock.ble.creator.BleCmdOtaCreator;
 import com.smart.lock.ble.creator.BleCmdOtaDataCreator;
 import com.smart.lock.ble.creator.BleCreator;
 import com.smart.lock.ble.message.Message;
@@ -46,8 +45,6 @@ import com.smart.lock.utils.LogUtil;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -328,13 +325,11 @@ public class BleProvider {
      *
      * @param msg            消息
      * @param transaction    消息事务
-     * @param bleCommandList 命令列表，用于同步命令发送接口处理返回结果
      * @see ClientTransaction
      * @see Message
      * @see BleCommand
      */
-    private void sendMessage(Message msg, ClientTransaction transaction,
-                             List<BleCommand> bleCommandList) {
+    private void sendMessage(Message msg, ClientTransaction transaction) {
         int flag = onceSendMessageMap.get(msg.getType());
 
         switch (flag) {
@@ -393,7 +388,7 @@ public class BleProvider {
                         } else {
                             mBleChannel.sendOta(cmd, msg.getType());
                         }
-
+                        msg.recycle();
                     } else {
                         // 调用异步接口发送Ble指令
                         if (cmd.length > 20) {
@@ -466,12 +461,10 @@ public class BleProvider {
      *
      * @param command           AT指令
      * @param bleMsgListener    回调监听器
-     * @param bleCommandList    命令列表，用于同步命令发送接口处理返回结果
-     * @param searchTransaction 是否检索事务定时器
      * @see BleCommand
      * @see BleMessageListener
      */
-    private void parseBle(byte[] command, BleMessageListener bleMsgListener, List<BleCommand> bleCommandList, boolean searchTransaction) {
+    private void parseBle(byte[] command, BleMessageListener bleMsgListener) {
 
         if (isNewCommand()) {
             LogUtil.d(TAG, "command = " + Arrays.toString(command));
@@ -579,12 +572,6 @@ public class BleProvider {
                         + " transactionBleMsgListenerMap size : "
                         + transactionBleMsgListenerMap.size());
             }
-//            if (transactionBleMsgListenerMap.size() == 0) {
-//                synchronized (sendThread) {
-//                    sendThread.notify();
-//                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
-//                }
-//            }
             bleMsgListener.onReceive(this, msg);
         }
     }
@@ -620,10 +607,8 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_29, new BleCmd29Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_31, new BleCmd31Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_33, new BleCmd33Creator());
-//        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_OTA, new BleCmdOtaCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_CMD, new BleCmdOtaDataCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_DATA, new BleCmdOtaDataCreator());
-
 
         // 填充ble指令监听器映射表
         messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_02, mBleMessageListener);
@@ -665,7 +650,6 @@ public class BleProvider {
 
         @Override
         public void run() {
-            List<BleCommand> bleCommandList = new LinkedList<BleCommand>();
             // 初始化Provider
             init();
             while (sendThread == Thread.currentThread()) {
@@ -675,22 +659,11 @@ public class BleProvider {
                     if (obj instanceof Message) {
                         // 直接发送消息
                         Message msg = (Message) obj;
-                        sendMessage(msg, null, bleCommandList);
+                        sendMessage(msg, null);
                     } else if (obj instanceof ClientTransaction) {
                         // 直接发送消息
                         ClientTransaction transaction = (ClientTransaction) obj;
-                        sendMessage(transaction.getMessage(), transaction, bleCommandList);
-//                        if (transactionBleMsgListenerMap.size() != 0) {
-//                            synchronized (sendThread) {
-//                                try {
-//                                    LogUtil.d(TAG, "sendThread.getState() = " + sendThread.getState() + " transactionBleMsgListenerMap.size() = " + transactionBleMsgListenerMap.size());
-//                                    sendThread.wait();
-//                                } catch (InterruptedException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//                        }
-
+                        sendMessage(transaction.getMessage(), transaction);
                     } else {
                         // 未知类型消息
                         Log.w(TAG, "Unknow obj class : "
@@ -699,9 +672,6 @@ public class BleProvider {
                 } catch (InterruptedException e) {
 
                 }
-
-                BleCommand.recycle(bleCommandList);
-                bleCommandList.clear();
             }
         }
     }
@@ -717,16 +687,14 @@ public class BleProvider {
 
         @Override
         public void run() {
-            List<BleCommand> bleCommandList = new LinkedList<BleCommand>();
 
             while (receiverThread == Thread.currentThread()) {
                 try {
                     byte[] command = bleCommandQueue.take();
-                    parseBle(command, mBleMessageListener, bleCommandList, true);
+                    parseBle(command, mBleMessageListener);
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                 }
-                bleCommandList.clear();
             }
         }
 

@@ -1,5 +1,5 @@
 
-package com.smart.lock.ble;
+package com.smart.lock.ble.listener;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 
@@ -16,11 +17,11 @@ import com.smart.lock.ble.provider.BleProvider;
 public class BleMessageListenerImpl implements BleMessageListener {
     private static final String TAG = "BleMessageListenerImpl";
     private Context mContext;
-    private BleProvider mATProvider;
+    private BleProvider mBleProvider;
 
     public BleMessageListenerImpl(Context context, BleProvider bleProvider) {
         mContext = context;
-        mATProvider = bleProvider;
+        mBleProvider = bleProvider;
     }
 
     @Override

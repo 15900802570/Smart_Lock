@@ -1,5 +1,5 @@
 
-package com.smart.dt.widget;
+package com.smart.lock.widget;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -20,11 +20,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.smart.dt.R;
-import com.smart.dt.util.ConstantUtil;
-import com.smart.dt.util.FileUtil;
-import com.smart.dt.util.LogUtil;
-import com.smart.dt.util.NetworkUtil;
+import com.smart.lock.R;
+import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.FileUtil;
+import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.NetworkUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,7 +37,7 @@ import java.net.URLConnection;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class DownloadDialog extends Dialog implements android.view.View.OnClickListener {
+public class DownloadDialog extends Dialog implements View.OnClickListener {
     public static final int DOWNLOAD_PREPARE = 0;
     public static final int DOWNLOAD_WORK = 1;
     public static final int DOWNLOAD_OK = 2;
@@ -79,7 +79,7 @@ public class DownloadDialog extends Dialog implements android.view.View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.download_layuot);
+        setContentView(R.layout.download_layout);
         init();
     }
 
@@ -433,11 +433,11 @@ public class DownloadDialog extends Dialog implements android.view.View.OnClickL
                 .setContentTitle(mContext.getString(R.string.down_alert))
                 .setContentText(fixMessage)
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.mipmap.icon)
                 .build();
         notification.defaults |= Notification.DEFAULT_SOUND; // 声音通知
         notification.defaults |= Notification.DEFAULT_VIBRATE; // 颤动通知
-        notification.icon = R.drawable.ic_launcher;
+        notification.icon = R.mipmap.icon;
         notification.tickerText = mContext.getString(R.string.app_name)
                 + mContext.getString(R.string.down_finish);
         notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_NO_CLEAR; // 不可清除的通知

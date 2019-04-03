@@ -43,10 +43,6 @@ public class MessageCreator {
      * 账号密码随机数，调试写死
      */
     public static byte pwdRandom[] = new byte[16];
-    public static byte pwdRandom1[] = {
-            '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5',
-            '6'
-    };
 
     public static boolean mIs128Code = false; //fales 256
 
@@ -166,7 +162,6 @@ public class MessageCreator {
     public static Message getCmd1CMessage(byte type, byte[] sn, byte[] sw_ver, byte[] hw_ver) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
-        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
         Bundle mBundle = mMessage.getData();
 
         if (sn != null && sn.length != 0) {

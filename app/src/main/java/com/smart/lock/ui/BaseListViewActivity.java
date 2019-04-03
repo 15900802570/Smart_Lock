@@ -1,19 +1,13 @@
 package com.smart.lock.ui;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -23,17 +17,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
-import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
-import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class BaseListViewActivity extends AppCompatActivity implements View.OnClickListener {
     protected RecyclerView mListView;

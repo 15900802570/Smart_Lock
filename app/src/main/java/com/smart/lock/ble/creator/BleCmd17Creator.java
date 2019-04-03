@@ -3,11 +3,9 @@ package com.smart.lock.ble.creator;
 import android.os.Bundle;
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
-import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;

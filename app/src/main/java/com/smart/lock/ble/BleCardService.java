@@ -16,27 +16,22 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.text.TextUtils;
 import android.util.Log;
 
+import com.smart.lock.ble.listener.BleMessageListenerImpl;
+import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.BleReceiver;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
-import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-//import java.util.List;
-//import java.util.UUID;
 
 /**
  * Service for managing connection and data communication with a GATT server
@@ -56,15 +51,8 @@ public class BleCardService extends Service {
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
-    //蓝牙写入队列
-    private static final Queue<Object> sWriteQueue =
-            new ConcurrentLinkedQueue<Object>();
     private static boolean sIsWriting = false;
 
-    public static final UUID TX_POWER_UUID = UUID
-            .fromString("00001804-0000-1000-8000-00805f9b34fb");
-    public static final UUID TX_POWER_LEVEL_UUID = UUID
-            .fromString("00002a07-0000-1000-8000-00805f9b34fb");
     public static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
     public static final UUID FIRMWARE_REVISON_UUID = UUID
             .fromString("00002a26-0000-1000-8000-00805f9b34fb");
@@ -781,7 +769,7 @@ public class BleCardService extends Service {
      * @param logId   日志编号
      * @return 是否发送成功
      */
-    public ClientTransaction sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
+    public boolean sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_33);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
@@ -796,35 +784,7 @@ public class BleCardService extends Service {
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
         ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
-        ct.request();
-        return ct;
-    }
-
-    private synchronized void write(Object o) {
-        if (sWriteQueue.isEmpty() && !sIsWriting) {
-            doWrite(o);
-        } else {
-            sWriteQueue.add(o);
-        }
-    }
-
-    private synchronized void nextWrite() {
-        if (!sWriteQueue.isEmpty() && !sIsWriting) {
-            doWrite(sWriteQueue.poll());
-        }
-    }
-
-    private synchronized void doWrite(Object o) {
-        if (o instanceof BluetoothGattCharacteristic) {
-            sIsWriting = true;
-            mBluetoothGatt.writeCharacteristic(
-                    (BluetoothGattCharacteristic) o);
-        } else if (o instanceof BluetoothGattDescriptor) {
-            sIsWriting = true;
-            mBluetoothGatt.writeDescriptor((BluetoothGattDescriptor) o);
-        } else {
-            nextWrite();
-        }
+        return ct.request();
     }
 
 }

@@ -1,4 +1,4 @@
-package com.smart.lock.ble;
+package com.smart.lock.ble.listener;
 
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;

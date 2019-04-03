@@ -1,4 +1,4 @@
-package com.smart.dt.widget;
+package com.smart.lock.widget;
 
 
 
@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
-import com.smart.dt.R;
+import com.smart.lock.R;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -21,7 +21,7 @@ import java.util.TimerTask;
 public class DialogFactory {
 	public static final int TOAST = 1;
 	public static final int ALERT_DIALOG = 2;
-	private YishuaDialog yishuaDialog;
+	private BaseDialog mDownLoadDialog;
 	private Activity mContext;
 	private Timer timer;
 	
@@ -29,7 +29,7 @@ public class DialogFactory {
 	
 	public DialogFactory(Activity c) {
 		mContext = c;
-		yishuaDialog = new YishuaDialog(mContext);
+		mDownLoadDialog = new BaseDialog(mContext);
 	}
 	
 	public Context getmContext() {
@@ -62,71 +62,68 @@ public class DialogFactory {
 	 * 
 	 * @param title
 	 * @param msg
-	 * @param ok
 	 */
-	public YishuaDialog getAlter(int title, int msg) {
+	public BaseDialog getAlter(int title, int msg) {
 		getAlter(getString(title), getString(msg));
-		return yishuaDialog;
+		return mDownLoadDialog;
 	}
 	
-	public YishuaDialog getAlter(String title, String msg) {
-		if(yishuaDialog != null )
+	public BaseDialog getAlter(String title, String msg) {
+		if(mDownLoadDialog != null )
 		{
-			yishuaDialog = null;
+			mDownLoadDialog = null;
 		}
-		yishuaDialog = new YishuaDialog(mContext);
-		yishuaDialog
+		mDownLoadDialog = new BaseDialog(mContext);
+		mDownLoadDialog
 		.setTit(title)
 		.setMessage(msg);
-		return yishuaDialog;
+		return mDownLoadDialog;
 	}
 	
-	public YishuaDialog getAlter() {
-		if(yishuaDialog != null )
+	public BaseDialog getAlter() {
+		if(mDownLoadDialog != null )
 		{
-			yishuaDialog = null;
+			mDownLoadDialog = null;
 		}
-		yishuaDialog = new YishuaDialog(mContext);
-		return yishuaDialog;
+		mDownLoadDialog = new BaseDialog(mContext);
+		return mDownLoadDialog;
 	}
 	
 	/***
 	 * 得到一个对话框对象
 	 * 
-	 * @param title
 	 * @param msg
-	 * @param ok
 	 */
-	public YishuaDialog getAlter( int msg) {
+	public BaseDialog getAlter(int msg) {
 		getAlter(getString(msg));
-		return yishuaDialog;
+		return mDownLoadDialog;
 	}
 	
-	public YishuaDialog getAlter( String msg) {
-		if(yishuaDialog != null )
+	public BaseDialog getAlter(String msg) {
+		if(mDownLoadDialog != null )
 		{
-			yishuaDialog = null;
+			mDownLoadDialog = null;
 		}
-		yishuaDialog = new YishuaDialog(mContext);
-		yishuaDialog.setMessage(msg);
-		return yishuaDialog;
+		mDownLoadDialog = new BaseDialog(mContext);
+		mDownLoadDialog.setMessage(msg);
+		return mDownLoadDialog;
 	}
 
 	public void show(String msg) {
-		show(msg, getString(R.string.ok));
+		show(msg, getString(R.string.confirm));
 	}
 	public void show(int msg) {
 		show(getString(msg));
 	}
 	
 	public void show(String msg,long time) {
-		if(yishuaDialog != null )
+		if(mDownLoadDialog != null )
 		{
-			yishuaDialog = null;
+			mDownLoadDialog = null;
 		}
-		yishuaDialog = new YishuaDialog(mContext);
-		yishuaDialog
-		.setButtonVisible(YishuaDialog.DIALOG_NO_BUTTON_VISIBLE)
+		mDownLoadDialog = new BaseDialog(mContext);
+		mDownLoadDialog
+		.setButtonVisible(BaseDialog.DIALOG_NO_BUTTON_VISIBLE)
 		.setMessage(msg)
 		.show();
 		if(timer==null)
@@ -137,8 +134,8 @@ public class DialogFactory {
 			
 			@Override
 			public void run() {
-				if(yishuaDialog != null)
-				yishuaDialog.cancel();
+				if(mDownLoadDialog != null)
+				mDownLoadDialog.cancel();
 				this.cancel();
 				timer.cancel();
 				timer = null;
@@ -148,19 +145,19 @@ public class DialogFactory {
 
 
 	public void show(int title, int msg, int ok) {
-		if(yishuaDialog != null )
+		if(mDownLoadDialog != null )
 		{
-			yishuaDialog = null;
+			mDownLoadDialog = null;
 		}
-		yishuaDialog = new YishuaDialog(mContext);
-		yishuaDialog
+		mDownLoadDialog = new BaseDialog(mContext);
+		mDownLoadDialog
 		.setTit(title)
 		.setOkButtonText(getString(ok))
 		.setOkClick(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				yishuaDialog.cancel();
+				mDownLoadDialog.cancel();
 			}
 		})
 		.setMessage(msg)
@@ -172,18 +169,18 @@ public class DialogFactory {
 	}
 
 	public void show(String msg, String ok) {
-		if(yishuaDialog != null )
+		if(mDownLoadDialog != null )
 		{
-			yishuaDialog = null;
+			mDownLoadDialog = null;
 		}
-		yishuaDialog = new YishuaDialog(mContext);
-		yishuaDialog
+		mDownLoadDialog = new BaseDialog(mContext);
+		mDownLoadDialog
 		.setOkButtonText(ok)
 		.setOkClick(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				yishuaDialog.cancel();
+				mDownLoadDialog.cancel();
 			}
 		})
 		.setMessage(msg)
@@ -194,11 +191,11 @@ public class DialogFactory {
 	/***
 	 * YiShua弹出框消失
 	 */
-	public void cancelYiShuaDialog()
+	public void cancelDownLoadDialog()
 	{
-		if(yishuaDialog!=null)
+		if(mDownLoadDialog!=null)
 		{
-			yishuaDialog.cancel();
+			mDownLoadDialog.cancel();
 		}
 	}
 	
@@ -213,7 +210,7 @@ public class DialogFactory {
 	
 	public void setCancel(boolean flag)
 	{
-		yishuaDialog.setCancelable(flag);
+		mDownLoadDialog.setCancelable(flag);
 	}
 
 	public static DialogFactory getInstance(Activity context) {
