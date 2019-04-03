@@ -1,5 +1,5 @@
 
-package com.smart.lock.bean;
+package com.smart.lock.model;
 
 /**
  */

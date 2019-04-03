@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.ParcelUuid;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -29,7 +28,8 @@ import android.widget.Toast;
 import com.smart.lock.R;
 import com.smart.lock.action.AbstractTransaction;
 import com.smart.lock.action.CheckVersionAction;
-import com.smart.lock.bean.VersionModel;
+import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.entity.VersionModel;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.Device;
@@ -50,8 +50,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Arrays;
-import java.util.UUID;
 
 public class OtaUpdateActivity extends Activity implements View.OnClickListener {
 
@@ -299,24 +297,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         initView();
         initEvent();
 
-        if (!SystemUtils.isNetworkAvailable(this)) {
-            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-        }
-
         initDate();
 
         changeView(0);
-
-        checkDevVersion();
-
-
-//        String dir = FileUtil.createDir(this, "device") + File.separator;
-//
-//        mDevicePath = dir + "application.bin";
-//
-//        tempPath = mDevicePath + ".temp";
-//
-//        Log.d(TAG, "mDevicePath = " + mDevicePath);
 
     }
 
@@ -350,17 +333,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
 
         mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(UARTStatusChangeReceiver,
-                makeGattUpdateIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(otaReceiver, makeGattUpdateIntentFilter());
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         mBleManagerHelper = BleManagerHelper.getInstance(this, true);
-
-
-//        mConnectNodeId = StringUtil.hexStr2Str(mNodeId);
-
-//        StringUtil.exchange(mConnectNodeId);
+        if (mBleManagerHelper.getServiceConnection()) {
+            mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
+        }
 
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -385,17 +365,11 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
     }
 
     private void checkDevVersion() {
-//        BaseApplication app = (BaseApplication) this.getApplication();
-//        if (app.getLoginInfo() == null) {
-//            Toast.makeText(this, "登陆异常，请重新登陆", Toast.LENGTH_LONG).show();
-//            app.gotoLoginActivity();
-//        } else {
-//            mVersionAction.setToken(app.getLoginInfo().getToken());
+        mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
         mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
         mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
         mVersionAction.setTransferPayResponse(tCheckDevResponse);
         mVersionAction.transStart(this);
-//        }
     }
 
     AbstractTransaction.TransferPayResponse tCheckDevResponse = new AbstractTransaction.TransferPayResponse() {
@@ -414,10 +388,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                 mDownloadUrl = ConstantUtil.BASE_URL + version.path;
                 Log.d(TAG, "mDownloadUrl = " + mDownloadUrl);
                 mVersionName.setText(version.versionName);
-                mFileName = ConstantUtil.APPLICATION + version.versionName;
+                mFileName = getString(R.string.app_name) + version.versionName;
                 getPath(version.versionCode);
-                int code = 14;
-                if (version.versionCode == code) {
+                int len = version.versionName.length();
+                int hwLen = mDefaultDev.getDeviceHwVersion().length();
+                int code = 0;
+                if (len >= 5 && hwLen >= 5)
+                    code = StringUtil.compareVersion(version.versionName.substring(len - 5, len), mDefaultDev.getDeviceHwVersion().substring(hwLen - 5, hwLen));
+                if (0 == code) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
                     if (version.forceUpdate) {
@@ -468,6 +446,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
             }
         } else {
             mStartBt.setVisibility(View.VISIBLE);
+            mStartBt.setEnabled(true);
             mPb.setProgress(0);
         }
     }
@@ -621,17 +600,31 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         intentFilter.addAction(BleMsg.STR_RSP_OTA_MODE);
         intentFilter.addAction(BleMsg.ACTION_CHARACTERISTIC_WRITE);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG1C_VERSION);
         return intentFilter;
     }
 
     /**
      * 蓝牙广播接收器
      */
-    private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver otaReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
 
+            if (action.equals(BleMsg.STR_RSP_MSG1C_VERSION)) {
+                String sn = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_NODE_SN));
+                String swVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_SW_VER));
+                String hwVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_HW_VER));
+                LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
+                        "HW VERSION = " + hwVer + '\n' +
+                        "SN = " + sn);
+                mDefaultDev.setDeviceSn(sn);
+                mDefaultDev.setDeviceSwVersion(swVer);
+                mDefaultDev.setDeviceHwVersion(hwVer);
+                DeviceInfoDao.getInstance(OtaUpdateActivity.this).updateDeviceInfo(mDefaultDev);
+                checkDevVersion();
+            }
 
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION_OTA)) {
                 mAK = intent.getByteArrayExtra(BleMsg.KEY_AK);
@@ -700,6 +693,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                 mCheckVersion.setVisibility(View.GONE);
                 mVersionUpdate.setVisibility(View.VISIBLE);
                 mStartBt.setText(R.string.download_version);
+                mStartBt.setEnabled(false);
+                mPb.setProgress(0);
                 break;
             case 2:
                 break;
@@ -862,7 +857,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         mBleManagerHelper.setTempMode(false);
 
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(otaReceiver);
         } catch (Exception ignore) {
             Log.e(TAG, ignore.toString());
         }

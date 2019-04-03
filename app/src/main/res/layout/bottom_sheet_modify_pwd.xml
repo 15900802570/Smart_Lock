@@ -62,7 +62,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/one_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -75,7 +75,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/two_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"
@@ -88,7 +88,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/three_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -108,7 +108,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/four_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -120,7 +120,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/five_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -132,7 +132,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/six_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -152,7 +152,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/seven_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -164,7 +164,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/eight_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -176,7 +176,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/nine_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -203,7 +203,7 @@
             android:gravity="center"
             android:padding="10dp"
             android:textSize="18sp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:text="@string/zero_num"
             android:textColor="@color/black"
             android:onClick="numOnClick"/>
@@ -215,7 +215,7 @@
             android:gravity="center"
             android:paddingTop="7dp"
             android:paddingBottom="7dp"
-            android:background="@drawable/box_corners_radius_10"
+            android:background="@drawable/box_corners_alpha_radius_10"
             android:src="@drawable/ic_delete"
             android:onClick="numOnClick"/>
     </LinearLayout>

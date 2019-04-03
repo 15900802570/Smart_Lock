@@ -5,13 +5,13 @@
         <shape android:shape="oval">
         <stroke
             android:width="0.7sp"
-            android:color="@android:color/white" />
+            android:color="@color/blue_key" />
         </shape>
     </item>
 
     <item android:state_selected="true">
         <shape android:shape="oval">
-            <solid android:color="@android:color/white" />
+            <solid android:color="@color/blue_key" />
         </shape>
     </item>
 

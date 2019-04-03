@@ -283,4 +283,6 @@
     <string name="ota_connection">Connecting OTA mode</string>
     <string name="update_version">Updated version:</string>
     <string name="current_version">Current version:</string>
+    <string name="not_regenerate_temp_pwd">There is a temporary password. Do not regenerate it.</string>
+    <string name="dev_default">Default</string>
 </resources>

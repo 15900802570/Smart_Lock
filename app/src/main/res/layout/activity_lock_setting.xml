@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/setting_bg"
     tools:context=".ui.LockSettingActivity">
 
     <RelativeLayout
@@ -48,6 +49,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="5dp"
             android:orientation="vertical">
 
             <com.smart.lock.widget.ToggleSwitchDefineView

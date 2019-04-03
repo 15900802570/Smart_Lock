@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_hide_default_and_unbind"
+    android:layout_width="wrap_content"
+    android:layout_height="110dp"
+    android:orientation="horizontal"
+    android:paddingTop="4dp"
+    android:paddingRight="5dp"
+    android:paddingBottom="13.0dip">
+
+    <!--<LinearLayout-->
+        <!--android:id="@+id/ll_set_default"-->
+        <!--android:layout_width="75.0dip"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/colorPrimary"-->
+        <!--android:gravity="center">-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/tv_set_default"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:drawablePadding="2.0dip"-->
+            <!--android:gravity="center"-->
+            <!--android:text="@string/set_default"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:textSize="16sp" />-->
+    <!--</LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/ll_unbind"
+        android:layout_width="75.0dip"
+        android:layout_height="match_parent"
+        android:background="@drawable/box_corners_red_radius_6"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/tv_unbind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="2.0dip"
+            android:gravity="center"
+            android:text="@string/unbind"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:paddingLeft="25dp"
     android:paddingRight="25dp"
+    android:orientation="vertical"
+    android:gravity="center"
     android:background="@color/transparent">
 
     <LinearLayout
@@ -34,13 +36,30 @@
             android:text="@string/tips"
             android:textSize="15sp" />
 
+        <!--<Button-->
+            <!--android:id="@+id/dialog_cancel_btn"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/button_selector"-->
+            <!--android:gravity="center"-->
+            <!--android:text="@string/cancel" />-->
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffeeee"
+        android:paddingTop="0.3dp"
+        android:orientation="horizontal">
+
         <Button
             android:id="@+id/dialog_cancel_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_selector"
             android:gravity="center"
-            android:text="@string/cancel" />
+            android:onClick="tipsOnClick"
+            android:text="@string/cancel"/>
 
     </LinearLayout>
 </LinearLayout>

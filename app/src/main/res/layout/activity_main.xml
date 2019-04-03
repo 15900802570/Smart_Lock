@@ -39,6 +39,7 @@
                 style="@style/main_tab_style"
                 android:drawableTop="@drawable/me_bt_bg"
                 android:gravity="center"
+                android:layout_height="wrap_content"
                 android:text="@string/me_rd" />
         </RadioGroup>
     </RelativeLayout>

@@ -1,11 +1,7 @@
-package com.smart.lock.ble;
+package com.smart.lock.ble.listener;
 
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,26 +12,18 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.ParcelUuid;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.smart.lock.R;
+import com.smart.lock.ble.BleCardService;
+import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.ui.BaseListViewActivity;
-import com.smart.lock.ui.LockDetectingActivity;
-import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
-import com.smart.lock.utils.ToastUtil;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 public class BleManagerHelper {
     private static final String TAG = BleManagerHelper.class.getSimpleName();

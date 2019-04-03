@@ -16,7 +16,7 @@ public class TempPwdDao {
     private Context mContext;
     private static TempPwdDao instance;
 
-    protected TempPwdDao(Context context) {
+    private TempPwdDao(Context context) {
         this.mContext = context;
         try {
             mHelper = DtDatabaseHelper.getHelper(mContext);
@@ -79,17 +79,17 @@ public class TempPwdDao {
         return list;
     }
 
-    public ArrayList<TempPwd> queryAll() {
-        ArrayList<TempPwd> list = null;
+    public TempPwd queryMaxCreateTime() {
+        TempPwd tempPwd =null;
         try {
-            list = (ArrayList<TempPwd>) dao.queryBuilder().orderBy("pwd_create_time", false).query();
-            if (list != null) {
-                return list;
+            tempPwd = dao.queryBuilder().orderBy("pwd_create_time", false).queryForFirst();
+            if (tempPwd != null) {
+                return tempPwd;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return list;
+        return tempPwd;
     }
     public ArrayList<TempPwd> queryAllByDevNodeId(String devNodeId) {
         ArrayList<TempPwd> list = null;
