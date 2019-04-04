@@ -42,10 +42,14 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.ui.login.LockScreenActivity;
+import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -500,9 +504,17 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 String deviceName = mRemarkEt.getText().toString().trim();
                 mDetectingDevice.setDeviceName((deviceName.equals("") == true) ? getString(R.string.lock_default_name) : deviceName);
                 DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
-
+                if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+                    finish();
+                }else {
+                    Intent intent = new Intent(LockDetectingActivity.this, LockScreenActivity.class);
+                    intent.putExtra(ConstantUtil.IS_RETURN, true);
+                    intent.putExtra(ConstantUtil.NOT_CANCEL,true);
+                    LockDetectingActivity.this.startActivityForResult(intent.
+                            putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), 1);
+                }
 //                startIntent(MainActivity.class, null, Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                finish();
+
                 break;
             case R.id.et_remark:
                 break;
@@ -609,5 +621,24 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             return;
         }
         mBackPressedTime = curTime;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
+                case 1:
+                    SharedPreferenceUtil.getInstance(this).
+                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                    ToastUtil.showLong(this, "密码设置成功");
+                    finish();
+                    break;
+                default:
+                    ToastUtil.showLong(this, "密码设置失败");
+                    finish();
+                    break;
+            }
+        }
     }
 }

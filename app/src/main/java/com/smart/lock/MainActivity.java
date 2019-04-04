@@ -3,6 +3,7 @@ package com.smart.lock;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
@@ -36,10 +37,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     //fragment list
     private List<BaseFragment> mPagerList;
 
-    private ImageView mOneClickOpen;
     private int mHeight;
-
-    private HomeFragment mHomeFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private void initView() {
         mTabVg = findViewById(R.id.fragment_vg);
         mTabRg = findViewById(R.id.tab_rg);
-        mOneClickOpen = findViewById(R.id.one_click_unlock_ib);
+        ImageView mOneClickOpen = findViewById(R.id.one_click_unlock_ib);
         mOneClickOpen.setPadding(0, 0, 0, (int) (mHeight * 0.025));
         findViewById(R.id.rl_home).getLayoutParams().height = (int) (mHeight * 0.085);
     }
@@ -68,15 +66,14 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private void initDate() {
         BleManagerHelper.getInstance(this, false);
         mPagerList = new ArrayList();
-        mHomeFragment = new HomeFragment();
-        mHomeFragment.setmInstructionBtn(mOneClickOpen);
-        mPagerList.add(mHomeFragment);
+        mPagerList.add(new HomeFragment());
         mPagerList.add(new MeFragment());
         mTabVg.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             public Fragment getItem(int i) {
                 return mPagerList.get(i);
             }
 
+            @NonNull
             public Object instantiateItem(ViewGroup container, int position) {
                 return super.instantiateItem(container, position);
             }
@@ -152,6 +149,5 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
                 findViewById(R.id.one_click_unlock_ib).setVisibility(View.GONE);
             }
         }
-        mHomeFragment.setmInstructionBtn(mOneClickOpen);
     }
 }

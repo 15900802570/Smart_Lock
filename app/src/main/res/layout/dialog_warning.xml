@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/button_warning_left_selector"
+            android:background="@drawable/selector_button_warning_left"
             android:textColor="@color/white"
             android:text="@string/cancel"
             android:onClick="warningOnClick"/>
@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/button_warning_right_selector"
+            android:background="@drawable/selector_button_warning_right"
             android:textColor="@color/alpha_gray"
             android:text="@string/confirm"
             android:enabled="false"

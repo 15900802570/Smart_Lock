@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/rl_next_activity"
     android:layout_margin="5dp"
-    android:background="@drawable/button_selector_radius_10">
+    android:background="@drawable/selector_button_radius_10">
 
     <TextView
         android:id="@+id/tv_next_des"

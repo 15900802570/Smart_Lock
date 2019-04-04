@@ -295,4 +295,7 @@
     <string name="after_down">后台下载 </string>
     <string name="checking_version">检测版本中 </string>
     <string name="plz_open_wifi">请打开WIFI </string>
+    <string name="please_input_pwd_first">请输入新密码</string>
+    <string name="please_input_old_pwd">请输入旧密码</string>
+    <string name="setting_password_for_security">为确保安全，请设置密码</string>
 </resources>

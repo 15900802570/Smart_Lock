@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="70dp"
         android:text="@string/please_input_pwd"
         android:textSize="18sp" />
     <!-- 密码显示框 -->
@@ -48,7 +48,7 @@
         android:id="@+id/num_kb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp" />
+        android:layout_marginTop="70dp" />
     <!-- 底部布局 -->
     <RelativeLayout
         android:id="@+id/rl_bottom"
@@ -63,9 +63,9 @@
             android:id="@+id/tv_delete"
             android:layout_width="70dp"
             android:layout_height="50dp"
-            android:gravity="center"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:gravity="center"
             android:onClick="doClick"
             android:text="@string/delete"
             android:textSize="18sp"

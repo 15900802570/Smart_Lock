@@ -11,20 +11,16 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.os.CancellationSignal;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ui.OtaUpdateActivity;
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.CheckVersionThread;
@@ -54,23 +50,20 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private ToggleSwitchDefineView mFingerprintSwitchTv;
     private ToggleButton mFingerprintSwitchLightTbtn;
     private NextActivityDefineView mCheckVersionNv;
+    private NextActivityDefineView mModifyPwdNv;
 
     private Dialog mPromptDialog;
 
     private Dialog mFingerprintDialog;
 
-    private CancellationSignal mCancellationSignal;
 
     private boolean mIsFPRequired = false;
     private boolean mIsPwdRequired = false;
     private CheckVersionThread mCheckVersionThread;
     protected DialogFactory mDialog;
 
-    private EditText mNumPwd1Et;
-    private EditText mNumPwd2Et;
-    private EditText mNumPwd3Et;
-    private EditText mNumPwd4Et;
-
+    private int REQUEST_CODE_NEW_PASSWORD = 1;
+    private int REQUEST_CODE_MODIFY_PASSWORD = 1;
 
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -96,17 +89,19 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mFingersPrintSwitchLight = mFingersPrintSwitchTv.getIv_switch_light();
         mOpenTestTv = findViewById(R.id.tw_open_test);
         mCheckVersionNv = findViewById(R.id.next_check_version);
+        mModifyPwdNv = findViewById(R.id.system_set_modify_pwd);
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
         mFingersPrintSwitchTv.setDes("指纹验证");
         mOpenTestTv.setDes("测试自动连接");
+        mModifyPwdNv.setDes(getResources().getString(R.string.modify_pwd));
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
-        mIsFP = supportFP();
+
         if (mIsFP > 1) {
             mFingerprintSwitchTv.setDes("指纹验证");
             mFingerprintSwitchLightTbtn = mFingerprintSwitchTv.getIv_switch_light();
@@ -122,9 +117,12 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                 mNumPwdSwitchLightTBtn.setChecked(true);
                 mIsPwdRequired = true;
+                mNumPwdSwitchTv.setVisibility(View.GONE);
+                mModifyPwdNv.setVisibility(View.VISIBLE);
             } else {
                 mNumPwdSwitchLightTBtn.setChecked(false);
                 mIsPwdRequired = false;
+                mModifyPwdNv.setVisibility(View.GONE);
             }
         } catch (NullPointerException e) {
             LogUtil.e(TAG, "初始化密码验证开关出错" + e);
@@ -189,7 +187,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     }
 
     @Override
-    public void onFingerprintAuthentication() {
+    public void onFingerprintAuthenticationSucceeded() {
         LogUtil.i(TGA, "指纹验证成功");
         SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                 writeBoolean(ConstantUtil.FINGERPRINT_CHECK, !mIsFPRequired);
@@ -198,7 +196,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     }
 
     @Override
-    public void onFingerprintAuthenticationError() {
+    public void onFingerprintAuthenticationError(int errorCode) {
 
     }
 
@@ -216,13 +214,10 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 break;
 
             case R.id.system_set_modify_pwd:
-                BottomSheetDialog bottomDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_modify_pwd, R.id.system_set_modify_pwd_ll);
-                mNumPwd1Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd1_et);
-                mNumPwd2Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd2_et);
-                mNumPwd3Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd3_et);
-                mNumPwd4Et = bottomDialog.getDelegate().findViewById(R.id.num_pwd4_et);
-
-                bottomDialog.show();
+                Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
+                intent.putExtra(ConstantUtil.IS_RETURN, true);
+                SystemSettingsActivity.this.startActivityForResult(intent.
+                        putExtra(ConstantUtil.TYPE, ConstantUtil.MODIFY_PASSWORD), REQUEST_CODE_MODIFY_PASSWORD);
                 break;
 
             case R.id.next_check_version:
@@ -255,7 +250,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                 intent.putExtra(ConstantUtil.IS_RETURN, true);
                 SystemSettingsActivity.this.startActivityForResult(intent.
-                        putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), 1);
+                        putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), REQUEST_CODE_NEW_PASSWORD);
                 break;
         }
         mPromptDialog.cancel();
@@ -265,7 +260,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         switch (idRes) {
             case R.id.system_set_switch_password:
                 if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
-                    mPromptDialog = DialogUtils.createTipsDialog(SystemSettingsActivity.this,
+                    mPromptDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(SystemSettingsActivity.this,
                             "您还未添加密码信息，是否立即设置？");
                     if (!mPromptDialog.isShowing()) {
                         mPromptDialog.show();
@@ -274,14 +269,14 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                     intent.putExtra(ConstantUtil.IS_RETURN, true);
                     SystemSettingsActivity.this.startActivityForResult(intent.
-                            putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), 1);
+                            putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), REQUEST_CODE_NEW_PASSWORD);
                 }
                 break;
 
             case R.id.system_set_switch_fingerprint:
                 if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
                     if (!mIsPwdRequired) {
-                        mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
+                        mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
                                 "您未开启密码验证，请先开启密码验证");
                         mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -291,7 +286,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                             }
                         });
                     } else if (mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE) {
-                        mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
+                        mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
                                 "您未设置锁屏，请设置锁屏并添加指纹");
                         mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -301,7 +296,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                             }
                         });
                     } else if (mIsFP == ConstantUtil.FP_NO_FINGERPRINT) {
-                        mFingerprintDialog = DialogUtils.createAlertDialog(SystemSettingsActivity.this,
+                        mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
                                 "您至少在系统设置中添加一个指纹");
                         mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -328,80 +323,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
     }
 
-    public void numOnClick(@NonNull View view) {
-        int num = -1;
-        switch (view.getId()) {
-            case R.id.num_one_tv:
-                num = 1;
-                break;
-            case R.id.num_two_tv:
-                num = 2;
-                break;
-            case R.id.num_three_tv:
-                num = 3;
-                break;
-            case R.id.num_four_tv:
-                num = 4;
-                break;
-            case R.id.num_five_tv:
-                num = 5;
-                break;
-            case R.id.num_six_tv:
-                num = 6;
-                break;
-            case R.id.num_seven_tv:
-                num = 7;
-                break;
-            case R.id.num_eight_tv:
-                num = 8;
-                break;
-            case R.id.num_nine_tv:
-                num = 9;
-                break;
-            case R.id.num_zero_tv:
-                num = 0;
-                break;
-            case R.id.num_back_tv:
-                num = -1;
-                break;
-        }
-        if (num != -1) {
-            setPwd(String.valueOf(num));
-        } else {
-            delPwd();
-        }
-        LogUtil.d(TAG, "TAG = " + mNumPwd1Et.getText());
-    }
-
-    private void setPwd(String num) {
-        if (mNumPwd1Et.getText().toString().equals("")) {
-            mNumPwd1Et.setText(num);
-            LogUtil.d(TAG, "TAG = 1");
-            mNumPwd2Et.setFreezesText(true);
-        } else if (mNumPwd2Et.getText().toString().equals("")) {
-            mNumPwd2Et.setText(num);
-            LogUtil.d(TAG, "TAG = 2");
-            mNumPwd3Et.setFreezesText(true);
-        } else if (mNumPwd3Et.getText().toString().equals("")) {
-            mNumPwd3Et.setText(num);
-            mNumPwd4Et.setFreezesText(true);
-        } else if (mNumPwd4Et.getText().toString().equals("")) {
-            mNumPwd4Et.setText(num);
-        }
-    }
-
-    private void delPwd() {
-        if (!mNumPwd4Et.getText().toString().equals("")) {
-            mNumPwd4Et.getText().delete(0, 1);
-        } else if (!mNumPwd3Et.getText().toString().equals("")) {
-            mNumPwd3Et.getText().delete(0, 1);
-        } else if (!mNumPwd2Et.getText().toString().equals("")) {
-            mNumPwd2Et.getText().delete(0, 1);
-        } else if (!mNumPwd1Et.getText().toString().equals("")) {
-            mNumPwd1Et.getText().delete(0, 1);
-        }
-    }
-
     @Override
     protected void onResume() {
         if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK) &&
@@ -422,12 +343,14 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         super.onActivityResult(requestCode, resultCode, data);
 
 
-        if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_NEW_PASSWORD) {
             switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
                 case 1:
                     SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                             writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                     mNumPwdSwitchLightTBtn.setChecked(true);
+                    mNumPwdSwitchTv.setVisibility(View.GONE);
+                    mModifyPwdNv.setVisibility(View.VISIBLE);
                     mIsPwdRequired = true;
                     break;
                 case -1:
@@ -447,7 +370,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 default:
                     break;
             }
-        } else {
+        } else if(requestCode == REQUEST_CODE_NEW_PASSWORD) {
             SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                     writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
             mNumPwdSwitchLightTBtn.setChecked(true);

@@ -192,6 +192,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mLockStatusTv = mHomeView.findViewById(R.id.tv_status);
         mBleConnectIv = mHomeView.findViewById(R.id.iv_connect);
         mScanQrIv = mHomeView.findViewById(R.id.iv_scan_qr);
+        mInstructionBtn = mActivity.findViewById(R.id.one_click_unlock_ib);
         initEvent();
         LogUtil.d(TAG, "mHeight = " + mHeight);
         //设置界面比例
@@ -204,10 +205,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mHomeView.findViewById(R.id.ll_gv_lock).setPadding(0, (int) (mHeight * 0.025), 0, 0);
 
         return mHomeView;
-    }
-
-    public void setmInstructionBtn(View view) {
-        mInstructionBtn = (ImageView) view;
     }
 
     public void setTestMode(boolean openTest) {
@@ -341,7 +338,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
                     refreshBattery(mBattery);
                 } else {
-                    mLockStatusTv.setText(R.string.bt_connect_failed);
+                    mLockStatusTv.setText(R.string.bt_unconnected);
                     mBleConnectIv.setClickable(true);
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth);
                     refreshView(BATTER_UNKNOW);

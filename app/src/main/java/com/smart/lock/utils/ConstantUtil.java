@@ -66,6 +66,11 @@ public class ConstantUtil {
     public static final int LOGIN_PASSWORD = 1;
 
     /**
+     * 修改密码
+     */
+    public static final int MODIFY_PASSWORD = 3;
+
+    /**
      * SharedPreferences的文件名
      */
     public static final String PREF_NAME = "numberlock";
@@ -73,6 +78,8 @@ public class ConstantUtil {
     public static final String TYPE = "type";
 
     public static final String IS_RETURN = "is_return";
+
+    public static final String NOT_CANCEL = "not_cancel";
 
     public static final String CONFIRM = "confirm";
 

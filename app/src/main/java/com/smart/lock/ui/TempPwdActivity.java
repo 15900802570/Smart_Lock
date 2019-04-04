@@ -34,7 +34,6 @@ import com.smart.lock.utils.ToastUtil;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -44,6 +43,8 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
+import static com.smart.lock.ble.message.MessageCreator.mIs128Code;
+
 public class TempPwdActivity extends Activity implements View.OnClickListener {
 
     private static String TAG = "TempPwdActivity";
@@ -52,8 +53,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private String mNodeId;
     private String mMac;
     private long mSecret;
-    private static final List<String> mList = new ArrayList<>(
-            Arrays.asList("01", "02", "03", "04"));
     private List<String> mSecretList = new ArrayList<>();
 
     private RecyclerView mTempPwdListViewRv;
@@ -76,10 +75,17 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         mMac = mDefaultDevice.getBleMac().replace(":", "");
         String tempSecret = mDefaultDevice.getTempSecret();
         if (StringUtil.checkNotNull(tempSecret)) {
-            mSecretList.add(tempSecret.substring(0, 64));
-            mSecretList.add(tempSecret.substring(64, 128));
-            mSecretList.add(tempSecret.substring(128, 192));
-            mSecretList.add(tempSecret.substring(192, 256));
+            if (mIs128Code) {
+                mSecretList.add(tempSecret.substring(0, 32));
+                mSecretList.add(tempSecret.substring(32, 64));
+                mSecretList.add(tempSecret.substring(64, 96));
+                mSecretList.add(tempSecret.substring(96, 128));
+            } else {
+                mSecretList.add(tempSecret.substring(0, 64));
+                mSecretList.add(tempSecret.substring(64, 128));
+                mSecretList.add(tempSecret.substring(128, 192));
+                mSecretList.add(tempSecret.substring(192, 256));
+            }
             LogUtil.d(TAG, "mSecretList = " + mSecretList.toString());
         } else {
             Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
@@ -118,31 +124,23 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             ToastUtil.showShort(this, R.string.not_regenerate_temp_pwd);
             return false;
         } else {
-            byte[] lKey;
             int mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
-            byte[] mNodeIdBytes = StringUtil.hexStringToBytes(mNodeId);
-            StringUtil.exchange(mNodeIdBytes);
-            lKey = StringUtil.byteMerger(mNodeIdBytes,
-                    StringUtil.hexStringToBytes(mMac +
-                            mList.get(new Random().nextInt(4)) +  //随机序列
-                            "0000000000000000000000000000000000"));     //17字节补码
 
             LogUtil.d(TAG, "mCurTime=" + mCurTime + '\'' + System.currentTimeMillis());
             LogUtil.d(TAG, "NodeId=" + mNodeId + '\\' +
                     "                        mMac=" + mMac);
             LogUtil.d(TAG, "CurrentTimeHEX=" + intToHex(mCurTime));
-            LogUtil.d(TAG, "Key=" + byteArrayToHexString(lKey));
-
-            if (lKey.length == 32) {
+            if (mIs128Code) {
+                mSecret = StringUtil.getCRC32(AES128Encode(intToHex(mCurTime) + "000000000000000000000000",
+                        StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
+            } else {
                 mSecret = StringUtil.getCRC32(AES256Encode(intToHex(mCurTime) + "000000000000000000000000",
                         StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
-                showPwdDialog(String.valueOf(mSecret));
-                LogUtil.d(TAG, "mSecret=" + mSecret);
-                return true;
-            } else {
-                LogUtil.d(TAG, "mKey=" + StringUtil.bytesToHexString(lKey) + "   " + lKey.length);
-                return false;
             }
+
+            showPwdDialog(String.valueOf(mSecret));
+            LogUtil.d(TAG, "mSecret=" + mSecret);
+            return true;
         }
     }
 
@@ -179,21 +177,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             k += 2;
         }
         return byteArray;
-    }
-
-    /**
-     * 字节数组转十六进制
-     *
-     * @param data 输入字节串
-     * @return String 16进制对应的字符串
-     */
-    private String byteArrayToHexString(byte[] data) {
-        StringBuilder sBuilder = new StringBuilder();
-        for (byte aData : data) {
-            String str1 = Integer.toHexString(aData & 0xFF);
-            sBuilder.append(str1);
-        }
-        return sBuilder.toString();
     }
 
     /**
@@ -246,12 +229,39 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     }
 
     /**
+     * AES128加密
+     *
+     * @param stringToEncode 输入加密信息
+     * @param secretKey      byte[] 加密Secret
+     * @return byte[]
+     */
+    private byte[] AES128Encode(String stringToEncode, byte[] secretKey) {
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(secretKey, "AES128");
+            @SuppressLint("GetInstance") Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+            return cipher.doFinal(toByteArray(stringToEncode));
+        } catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Dialog显示临时密码
      *
      * @param string 临时密码
      */
     private void showPwdDialog(final String string) {
-        final Dialog dialog = DialogUtils.createAlertDialog(this, "*" + string);
+        final Dialog dialog = DialogUtils.createTipsDialogWithCancel(this, "*" + string);
         TextView tips = dialog.findViewById(R.id.tips_tv);
         tips.setTextSize(20);
         Button button = dialog.findViewById(R.id.dialog_cancel_btn);

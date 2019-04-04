@@ -106,7 +106,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 } else if (content.length() == 128) {
                     mByte = StringUtil.hexStringToBytes(content);
                 } else {
-                    Dialog alterDialog = DialogUtils.createAlertDialog(this, content);
+                    Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(this, content);
                     alterDialog.show();
                     return;
                 }
@@ -203,7 +203,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
 
     private void addDev() {
         if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
-            Dialog alterDialog = DialogUtils.createAlertDialog(this, "授权码已过期，请重新请求");
+            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(this, "授权码已过期，请重新请求");
             alterDialog.show();
         } else if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
             ToastUtil.show(this, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
@@ -301,7 +301,7 @@ public class DeviceManagementActivity extends AppCompatActivity {
                 DialogUtils.closeDialog(mLoadDialog);
             }
             if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
-                mAddNewDevDialog = DialogUtils.createTipsDialog(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
+                mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
                 mAddNewDevDialog.show();
             }
         }

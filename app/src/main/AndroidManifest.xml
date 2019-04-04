@@ -56,7 +56,8 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.login.LockScreenActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ui.setting.SystemSettingsActivity"
             android:screenOrientation="portrait"

@@ -30,7 +30,6 @@ public class FingerprintDialogFragment extends DialogFragment {
     private TextView mErrorTv;
 
     private BaseFPActivity mActivity;
-    private boolean isSelfCancel;
 
     private static String TGA = "FingerprintDialogFragment";
 
@@ -83,7 +82,6 @@ public class FingerprintDialogFragment extends DialogFragment {
     }
 
     private void startFPListening() {
-        isSelfCancel = false;
         mCancellationSignal = new CancellationSignal();
         mFPM.authenticate(new FingerprintManager.CryptoObject(mCipher),
                 mCancellationSignal,
@@ -96,7 +94,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                         if(errorCode==FingerprintManager.FINGERPRINT_ERROR_LOCKOUT){
                             Toast.makeText(mActivity,"指纹验证次数达到上限",Toast.LENGTH_SHORT).show();
                             dismiss();
-                            mActivity.onFingerprintAuthenticationError();
+                            mActivity.onFingerprintAuthenticationError(errorCode);
                         }
                         mActivity.onFingerprintCancel();
 
@@ -111,7 +109,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         LogUtil.i(TGA, "指纹验证成功");
-                        mActivity.onFingerprintAuthentication();
+                        mActivity.onFingerprintAuthenticationSucceeded();
                         dismiss();
                         stopFPListening();
                     }
@@ -127,7 +125,7 @@ public class FingerprintDialogFragment extends DialogFragment {
     }
 
     private void shakes(){
-        Vibrator vibrator = (Vibrator) mActivity.getSystemService(mActivity.VIBRATOR_SERVICE);
+        Vibrator vibrator = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null) {
             vibrator.vibrate(300);
         }

@@ -3,18 +3,15 @@ package com.smart.lock.utils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.CountDownTimer;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.BottomSheetDialog;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,14 +28,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
-import com.smart.lock.ble.Device;
-import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.widget.CustomDialog;
+import com.yzq.zxinglibrary.common.Constant;
 
 public class DialogUtils {
     private static final String TAG = "DialogUtils";
@@ -117,7 +112,7 @@ public class DialogUtils {
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_warning_view);  // 加载布局
         TextView tipTextView = (TextView) v.findViewById(R.id.warning_tip_tv);          // 提示文字
         final Button confirm = v.findViewById(R.id.warning_confirm_btn);
-        new CountDownTimer(10000, 1000) {              //确认按键倒计时
+        new CountDownTimer(5000, 1000) {              //确认按键倒计时
             @Override
             public void onTick(long millisUntilFinished) {
                 confirm.setText(context.getResources().getString(R.string.confirm) + "(" +
@@ -193,10 +188,10 @@ public class DialogUtils {
 
     }
 
-    public static Dialog createAlertDialog(Context context, String msg) {
+    public static Dialog createTipsDialogWithCancel(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.dialog_tips, null);// 得到加载view
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_ll);  // 加载布局
+        View v = inflater.inflate(R.layout.dialog_tips_with_cancel, null);// 得到加载view
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_cancel_ll);  // 加载布局
         TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
         Button cancelButton = v.findViewById(R.id.dialog_cancel_btn);
 
@@ -228,6 +223,39 @@ public class DialogUtils {
 
         return alertDialog;
     }
+    public static Dialog createTipsDialogWithConfirm(Context context, String msg){
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_tips_with_confirm, null);// 得到加载view
+        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_ll);  // 加载布局
+        TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
+        Button confirmButton = v.findViewById(R.id.dialog_confirm_btn);
+
+        tipTextView.setText(msg);// 设置加载信息
+
+        final Dialog confirmDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        confirmDialog.setContentView(layout, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));// 设置布局
+        /**
+         *将显示Dialog的方法封装在这里面
+         */
+        Window window = confirmDialog.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        window.setGravity(Gravity.CENTER);
+        window.setAttributes(lp);
+        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                confirmDialog.cancel();
+            }
+        });
+
+        return confirmDialog;
+    }
 
     public static BottomSheetDialog createBottomSheetDialog(Context context, @LayoutRes int layoutResId, @IdRes int bottom_sheet) {
         BottomSheetDialog bottomSheet = new BottomSheetDialog(context);    //实例化
@@ -242,7 +270,7 @@ public class DialogUtils {
         return bottomSheet;
     }
 
-    public static Dialog createTipsDialog(Context context, String msg) {
+    public static Dialog createTipsDialogWithConfirmAndCancel(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_tips_with_confirm_cancel, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_cancel_ll);  // 加载布局

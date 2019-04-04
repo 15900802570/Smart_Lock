@@ -78,8 +78,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         mSystemSetTv.setDes(mMeView.getContext().getResources().getString(R.string.system_setting));
+        mSystemSetTv.setImage(R.drawable.ic_setting);
         mDevManagementTv.setDes(mMeView.getResources().getString(R.string.device_management));
+        mDevManagementTv.setImage(R.drawable.ic_device_management);
         mAboutUsTv.setDes(mMeView.getResources().getString(R.string.about_us));
+        mAboutUsTv.setImage(R.drawable.ic_about_us);
         if (mDefaultUser != null) {
             mNameTv.setText(mDefaultUser.getUserName());
         }

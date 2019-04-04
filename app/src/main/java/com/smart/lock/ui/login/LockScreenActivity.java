@@ -1,57 +1,45 @@
 package com.smart.lock.ui.login;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.smart.lock.MainActivity;
+import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.R;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
+import com.smart.lock.utils.ToastUtil;
 
-import java.security.KeyStore;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+public class LockScreenActivity extends BaseFPActivity implements View.OnClickListener {
 
-public class LockScreenActivity extends Activity implements View.OnClickListener {
-
-    private static String TAG ="LockScreenActivity";
+    private static String TAG = "LockScreenActivity";
 
     private TextView mDeleteTv;
     private TextView mInfoTv; //提示信息
 
 
-    private NumericKeyboard nk; // 数字键盘布局
+    private NumericKeyboard mNumKeyNk; // 数字键盘布局
     private PasswordTextView num_pwd1, num_pwd2, num_pwd3, num_pwd4; // 密码框
 
     private int type;
     private boolean isReturn;
-    private String input; //输入字段
+    private boolean notCancel;
     private StringBuffer fBuffer = new StringBuffer();
 
-    private boolean isFP;
     private boolean isFPRequired = false;
-    private FingerprintManager mFPM;
-    private CancellationSignal mCancellationSignal;
-    private Cipher mCipher;
-    private KeyStore mKeyStore;
 
 
     @Override
@@ -62,41 +50,48 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         //获取界面传递的值
         type = getIntent().getIntExtra("type", 1);
         isReturn = getIntent().getBooleanExtra(ConstantUtil.IS_RETURN, false);
-        LogUtil.d(TAG,"intent type = "+type+'\n'+
-                "isReturn = "+ isReturn);
+        notCancel = getIntent().getBooleanExtra(ConstantUtil.NOT_CANCEL, false);
+        LogUtil.d(TAG, "intent type = " + type + '\n' +
+                "isReturn = " + isReturn);
         initView();
         initListener();// 事件处理
 
     }
 
-    /**
-     *  检测设备是否支持指纹
-     * @return 是否支持指纹
-     */
-    private boolean supportFP(){
-        if(Build.VERSION.SDK_INT<23){
-            LogUtil.i(TAG,"系统版本低,不支持指纹功能");
-            return false;
-        }else {
-            KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
-            mFPM = getSystemService(FingerprintManager.class);
-            if(!mFPM.isHardwareDetected()){
-                LogUtil.i(TAG,"手机不支持指纹");
-                return false;
-            }else if(!keyguardManager.isKeyguardSecure()){
-                LogUtil.i(TAG,"未设置锁屏，需设置锁屏并添加指纹");
-                return false;
-            }else if(!mFPM.hasEnrolledFingerprints()){
-                LogUtil.i(TAG,"系统中至少需要添加一个指纹");
-                return false;
-            }
+    @Override
+    public void onFingerprintAuthenticationSucceeded() {
+        setAllText(true);
+    }
+
+    @Override
+    public void onFingerprintCancel() {
+        onStartFPListening();
+    }
+
+    @Override
+    public void onFingerprintAuthenticationError(int errorCode) {
+        LogUtil.i(TGA, "指纹验证错误" + errorCode);
+        switch (errorCode) {
+            case FingerprintManager.FINGERPRINT_ERROR_LOCKOUT:
+                ToastUtil.show(this,
+                        "指纹验证次数达到上限",
+                        Toast.LENGTH_SHORT);
+                mInfoTv.setText("输入密码");
+                setAllText(false);
+                break;
+                case FingerprintManager.FINGERPRINT_ERROR_CANCELED:
+                    break;
+                    default:
+                        break;
         }
-        LogUtil.i(TAG,"支持指纹");
-        return true;
+    }
+
+    public void onFingerprintAuthenticationFailed() {
+        setAllText(false);
     }
 
     private void initView() {
-        nk = findViewById(R.id.num_kb);// 数字键盘
+        mNumKeyNk = findViewById(R.id.num_kb);// 数字键盘
         // 密码框
         num_pwd1 = findViewById(R.id.num_pwd1);
         num_pwd2 = findViewById(R.id.num_pwd2);
@@ -105,105 +100,46 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         mInfoTv = findViewById(R.id.info_tv);//提示信息
         mDeleteTv = findViewById(R.id.tv_delete);
 
-        /**
-         * 初始化指纹
-         */
-        isFP=supportFP();
-        try{
-           isFPRequired = SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK);
-           LogUtil.e(TAG, "isFPRequired = "+isFPRequired);
+        switch (type){
+            case ConstantUtil.SETTING_PASSWORD:
+                mInfoTv.setText(getString(R.string.please_input_pwd_first));
+                break;
+            case ConstantUtil.MODIFY_PASSWORD:
+                mInfoTv.setText(getString(R.string.please_input_old_pwd));
+                break;
+            case ConstantUtil.LOGIN_PASSWORD:
+                //初始化指纹
+                try {
+                    isFPRequired = SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK);
+                    LogUtil.e(TAG, "isFPRequired = " + isFPRequired);
 
-        }catch (NullPointerException e){
-            isFPRequired = false;
-            LogUtil.e(TAG,"获取是否开启指纹验证信息失败");
+                } catch (NullPointerException e) {
+                    isFPRequired = false;
+                    LogUtil.e(TAG, "获取是否开启指纹验证信息失败");
+                }
+                if (mIsFP == 4 && isFPRequired && !isReturn) {
+                    mInfoTv.setText("指纹 / 输入密码");
+                    initFP();
+                }else {
+                    mInfoTv.setText(getString(R.string.please_input_pwd));
+                }
+                break;
         }
-        if(isFP && isFPRequired && !isReturn){
-            mInfoTv.setText("指纹 / 输入密码");
-            initFP();
-        }
-    }
-
-    @TargetApi(23)
-    private void initFP(){
-        //初始化key
-        try {
-            mKeyStore = KeyStore.getInstance("AndroidKeyStore");
-            mKeyStore.load(null);
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,"AndroidKeyStore");
-            KeyGenParameterSpec.Builder builder= new KeyGenParameterSpec.Builder(DEVICE_POLICY_SERVICE,
-                    KeyProperties.PURPOSE_ENCRYPT|
-                    KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            keyGenerator.init(builder.build());
-            keyGenerator.generateKey();
-        }catch (Exception e){
-            LogUtil.e(TAG,"初始化key出错"+e);
-        }
-        // 初始化Cipher
-        try{
-            SecretKey key = (SecretKey)mKeyStore.getKey(DEVICE_POLICY_SERVICE,null);
-            mCipher=Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES+'/'
-                    +KeyProperties.BLOCK_MODE_CBC+'/'
-                    +KeyProperties.ENCRYPTION_PADDING_PKCS7);
-            mCipher.init(Cipher.ENCRYPT_MODE,key);
-        }catch ( Exception e){
-            LogUtil.e(TAG,"初始化Cipher出错"+e);
-        }
-        //启动监听事件
-    }
-
-    @TargetApi(23)
-    private void startFPListening(){
-        mCancellationSignal =  new CancellationSignal();
-        mFPM.authenticate(new FingerprintManager.CryptoObject(mCipher),
-                mCancellationSignal,
-                0,
-                new FingerprintManager.AuthenticationCallback() {
-                    @Override
-                    public void onAuthenticationError(int errorCode, CharSequence errString) {
-                        super.onAuthenticationError(errorCode, errString);
-                        LogUtil.i(TAG, "指纹验证错误");
-                        if(errorCode == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT){
-                            mInfoTv.setText("指纹验证失败达到上限，请输入密码解锁");
-                        }
-                    }
-
-                    @Override
-                    public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
-                        super.onAuthenticationHelp(helpCode, helpString);
-                    }
-
-                    @Override
-                    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
-                        super.onAuthenticationSucceeded(result);
-                        LogUtil.i(TAG,"指纹验证成功");
-                        setAllText(true);
-                    }
-
-                    @Override
-                    public void onAuthenticationFailed() {
-                        super.onAuthenticationFailed();
-                        LogUtil.i(TAG, "指纹验证失败");
-                        setAllText(false);
-                    }
-                },
-                null);
-    }
-
-    @TargetApi(23)
-    private void stopFPListening(){
-        if(mCancellationSignal != null){
-            mCancellationSignal.cancel();
-            mCancellationSignal=null;
+        if(notCancel){
+            DialogUtils.createTipsDialogWithConfirm(LockScreenActivity.this,getString(R.string.setting_password_for_security)).show();
         }
     }
 
-    public void onAuthenticated(){
-        if( isReturn) {
-            setResult(RESULT_OK , new Intent().putExtra(ConstantUtil.CONFIRM, -1));
-        }else {
+    /**
+     * 验证成功函数
+     */
+    public void onAuthenticatedSucceeded() {
+        if (mIsFP == 4 && isFPRequired && !isReturn) {
+            onStopFPListening();
+        }
+        if (isReturn) {
+            setResult(RESULT_OK, new Intent().putExtra(ConstantUtil.CONFIRM, -1));
+        } else {
             startActivity(new Intent(LockScreenActivity.this, MainActivity.class));
         }
         finish();
@@ -214,7 +150,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
      */
     private void initListener() {
         // 设置点击的按钮回调事件
-        nk.setOnNumberClick(new NumericKeyboard.OnNumberClick() {
+        mNumKeyNk.setOnNumberClick(new NumericKeyboard.OnNumberClick() {
             @Override
             public void onNumberReturn(int number) {
                 // 设置显示密码
@@ -235,39 +171,64 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
         num_pwd4.setOnMyTextChangedListener(new PasswordTextView.OnMyTextChangedListener() {
             @Override
             public void textChanged(String content) {
-                input = num_pwd1.getTextContent() + num_pwd2.getTextContent() +
-                        num_pwd3.getTextContent() + num_pwd4.getTextContent();
-                if (type == ConstantUtil.SETTING_PASSWORD) {//设置密码
-                    //重新输入密码
-                    mInfoTv.setText(getString(R.string.please_input_pwd_again));
-                    type = ConstantUtil.SURE_SETTING_PASSWORD;
-                    fBuffer.append(input);//保存第一次输入的密码
-                    startTimer();
-                } else if (type == ConstantUtil.LOGIN_PASSWORD) {//登录
-                    if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
-                        shakes();
-                    } else {
-                        onAuthenticated();
-                    }
-                } else if (type == ConstantUtil.SURE_SETTING_PASSWORD) {//确认密码
-                    //判断两次输入的密码是否一致
-                    if (input.equals(fBuffer.toString())) {//一致
-                        //保存密码到文件中
-                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).initSharedPreferences(LockScreenActivity.this);
-                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeString(ConstantUtil.NUM_PWD, input);
-                        mInfoTv.setText(getString(R.string.please_input_pwd));
-                        if (isReturn){
-                            setResult(RESULT_OK, new Intent().putExtra(ConstantUtil.CONFIRM, 1));
-                            finish();
-                        }
-                    } else {//不一致
-                        shakes();
-                    }
-                    startTimer();
-                }
+                onAuthenticated();
             }
         });
         mDeleteTv.setOnClickListener(this);
+    }
+
+    /**
+     * 验证函数
+     */
+    private void onAuthenticated(){
+        //输入字段
+        String input = num_pwd1.getTextContent() + num_pwd2.getTextContent() +
+                num_pwd3.getTextContent() + num_pwd4.getTextContent();
+        switch (type) {
+            case ConstantUtil.SETTING_PASSWORD: //设置密码
+                LogUtil.d("设置密码");
+                //重新输入密码
+                mInfoTv.setText(getString(R.string.please_input_pwd_again));
+                type = ConstantUtil.SURE_SETTING_PASSWORD;
+                fBuffer.append(input);//保存第一次输入的密码
+                startTimer();
+                break;
+            case ConstantUtil.LOGIN_PASSWORD: //登录
+                LogUtil.d("登录123456566");
+                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
+                    shakes();
+                    startTimer();
+                } else {
+                    onAuthenticatedSucceeded();
+                }
+                break;
+            case ConstantUtil.SURE_SETTING_PASSWORD: //确认密码
+                LogUtil.d("确认密码");
+                //判断两次输入的密码是否一致
+                if (input.equals(fBuffer.toString())) {//一致
+                    //保存密码到文件中
+                    SharedPreferenceUtil.getInstance(LockScreenActivity.this).initSharedPreferences(LockScreenActivity.this);
+                    SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeString(ConstantUtil.NUM_PWD, input);
+                    if (isReturn) {
+                        setResult(RESULT_OK, new Intent().putExtra(ConstantUtil.CONFIRM, 1));
+                        finish();
+                    }
+                } else {//不一致
+                    shakes();
+                }
+                startTimer();
+                break;
+            case ConstantUtil.MODIFY_PASSWORD:
+                LogUtil.d("修改密码");
+                if(!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))){
+                    shakes();
+                }else {
+                    type = ConstantUtil.SETTING_PASSWORD;
+                    mInfoTv.setText(getString(R.string.please_input_pwd_first));
+                }
+                startTimer();
+                break;
+        }
     }
 
     private Handler handler = new Handler() {
@@ -282,7 +243,7 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
             @Override
             public void run() {
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(300);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -312,18 +273,20 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     /**
      * 设置所有字符
      */
-    private void setAllText(boolean flag){
+    private void setAllText(boolean flag) {
         String pwd = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD);
-        if(flag){
-            setText(pwd.substring(0,1));
-            setText(pwd.substring(1,2));
-            setText(pwd.substring(2,3));
-            setText(pwd.substring(3,4));
-        }else {
-            setText(pwd.substring(0,1)+1);
-            setText(pwd.substring(1,2)+1);
-            setText(pwd.substring(2,3)+1);
-            setText(pwd.substring(3,4)+1);
+        clearText();
+        if (flag) {
+            setText(pwd.substring(0, 1));
+            setText(pwd.substring(1, 2));
+            setText(pwd.substring(2, 3));
+            setText(pwd.substring(3, 4));
+        } else {
+            setText(pwd.substring(0, 1) + 1);
+            setText(pwd.substring(1, 2) + 1);
+            setText(pwd.substring(2, 3) + 1);
+            setText(pwd.substring(3, 4) + 1);
+            startTimer();
         }
     }
 
@@ -341,14 +304,14 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     /**
      * 震动&抖动
      */
-    private void shakes(){
-        Vibrator vibrator = (Vibrator)LockScreenActivity.this.getSystemService(LockScreenActivity.VIBRATOR_SERVICE);
+    private void shakes() {
+        Vibrator vibrator = (Vibrator) LockScreenActivity.this.getSystemService(LockScreenActivity.VIBRATOR_SERVICE);
         if (vibrator != null) {
             vibrator.vibrate(300);
         }
-        Animation shake = AnimationUtils.loadAnimation(this,R.anim.shake);
+        Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
         findViewById(R.id.num_pwd_tv).startAnimation(shake);
-        clearText();
+        LogUtil.d("shakes");
     }
 
     /**
@@ -381,33 +344,37 @@ public class LockScreenActivity extends Activity implements View.OnClickListener
     @Override
     protected void onResume() {
         super.onResume();
-        if(isFP && isFPRequired){
-        startFPListening();
+        if (mIsFP == 4 && isFPRequired) {
+            onStartFPListening();
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(isFP && isFPRequired){
-        stopFPListening();
+        if (mIsFP == 4 && isFPRequired) {
+            onStopFPListening();
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(isFP && isFPRequired){
-            stopFPListening();
+        if (mIsFP == 4 && isFPRequired) {
+            onStopFPListening();
         }
         clearText();
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        if(isReturn) {
-            setResult(RESULT_CANCELED, new Intent().putExtra(ConstantUtil.CONFIRM, 0));
+        if(notCancel){
+            ToastUtil.showLong(this,getString(R.string.setting_password_for_security));
+        }else {
+            super.onBackPressed();
+            if (isReturn) {
+                setResult(RESULT_CANCELED, new Intent().putExtra(ConstantUtil.CONFIRM, 0));
+            }
         }
     }
 }

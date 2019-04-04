@@ -21,16 +21,24 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="120.0dip"
+            android:layout_height="140.0dip"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:paddingTop="15dp"
             android:background="@color/white">
 
-            <ImageView
+            <!--<ImageView-->
+                <!--android:id="@+id/me_center_head_photo"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_marginLeft="37.0dip"-->
+                <!--android:src="@mipmap/head_photo" />-->
+            <com.smart.lock.widget.CircleImageView
                 android:id="@+id/me_center_head_photo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="37.0dip"
-                android:src="@mipmap/head_photo" />
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:src="@mipmap/cat"/>
 
             <TextView
                 android:id="@+id/me_center_head_name"
@@ -38,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/me_center_head_photo"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="10.0dip"
+                android:layout_marginLeft="20.0dip"
                 android:text="没名字"
                 android:textColor="@color/black"
                 android:textSize="18.0dip" />
@@ -49,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/me_center_head_name"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="37.0dip"
+                android:layout_marginLeft="25.0dip"
                 android:src="@mipmap/edit" />
         </RelativeLayout>
 
