@@ -18,6 +18,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -25,12 +26,12 @@ import android.widget.ToggleButton;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-<<<<<<< Updated upstream
-=======
+
+
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.OtaUpdateActivity;
->>>>>>> Stashed changes
+
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.CheckVersionThread;
@@ -64,11 +65,11 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private ToggleSwitchDefineView mFingerprintSwitchTv;
     private ToggleButton mFingerprintSwitchLightTbtn;
     private NextActivityDefineView mCheckVersionNv;
-<<<<<<< Updated upstream
+
     private NextActivityDefineView mModifyPwdNv;
-=======
+
     private NextActivityDefineView mSetDevInfoNv;
->>>>>>> Stashed changes
+
 
     private Dialog mPromptDialog;
 
@@ -80,10 +81,10 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private CheckVersionThread mCheckVersionThread;
     protected DialogFactory mDialog;
 
-<<<<<<< Updated upstream
+
     private int REQUEST_CODE_NEW_PASSWORD = 1;
     private int REQUEST_CODE_MODIFY_PASSWORD = 1;
-=======
+
     private EditText mNumPwd1Et;
     private EditText mNumPwd2Et;
     private EditText mNumPwd3Et;
@@ -94,7 +95,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private String mBleMac; //蓝牙地址
 
     private Dialog mLoadDialog;
->>>>>>> Stashed changes
+
 
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -120,11 +121,11 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mFingersPrintSwitchLight = mFingersPrintSwitchTv.getIv_switch_light();
         mOpenTestTv = findViewById(R.id.tw_open_test);
         mCheckVersionNv = findViewById(R.id.next_check_version);
-<<<<<<< Updated upstream
+
         mModifyPwdNv = findViewById(R.id.system_set_modify_pwd);
-=======
+
         mSetDevInfoNv = findViewById(R.id.next_set_info);
->>>>>>> Stashed changes
+
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
         mFingersPrintSwitchTv.setDes("指纹验证");
@@ -399,64 +400,63 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-<<<<<<< Updated upstream
-
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_NEW_PASSWORD) {
-=======
-        if (resultCode == RESULT_OK && data != null) {
-            if (requestCode == REQUEST_CODE_SCAN) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                LogUtil.d(TAG, "content = " + content);
-                String[] dvInfo = content.split(",");
-                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
-                    mSn = dvInfo[0];
-                    mBleMac = dvInfo[1];
-                    mNodeId = dvInfo[2];
 
-                    Bundle bundle = new Bundle();
-                    bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-                    bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                    bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
-                    LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
-                            " sn = " + mSn + "\n" +
-                            "mNodeId = " + mNodeId);
-                    BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle);
-                } else {
-                    ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
-                }
-            }
->>>>>>> Stashed changes
-            switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
-                case 1:
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-                    mNumPwdSwitchLightTBtn.setChecked(true);
-                    mNumPwdSwitchTv.setVisibility(View.GONE);
-                    mModifyPwdNv.setVisibility(View.VISIBLE);
-                    mIsPwdRequired = true;
-                    break;
-                case -1:
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeString(ConstantUtil.NUM_PWD, "");
-                    mNumPwdSwitchLightTBtn.setChecked(false);
-                    mIsPwdRequired = false;
-                    if (mIsFP > 1) {
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                                writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
-                        mFingerprintSwitchLightTbtn.setChecked(false);
-                        mIsFPRequired = false;
+            if (resultCode == RESULT_OK && data != null) {
+                if (requestCode == REQUEST_CODE_SCAN) {
+                    String content = data.getStringExtra(Constant.CODED_CONTENT);
+                    LogUtil.d(TAG, "content = " + content);
+                    String[] dvInfo = content.split(",");
+                    if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
+                        mSn = dvInfo[0];
+                        mBleMac = dvInfo[1];
+                        mNodeId = dvInfo[2];
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+                        LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
+                                " sn = " + mSn + "\n" +
+                                "mNodeId = " + mNodeId);
+                        BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle);
+                    } else {
+                        ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
                     }
-                    break;
-                default:
-                    break;
+                }
+
+                switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
+                    case 1:
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                        mNumPwdSwitchLightTBtn.setChecked(true);
+                        mNumPwdSwitchTv.setVisibility(View.GONE);
+                        mModifyPwdNv.setVisibility(View.VISIBLE);
+                        mIsPwdRequired = true;
+                        break;
+                    case -1:
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeString(ConstantUtil.NUM_PWD, "");
+                        mNumPwdSwitchLightTBtn.setChecked(false);
+                        mIsPwdRequired = false;
+                        if (mIsFP > 1) {
+                            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                    writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
+                            mFingerprintSwitchLightTbtn.setChecked(false);
+                            mIsFPRequired = false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } else if (requestCode == REQUEST_CODE_NEW_PASSWORD) {
+                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                        writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                mNumPwdSwitchLightTBtn.setChecked(true);
+                mIsPwdRequired = true;
             }
-        } else if(requestCode == REQUEST_CODE_NEW_PASSWORD) {
-            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                    writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-            mNumPwdSwitchLightTBtn.setChecked(true);
-            mIsPwdRequired = true;
         }
     }
 
@@ -494,3 +494,4 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     }
 
 }
+

@@ -132,13 +132,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mDevManagementTv.setDes(mMeView.getResources().getString(R.string.device_management));
         mDevManagementTv.setImage(R.drawable.ic_device_management);
         mAboutUsTv.setDes(mMeView.getResources().getString(R.string.about_us));
-<<<<<<< Updated upstream
+
         mAboutUsTv.setImage(R.drawable.ic_about_us);
         if (mDefaultUser != null) {
             mNameTv.setText(mDefaultUser.getUserName());
         }
-=======
->>>>>>> Stashed changes
 
         setHasOptionsMenu(true);
     }
