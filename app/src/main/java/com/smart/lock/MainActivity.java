@@ -108,9 +108,9 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     @Override
     protected void onDestroy() {
-        LogUtil.d(TAG, "onDestroy!");
+        LogUtil.d(TAG, TAG + " onDestroy!");
         super.onDestroy();
-        BleManagerHelper.getInstance(this, false).stopService();
+        BleManagerHelper.getInstance(this,false).stopService();
     }
 
 

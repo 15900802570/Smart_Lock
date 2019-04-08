@@ -95,6 +95,9 @@ public class Message implements Serializable {
      */
     public static final byte TYPE_BLE_RECEV_CMD_04 = 0x04;
 
+    //MSG 05是没有安全连接直接设置SN/MAC/IMEI的消息，调试使用
+    public static final byte TYPE_BLE_SEND_CMD_05 = 0x05;
+
     /**
      * MSG 12是智能锁回复给APK的带有授权码的信息，对于通过扫描绑定新增的用户默认状态就是启用，其他通过管理员创建的用户默认状态都是非启用，只有该新建用户和智能锁连接过后状态才是启用。
      */

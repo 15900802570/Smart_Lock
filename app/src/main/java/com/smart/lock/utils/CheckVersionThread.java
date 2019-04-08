@@ -55,7 +55,6 @@ public class CheckVersionThread {
         mContext = context;
         this.dialog = dialog;
         mHandler = new Handler();
-        LogUtil.d(TAG, "CheckVersionThread");
         mVersionAction = new CheckVersionAction();
         mLoadingDialog = DialogUtils.createLoadingDialog(context, context.getString(R.string.checking_version));
         mLoadingDialog.show();
@@ -134,10 +133,10 @@ public class CheckVersionThread {
         String filePath = "";
         if (FileUtil.checkSDCard()) {
             filePath = Environment.getExternalStorageDirectory() + File.separator + "SmartLock_DT"
-                    + File.separator + "downloads";
+                    + File.separator + "app";
         } else {
             filePath = mContext.getCacheDir().getAbsolutePath() + File.separator + "SmartLock_DT"
-                    + File.separator + "downloads";
+                    + File.separator + "app";
         }
 
         File file = new File(filePath);
@@ -193,7 +192,7 @@ public class CheckVersionThread {
                 }
                 dialog.getAlter(mContext.getString(R.string.update_title), updateMsg)
                         .setOkButtonText(mContext.getString(R.string.update))
-                        .setYishuaCancelable(false)
+                        .setDownloadCancelable(false)
                         .setButtonVisible(BaseDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
                         .setOkClick(new View.OnClickListener() {
                             @Override

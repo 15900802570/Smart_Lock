@@ -4,7 +4,9 @@ package com.smart.lock.ble.message;
 import android.os.Bundle;
 
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
 
@@ -55,6 +57,40 @@ public class MessageCreator {
      * 128会话秘钥
      */
     public static byte m128AK[] = new byte[16];
+
+    /**
+     * 设置秘钥
+     */
+    public static void setSk(DeviceInfo info) {
+        String mac = info.getBleMac().replace(":", "");
+
+        byte[] macByte = StringUtil.hexStringToBytes(mac);
+        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
+        if (mIs128Code) {
+            System.arraycopy(macByte, 0, m128SK, 0, 6); //写入MAC
+            byte[] code = new byte[10];
+            String secretCode = info.getDeviceSecret();
+            if (secretCode == null || secretCode.equals("0")) {
+                Arrays.fill(m128SK, 6, 16, (byte) 0);
+            } else {
+                code = StringUtil.hexStringToBytes(secretCode);
+                System.arraycopy(code, 0, m128SK, 6, 10); //写入secretCode
+            }
+            LogUtil.d(TAG, "m128SK = " + Arrays.toString(m128SK));
+        } else {
+            System.arraycopy(macByte, 0, m256SK, 0, 6); //写入MAC
+            byte[] code = new byte[10];
+            String secretCode = info.getDeviceSecret();
+            if (secretCode == null || secretCode.equals("0")) {
+                Arrays.fill(m256SK, 6, 16, (byte) 0);
+            } else {
+                code = StringUtil.hexStringToBytes(secretCode);
+                System.arraycopy(code, 0, m256SK, 6, 10); //写入secretCode
+                Arrays.fill(m256SK, 16, 32, (byte) 0);
+            }
+            LogUtil.d(TAG, "m256AK = " + Arrays.toString(m256SK));
+        }
+    }
 
     /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_02

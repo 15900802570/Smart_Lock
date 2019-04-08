@@ -44,6 +44,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.BleConnectModel;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockDetectingActivity;
@@ -125,15 +126,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
 
-    private int mImageIds[];
-
-    /**
-     * 服务连接标志
-     */
-    private boolean mIsConnected = false;
+    private int mImageIds[]; //主界面图片
+    private boolean mIsConnected = false; //服务连接标志
     private long mStartTime = 0, mEndTime = 0;
-
     private int mHeight;
+    private BleConnectModel mBleModel;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -215,8 +212,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 @Override
                 public void run() {
                     if (mDefaultDevice != null && !mBleManagerHelper.getServiceConnection()) {
-                        setSk();
-                        mBleManagerHelper.connectBle((byte) 1, mDefaultUser.getUserId(), mDefaultDevice.getBleMac());
+                        MessageCreator.setSk(mDefaultDevice);
+                        Bundle bundle = new Bundle();
+                        bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                        bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                        mBleManagerHelper.connectBle((byte) 1, bundle);
                     } else
                         mBleManagerHelper.getBleCardService().disconnect();
                 }
@@ -314,7 +314,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 refreshView(BATTER_UNKNOW);
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-                    LogUtil.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
@@ -429,27 +428,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    private void checkUserId(ArrayList<Short> userIds) {
-        ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mActivity).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-        if (!userIds.isEmpty()) {
-            for (DeviceUser user : users) {
-                if (userIds.contains(user.getUserId())) {
-                    DeviceUserDao.getInstance(mActivity).delete(user);
-                    userIds.remove((Short) user.getUserId());
-                }
-            }
-            for (Short userId : userIds) {
-                if (userId > 0 && userId <= 100) { //管理员
-                    createDeviceUser(userId, null, ConstantUtil.DEVICE_MASTER);
-                } else if (userId > 200 && userId <= 300) {
-                    createDeviceUser(userId, null, ConstantUtil.DEVICE_TEMP);
-                } else {
-                    createDeviceUser(userId, null, ConstantUtil.DEVICE_MEMBER);
-                }
-
-            }
-        }
-    }
 
     /**
      * 广播接收
@@ -461,73 +439,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
-                if (mBleManagerHelper.getServiceConnection() && mDefaultDevice != null) {
-                    mStartTime = System.currentTimeMillis();
-                    mBleManagerHelper.getBleCardService().sendCmd25(mDefaultDevice.getUserId());
-                }
-                mBattery = intent.getByteExtra(BleMsg.KEY_BAT_PERSCENT, (byte) 0);
-                int userStatus = intent.getByteExtra(BleMsg.KEY_USER_STATUS, (byte) 0);
-                int stStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
-                int unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
-                byte[] syncUsers = intent.getByteArrayExtra(BleMsg.KEY_SYNC_USERS);
-                byte[] userState = intent.getByteArrayExtra(BleMsg.KEY_USERS_STATE);
-                byte[] tempSecret = intent.getByteArrayExtra(BleMsg.KEY_TMP_PWD_SK);
-
-                LogUtil.d(TAG, "battery = " + mBattery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
-                LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
-                LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
-                LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
-                byte[] buf = new byte[4];
-                System.arraycopy(syncUsers, 0, buf, 0, 4);
-                long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status1 = " + status1);
-
-                System.arraycopy(syncUsers, 4, buf, 0, 4);
-                long status2 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status2 = " + status2);
-
-                System.arraycopy(syncUsers, 8, buf, 0, 4);
-                long status3 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status3 = " + status3);
-
-                System.arraycopy(syncUsers, 12, buf, 0, 4);
-                long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status4 = " + status4);
-
-                if (mDefaultDevice != null) {
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status1, mDefaultDevice.getDeviceNodeId(), 1)); //第一字节状态字
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status2, mDefaultDevice.getDeviceNodeId(), 2));//第二字节状态字
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status3, mDefaultDevice.getDeviceNodeId(), 3));//第三字节状态字
-                    checkUserId(DeviceUserDao.getInstance(mActivity).checkUserStatus(status4, mDefaultDevice.getDeviceNodeId(), 4));//第四字节状态字
-                    DeviceUserDao.getInstance(mActivity).checkUserState(mDefaultDevice.getDeviceNodeId(), userState); //开锁信息状态字
-
-                    mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
-                    DeviceInfoDao.getInstance(mHomeView.getContext()).updateDeviceInfo(mDefaultDevice);
-                }
-                if (mDefaultStatus != null) {
-                    switch (stStatus) {
-                        case 0:
-                            mDefaultStatus.setVoicePrompt(false);
-                            mDefaultStatus.setNormallyOpen(false);
-                            break;
-                        case 1:
-                            mDefaultStatus.setVoicePrompt(false);
-                            mDefaultStatus.setNormallyOpen(true);
-                            break;
-                        case 2:
-                            mDefaultStatus.setVoicePrompt(true);
-                            mDefaultStatus.setNormallyOpen(false);
-                            break;
-                        case 3:
-                            mDefaultStatus.setVoicePrompt(true);
-                            mDefaultStatus.setNormallyOpen(true);
-                            break;
-                        default:
-                            break;
-                    }
-                    mDefaultStatus.setRolledBackTime(unLockTime);
-                    DeviceStatusDao.getInstance(mHomeView.getContext()).updateDeviceStatus(mDefaultStatus);
-                }
+                mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
+                mBattery = mBleModel.getBattery();
 
                 mIsConnected = true;
                 refreshView(BIND_DEVICE);
@@ -545,29 +458,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
             }
 
-            if (action.equals(BleMsg.STR_RSP_MSG26_USERINFO)) {
-                mEndTime = System.currentTimeMillis();
-                LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
-                short userId = (short) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                if (userId == mDefaultDevice.getUserId()) {
-                    byte[] userInfo = intent.getByteArrayExtra(BleMsg.KEY_USER_MSG);
-                    LogUtil.d(TAG, "userInfo = " + Arrays.toString(userInfo));
-                    mDefaultUser.setUserStatus(userInfo[0]);
-                    DeviceUserDao.getInstance(mHomeView.getContext()).updateDeviceUser(mDefaultUser);
-
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
-                    DeviceKeyDao.getInstance(mHomeView.getContext()).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
-
-                    mDefaultDevice.setMixUnlock(userInfo[8]);
-                    DeviceInfoDao.getInstance(mHomeView.getContext()).updateDeviceInfo(mDefaultDevice);
-                }
-
-            }
 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                 mIsConnected = false;
@@ -578,8 +468,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 if (mDefaultDevice != null) {
                     refreshView(BIND_DEVICE);
                 } else refreshView(UNBIND_DEVICE);
-
-
             }
 
             if (action.equals(BleMsg.STR_RSP_OPEN_TEST)) {
@@ -621,9 +509,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
         mIsConnected = mBleManagerHelper.getServiceConnection();
         if (!mIsConnected) {
             LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
-            setSk();
+            MessageCreator.setSk(mDefaultDevice);
             refreshView(DEVICE_CONNECTING);
-            mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId(), mDefaultDevice.getBleMac());
+            Bundle bundle = new Bundle();
+            bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+            bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+            mBleManagerHelper.connectBle((byte) 1, bundle);
             mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         }
     }
@@ -659,8 +550,11 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                 break;
             case R.id.iv_connect:
                 refreshView(DEVICE_CONNECTING);
-                setSk();
-                mBleManagerHelper.connectBle((byte) 1, mDefaultDevice.getUserId(), mDefaultDevice.getBleMac());
+                MessageCreator.setSk(mDefaultDevice);
+                Bundle dev = new Bundle();
+                bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                mBleManagerHelper.connectBle((byte) 1, dev);
                 break;
             case R.id.ll_setting:
                 if (mIsConnected) {
@@ -690,39 +584,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     }
 
-    /**
-     * 设置秘钥
-     */
-    private void setSk() {
-        String mac = mDefaultDevice.getBleMac().replace(":", "");
-
-        byte[] macByte = StringUtil.hexStringToBytes(mac);
-        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
-        if (MessageCreator.mIs128Code) {
-            System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
-            byte[] code = new byte[10];
-            String secretCode = mDefaultDevice.getDeviceSecret();
-            if (secretCode == null || secretCode.equals("0")) {
-                Arrays.fill(MessageCreator.m128SK, 6, 16, (byte) 0);
-            } else {
-                code = StringUtil.hexStringToBytes(secretCode);
-                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
-            }
-            LogUtil.d(TAG, "m128SK = " + Arrays.toString(MessageCreator.m128SK));
-        } else {
-            System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
-            byte[] code = new byte[10];
-            String secretCode = mDefaultDevice.getDeviceSecret();
-            if (secretCode == null || secretCode.equals("0")) {
-                Arrays.fill(MessageCreator.m256SK, 6, 16, (byte) 0);
-            } else {
-                code = StringUtil.hexStringToBytes(secretCode);
-                System.arraycopy(code, 0, MessageCreator.m256SK, 6, 10); //写入secretCode
-                Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
-            }
-            LogUtil.d(TAG, "m256AK = " + Arrays.toString(MessageCreator.m256SK));
-        }
-    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

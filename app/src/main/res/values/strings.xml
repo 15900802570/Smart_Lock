@@ -289,7 +289,18 @@
     <string name="after_down">after down</string>
     <string name="checking_version">checking version</string>
     <string name="plz_open_wifi">Open wifi, please</string>
+<<<<<<< Updated upstream
     <string name="please_input_pwd_first">Please enter your NEW password</string>
     <string name="please_input_old_pwd">Please enter your old password</string>
     <string name="setting_password_for_security">To ensure security, please set a password</string>
+=======
+    <string name="man">Man</string>
+    <string name="woman">Woman</string>
+    <string name="no_name">No Name</string>
+    <string name="choise_photo">Choise Photo</string>
+    <string name="camera_shot">Camera shot</string>
+    <string name="local_photo">Choise local photo</string>
+    <string name="gallery_photo">Choise gallery phote</string>
+    <string name="set_dev_info">Set device info</string>
+>>>>>>> Stashed changes
 </resources>

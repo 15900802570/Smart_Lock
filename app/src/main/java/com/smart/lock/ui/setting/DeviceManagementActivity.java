@@ -219,7 +219,10 @@ public class DeviceManagementActivity extends AppCompatActivity {
             mLoadDialog.show();
             closeDialog(10);
             BleManagerHelper.setSk(mBleMac, mRandCode);
-            BleManagerHelper.getInstance(this, false).connectBle((byte) 1, Short.parseShort(mUserId, 16), getMacAdr(mBleMac));
+            Bundle bundle = new Bundle();
+            bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
+            bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
+            BleManagerHelper.getInstance(this, false).connectBle((byte) 1, bundle);
         }
     }
 

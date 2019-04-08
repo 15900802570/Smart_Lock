@@ -180,4 +180,44 @@
         <item name="android:maxHeight">5dp</item>
     </style>
 
+    <style name="RedButton">
+
+        <!-- 按钮的样式 -->
+        <!--
+        <item name="android:paddingTop">5dip</item>
+        <item name="android:paddingBottom">5dip</item>
+
+        -->
+        <item name="android:layout_height">50dip</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:textSize">20dip</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center_vertical|center_horizontal</item>
+        <item name="android:layout_marginRight">@dimen/prompt_linear_margin_right</item>
+        <item name="android:layout_marginLeft">@dimen/prompt_linear_margin_left</item>
+    </style>
+
+    <style name="Toolbar.TechStar" parent="ThemeOverlay.AppCompat.Dark">
+        <!--修改菜单栏右边三个白点图标-->
+        <!--<item name="android:actionOverflowButtonStyle">@style/TechStarOverflowButtonStyle</item>-->
+        <!--ToolBar右边弹出菜单背景色 不遮拦Toolbar-->
+        <item name="actionOverflowMenuStyle">@style/techstar.MenuStyle</item>
+        <!--Menu item 高度 这里不需要指定style 可直接指定-->
+        <item name="android:listPreferredItemHeightSmall">@dimen/height_45dp</item>
+        <!-- 分隔线 -->
+        <!--<item name="android:dropDownListViewStyle">@style/PopupMenuListView</item>-->
+        <!-- Menu item 文字样式相关 比较迷的一个点  我自己的项目是留下Large两个item其1就可以实现  可能和分辨率或者和建造menu时的选项相关？？？-->
+        <!--<item name="textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceLarge</item>-->
+        <!--<item name="android:textAppearanceLargePopupMenu">@style/myPopupMenuTextAppearanceLarge</item>-->
+        <!--<item name="android:textAppearanceSmallPopupMenu">@style/myPopupMenuTextAppearanceSmall</item>-->
+        <!--<item name="textAppearanceSmallPopupMenu">@style/myPopupMenuTextAppearanceSmall</item>-->
+    </style>
+
+    <!--ToolBar右边弹出菜单背景色  overlapAncho属性选false可不遮拦Toolbar-->
+    <style name="techstar.MenuStyle" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <item name="overlapAnchor">false</item>
+        <item name="android:popupBackground">#00FF00</item>
+    </style>
+
 </resources>

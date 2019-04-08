@@ -184,7 +184,7 @@ public class BleCardService extends Service {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.i(TAG, "onCharacteristicWrite()");
+            Log.d(TAG, "onCharacteristicWrite() status = " + status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 mBleChannel.changeChannelState(mBleChannel.STATUS_CHANNEL_WAIT);
@@ -384,6 +384,7 @@ public class BleCardService extends Service {
         }
         Log.w(TAG, "mBluetoothGatt closed");
         mBluetoothDeviceAddress = null;
+        Log.w(TAG, "mBluetoothGatt : " + (mBluetoothGatt == null));
         mBluetoothGatt.close();
         mBluetoothGatt = null;
 
@@ -505,6 +506,21 @@ public class BleCardService extends Service {
         if (random != null && random.length != 0) {
             bundle.putByteArray(BleMsg.KEY_RANDOM, random);
         }
+
+        return mBleProvider.send(msg);
+    }
+
+    /**
+     * MSG 03
+     */
+    public boolean sendCmd05(String mac, String nodeId, String Sn) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_05);
+
+        Bundle bundle = msg.getData();
+        bundle.putString(BleMsg.KEY_BLE_MAC, mac);
+        bundle.putString(BleMsg.KEY_NODE_ID, nodeId);
+        bundle.putString(BleMsg.KEY_NODE_SN, Sn);
 
         return mBleProvider.send(msg);
     }

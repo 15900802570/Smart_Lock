@@ -40,6 +40,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, UserProfile.class);
             TableUtils.createTable(connectionSource, TempPwd.class);
             TableUtils.createTable(connectionSource, DeviceStatus.class);
+            TableUtils.createTable(connectionSource, UserProfile.class);
         } catch (SQLException e) {
             e.printStackTrace();
         }

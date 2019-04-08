@@ -409,8 +409,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-
                     if (mMode == DETECTING_LOCK) {
                         detectDevice(device);
                     } else if (mMode == SEARCH_LOCK) {

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/design_bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/box_corners_white"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="5dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:text="@string/choise_photo"
+        android:textColor="@color/black_de"
+        android:textSize="18sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dip"
+        android:background="@color/line" />
+
+    <TextView
+        android:id="@+id/camera_shot_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_selector_radius_10"
+        android:gravity="center"
+        android:onClick="setOnClick"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:text="@string/camera_shot" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dip"
+        android:background="@color/line"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp" />
+
+    <TextView
+        android:id="@+id/local_photo_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_selector_radius_10"
+        android:gravity="center"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:text="@string/local_photo" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dip"
+        android:background="@color/line"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp" />
+
+    <TextView
+        android:id="@+id/gallery_photo_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_selector_radius_10"
+        android:gravity="center"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:text="@string/gallery_photo" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.2dip"
+        android:background="@color/line"
+        android:paddingLeft="25dp"
+        android:paddingRight="25dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:text="@string/cancel"
+        android:textSize="17sp" />
+</LinearLayout>

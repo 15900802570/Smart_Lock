@@ -19,11 +19,17 @@ import com.smart.lock.utils.SystemUtils;
 
 
 public class BaseDialog extends Dialog {
-    /** 不显示按钮 */
+    /**
+     * 不显示按钮
+     */
     public static final int DIALOG_NO_BUTTON_VISIBLE = 0;
-    /** 显示一个确定和一个取消的按钮 */
+    /**
+     * 显示一个确定和一个取消的按钮
+     */
     public static final int DIALOG_OK_AND_NO_BUTTON_VISIBLE = 2;
-    /** 显示一个确定按钮 */
+    /**
+     * 显示一个确定按钮
+     */
     public static final int DIALOG_OK_BUTTON_VISIBLE = 1;
     private final static int UPDATE_BACK_KEY = 7;
     private final static int UPDATE_BT_NO = 5;
@@ -35,7 +41,6 @@ public class BaseDialog extends Dialog {
 
     private Button btNo;
     private Button btOk;
-    private ImageView icon;
     private int iconImg;
     private LinearLayout layout;
 
@@ -61,7 +66,7 @@ public class BaseDialog extends Dialog {
     private int visibleFlag;
 
     public BaseDialog(Context context) {
-        super(context, R.style.AppDialog);
+        super(context, R.style.CustomDialog);
         mContext = context;
     }
 
@@ -83,32 +88,29 @@ public class BaseDialog extends Dialog {
      */
     private void initView() {
         this.setCancelable(backKey);
-        layout = (LinearLayout) this.findViewById(R.id.dialog_layout);
-        // layout.setAnimation(AnimationUtils.loadAnimation(mContext,
-        // R.anim.show_animation));
-        icon = (ImageView) this.findViewById(R.id.dialog_ico);
-        title = (TextView) this.findViewById(R.id.dialog_title);
-        msg = (TextView) this.findViewById(R.id.dialog_msg);
-        btOk = (Button) this.findViewById(R.id.dialog_bt_ok);
-        btOk.setBackgroundResource(R.drawable.gem_short_button);
+        layout = findViewById(R.id.dialog_prompt_view);
+        title = findViewById(R.id.dialog_title);
+        msg = findViewById(R.id.dialog_msg);
+        btOk = findViewById(R.id.confirmBtn);
+//        btOk.setBackgroundResource(R.drawable.gem_short_button);
         btOk.setOnClickListener(okclick);
-        btNo = (Button) this.findViewById(R.id.dialog_bt_no);
-        btNo.setBackgroundResource(R.drawable.gem_short_button);
+        btNo = findViewById(R.id.cancelBtn);
+//        btNo.setBackgroundResource(R.drawable.gem_short_button);
         btNo.setOnClickListener(noClick);
         btNo.setVisibility(View.GONE);
-        btOk.setBackgroundResource(R.drawable.gem_long_button);
+//        btOk.setBackgroundResource(R.drawable.gem_long_button);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.download_dialog);
+        setContentView(R.layout.dialog_prompt);
         initView();
     }
 
     /***
      * 设置按钮显示数量
-     * 
+     *
      */
     private void setButtonVisible() {
         int ps = SystemUtils.dipToPx(mContext, 10);
@@ -129,17 +131,17 @@ public class BaseDialog extends Dialog {
             case DIALOG_OK_AND_NO_BUTTON_VISIBLE:
                 btNo.setVisibility(View.VISIBLE);
                 btOk.setVisibility(View.VISIBLE);
-                btOk.setBackgroundResource(R.drawable.gem_short_button);
-                btNo.setBackgroundResource(R.drawable.gem_short_button);
+//                btOk.setBackgroundResource(R.drawable.gem_short_button);
+//                btNo.setBackgroundResource(R.drawable.gem_short_button);
 
                 LayoutParams btOkLin = new LayoutParams(
                         LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-                btOkLin.setMargins(ps, ps, SystemUtils.dipToPx(mContext, 3), ps);
+//                btOkLin.setMargins(ps, ps, SystemUtils.dipToPx(mContext, 4), ps);
                 btOk.setLayoutParams(btOkLin);
 
                 LayoutParams btNoLin = new LayoutParams(
                         LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-                btNoLin.setMargins(SystemUtils.dipToPx(mContext, 3), ps, ps, ps);
+//                btNoLin.setMargins(SystemUtils.dipToPx(mContext, 4), ps, ps, ps);
                 btNo.setLayoutParams(btNoLin);
                 break;
         }
@@ -154,7 +156,7 @@ public class BaseDialog extends Dialog {
     /**
      * 返回键设置
      */
-    public BaseDialog setYishuaCancelable(boolean flag) {
+    public BaseDialog setDownloadCancelable(boolean flag) {
         backKey = flag;
         handler.sendEmptyMessage(UPDATE_BACK_KEY);
         return this;
@@ -186,13 +188,12 @@ public class BaseDialog extends Dialog {
 
     /***
      * 监听返回键
-     * 
+     *
      * @param click
      * @return
      */
     public BaseDialog setNoClick(View.OnClickListener click) {
-        if (this.noClick != null)
-        {
+        if (this.noClick != null) {
             this.noClick = null;
         }
         this.noClick = click;
@@ -207,13 +208,12 @@ public class BaseDialog extends Dialog {
 
     /***
      * 监听确定键
-     * 
+     *
      * @param click
      * @return
      */
     public BaseDialog setOkClick(View.OnClickListener click) {
-        if (this.okclick != null)
-        {
+        if (this.okclick != null) {
             this.okclick = null;
         }
         this.okclick = click;
@@ -260,7 +260,7 @@ public class BaseDialog extends Dialog {
                     title.setText(titleText);
                     break;
                 case UPDATE_ICON:
-                    icon.setImageResource(iconImg);
+//                    icon.setImageResource(iconImg);
                     break;
                 case UPDATE_MSG:
                     msg.setText(msgText);

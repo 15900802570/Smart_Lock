@@ -241,7 +241,7 @@
 
     <string name="disconnect_ble">连接已断开</string>
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
-    <string name="search_lock">搜索附件的门锁</string>
+    <string name="search_lock">搜索附近的门锁</string>
     <string name="plz_press_setting">请按设置键</string>
     <string name="self_message">个人中心</string>
     <string name="web_site">官网</string>
@@ -298,4 +298,15 @@
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
     <string name="setting_password_for_security">为确保安全，请设置密码</string>
+
+    <string name="man">男</string>
+    <string name="woman">女</string>
+
+    <string name = "no_name">没名字</string>
+
+    <string name = "choise_photo">选择头像</string>
+    <string name = "camera_shot">拍摄新照片</string>
+    <string name = "local_photo">从预置图片中选择</string>
+    <string name = "gallery_photo">从图库中选择</string>
+    <string name = "set_dev_info">设置设备信息</string>
 </resources>

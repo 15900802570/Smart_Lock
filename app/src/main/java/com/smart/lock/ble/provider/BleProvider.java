@@ -7,6 +7,7 @@ import android.util.SparseIntArray;
 
 import com.smart.lock.ble.BleChannel;
 import com.smart.lock.ble.BleCommand;
+import com.smart.lock.ble.creator.BleCmd05Creator;
 import com.smart.lock.ble.listener.BleMessageListener;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
@@ -595,6 +596,7 @@ public class BleProvider {
         // 填充ble指令生成器映射表
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_01, new BleCmd01Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_03, new BleCmd03Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_05, new BleCmd05Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_11, new BleCmd11Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_13, new BleCmd13Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_15, new BleCmd15Creator());

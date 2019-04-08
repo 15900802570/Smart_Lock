@@ -20,10 +20,18 @@ import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.smart.lock.ble.BleManagerHelper;
+import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
+import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 
 /**
@@ -228,7 +236,6 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
         //开启线程
         countdownHandle.post(runnable);
         super.onResume();
-
     }
 
     @Override
@@ -300,6 +307,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 
     /*初始化倒计时的秒数*/

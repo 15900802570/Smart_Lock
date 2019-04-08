@@ -2,6 +2,8 @@ package com.smart.lock.ui.setting;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -14,13 +16,21 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.smart.lock.R;
+import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+<<<<<<< Updated upstream
+=======
+import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.ui.LockDetectingActivity;
+import com.smart.lock.ui.OtaUpdateActivity;
+>>>>>>> Stashed changes
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.CheckVersionThread;
@@ -28,11 +38,15 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
+import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.DialogFactory;
 import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.ToggleSwitchDefineView;
+import com.yzq.zxinglibrary.android.CaptureActivity;
+import com.yzq.zxinglibrary.bean.ZxingConfig;
+import com.yzq.zxinglibrary.common.Constant;
 
 
 public class SystemSettingsActivity extends BaseFPActivity implements View.OnClickListener {
@@ -50,7 +64,11 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private ToggleSwitchDefineView mFingerprintSwitchTv;
     private ToggleButton mFingerprintSwitchLightTbtn;
     private NextActivityDefineView mCheckVersionNv;
+<<<<<<< Updated upstream
     private NextActivityDefineView mModifyPwdNv;
+=======
+    private NextActivityDefineView mSetDevInfoNv;
+>>>>>>> Stashed changes
 
     private Dialog mPromptDialog;
 
@@ -62,15 +80,28 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private CheckVersionThread mCheckVersionThread;
     protected DialogFactory mDialog;
 
+<<<<<<< Updated upstream
     private int REQUEST_CODE_NEW_PASSWORD = 1;
     private int REQUEST_CODE_MODIFY_PASSWORD = 1;
+=======
+    private EditText mNumPwd1Et;
+    private EditText mNumPwd2Et;
+    private EditText mNumPwd3Et;
+    private EditText mNumPwd4Et;
+
+    private String mSn; //设备SN
+    private String mNodeId; //设备IMEI
+    private String mBleMac; //蓝牙地址
+
+    private Dialog mLoadDialog;
+>>>>>>> Stashed changes
 
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
     private int REQUESTCODE = 0;
-
+    private static final int REQUEST_CODE_SCAN = 0;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -89,7 +120,11 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mFingersPrintSwitchLight = mFingersPrintSwitchTv.getIv_switch_light();
         mOpenTestTv = findViewById(R.id.tw_open_test);
         mCheckVersionNv = findViewById(R.id.next_check_version);
+<<<<<<< Updated upstream
         mModifyPwdNv = findViewById(R.id.system_set_modify_pwd);
+=======
+        mSetDevInfoNv = findViewById(R.id.next_set_info);
+>>>>>>> Stashed changes
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
         mFingersPrintSwitchTv.setDes("指纹验证");
@@ -98,6 +133,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
+        mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -158,6 +194,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
 
         mDialog = DialogFactory.getInstance(this);
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
 
     public void initEvent() {
@@ -178,6 +215,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             });
         }
         mCheckVersionNv.setOnClickListener(this);
+        mSetDevInfoNv.setOnClickListener(this);
         mOpenTestTb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,7 +263,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     if (!SystemUtils.isNetworkAvailable(this)) {
                         startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-                        ToastUtil.show(this,getString(R.string.plz_open_wifi),Toast.LENGTH_LONG);
+                        ToastUtil.show(this, getString(R.string.plz_open_wifi), Toast.LENGTH_LONG);
                         return;
                     }
                     mCheckVersionThread = new CheckVersionThread(this, mDialog);
@@ -235,10 +273,29 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     ActivityCompat.requestPermissions(this, mPermission, REQUESTCODE);
                 }//版本检测
                 break;
+            case R.id.next_set_info:
+                scanQr();
+                break;
             default:
                 doOnClick(v.getId());
                 break;
         }
+    }
+
+    /**
+     * 打开第三方二维码扫描库
+     */
+    private void scanQr() {
+        Intent newIntent = new Intent(this, CaptureActivity.class);
+        ZxingConfig config = new ZxingConfig();
+        config.setPlayBeep(true);//是否播放扫描声音 默认为true
+        config.setShake(true);//是否震动  默认为true
+        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
+        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
+        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+        startActivityForResult(newIntent, REQUEST_CODE_SCAN);
     }
 
     public void tipsOnClick(View view) {
@@ -342,8 +399,33 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+<<<<<<< Updated upstream
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_NEW_PASSWORD) {
+=======
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == REQUEST_CODE_SCAN) {
+                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                LogUtil.d(TAG, "content = " + content);
+                String[] dvInfo = content.split(",");
+                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
+                    mSn = dvInfo[0];
+                    mBleMac = dvInfo[1];
+                    mNodeId = dvInfo[2];
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                    bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                    bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+                    LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
+                            " sn = " + mSn + "\n" +
+                            "mNodeId = " + mNodeId);
+                    BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle);
+                } else {
+                    ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+                }
+            }
+>>>>>>> Stashed changes
             switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
                 case 1:
                     SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
@@ -388,9 +470,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     askForPermission();
                 }
             }
-
         }
-
     }
 
     private void askForPermission() {

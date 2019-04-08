@@ -24,4 +24,8 @@
     <dimen name="progress_size">46dp</dimen>
     <dimen name="frame_inner_margin">15dp</dimen>
     <dimen name="normal_size">15dp</dimen>
+    <dimen name="prompt_linear_margin_left">15dip</dimen>
+    <dimen name="prompt_linear_margin_right">15dip</dimen>
+    <dimen name="button_width_value">130dip</dimen>
+    <dimen name="height_45dp">80dp</dimen>
 </resources>
