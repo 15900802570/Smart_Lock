@@ -16,8 +16,8 @@
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_marginLeft="5.0dip"
-            android:layout_marginRight="5.0dip"
+            android:layout_marginLeft="7.0dip"
+            android:layout_marginRight="7.0dip"
             android:layout_marginBottom="10.0dip"
             app:cardCornerRadius="6.0dip"
             app:cardPreventCornerOverlap="false"

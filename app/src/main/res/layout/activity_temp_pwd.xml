@@ -62,22 +62,31 @@
 
 
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/fl_add"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:orientation="vertical"
         android:background="@drawable/mask">
 
-        <Button
+        <ImageView
             android:id="@+id/btn_create_temp_pwd"
-            style="@style/RountButtonStyle"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20.0dip"
             android:visibility="visible"
             android:onClick="onClick"
-            android:text="@string/btn_create_temp_pwd"/>
-    </FrameLayout>
+            android:text="@string/btn_create_temp_pwd"
+            android:src="@mipmap/btn_create_temp_pwd"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_create_temp_pwd"
+            android:layout_gravity="center_horizontal"
+            android:textSize="12sp"
+            android:paddingBottom="15dp"/>
+    </LinearLayout>
 
 </RelativeLayout>

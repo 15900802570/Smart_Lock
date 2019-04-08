@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -328,13 +329,15 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                         String.valueOf(failureTime),
                         "yyyy-MM-dd HH:mm"));
                 if (System.currentTimeMillis() / 1000 - failureTime >= 0) {
-                    viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_invalid));
-                    viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.red));
+//                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_invalid));
+//                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.red));
+                    viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_invalid);
                     viewHolder.mDelete.setVisibility(View.VISIBLE);
                     viewHolder.mShare.setVisibility(View.GONE);
                 } else {
-                    viewHolder.mTempPwdValidTv.setText(getResources().getString(R.string.temp_pwd_valid));
-                    viewHolder.mTempPwdValidTv.setTextColor(getResources().getColor(R.color.light_black));
+//                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_valid));
+//                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.light_black));
+                    viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_valid);
                     viewHolder.mDelete.setVisibility(View.GONE);
                     viewHolder.mShare.setVisibility(View.VISIBLE);
                 }
@@ -374,7 +377,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             SwipeLayout mSwipeLayout;
             private TextView mTempPwdTv;
             private TextView mTempPwdFailureTimeTv;
-            private TextView mTempPwdValidTv;
+            private ImageView mTempPwdValidIv;
             private LinearLayout mTempPwdLl;
             private LinearLayout mDelete;
             private LinearLayout mShare;
@@ -382,7 +385,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             private MyViewHolder(View itemView) {
                 super(itemView);
                 mSwipeLayout = (SwipeLayout) itemView;
-                mTempPwdValidTv = itemView.findViewById(R.id.tv_temp_pwd_valid);
+                mTempPwdValidIv = itemView.findViewById(R.id.iv_temp_pwd_valid);
                 mTempPwdTv = itemView.findViewById(R.id.tv_temp_pwd);
                 mTempPwdFailureTimeTv = itemView.findViewById(R.id.tv_temp_pwd_failure_time);
                 mTempPwdLl = itemView.findViewById(R.id.ll_temp_pwd);
