@@ -63,11 +63,12 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Locale;
 
+import java.util.Objects;
+
 import static android.app.Activity.RESULT_OK;
 
 public class MeFragment extends BaseFragment implements View.OnClickListener {
     private View mMeView;
-    private Toolbar mToolbar;
     private MeDefineView mSystemSetTv;
     private MeDefineView mDevManagementTv;
     private MeDefineView mAboutUsTv;
@@ -116,24 +117,23 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         } else {
             mNameTv.setText(mUserProfile.getUserName());
         }
-
         initEvent();
         return mMeView;
     }
 
     public void initDate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {  //版本检测
-            mToolbar = mMeView.findViewById(R.id.tb_toolbar);
-            ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);  //将ToolBar设置成ActionBar
+            Toolbar mToolbar = mMeView.findViewById(R.id.tb_toolbar);
+            ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(mToolbar);  //将ToolBar设置成ActionBar
         }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
         mSystemSetTv.setDes(mMeView.getContext().getResources().getString(R.string.system_setting));
-        mSystemSetTv.setImage(R.drawable.ic_setting);
+        mSystemSetTv.setImage(R.mipmap.ic_setting);
         mDevManagementTv.setDes(mMeView.getResources().getString(R.string.device_management));
-        mDevManagementTv.setImage(R.drawable.ic_device_management);
+        mDevManagementTv.setImage(R.mipmap.ic_device_management);
         mAboutUsTv.setDes(mMeView.getResources().getString(R.string.about_us));
 
-        mAboutUsTv.setImage(R.drawable.ic_about_us);
+        mAboutUsTv.setImage(R.mipmap.ic_about_us);
         if (mDefaultUser != null) {
             mNameTv.setText(mDefaultUser.getUserName());
         }
@@ -387,6 +387,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
     }
+
 
     /**
      * 打开第三方二维码扫描库
