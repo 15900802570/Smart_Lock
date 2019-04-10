@@ -102,7 +102,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
     private int REQUESTCODE = 0;
-    private static final int REQUEST_CODE_SCAN = 0;
+    private static final int REQUEST_CODE_SCAN = 1;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {

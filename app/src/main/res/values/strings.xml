@@ -101,6 +101,7 @@
     <string name="ble_scan_failed">search failed</string>
     <string name="add_lock_success">Add success</string>
     <string name="toast_add_lock_success">Door lock added successfully!</string>
+    <string name="toast_add_lock_falied">Door lock added Failed!</string>
     <string name="data_loading">Please wait a moment</string>
     <string name="checking_security">Safety Check</string>
     <string name="add_locking">In the generating device...</string>
