@@ -78,7 +78,6 @@ public class BleMessageListenerImpl implements BleMessageListener {
                 default:
                     Log.w(TAG, "Message type : " + type + " can not be handler");
                     break;
-
             }
 
         } finally {

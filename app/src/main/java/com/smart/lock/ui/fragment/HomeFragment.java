@@ -334,7 +334,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                     if (mDefaultDevice != null)
                         mLockNameTv.setText(mDefaultDevice.getDeviceName());
-
+                    mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
+                    mBattery = mBleModel.getBattery();
                     refreshBattery(mBattery);
                 } else {
                     mLockStatusTv.setText(R.string.bt_unconnected);
@@ -439,12 +440,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
-                mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
-                mBattery = mBleModel.getBattery();
-
                 mIsConnected = true;
                 refreshView(BIND_DEVICE);
-                refreshBattery(mBattery);
 
                 if (mOpenTest) {
                     new Handler().postDelayed(new Runnable() {
