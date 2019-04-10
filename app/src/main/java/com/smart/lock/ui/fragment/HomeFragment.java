@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
@@ -128,6 +129,7 @@ public class HomeFragment extends BaseFragment implements
     private int mImageIds[]; //主界面图片
     private boolean mIsConnected = false; //服务连接标志
     private int mHeight;
+    private BleConnectModel mBleModel;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -296,7 +298,6 @@ public class HomeFragment extends BaseFragment implements
      * 刷新显示界面
      */
     private void refreshView(int status) {
-        LogUtil.d(TAG, "status = " + status);
         switch (status) {
             case DEVICE_CONNECTING:
                 LogUtil.d(TAG, "DEVICE_CONNECTING");
@@ -329,7 +330,8 @@ public class HomeFragment extends BaseFragment implements
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                     if (mDefaultDevice != null)
                         mLockNameTv.setText(mDefaultDevice.getDeviceName());
-
+                    mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
+                    mBattery = mBleModel.getBattery();
                     refreshBattery(mBattery);
                 } else {
                     mLockStatusTv.setText(R.string.bt_unconnected);
@@ -447,7 +449,6 @@ public class HomeFragment extends BaseFragment implements
 
                 mIsConnected = true;
                 refreshView(BIND_DEVICE);
-                refreshBattery(mBattery);
 
                 if (mOpenTest) {
                     new Handler().postDelayed(new Runnable() {
