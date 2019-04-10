@@ -368,7 +368,6 @@ public class BleManagerHelper {
                 if (mMode == 1) {
                     startScanDevice();
                 }
-//
             }
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
@@ -621,7 +620,7 @@ public class BleManagerHelper {
      */
     private synchronized DeviceUser createDeviceUser(short userId, String path, int permission) {
         DeviceUser user = new DeviceUser();
-        user.setDevNodeId(mNodeId);
+        user.setDevNodeId(mDefaultDevice.getDeviceNodeId());
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(userId);
         user.setUserPermission(permission);

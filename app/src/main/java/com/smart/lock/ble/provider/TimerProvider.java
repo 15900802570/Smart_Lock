@@ -7,7 +7,7 @@ import com.smart.lock.ble.TimerListener;
 
 /**
  * 超时提供者
- * 
+ *
  */
 public class TimerProvider{
 

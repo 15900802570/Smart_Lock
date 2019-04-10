@@ -291,6 +291,8 @@ public class BleChannel implements Runnable {
 
         RxChar.setValue(value);
         return mBleGatt.writeCharacteristic(RxChar);
+//        return mBle.requestWriteCharacteristic(mDeviceAddress,
+//                mCharacteristic, "");
     }
 
     public boolean sendOta(byte[] value, int type) {

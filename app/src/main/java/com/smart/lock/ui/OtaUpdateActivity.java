@@ -391,10 +391,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                 mFileName = getString(R.string.app_name) + version.versionName;
                 getPath(version.versionCode);
                 int len = version.versionName.length();
-                int hwLen = mDefaultDev.getDeviceHwVersion().length();
+                int swLen = mDefaultDev.getDeviceSwVersion().length();
                 int code = 0;
-                if (len >= 5 && hwLen >= 5)
-                    code = StringUtil.compareVersion(version.versionName.substring(len - 5, len), mDefaultDev.getDeviceHwVersion().substring(hwLen - 5, hwLen));
+                if (len >= 5 && swLen >= 5)
+                    code = StringUtil.compareVersion(version.versionName, mDefaultDev.getDeviceHwVersion().split("_")[1]);
                 if (0 == code) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {

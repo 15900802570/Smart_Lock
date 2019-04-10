@@ -1,5 +1,6 @@
 package com.smart.lock.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -93,6 +94,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         mTitleTv = findViewById(R.id.tv_message_title);
     }
 
+    @SuppressLint("SetTextI18n")
     private void initData() {
         controller = Controller.getInstants();
         controller.setAcitivty(this);
@@ -102,7 +104,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         if (mCmdType.equals(ConstantUtil.CREATE)) {
             mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
             mNodeId = mDefaultDevice.getDeviceNodeId();
-            mUserNameEt.setText(getResources().getString(R.string.password) + 1);
+            mUserNameEt.setText(getResources().getString(R.string.me) + getResources().getString(R.string.password));
             mTitleTv.setText(R.string.create_pwd);
         } else {
             mModifyDeviceKey = (DeviceKey) getIntent().getSerializableExtra(BleMsg.KEY_MODIFY_DEVICE_KEY);

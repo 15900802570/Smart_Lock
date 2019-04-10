@@ -18,18 +18,6 @@ public class MessageCreator {
     public static final String TAG = "MessageCreator";
 
     /**
-     * 固定秘钥，由板卡出厂时写入，APK扫描二维码获得，调试写死，是会话秘钥生成的必要参数
-     */
-    public static final byte sk1[] = {
-            '1', '2', '3', '4', '*', '*', '1', '2', '3', '4', 0x06, 0x06, 0x06, 0x06,
-            0x06,
-            0x06,
-            0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
-            0x0F, 0x0F,
-            0x0F, 0x0F
-    };
-
-    /**
      * APP二维码加密
      */
     public static byte mQrSecret[] = {
@@ -37,26 +25,17 @@ public class MessageCreator {
             0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F
     };
 
-    public static byte m256SK[] = new byte[32];
+    public static byte m256SK[] = new byte[32];//sk
 
-    public static byte m128SK[] = new byte[16];
+    public static byte m128SK[] = new byte[16]; //sk
 
-    /**
-     * 账号密码随机数，调试写死
-     */
-    public static byte pwdRandom[] = new byte[16];
+    public static byte pwdRandom[] = new byte[16]; //随机数
 
     public static boolean mIs128Code = false; //fales 256
 
-    /**
-     * 256会话秘钥
-     */
-    public static byte m256AK[] = new byte[32];
+    public static byte m256AK[] = new byte[32];//256会话秘钥
 
-    /**
-     * 128会话秘钥
-     */
-    public static byte m128AK[] = new byte[16];
+    public static byte m128AK[] = new byte[16]; //128会话秘钥
 
     /**
      * 设置秘钥

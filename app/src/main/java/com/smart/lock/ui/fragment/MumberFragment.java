@@ -65,7 +65,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             case R.id.btn_add:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mMumberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
                 LogUtil.d(TAG, "users.size() = " + users.size());
-                if (users != null && users.size() >= 90) {
+                if (users.size() >= 90) {
                     showMessage(mMumberView.getContext().getResources().getString(R.string.members) + mMumberView.getContext().getResources().getString(R.string.add_user_tips));
                     return;
                 }
@@ -105,12 +105,11 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 mMumberAdapter.notifyDataSetChanged();
                 break;
             case R.id.btn_delete:
-
                 if (mMumberAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     for (DeviceUser devUser : mMumberAdapter.mDeleteUsers) {
-
+                        LogUtil.d(TAG, "devUser = " + devUser.getUserId());
                         mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
                     }
                     closeDialog(10);
@@ -156,7 +155,6 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mMumberView.getContext()).queryFirstData("device_default", true);
-        LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mMumberView.getContext(), false);

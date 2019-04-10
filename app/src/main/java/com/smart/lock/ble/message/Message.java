@@ -270,7 +270,7 @@ public class Message implements Serializable {
      */
     protected Bundle data;
     /**
-     * 异步AT接口强制返回状态, 状态为true发送失败或者成功都返回状态， 状态为false发送失败时返回状态
+     * 异步Ble接口强制返回状态, 状态为true发送失败或者成功都返回状态， 状态为false发送失败时返回状态
      */
     protected boolean forceReturnStatus = false;
     /**
@@ -287,7 +287,6 @@ public class Message implements Serializable {
         if (data == null) {
             data = new Bundle();
         }
-
         return data;
     }
 

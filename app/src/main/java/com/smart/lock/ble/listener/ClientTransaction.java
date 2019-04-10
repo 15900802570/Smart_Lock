@@ -57,8 +57,7 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
      * 启动守护，维护在指定时间内没有响应
      */
     public void startWatch() {
-        // 比芯片侧超时时间多10S，保证系统超时比芯片侧长，这个为了防止芯片侧出现异常情况
-        timer = new TimerProvider((mTimeout + 10) * 1000, "ClientTransaction---" + getListenerKey(), this);
+        timer = new TimerProvider(mTimeout * 1000, "ClientTransaction---" + getListenerKey(), this);
         timer.start();
         Log.d(TAG, timer.getLabel() + "启动守护-----timeout=" + timer.getTime());
     }

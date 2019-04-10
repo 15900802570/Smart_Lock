@@ -224,6 +224,15 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 DialogUtils.closeDialog(mLoadDialog);
+                int size = DeviceUserDao.getInstance(LockDetectingActivity.this).queryUsers(mNodeId, ConstantUtil.DEVICE_MASTER).size();
+                if (size >= 5) {
+                    showMessage(LockDetectingActivity.this.getString(R.string.add_user_tips));
+                    mIsConnected = mBleManagerHelper.getServiceConnection();
+                    if (mIsConnected) {
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
+                    return;
+                }
                 if (mMode == SEARCH_LOCK) {
                     mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getResources().getString(R.string.plz_press_setting));
                     mLoadDialog.show();
@@ -293,6 +302,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     showMessage(LockDetectingActivity.this.getString(R.string.add_user_success));
                 } else if (errCode[3] == 0x3) {
                     showMessage(LockDetectingActivity.this.getString(R.string.add_user_failed));
+                    mIsConnected = mBleManagerHelper.getServiceConnection();
                     if (mIsConnected) {
                         mBleManagerHelper.getBleCardService().disconnect();
                     }
@@ -504,10 +514,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
                 if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                     finish();
-                }else {
+                } else {
                     Intent intent = new Intent(LockDetectingActivity.this, LockScreenActivity.class);
                     intent.putExtra(ConstantUtil.IS_RETURN, true);
-                    intent.putExtra(ConstantUtil.NOT_CANCEL,true);
+                    intent.putExtra(ConstantUtil.NOT_CANCEL, true);
                     LockDetectingActivity.this.startActivityForResult(intent.
                             putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), 1);
                 }

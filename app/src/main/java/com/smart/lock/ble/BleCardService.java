@@ -127,33 +127,6 @@ public class BleCardService extends Service {
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_SERVICES_DISCOVERED);
 
                 LogUtil.d(TAG, "mBluetoothGatt = " + gatt.hashCode() + "gatt service size is" + gatt.getServices().size());
-
-                for (BluetoothGattService gattService : gatt.getServices()) {
-
-                    // 取得当前service的uuid；
-                    String servuuid = gattService.getUuid().toString();
-                    Log.d(TAG, "servuuid = " + servuuid);
-
-                    List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-
-                    // Loops through available Characteristics.
-                    for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-                        String uuid = gattCharacteristic.getUuid().toString();
-                        Log.d(TAG, "~~~~~~BluetoothGattCharacteristic uuid = " + uuid);
-
-//                            // add for DFU
-//                            if (uuid.equals(SampleGattAttributes.UUID_BASIC_PREFIX
-//                                    + SampleGattAttributes.GATT_DTS1580_DFU_CMD_CHARACTERISTIC//DEVICE_NAME_CHARACTERISTIC//GATT_DTS1580_DFU_CMD_CHARACTERISTIC
-//                                    + SampleGattAttributes.UUID_BASIC_SUFFIX)) {
-//
-//                                Log.d(TAG, "~~~~~~BluetoothGattCharacteristic get mDfuCmdGattCharacteristic = " + mDfuCmdGattCharacteristic);
-//                                return gattCharacteristic;
-//                            }
-                    }
-
-                }
-
-
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -176,9 +149,7 @@ public class BleCardService extends Service {
             Log.w(TAG, "onCharacteristicChanged()");
 
             if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
-
                 mBleProvider.onReceiveBle(characteristic.getValue());
-
             }
         }
 
@@ -187,7 +158,7 @@ public class BleCardService extends Service {
             Log.d(TAG, "onCharacteristicWrite() status = " + status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                mBleChannel.changeChannelState(mBleChannel.STATUS_CHANNEL_WAIT);
+                mBleChannel.changeChannelState(BleChannel.STATUS_CHANNEL_WAIT);
                 mBleChannel.notifyData(BleMsg.ACTION_CHARACTERISTIC_WRITE);
             } else {
                 Log.e(TAG, "onCharacteristicWrite() status = " + status);
@@ -435,28 +406,6 @@ public class BleCardService extends Service {
 
     }
 
-    public void writeRXCharacteristic(byte[] value) {
-        BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
-
-        // showMessage("mBluetoothGatt null"+ mBluetoothGatt);
-        if (RxService == null) {
-            showMessage("Rx service not found!");
-            mBleChannel.notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return;
-        }
-
-        BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(RX_CHAR_UUID);
-        if (RxChar == null) {
-            showMessage("Rx charateristic not found!");
-            mBleChannel.notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return;
-        }
-        RxChar.setValue(value);
-        boolean status = mBluetoothGatt.writeCharacteristic(RxChar);
-
-        Log.d(TAG, "write TXchar - status=" + status);
-    }
-
     private void showMessage(String msg) {
         Log.e(TAG, msg);
     }
@@ -541,7 +490,7 @@ public class BleCardService extends Service {
         user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
 
@@ -588,7 +537,7 @@ public class BleCardService extends Service {
         deviceKey.setLockId(String.valueOf(lockId));
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
@@ -716,7 +665,7 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
@@ -799,7 +748,7 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
-        ClientTransaction ct = new ClientTransaction(msg, 90, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
         return ct.request();
     }
 

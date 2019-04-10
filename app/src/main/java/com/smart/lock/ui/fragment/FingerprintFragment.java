@@ -174,7 +174,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName(mFpView.getContext().getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
+                deviceKey.setKeyName(mFpView.getContext().getResources().getString(R.string.me) + mFpView.getContext().getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
@@ -262,48 +262,46 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
             final DeviceKey fpInfo = mFpList.get(position);
             LogUtil.d(TAG, "fpInfo = " + fpInfo.toString());
-            if (fpInfo != null) {
-                viewHolder.mNameTv.setText(fpInfo.getKeyName());
-                viewHolder.mType.setImageResource(R.mipmap.record_fingerprint);
-                viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(fpInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
+            viewHolder.mNameTv.setText(fpInfo.getKeyName());
+            viewHolder.mType.setImageResource(R.mipmap.record_fingerprint);
+            viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(fpInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
 
-                viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
-                        closeDialog(10);
-                        positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
-                    }
-                });
-                viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
-                        closeDialog(10);
-                        positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
-                    }
-                });
-
-                final AlertDialog editDialog = DialogUtils.showEditKeyDialog(mContext, mContext.getString(R.string.modify_note_name), fpInfo);
-                viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        editDialog.show();
-                    }
-                });
-
-                if (editDialog != null) {
-                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(fpInfo.getDeviceNodeId(), fpInfo.getUserId(), fpInfo.getLockId(), ConstantUtil.USER_FINGERPRINT).getKeyName());
-                        }
-                    });
+            viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
+                    closeDialog(10);
+                    positionDelete = position;
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
                 }
+            });
+            viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
+                    closeDialog(10);
+                    positionModify = position;
+                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
+                }
+            });
+
+            final AlertDialog editDialog = DialogUtils.showEditKeyDialog(mContext, mContext.getString(R.string.modify_note_name), fpInfo);
+            viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editDialog.show();
+                }
+            });
+
+            if (editDialog != null) {
+                editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(fpInfo.getDeviceNodeId(), fpInfo.getUserId(), fpInfo.getLockId(), ConstantUtil.USER_FINGERPRINT).getKeyName());
+                    }
+                });
             }
 
         }

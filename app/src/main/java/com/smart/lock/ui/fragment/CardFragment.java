@@ -165,7 +165,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName("NFC" + (Integer.parseInt(mLockId)));
+                deviceKey.setKeyName(mCardView.getContext().getString(R.string.me) + "NFC");
                 deviceKey.setKeyType(ConstantUtil.USER_NFC);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCardView.getContext()).insert(deviceKey);

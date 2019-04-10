@@ -152,7 +152,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mTempView.getContext()).queryFirstData("device_default", true);
-        LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mTempView.getContext(), false);

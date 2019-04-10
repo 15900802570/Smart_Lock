@@ -134,6 +134,7 @@
     <string name="add_password">添加密码</string>
     <string name="add_fingerprint">添加指纹</string>
     <string name="password">密码</string>
+    <string name="pwd_length">密码长度为6位</string>
     <string name="user_name">使用者:</string>
     <string name="edit">编辑</string>
     <string name="input_new_pwd">请输入新密码:</string>

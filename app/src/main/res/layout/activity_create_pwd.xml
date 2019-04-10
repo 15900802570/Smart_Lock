@@ -117,6 +117,7 @@
                 android:paddingLeft="5.0dip"
                 android:paddingRight="5.0dip"
                 android:singleLine="true"
+                android:hint="@string/pwd_length"
                 android:maxLength="6"
                 android:textColor="@color/color_text"
                 android:textSize="17.0sp" />
@@ -146,6 +147,7 @@
                 android:inputType="numberPassword"
                 android:paddingLeft="5.0dip"
                 android:paddingRight="5.0dip"
+                android:hint="@string/pwd_length"
                 android:maxLength="6"
                 android:singleLine="true"
                 android:textColor="@color/color_text"

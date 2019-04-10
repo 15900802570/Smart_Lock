@@ -154,7 +154,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mAdminView.getContext()).queryFirstData("device_default", true);
-        LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext(), false);

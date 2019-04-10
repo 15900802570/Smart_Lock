@@ -455,9 +455,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                         }
                     }, 5000);
                 }
-
             }
-
 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                 mIsConnected = false;
@@ -516,7 +514,8 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
             bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
             mBleManagerHelper.connectBle((byte) 1, bundle);
             mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        }
+        }else
+            refreshView(BIND_DEVICE);
     }
 
     public void onPause() {
@@ -589,7 +588,6 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-        LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice.toString());
         switch ((Integer) view.getTag()) {
             case R.mipmap.icon_password:
                 if (mIsConnected) {

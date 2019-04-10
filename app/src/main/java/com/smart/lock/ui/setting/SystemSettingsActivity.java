@@ -102,7 +102,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
     private int REQUESTCODE = 0;
-    private static final int REQUEST_CODE_SCAN = 0;
+    private static final int REQUEST_CODE_SCAN = 1;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -402,7 +402,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_NEW_PASSWORD) {
 
-            if (resultCode == RESULT_OK && data != null) {
+            if (data != null) {
                 if (requestCode == REQUEST_CODE_SCAN) {
                     String content = data.getStringExtra(Constant.CODED_CONTENT);
                     LogUtil.d(TAG, "content = " + content);
@@ -452,8 +452,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         break;
                 }
             } else if (requestCode == REQUEST_CODE_NEW_PASSWORD) {
-                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                        writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                 mNumPwdSwitchLightTBtn.setChecked(true);
                 mIsPwdRequired = true;
             }
