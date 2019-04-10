@@ -29,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
@@ -41,13 +40,12 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.BleConnectModel;
+import com.smart.lock.ui.BaseDoResultActivity;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
-import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
@@ -56,17 +54,18 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
-import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MyGridView;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
-public class HomeFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class HomeFragment extends BaseFragment implements
+        View.OnClickListener,
+        AdapterView.OnItemClickListener,
+        BaseDoResultActivity.OnRefreshView {
     private static final String TAG = HomeFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private View mHomeView;
@@ -128,43 +127,32 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
     private int mImageIds[]; //主界面图片
     private boolean mIsConnected = false; //服务连接标志
-    private long mStartTime = 0, mEndTime = 0;
     private int mHeight;
-    private BleConnectModel mBleModel;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        String mSn;
-        String mBleMac;
-        // 扫描二维码/条码回传
         if (requestCode == Activity.RESULT_FIRST_USER && resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                LogUtil.d(TAG, "content = " + content);
-                String[] dvInfo = content.split(",");
-                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
-                    mSn = dvInfo[0];
-                    mBleMac = dvInfo[1];
-                    mNodeId = dvInfo[2];
-
-                    if (DeviceInfoDao.getInstance(getContext()).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
-
-                        startIntent(LockDetectingActivity.class, bundle);
-                    } else {
-                        ToastUtil.show(mHomeView.getContext(), getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
-                    }
-
-                } else {
-                    ToastUtil.show(mHomeView.getContext(), getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+                if (getActivity() instanceof OnFragmentInteractionListener) {
+                    ((OnFragmentInteractionListener) getActivity()).onScanForResult(data);
                 }
             }
         }
+    }
+
+    /**
+     * 调用Activity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void onScanForResult(Intent data);
+    }
+
+    @Override
+    public void onRefreshView() {
+        LogUtil.d(TAG, "ADD NEW DEVICE");
+        this.refreshView(BIND_DEVICE);
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -280,6 +268,12 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
         mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), false);
         LocalBroadcastManager.getInstance(mHomeView.getContext()).registerReceiver(deviceReciver, intentFilter());
+        mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
+        if (mDefaultDevice == null) {
+            refreshView(UNBIND_DEVICE);
+        } else {
+            refreshView(BIND_DEVICE);
+        }
     }
 
     /**
@@ -302,6 +296,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
      * 刷新显示界面
      */
     private void refreshView(int status) {
+        LogUtil.d(TAG, "status = " + status);
         switch (status) {
             case DEVICE_CONNECTING:
                 LogUtil.d(TAG, "DEVICE_CONNECTING");
@@ -342,9 +337,16 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth);
                     refreshView(BATTER_UNKNOW);
                 }
-                mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
+                if (mDefaultDevice == null) {
+                    mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
+
+                }
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+                }
+                LogUtil.d(TAG, "Default = " + mDefaultDevice + "\n" +
+                        "Default user = " + mDefaultUser);
+                if (mDefaultDevice != null & mDefaultUser != null) {
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     Log.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
@@ -352,6 +354,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
                     mMyGridView.setAdapter(mLockAdapter);
                     mAdapter.setImageIds(mImageIds);
                     mAdapter.notifyDataSetChanged();
+                    LogUtil.d(TAG, "默认设备");
                 }
                 break;
             case UNBIND_DEVICE:
@@ -439,7 +442,7 @@ public class HomeFragment extends BaseFragment implements View.OnClickListener, 
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
-                mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
+                BleConnectModel mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
                 mBattery = mBleModel.getBattery();
 
                 mIsConnected = true;

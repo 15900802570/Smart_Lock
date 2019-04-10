@@ -2,14 +2,9 @@ package com.smart.lock.ui.setting;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.support.v7.widget.DefaultItemAnimator;
@@ -21,41 +16,26 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
-import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
-import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.ui.BaseDoResultActivity;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
-import com.smart.lock.utils.ToastUtil;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 
-public class DeviceManagementActivity extends AppCompatActivity {
+public class DeviceManagementActivity extends BaseDoResultActivity {
 
     private static final int REQUEST_CODE_SCAN = 1;
 
@@ -64,58 +44,14 @@ public class DeviceManagementActivity extends AppCompatActivity {
     private RecyclerView mDevManagementRv;
     private DevManagementAdapter mDevManagementAdapter;
 
-    private String mUserType;
-    private String mUserId;
-    private String mNodeId;
-    private String mBleMac;
-    private String mRandCode;
-    private String mTime;
-    private DeviceInfo mNewDevice;
-    private Dialog mLoadDialog;
-
     private Dialog mAddNewDevDialog;
-    protected Handler mHandler;
 
-    /**
-     * 超时提示框启动器
-     */
-    protected Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
-                DialogUtils.closeDialog(mLoadDialog);
-
-//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mDefaultDevice.getBleMac(), false);
-//                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
-
-                Toast.makeText(DeviceManagementActivity.this, DeviceManagementActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-            }
-
-        }
-    };
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                LogUtil.d(TAG, "content = " + content);
-                byte[] mByte;
-                if (content.length() == 127) {
-                    mByte = StringUtil.hexStringToBytes('0' + content);
-                } else if (content.length() == 128) {
-                    mByte = StringUtil.hexStringToBytes(content);
-                } else {
-                    Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(this, content);
-                    alterDialog.show();
-                    return;
-                }
-                LogUtil.d(TAG, "mByte=" + Arrays.toString(mByte));
-                byte[] devInfo = new byte[64];
-                AES_ECB_PKCS7.AES256Decode(mByte, devInfo, MessageCreator.mQrSecret);
-                LogUtil.d(TAG, Arrays.toString(devInfo));
-                getDevInfo(devInfo);
-                addDev();
+                ScanDoCode(data);
             }
         }
     }
@@ -135,12 +71,10 @@ public class DeviceManagementActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        mHandler = new Handler();
         mDevManagementAdapter = new DevManagementAdapter(this);
         mDevManagementRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDevManagementRv.setItemAnimator(new DefaultItemAnimator());
         mDevManagementRv.setAdapter(mDevManagementAdapter);
-        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
 
     private void initEvent() {
@@ -172,161 +106,20 @@ public class DeviceManagementActivity extends AppCompatActivity {
         }
     }
 
-
-    private void getDevInfo(byte[] devInfo) {
-        byte[] typeBytes = new byte[1];
-        byte[] copyNumBytes = new byte[2];
-        byte[] ImeiBytes = new byte[8];
-        byte[] bleMACBytes = new byte[6];
-        byte[] timeBytes = new byte[4];
-        byte[] randCodeBytes = new byte[18];
-        System.arraycopy(devInfo, 0, typeBytes, 0, 1);
-        System.arraycopy(devInfo, 1, copyNumBytes, 0, 2);
-        System.arraycopy(devInfo, 3, ImeiBytes, 0, 8);
-        System.arraycopy(devInfo, 11, bleMACBytes, 0, 6);
-        System.arraycopy(devInfo, 17, randCodeBytes, 0, 18);
-        System.arraycopy(devInfo, 35, timeBytes, 0, 4);
-        mUserType = StringUtil.bytesToHexString(typeBytes);
-        mUserId = StringUtil.bytesToHexString(copyNumBytes);
-        StringUtil.exchange(ImeiBytes);
-        mNodeId = StringUtil.bytesToHexString(ImeiBytes);
-        mBleMac = StringUtil.bytesToHexString(bleMACBytes).toUpperCase();
-        mRandCode = StringUtil.bytesToHexString(randCodeBytes);
-        mTime = StringUtil.byte2Int(timeBytes);
-
-        LogUtil.d(TAG, "New Device : " + '\n' +
-                "userType = " + mUserType + '\n' +
-                "UserId = " + mUserId + '\n' +
-                "NodeId = " + mNodeId + '\n' +
-                "Time = " + mTime);
+    @Override
+    protected void onAuthenticationSuccess() {
+        super.onAuthenticationSuccess();
+        mDevManagementAdapter.addItem(mNewDevice);
+        mDevManagementAdapter.notifyDataSetChanged();
     }
 
-    private void addDev() {
-        if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
-            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(this, "授权码已过期，请重新请求");
-            alterDialog.show();
-        } else if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
-            ToastUtil.show(this, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
-        } else {
-            if (getIntent().getExtras() != null) {
-                DeviceInfo deviceDev = (DeviceInfo) getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-                if (BleManagerHelper.getInstance(this, false).getBleCardService() != null && BleManagerHelper.getInstance(this, false).getServiceConnection()) {
-                    BleManagerHelper.getInstance(this, false).getBleCardService().disconnect();
-                }
-
-            }
-            LocalBroadcastManager.getInstance(this).registerReceiver(devCheckReceiver, intentFilter());
-            mLoadDialog.show();
-            closeDialog(10);
-            BleManagerHelper.setSk(mBleMac, mRandCode);
-            Bundle bundle = new Bundle();
-            bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
-            bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
-            BleManagerHelper.getInstance(this, false).connectBle((byte) 1, bundle);
-        }
+    @Override
+    protected void onAuthenticationFailed() {
+        super.onAuthenticationFailed();
+        mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
+        mAddNewDevDialog.show();
     }
 
-    /**
-     * 创建用户
-     *
-     * @param userId
-     */
-    private void createDeviceUser(short userId) {
-        DeviceUser user = new DeviceUser();
-        int userIdInt = Integer.valueOf(userId);
-        user.setDevNodeId(mNodeId);
-        user.setCreateTime(System.currentTimeMillis() / 1000);
-        user.setUserId(userId);
-        user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-        if (userIdInt < 101) {
-            user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-            user.setUserName(getString(R.string.administrator) + userId);
-        } else if (userIdInt < 201) {
-            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(getString(R.string.members) + userId);
-        } else {
-            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(getString(R.string.members) + userId);
-        }
-
-        user.setUserStatus(ConstantUtil.USER_UNENABLE);
-
-        DeviceUserDao.getInstance(this).insert(user);
-    }
-
-    /**
-     * 创建设备
-     */
-    private void createDevice() {
-        DeviceInfo oldDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_nodeId", mNodeId);
-        if (oldDevice == null) {
-            DeviceInfo defaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-            LogUtil.d(TAG, "newDevice: " + "BLEMAC =" + mBleMac);
-            mNewDevice = new DeviceInfo();
-            mNewDevice.setActivitedTime(Long.valueOf(mTime));
-            mNewDevice.setBleMac(getMacAdr(mBleMac));
-            mNewDevice.setConnectType(false);
-            mNewDevice.setUserId(Short.parseShort(mUserId, 16));
-            mNewDevice.setDeviceNodeId(mNodeId);
-            mNewDevice.setNodeType(ConstantUtil.SMART_LOCK);
-            mNewDevice.setDeviceDate(System.currentTimeMillis() / 1000);
-            if (defaultDevice != null) mNewDevice.setDeviceDefault(false);
-            else mNewDevice.setDeviceDefault(true);
-            mNewDevice.setDeviceSn("");
-            mNewDevice.setDeviceName(DeviceManagementActivity.this.getResources().getString(R.string.lock_default_name));
-            mNewDevice.setDeviceSecret(mRandCode);
-            DeviceInfoDao.getInstance(this).insert(mNewDevice);
-        }
-    }
-
-    protected static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
-        intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
-        return intentFilter;
-    }
-
-    /**
-     * 广播接受
-     */
-    private final BroadcastReceiver devCheckReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            //4.2.3 MSG 04
-            if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
-                LogUtil.d(TAG, "array = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_STATUS)));
-                createDeviceUser(Short.parseShort(mUserId, 16));
-                createDevice();
-                mDevManagementAdapter.addItem(mNewDevice);
-                mDevManagementAdapter.notifyDataSetChanged();
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
-            }
-            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
-                mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
-                mAddNewDevDialog.show();
-            }
-        }
-    };
-
-    /**
-     * 转成标准MAC地址
-     *
-     * @param str 未加：的MAC字符串
-     * @return 标准MAC字符串
-     */
-    protected static String getMacAdr(String str) {
-        str = str.toUpperCase();
-        StringBuilder result = new StringBuilder("");
-        for (int i = 1; i <= 12; i++) {
-            result.append(str.charAt(i - 1));
-            if (i % 2 == 0) {
-                result.append(":");
-            }
-        }
-        return result.substring(0, 17);
-    }
 
     /**
      * 新界面
@@ -343,33 +136,6 @@ public class DeviceManagementActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /**
-     * AES256解密
-     *
-     * @param bytesToDecode 输入加密信息
-     * @param secretKey     byte[] 加密Secret
-     * @return
-     */
-    private byte[] AES256Decode(byte[] bytesToDecode, byte[] secretKey) {
-        try {
-            SecretKeySpec keySpec = new SecretKeySpec(secretKey, "AES256");
-            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, keySpec);
-            byte[] result = cipher.doFinal(bytesToDecode);
-            return result;
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     /**
      * 扫描二维码
@@ -464,7 +230,6 @@ public class DeviceManagementActivity extends AppCompatActivity {
                         mDevManagementAdapter.notifyDataSetChanged();
                     }
                 });
-
             }
         }
 
@@ -496,15 +261,15 @@ public class DeviceManagementActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 超时提醒
-     *
-     * @param seconds 时间
-     */
-    private void closeDialog(final int seconds) {
-
-        mHandler.removeCallbacks(mRunnable);
-
-        mHandler.postDelayed(mRunnable, seconds * 1000);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        long l = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryCount();
+        LogUtil.d(TAG,"type = "+ l +'\n'+
+                "count = " + mDevManagementAdapter.getItemCount());
+        if (l > mDevManagementAdapter.getItemCount()) {
+            mDevManagementAdapter.addItem(DeviceInfoDao.getInstance(DeviceManagementActivity.this).getNewDeviceInfo());
+            mDevManagementAdapter.notifyDataSetChanged();
+        }
     }
 }

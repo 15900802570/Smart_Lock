@@ -72,6 +72,7 @@
     <string name="ble_scan_failed">搜索失败</string>
     <string name="add_lock_success">添加成功</string>
     <string name="toast_add_lock_success">门锁添加成功!</string>
+    <string name="toast_add_lock_falied">门锁添加失败!</string>
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="data_loading">请稍候</string>

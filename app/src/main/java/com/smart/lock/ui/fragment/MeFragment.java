@@ -202,31 +202,18 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         // 扫描二维码/条码回传
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                LogUtil.d(TAG, "content = " + content);
-                String[] dvInfo = content.split(",");
-                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
-                    mSn = dvInfo[0];
-                    mBleMac = dvInfo[1];
-                    mNodeId = dvInfo[2];
-
-                    if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
-                        LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
-                                " sn = " + mSn + "\n" +
-                                "mNodeId = " + mNodeId);
-                        startIntent(LockDetectingActivity.class, bundle);
-                    } else {
-                        ToastUtil.show(mActivity, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
-                    }
-                } else {
-                    ToastUtil.show(mMeView.getContext(), getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+                if(getActivity() instanceof OnFragmentInteractionListener){
+                    ((OnFragmentInteractionListener) getActivity()).onScanForResult(data);
                 }
             }
         }
+    }
+
+    /**
+     * 调用MainActivity中的函数
+     */
+    public interface  OnFragmentInteractionListener{
+        void onScanForResult(Intent data);
     }
 
     @Override

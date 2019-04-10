@@ -6,7 +6,6 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,6 +13,7 @@ import android.widget.RadioGroup;
 
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.ui.BaseDoResultActivity;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.HomeFragment;
 import com.smart.lock.ui.fragment.MeFragment;
@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements RadioGroup.OnCheckedChangeListener {
+public class MainActivity extends BaseDoResultActivity implements RadioGroup.OnCheckedChangeListener,
+        HomeFragment.OnFragmentInteractionListener,
+        MeFragment.OnFragmentInteractionListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     //back time
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
 
     //fragment list
     private List<BaseFragment> mPagerList;
+    private HomeFragment mHomeFragment;
 
     private int mHeight;
 
@@ -66,7 +69,8 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
     private void initDate() {
         BleManagerHelper.getInstance(this, false);
         mPagerList = new ArrayList();
-        mPagerList.add(new HomeFragment());
+        mHomeFragment = new HomeFragment();
+        mPagerList.add(mHomeFragment);
         mPagerList.add(new MeFragment());
         mTabVg.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             public Fragment getItem(int i) {
@@ -74,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
             }
 
             @NonNull
-            public Object instantiateItem(ViewGroup container, int position) {
+            public Object instantiateItem(@NonNull ViewGroup container, int position) {
                 return super.instantiateItem(container, position);
             }
 
@@ -85,6 +89,19 @@ public class MainActivity extends AppCompatActivity implements RadioGroup.OnChec
         mTabVg.setNoScroll(true);
     }
 
+    /**
+     *  Scan
+     * @param data 扫描参数
+     */
+    public void onScanForResult(Intent data){
+        this.ScanDoCode(data);
+    }
+
+    @Override
+    protected void onAuthenticationSuccess() {
+        super.onAuthenticationSuccess();
+        onResume();
+    }
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {

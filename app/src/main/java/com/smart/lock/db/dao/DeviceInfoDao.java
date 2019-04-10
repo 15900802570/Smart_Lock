@@ -23,6 +23,7 @@ public class DeviceInfoDao {
     private static DeviceInfoDao instance;
 
     public static String NODE_ID = "device_nodeId";
+    public static String DEVICE_DATE = "device_date";
 
 
     protected DeviceInfoDao(Context context) {
@@ -138,6 +139,24 @@ public class DeviceInfoDao {
             e.printStackTrace();
         }
         return strings;
+    }
+
+    /**
+     * 查询最新设备
+     * @return DeviceInfo
+     */
+    public DeviceInfo getNewDeviceInfo(){
+        try {
+            List<DeviceInfo> list = dao.queryBuilder().orderBy(DeviceInfoDao.DEVICE_DATE,false).query();
+            if (list != null){
+                return list.get(0);
+            }else {
+                return null;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
