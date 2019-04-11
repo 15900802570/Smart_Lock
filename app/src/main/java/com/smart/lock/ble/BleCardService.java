@@ -734,7 +734,7 @@ public class BleCardService extends Service {
      * @param logId   日志编号
      * @return 是否发送成功
      */
-    public boolean sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
+    public ClientTransaction sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_33);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
@@ -749,7 +749,8 @@ public class BleCardService extends Service {
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
         ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
-        return ct.request();
+        ct.request();
+        return ct;
     }
 
 }

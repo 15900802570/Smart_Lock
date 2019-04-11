@@ -6,6 +6,7 @@ import com.smart.lock.ble.TimerListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.TimerProvider;
+import com.smart.lock.utils.LogUtil;
 
 /**
  * 信息事务
@@ -96,20 +97,17 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
         return "ClientTransaction@" + hashCode() + ">>>" + mMessage.toString();
     }
 
-    public long getLastupdBleetime() {
-        return lastupdBleetime;
-    }
-
-    public boolean isTimeout() {
-        return lastupdBleetime + mTimeout < System.currentTimeMillis();
-    }
-
-    public void setLastupdBleetime(long lastupdBleetime) {
-        lastupdBleetime = lastupdBleetime;
-    }
-
     public Message getMessage() {
         return mMessage;
+    }
+
+    public void reSetTimeOut(long timeOut) {
+        if (timer.isActive()) {
+            timer.halt();
+            LogUtil.d(TAG,"timer is cancel");
+            timer.reSetTimeOut(timeOut);
+            timer.start();
+        }
     }
 
 }

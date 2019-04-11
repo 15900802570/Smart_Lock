@@ -13,12 +13,14 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.utils.DialogUtils;
 
@@ -26,14 +28,14 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     protected RecyclerView mListView;
     protected TextView mTitle;
     protected ImageView mBack;
-    protected TextView mSyncTv;
-    protected ImageButton mReturnBtn;
-    protected ImageButton mDeleteBtn;
-    protected CheckBox mSelectCb;
     private static String TAG = BaseListViewActivity.class.getSimpleName();
     protected boolean mStatusTag = false;
 
-    protected Button mAddBtn;
+    protected CheckBox mSelectCb;
+    protected TextView mTipTv;
+    protected TextView mDelTv;
+    protected TextView mEditTv;
+    protected RelativeLayout mSelectEventRl;
 
     /**
      * 等待框
@@ -50,17 +52,14 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     protected Runnable mRunnable = new Runnable() {
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
                 DialogUtils.closeDialog(mLoadDialog);
-
-//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mDefaultDevice.getBleMac(), false);
-//                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
-
                 Toast.makeText(BaseListViewActivity.this, BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 
         }
     };
+
+    protected ClientTransaction mCt;
 
     /**
      * 蓝牙
@@ -94,20 +93,18 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         mListView = findViewById(R.id.list_view);
         mTitle = findViewById(R.id.tv_message_title);
         mBack = findViewById(R.id.iv_back_sysset);
-        mSyncTv = findViewById(R.id.tv_sync);
 
-        mAddBtn = findViewById(R.id.btn_add);
-        mAddBtn.setVisibility(View.GONE);
-
-        mReturnBtn = findViewById(R.id.return_btn);
-        mDeleteBtn = findViewById(R.id.delete_btn);
-        mSelectCb = findViewById(R.id.select_all);
+        mSelectCb = findViewById(R.id.delete_locked);
+        mTipTv = findViewById(R.id.tv_tips);
+        mDelTv = findViewById(R.id.del_tv);
+        mEditTv = findViewById(R.id.edit_tv);
+        mSelectEventRl = findViewById(R.id.rl_select_delete);
+        mSelectEventRl.setVisibility(View.GONE);
 
         mBack.setOnClickListener(this);
-        mAddBtn.setOnClickListener(this);
-        mReturnBtn.setOnClickListener(this);
-        mDeleteBtn.setOnClickListener(this);
-        mSyncTv.setOnClickListener(this);
+        mDelTv.setOnClickListener(this);
+        mSelectCb.setOnClickListener(this);
+        mEditTv.setOnClickListener(this);
     }
 
     /**

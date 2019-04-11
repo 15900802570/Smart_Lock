@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
@@ -58,6 +59,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
      */
     private BleManagerHelper mBleManagerHelper;
     private String mLockId = null;
+    private ClientTransaction mCt;
     /**
      * 超时提示框启动器
      */
@@ -191,14 +193,11 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 finish();
             }
 
-            if (action.equals(BleMsg.STR_RSP_MSG1A_STATUS)) {
-
-            }
-
             if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
                 Log.d(TAG, "seconds = " + Arrays.toString(seconds));
+                mCt.reSetTimeOut(seconds[0]*1000);
                 if (!mLoadDialog.isShowing()) {
                     mLoadDialog.show();
                 }
@@ -235,9 +234,9 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                     mLoadDialog.show();
                     closeDialog(5);
                     if (mTempUser != null)
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mTempUser.getUserId(), (byte) 0, firstPwd);
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mTempUser.getUserId(), (byte) 0, firstPwd);
                     else
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mDefaultDevice.getUserId(), (byte) 0, firstPwd);
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mDefaultDevice.getUserId(), (byte) 0, firstPwd);
 
                 } else {
                     showMessage(getResources().getString(R.string.add_pwd_tips));
@@ -246,7 +245,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
                 closeDialog(5);
-                mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 0, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd);
+                mCt =   mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 0, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd);
             }
 
         }

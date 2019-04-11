@@ -7,14 +7,11 @@ import com.j256.ormlite.dao.Dao;
 import com.smart.lock.R;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.helper.DtDatabaseHelper;
-import com.smart.lock.ui.CardManagerActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DeviceKeyDao {
 

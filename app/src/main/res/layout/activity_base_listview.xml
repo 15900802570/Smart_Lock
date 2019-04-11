@@ -6,19 +6,17 @@
 
     <RelativeLayout
         android:id="@+id/rl_title"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bg_height"
         android:background="#ffffffff">
 
         <ImageView
             android:id="@+id/iv_back_sysset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:background="@color/transparent"
-            android:padding="10.0dip"
-            android:src="@mipmap/icon_arrow_blue_left_45_45" />
+            android:layout_marginStart="@dimen/title_back_margin_left"
+            android:src="@mipmap/btn_back" />
 
         <TextView
             android:id="@+id/tv_message_title"
@@ -26,60 +24,21 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
-            android:padding="10.0dip"
             android:text="@string/device_manager"
-            android:textColor="#ff000000"
-            android:textSize="18.0dip" />
+            android:textColor="#000000"
+            android:textSize="@dimen/title_msg_size" />
 
         <TextView
-            android:id="@+id/tv_sync"
+            android:id="@+id/edit_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_marginEnd="@dimen/edit_right"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:background="@color/transparent"
-            android:padding="10.0dip"
-            android:text="@string/device_sync"
-            android:textColor="@color/blue2"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/return_btn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
-            android:background="@mipmap/b_log_recents_delete_reture"
             android:gravity="center"
-            android:includeFontPadding="false"
-            android:padding="3dp"
-            android:visibility="gone" />
-
-        <CheckBox
-            android:id="@+id/select_all"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="5dp"
-            android:layout_toLeftOf="@+id/delete_btn"
-            android:background="@drawable/log_select_all_selector"
-            android:button="@null"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:padding="3dp"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/delete_btn"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="17dp"
-            android:background="@mipmap/b_log_recents_delete"
-            android:gravity="center"
-            android:visibility="gone" />
+            android:text="@string/edit"
+            android:textColor="#ff000000"
+            android:textSize="@dimen/title_msg_size" />
     </RelativeLayout>
 
     <LinearLayout
@@ -87,38 +46,82 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_title"
-        android:background="@color/white"
+        android:background="@color/event_bg"
         android:orientation="vertical">
-
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_view"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_below="@+id/rl_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:background="@color/list_view_bg_grey"
             android:divider="@null"
-            android:paddingTop="5.0dip"
+            android:paddingStart="@dimen/recyler_left"
+            android:paddingTop="@dimen/recyler_top"
+            android:paddingEnd="@dimen/recyler_right"
             android:scrollbarSize="10dp"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="vertical" />
 
     </LinearLayout>
 
+
     <FrameLayout
-        android:id="@+id/fl_add"
+        android:id="@+id/fl_delete"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/mask">
+        android:background="@color/white">
 
-        <Button
-            android:id="@+id/btn_add"
-            style="@style/RountButtonStyle"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20.0dip"
-            android:visibility="visible" />
+
+        <RelativeLayout
+            android:id="@+id/rl_select_delete"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/delete_bg_height"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/delete_locked"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/checkbox_delete_left"
+                android:background="@drawable/selector_delete_checkbox"
+                android:button="@null"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tv_tips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/edit_right"
+                android:layout_toEndOf="@+id/delete_locked"
+                android:text="@string/all_election"
+                android:textColor="#ff555555"
+                android:textSize="@dimen/checkbox_delete_msg_size" />
+
+            <TextView
+                android:id="@+id/del_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="@dimen/delete_btn_end"
+                android:background="@mipmap/delete"
+                android:gravity="center"
+                android:text="@string/delete"
+                android:textColor="#ffbd9744"
+                android:textSize="@dimen/checkbox_delete_msg_size" />
+
+        </RelativeLayout>
+
+
     </FrameLayout>
 
 </RelativeLayout>

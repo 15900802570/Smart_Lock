@@ -25,6 +25,7 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
+import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
@@ -57,6 +58,7 @@ public abstract class BaseFragment extends Fragment {
     protected DeviceUser mDefaultUser;//当前用户
     protected DeviceUser mTempUser;
     protected ImageView mInstructionBtn; //一键开锁
+    protected ClientTransaction mCt;
 
     /**
      * 超时提示框启动器

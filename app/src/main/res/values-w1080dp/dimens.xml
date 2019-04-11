@@ -29,17 +29,16 @@
     <dimen name="button_width_value">130dip</dimen>
     <dimen name="height_45dp">80dp</dimen>
 
-    <dimen name="title_msg_size">16sp</dimen>
-    <dimen name="title_bg_height">54dp</dimen>
-    <dimen name="title_back_margin_left">20dp</dimen>
-
-    <dimen name="recyler_top">10.0dip</dimen>
-    <dimen name="recyler_left">13.0dip</dimen>
-    <dimen name="recyler_right">12.0dip</dimen>
-    <dimen name="checkbox_delete_size">23dp</dimen>
-    <dimen name="delete_bg_height">49dp</dimen>
-    <dimen name="checkbox_delete_left">30dp</dimen>
+    <dimen name="title_msg_size">18sp</dimen>
+    <dimen name="title_bg_height">81dp</dimen>
+    <dimen name="title_back_margin_left">30dp</dimen>
+    <dimen name="recyler_top">16dp</dimen>
+    <dimen name="recyler_left">20dp</dimen>
+    <dimen name="recyler_right">13dp</dimen>
+    <dimen name="checkbox_delete_size">36dp</dimen>
+    <dimen name="delete_bg_height">75dp</dimen>
+    <dimen name="checkbox_delete_left">44dp</dimen>
     <dimen name="checkbox_delete_msg_size">16sp</dimen>
-    <dimen name="edit_right">20dp</dimen>
-    <dimen name="delete_btn_end">18dp</dimen>
+    <dimen name="edit_right">28</dimen>
+    <dimen name="delete_btn_end">23dp</dimen>
 </resources>

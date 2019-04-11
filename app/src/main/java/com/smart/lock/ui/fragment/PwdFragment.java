@@ -156,6 +156,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
                 if (mIsVisibleFragment) {
                     Log.d(TAG, "seconds = " + Arrays.toString(seconds));
+                    mCt.reSetTimeOut(seconds[0] * 1000);
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
@@ -227,7 +228,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0));
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0));
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {

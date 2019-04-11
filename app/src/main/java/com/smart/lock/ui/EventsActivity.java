@@ -73,10 +73,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
      * 初始化数据
      */
     private void initData() {
-        mDeleteBtn.setTag(R.mipmap.b_log_recents_delete);
-        mDeleteBtn.setVisibility(View.VISIBLE);
         mBack.setVisibility(View.VISIBLE);
-        mSyncTv.setVisibility(View.GONE);
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getUserId());
@@ -109,11 +106,13 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    mTipTv.setText(R.string.cancel);
                     for (DeviceLog log : mEventAdapter.mLogList) {
                         mEventAdapter.mDeleteLogs.add(log);
                         Log.d(TAG, "add = " + log.getLogId());
                     }
                 } else {
+                    mTipTv.setText(R.string.all_election);
                     mEventAdapter.mDeleteLogs.clear();
                 }
                 mEventAdapter.chioseALLDelete(isChecked);
@@ -128,7 +127,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         intentFilter.addAction(BleMsg.STR_RSP_SERVER_DATA);
         intentFilter.addAction(BleMsg.STR_RSP_MSG3E_ERROR);
         intentFilter.addAction(BleMsg.STR_RSP_MSG32_LOG);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG18_TIMEOUT);
         return intentFilter;
     }
 
@@ -196,16 +194,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 DeviceLogDao.getInstance(EventsActivity.this).insert(devLog);
             }
 
-            if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
-                Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
-                byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                if (!mLoadDialog.isShowing()) {
-                    mLoadDialog.show();
-                }
-                closeDialog((int) seconds[0]);
-            }
-
             if (action.equals(BleMsg.STR_RSP_MSG3E_ERROR)) {
 
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
@@ -259,40 +247,41 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             case R.id.iv_back_sysset:
                 finish();
                 break;
-            case R.id.delete_btn:
-                if ((int) mDeleteBtn.getTag() == R.mipmap.b_log_recents_delete) {
+            case R.id.edit_tv:
+                if (mEditTv.getText().toString().equals(getString(R.string.edit))) {
                     changeVisible(true);
                     mEventAdapter.mDeleteLogs.clear();
                     mEventAdapter.notifyDataSetChanged();
                 } else {
-                    if (mEventAdapter.mDeleteLogs.size() != 0) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                       mLoadDialog.show();
-                        for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
-                            int logId = devLog.getLogId();
-                            LogUtil.d(TAG, "logId = " + logId);
-                            mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog);
-                        }
-                        closeDialog(10);
-                    } else {
-                        showMessage(getString(R.string.plz_choise_del_log));
+                    changeVisible(false);
+                    mEventAdapter.mDeleteLogs.clear();
+                    mEventAdapter.chioseALLDelete(false);
+                    mSelectCb.setChecked(false);
+
+                    if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
+                    } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getUserId());
                     }
+
+                    mEventAdapter.setDataSource(mLogs);
+                    mEventAdapter.notifyDataSetChanged();
                 }
+
                 break;
-            case R.id.return_btn:
-                changeVisible(false);
-                mEventAdapter.mDeleteLogs.clear();
-                mEventAdapter.chioseALLDelete(false);
-                mSelectCb.setChecked(false);
-
-                if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                    mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
-                } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                    mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+            case R.id.del_tv:
+                if (mEventAdapter.mDeleteLogs.size() != 0) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
+                    for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
+                        int logId = devLog.getLogId();
+                        LogUtil.d(TAG, "logId = " + logId);
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog);
+                    }
+                    closeDialog(10);
+                } else {
+                    showMessage(getString(R.string.plz_choise_del_log));
                 }
-
-                mEventAdapter.setDataSource(mLogs);
-                mEventAdapter.notifyDataSetChanged();
                 break;
 
             default:
@@ -308,15 +297,12 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     private void changeVisible(boolean delete) {
         mEventAdapter.chioseItemDelete(delete);
         if (delete) {
-            mDeleteBtn.setBackgroundResource(R.mipmap.b_log_red_delete);
-            mDeleteBtn.setTag(R.mipmap.b_log_red_delete);
-            mReturnBtn.setVisibility(View.VISIBLE);
-            mSelectCb.setVisibility(View.VISIBLE);
+            mEditTv.setText(R.string.edit_back);
+            mSelectEventRl.setVisibility(View.VISIBLE);
         } else {
-            mDeleteBtn.setBackgroundResource(R.mipmap.b_log_recents_delete);
-            mDeleteBtn.setTag(R.mipmap.b_log_recents_delete);
-            mReturnBtn.setVisibility(View.GONE);
-            mSelectCb.setVisibility(View.GONE);
+            mEditTv.setText(R.string.edit);
+            mSelectEventRl.setVisibility(View.GONE);
+
         }
     }
 

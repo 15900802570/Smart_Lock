@@ -64,7 +64,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0));
+                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0));
                 } else {
                     showMessage(getResources().getString(R.string.add_nfc_tips));
                 }
@@ -187,6 +187,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
                 if (mIsVisibleFragment) {
                     Log.d(TAG, "seconds = " + Arrays.toString(seconds));
+                    mCt.reSetTimeOut(seconds[0] * 1000);
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
@@ -257,7 +258,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
                     }
                 });
 
@@ -268,7 +269,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(10);
                         positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
                     }
                 });
 
