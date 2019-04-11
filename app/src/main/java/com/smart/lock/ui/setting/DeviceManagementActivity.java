@@ -1,12 +1,14 @@
 package com.smart.lock.ui.setting;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
 
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,19 +27,18 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.ui.BaseDoResultActivity;
+import com.smart.lock.scan.ScanQRHelper;
+import com.smart.lock.scan.ScanQRResultInterface;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
-import com.yzq.zxinglibrary.common.Constant;
+import com.smart.lock.utils.SharedPreferenceUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.ArrayList;
 
 
-public class DeviceManagementActivity extends BaseDoResultActivity {
-
-    private static final int REQUEST_CODE_SCAN = 1;
+public class DeviceManagementActivity extends AppCompatActivity implements ScanQRResultInterface {
 
     private static String TAG = "DeviceManagementActivity";
 
@@ -45,13 +46,30 @@ public class DeviceManagementActivity extends BaseDoResultActivity {
     private DevManagementAdapter mDevManagementAdapter;
 
     private Dialog mAddNewDevDialog;
+    private ScanQRHelper mScanQRHelper;
 
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
-            if (data != null) {
-                ScanDoCode(data);
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case ConstantUtil.SCAN_QRCODE_REQUEST_CODE:
+                    mScanQRHelper.ScanDoCode(data);
+                    break;
+                case ConstantUtil.SETTING_PWD_REQUEST_CODE:
+                    if (data.getExtras().getInt(ConstantUtil.CONFIRM) == 1) {
+                        SharedPreferenceUtil.getInstance(this).
+                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                        ToastUtil.showLong(this,
+                                getResources().getString(R.string.pwd_setting_successfully));
+                        finish();
+
+                    } else {
+                        ToastUtil.showLong(this,
+                                getResources().getString(R.string.pwd_setting_failed));
+                        finish();
+                    }
+                    break;
             }
         }
     }
@@ -75,6 +93,7 @@ public class DeviceManagementActivity extends BaseDoResultActivity {
         mDevManagementRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mDevManagementRv.setItemAnimator(new DefaultItemAnimator());
         mDevManagementRv.setAdapter(mDevManagementAdapter);
+        mScanQRHelper = new ScanQRHelper(this, this);
     }
 
     private void initEvent() {
@@ -87,7 +106,7 @@ public class DeviceManagementActivity extends BaseDoResultActivity {
                 finish();
                 break;
             case R.id.btn_dev_management_add_new_lock:
-                scanQr();
+                mScanQRHelper.scanQr();
                 break;
             default:
                 break;
@@ -101,21 +120,19 @@ public class DeviceManagementActivity extends BaseDoResultActivity {
                 break;
             case R.id.dialog_confirm_btn:
                 mAddNewDevDialog.cancel();
-                scanQr();
+                mScanQRHelper.scanQr();
                 break;
         }
     }
 
     @Override
-    protected void onAuthenticationSuccess() {
-        super.onAuthenticationSuccess();
-        mDevManagementAdapter.addItem(mNewDevice);
+    public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
+        mDevManagementAdapter.addItem(deviceInfo);
         mDevManagementAdapter.notifyDataSetChanged();
     }
 
     @Override
-    protected void onAuthenticationFailed() {
-        super.onAuthenticationFailed();
+    public void onAuthenticationFailed() {
         mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
         mAddNewDevDialog.show();
     }
@@ -136,21 +153,9 @@ public class DeviceManagementActivity extends BaseDoResultActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
 
-    /**
-     * 扫描二维码
-     */
-    private void scanQr() {
-        Intent newIntent = new Intent(this, CaptureActivity.class);
-        ZxingConfig config = new ZxingConfig();
-        config.setPlayBeep(true);//是否播放扫描声音 默认为true
-        config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
-//        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
-//        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-        startActivityForResult(newIntent, REQUEST_CODE_SCAN);
     }
 
     private class DevManagementAdapter extends RecyclerView.Adapter<DevManagementAdapter.MyViewHolder> {

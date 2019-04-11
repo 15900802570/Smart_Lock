@@ -639,11 +639,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 case 1:
                     SharedPreferenceUtil.getInstance(this).
                             writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-                    ToastUtil.showLong(this, "密码设置成功");
+                    ToastUtil.showLong(this, getResources().getString(R.string.pwd_setting_successfully));
                     finish();
                     break;
                 default:
-                    ToastUtil.showLong(this, "密码设置失败");
+                    ToastUtil.showLong(this, getResources().getString(R.string.pwd_setting_failed));
                     finish();
                     break;
             }

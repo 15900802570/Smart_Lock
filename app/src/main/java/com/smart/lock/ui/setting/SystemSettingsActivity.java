@@ -401,61 +401,37 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_NEW_PASSWORD) {
-
-            if (data != null) {
-                if (requestCode == REQUEST_CODE_SCAN) {
-                    String content = data.getStringExtra(Constant.CODED_CONTENT);
-                    LogUtil.d(TAG, "content = " + content);
-                    String[] dvInfo = content.split(",");
-                    if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
-                        mSn = dvInfo[0];
-                        mBleMac = dvInfo[1];
-                        mNodeId = dvInfo[2];
-
-                        Bundle bundle = new Bundle();
-                        bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
-                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
-                        LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
-                                " sn = " + mSn + "\n" +
-                                "mNodeId = " + mNodeId);
-                        BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle);
-                    } else {
-                        ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+            switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
+                case 1:
+                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                    mNumPwdSwitchLightTBtn.setChecked(true);
+                    mNumPwdSwitchTv.setVisibility(View.GONE);
+                    mModifyPwdNv.setVisibility(View.VISIBLE);
+                    mIsPwdRequired = true;
+                    break;
+                case -1:
+                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
+                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                            writeString(ConstantUtil.NUM_PWD, "");
+                    mNumPwdSwitchLightTBtn.setChecked(false);
+                    mIsPwdRequired = false;
+                    if (mIsFP > 1) {
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
+                        mFingerprintSwitchLightTbtn.setChecked(false);
+                        mIsFPRequired = false;
                     }
-                }
-
-                switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
-                    case 1:
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-                        mNumPwdSwitchLightTBtn.setChecked(true);
-                        mNumPwdSwitchTv.setVisibility(View.GONE);
-                        mModifyPwdNv.setVisibility(View.VISIBLE);
-                        mIsPwdRequired = true;
-                        break;
-                    case -1:
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                                writeString(ConstantUtil.NUM_PWD, "");
-                        mNumPwdSwitchLightTBtn.setChecked(false);
-                        mIsPwdRequired = false;
-                        if (mIsFP > 1) {
-                            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                                    writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
-                            mFingerprintSwitchLightTbtn.setChecked(false);
-                            mIsFPRequired = false;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            } else if (requestCode == REQUEST_CODE_NEW_PASSWORD) {
-                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-                mNumPwdSwitchLightTBtn.setChecked(true);
-                mIsPwdRequired = true;
+                    break;
+                default:
+                    break;
             }
+        } else if(requestCode == REQUEST_CODE_NEW_PASSWORD) {
+            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                    writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+            mNumPwdSwitchLightTBtn.setChecked(true);
+            mIsPwdRequired = true;
         }
     }
 

@@ -71,6 +71,16 @@ public class ConstantUtil {
     public static final int MODIFY_PASSWORD = 3;
 
     /**
+     * 扫描请求参数
+     */
+    public static final int SCAN_QRCODE_REQUEST_CODE = 0;
+
+    /**
+     * 设置密码请求参数
+     */
+    public static final int SETTING_PWD_REQUEST_CODE = 1;
+
+    /**
      * SharedPreferences的文件名
      */
     public static final String PREF_NAME = "numberlock";
