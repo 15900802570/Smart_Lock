@@ -62,6 +62,11 @@ public class MainActivity extends AppCompatActivity implements
         initView();
         initDate();
         initEvent();
+
+        int  height = this.getResources().getDisplayMetrics().heightPixels;
+        int width = this.getResources().getDisplayMetrics().widthPixels;
+        LogUtil.d(TAG, "height = "+ height+'\n'+
+                "width = "+width);
     }
 
     private void initView() {
