@@ -2,7 +2,7 @@
 package com.smart.lock.ui.fragment;
 
 import android.Manifest;
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
@@ -44,7 +43,6 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.BleConnectModel;
-import com.smart.lock.ui.BaseDoResultActivity;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockSettingActivity;
@@ -56,17 +54,14 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MyGridView;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
-import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class HomeFragment extends BaseFragment implements
         View.OnClickListener,
-        AdapterView.OnItemClickListener,
-        BaseDoResultActivity.OnRefreshView {
+        AdapterView.OnItemClickListener{
     private static final String TAG = HomeFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private View mHomeView;
@@ -131,30 +126,12 @@ public class HomeFragment extends BaseFragment implements
     private int mHeight;
     private BleConnectModel mBleModel;
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == Activity.RESULT_FIRST_USER && resultCode == Activity.RESULT_OK) {
-            if (data != null) {
-                if (getActivity() instanceof OnFragmentInteractionListener) {
-                    ((OnFragmentInteractionListener) getActivity()).onScanForResult(data);
-                }
-            }
-        }
+    public void onAuthenticationSuccess() {
+        refreshView(BIND_DEVICE);
     }
 
-    /**
-     * 调用Activity中的函数
-     */
-    public interface OnFragmentInteractionListener {
-        void onScanForResult(Intent data);
-    }
-
-    @Override
-    public void onRefreshView() {
-        LogUtil.d(TAG, "ADD NEW DEVICE");
-        this.refreshView(BIND_DEVICE);
+    public void onAuthenticationFailed() {
+        refreshView(UNBIND_DEVICE);
     }
 
     public void onCreate(Bundle savedInstanceState) {
@@ -215,18 +192,18 @@ public class HomeFragment extends BaseFragment implements
     }
 
     private void initEvent() {
-        mAddLockBt.setOnClickListener(this);
+        mAddLockBt.setOnClickListener((View.OnClickListener) mActivity);
         mLockSettingLl.setOnClickListener(this);
         mMyGridView.setOnItemClickListener(this);
         mBleConnectIv.setOnClickListener(this);
         mInstructionBtn.setOnClickListener(this);
-        mScanQrIv.setOnClickListener(this);
+        mScanQrIv.setOnClickListener((View.OnClickListener) mActivity);
     }
 
     public void initDate() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {  //版本检测
             mToolbar = mHomeView.findViewById(R.id.tb_toolbar);
-            ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);  //将ToolBar设置成ActionBar
+            ((AppCompatActivity) Objects.requireNonNull(getActivity())).setSupportActionBar(mToolbar);  //将ToolBar设置成ActionBar
         }
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -278,21 +255,6 @@ public class HomeFragment extends BaseFragment implements
         }
     }
 
-    /**
-     * 打开第三方二维码扫描库
-     */
-    private void scanQr() {
-        Intent newIntent = new Intent(mHomeView.getContext(), CaptureActivity.class);
-        ZxingConfig config = new ZxingConfig();
-        config.setPlayBeep(true);//是否播放扫描声音 默认为true
-        config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
-        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
-        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-        startActivityForResult(newIntent, Activity.RESULT_FIRST_USER);
-    }
 
     /**
      * 刷新显示界面
@@ -392,6 +354,7 @@ public class HomeFragment extends BaseFragment implements
      *
      * @param battery 电量值
      */
+    @SuppressLint("SetTextI18n")
     private void refreshBattery(int battery) {
         mUpdateTimeTv.setVisibility(View.VISIBLE);
         mShowTimeTv.setVisibility(View.VISIBLE);
@@ -441,7 +404,8 @@ public class HomeFragment extends BaseFragment implements
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            if (action == null)
+                return;
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 BleConnectModel mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
@@ -538,7 +502,6 @@ public class HomeFragment extends BaseFragment implements
 
     }
 
-
     @Override
     public void onClick(View v) {
         Bundle bundle = new Bundle();
@@ -546,10 +509,10 @@ public class HomeFragment extends BaseFragment implements
         switch (v.getId()) {
             case R.id.btn_add_lock:
 //                startIntent(AddDeviceActivity.class, null);
-                scanQr();
+//                mScanQRHelper.scanQr();
                 break;
             case R.id.iv_scan_qr:
-                scanQr();
+//                mScanQRHelper.scanQr();
                 break;
             case R.id.iv_connect:
                 refreshView(DEVICE_CONNECTING);

@@ -312,4 +312,6 @@
     <string name = "local_photo">从预置图片中选择</string>
     <string name = "gallery_photo">从图库中选择</string>
     <string name = "set_dev_info">设置设备信息</string>
+    <string name="pwd_setting_successfully">密码设置成功</string>
+    <string name="pwd_setting_failed">密码设置失败</string>
 </resources>

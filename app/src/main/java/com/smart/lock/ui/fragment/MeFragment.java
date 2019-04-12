@@ -1,47 +1,28 @@
 
 package com.smart.lock.ui.fragment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateFormat;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.bean.UserProfile;
-import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.UserProfileDao;
 import com.smart.lock.ui.AboutUsActivity;
 import com.smart.lock.ui.LockDetectingActivity;
@@ -49,25 +30,16 @@ import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MeDefineView;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
-import com.yzq.zxinglibrary.common.Constant;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Locale;
 
 import java.util.Objects;
 
-import static android.app.Activity.RESULT_OK;
-
-public class MeFragment extends BaseFragment implements View.OnClickListener {
+public class MeFragment extends BaseFragment implements View.OnClickListener{
     private View mMeView;
     private MeDefineView mSystemSetTv;
     private MeDefineView mDevManagementTv;
@@ -76,9 +48,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private ImageView mEditNameIv;
     private ImageView mHeadPhoto;
 
-    private String mSn; //设备SN
-    private String mNodeId; //设备IMEI
-    private String mBleMac; //蓝牙地址
     private UserProfile mUserProfile;
 
     private TextView mCameraShotTv;
@@ -87,7 +56,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
 
     private BottomSheetDialog mBottomSheetDialog; //头像选择
 
-    private static final int REQUEST_CODE_SCAN = 0;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -175,7 +143,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 searchDev();
                 break;
             case R.id.action_scan:
-                scanQr();
+                if(mActivity instanceof OnFragmentInteractionListener){
+                    ((OnFragmentInteractionListener) mActivity).onScanQrCode();
+                }
                 break;
             default:
                 break;
@@ -195,25 +165,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mGalleryPhotoTv.setOnClickListener(this);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        // 扫描二维码/条码回传
-        if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
-            if (data != null) {
-                if(getActivity() instanceof OnFragmentInteractionListener){
-                    ((OnFragmentInteractionListener) getActivity()).onScanForResult(data);
-                }
-            }
-        }
-    }
-
     /**
-     * 调用MainActivity中的函数
+     * 调用Activity中的函数
      */
-    public interface  OnFragmentInteractionListener{
-        void onScanForResult(Intent data);
+    public interface OnFragmentInteractionListener {
+        void onScanQrCode();
     }
 
     @Override
@@ -260,66 +216,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         }
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == 1 && resultCode == Activity.RESULT_OK
-//                && null != data) {
-//            String sdState = Environment.getExternalStorageState();
-//            if (!sdState.equals(Environment.MEDIA_MOUNTED)) {
-//                return;
-//            }
-//            new DateFormat();
-//            String name = DateFormat.format("yyyyMMdd_hhmmss",
-//                    Calendar.getInstance(Locale.CHINA)) + ".jpg";
-//            Bundle bundle = data.getExtras();
-//            // 获取相机返回的数据，并转换为图片格式
-//            Bitmap bmp = (Bitmap) bundle.get("data");
-//            FileOutputStream fout = null;
-//            String filename = null;
-//            try {
-//                filename = UtilImags.SHOWFILEURL(mMeView.getContext()) + "/" + name;
-//            } catch (IOException e) {
-//            }
-//            try {
-//                fout = new FileOutputStream(filename);
-//                bmp.compress(Bitmap.CompressFormat.JPEG, 100, fout);
-//            } catch (FileNotFoundException e) {
-//                ToastUtil.show(mMeView.getContext(), "上传失败", Toast.LENGTH_LONG);
-//            } finally {
-//                try {
-//                    fout.flush();
-//                    fout.close();
-//                } catch (IOException e) {
-//                    ToastUtil.show(mMeView.getContext(), "上传失败", Toast.LENGTH_LONG);
-//                }
-//            }
-//            zqRoundOvalImageView.setImageBitmap(bmp);
-//            staffFileupload(new File(filename));
-//        }
-//        if (requestCode == 2 && resultCode == Activity.RESULT_OK
-//                && null != data) {
-//            try {
-//                Uri selectedImage = data.getData();
-//                String[] filePathColumns = {MediaStore.Images.Media.DATA};
-//                Cursor c = mMeView.getContext().getContentResolver().query(selectedImage,
-//                        filePathColumns, null, null, null);
-//                c.moveToFirst();
-//                int columnIndex = c.getColumnIndex(filePathColumns[0]);
-//                String picturePath = c.getString(columnIndex);
-//                c.close();
-//
-//                Bitmap bmp = BitmapFactory.decodeFile(picturePath);
-//                // 获取图片并显示
-//                zqRoundOvalImageView.setImageBitmap(bmp);
-//                saveBitmapFile(UtilImags.compressScale(bmp), UtilImags.SHOWFILEURL(mMeView.getContext()) + "/stscname.jpg");
-//                staffFileupload(new File(UtilImags.SHOWFILEURL(mMeView.getContext()) + "/stscname.jpg"));
-//            } catch (Exception e) {
-//                ToastUtil.show(mMeView.getContext(), "上传失败", Toast.LENGTH_LONG);
-//            }
-//        }
-//    }
-
     private AlertDialog showEditDialog(final Context context, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         final EditText editText = new EditText(context);
@@ -339,8 +235,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 UserProfileDao.getInstance(context).update(mUserProfile);
             }
         });
-        AlertDialog dialog = builder.create();
-        return dialog;
+        return builder.create();
     }
 
     public void setOnClick(View view) {
@@ -375,20 +270,4 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         super.onResume();
     }
 
-
-    /**
-     * 打开第三方二维码扫描库
-     */
-    private void scanQr() {
-        Intent newIntent = new Intent(mMeView.getContext(), CaptureActivity.class);
-        ZxingConfig config = new ZxingConfig();
-        config.setPlayBeep(true);//是否播放扫描声音 默认为true
-        config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
-        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
-        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-        startActivityForResult(newIntent, REQUEST_CODE_SCAN);
-    }
 }

@@ -1,6 +1,6 @@
-package com.smart.lock.ui;
+package com.smart.lock.scan;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,9 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -22,36 +20,44 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.ui.LockDetectingActivity;
+import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
+import com.yzq.zxinglibrary.android.CaptureActivity;
+import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.Arrays;
 
-@SuppressLint("Registered")
-public class BaseDoResultActivity extends AppCompatActivity {
+public class ScanQRHelper {
+    private final String TAG = ScanQRHelper.class.getSimpleName();
 
-    public String TAG = "BaseDoResultActivity";
+    private Activity mActivity;
+    private ScanQRResultInterface mScanQRResultInterface;
 
     private String mUserId;
     private String mNodeId;
-    private String mSn;
     private String mBleMac;
     private String mRandCode;
     private String mTime;
     private Dialog mLoadDialog;
     protected Handler mHandler = new Handler();
-    protected DeviceInfo mNewDevice;
+    private DeviceInfo mNewDevice;
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public ScanQRHelper(Activity activity, ScanQRResultInterface scanQRResultInterface) {
+        mActivity = activity;
+        mScanQRResultInterface = scanQRResultInterface;
     }
 
-    protected void ScanDoCode(Intent data) {
+    /**
+     * 处理扫描结果
+     */
+    public void ScanDoCode(Intent data) {
         String content = data.getStringExtra(Constant.CODED_CONTENT);
         LogUtil.d(TAG, "content = " + content);
         byte[] mByte = null;
@@ -62,11 +68,11 @@ public class BaseDoResultActivity extends AppCompatActivity {
         } else if (content.length() == 47) {
             String[] dvInfo = content.split(",");
             if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
-                mSn = dvInfo[0];
+                String mSn = dvInfo[0];
                 mBleMac = dvInfo[1];
                 mNodeId = dvInfo[2];
 
-                if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
+                if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
                     Bundle bundle = new Bundle();
                     bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
                     bundle.putString(BleMsg.KEY_NODE_SN, mSn);
@@ -74,14 +80,14 @@ public class BaseDoResultActivity extends AppCompatActivity {
 
                     startIntent(LockDetectingActivity.class, bundle);
                 } else {
-                    ToastUtil.show(this, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+                    ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
                 }
 
             } else {
-                ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+                ToastUtil.show(mActivity, mActivity.getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
             }
         } else {
-            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(this, content);
+            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, content);
             alterDialog.show();
             return;
         }
@@ -96,22 +102,6 @@ public class BaseDoResultActivity extends AppCompatActivity {
             getDevInfo(devInfo);
             addDev();
         }
-    }
-
-    /**
-     * 新界面
-     *
-     * @param cls    新Activity
-     * @param bundle 数据包
-     */
-    protected void startIntent(Class<?> cls, Bundle bundle) {
-        Intent intent = new Intent();
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-
-        intent.setClass(this, cls);
-        startActivity(intent);
     }
 
     private void getDevInfo(byte[] devInfo) {
@@ -144,29 +134,44 @@ public class BaseDoResultActivity extends AppCompatActivity {
                 "Time = " + mTime);
     }
 
+    /**
+     * 新界面
+     *
+     * @param cls    新Activity
+     * @param bundle 数据包
+     */
+    private void startIntent(Class<?> cls, Bundle bundle) {
+        Intent intent = new Intent();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        intent.setClass(mActivity, cls);
+        mActivity.startActivity(intent);
+    }
+
     private void addDev() {
         if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
-            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(this, "授权码已过期，请重新请求");
+            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, "授权码已过期，请重新请求");
             alterDialog.show();
-        } else if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
-            ToastUtil.show(this, this.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+        } else if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
+            ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
-            if (this.getIntent().getExtras() != null) {
-                DeviceInfo deviceDev = (DeviceInfo) this.getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-                if (BleManagerHelper.getInstance(this, false).getBleCardService() != null && BleManagerHelper.getInstance(this, false).getServiceConnection()) {
-                    BleManagerHelper.getInstance(this, false).getBleCardService().disconnect();
+            if (mActivity.getIntent().getExtras() != null) {
+                DeviceInfo deviceDev = (DeviceInfo) mActivity.getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
+                if (BleManagerHelper.getInstance(mActivity, false).getBleCardService() != null && BleManagerHelper.getInstance(mActivity, false).getServiceConnection()) {
+                    BleManagerHelper.getInstance(mActivity, false).getBleCardService().disconnect();
                 }
 
             }
-            LocalBroadcastManager.getInstance(this).registerReceiver(devCheckReceiver, intentFilter());
-            mLoadDialog = DialogUtils.createLoadingDialog(this, this.getString(R.string.data_loading));
+            LocalBroadcastManager.getInstance(mActivity).registerReceiver(devCheckReceiver, intentFilter());
+            mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
             mLoadDialog.show();
             closeDialog(10);
             BleManagerHelper.setSk(mBleMac, mRandCode);
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
-            BleManagerHelper.getInstance(this, false).connectBle((byte) 1, bundle);
+            BleManagerHelper.getInstance(mActivity, false).connectBle((byte) 1, bundle);
         }
     }
 
@@ -199,25 +204,54 @@ public class BaseDoResultActivity extends AppCompatActivity {
         }
     };
 
-    protected void onAuthenticationSuccess() {
-        ToastUtil.showLong(this, getResources().getString(R.string.toast_add_lock_success));
-        if(this instanceof OnRefreshView){
-            ((OnRefreshView) BaseDoResultActivity.this).onRefreshView();
+    private void onAuthenticationSuccess() {
+        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_success));
+        mScanQRResultInterface.onAuthenticationSuccess(mNewDevice);
+        if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+            Intent intent = new Intent(mActivity, LockScreenActivity.class);
+            intent.putExtra(ConstantUtil.IS_RETURN, true);
+            intent.putExtra(ConstantUtil.NOT_CANCEL, true);
+            mActivity.startActivityForResult(intent.
+                    putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), ConstantUtil.SETTING_PWD_REQUEST_CODE);
         }
     }
 
-    public interface OnRefreshView {
-        void onRefreshView();
+    private void onAuthenticationFailed() {
+        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));
+        mScanQRResultInterface.onAuthenticationFailed();
+    }
+    /**
+     * 打开第三方二维码扫描库
+     */
+    public void scanQr() {
+        Intent newIntent = new Intent(mActivity, CaptureActivity.class);
+        ZxingConfig config = new ZxingConfig();
+        config.setPlayBeep(true);//是否播放扫描声音 默认为true
+        config.setShake(true);//是否震动  默认为true
+        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
+        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
+        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
+        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
+        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+        mActivity.startActivityForResult(newIntent, ConstantUtil.SCAN_QRCODE_REQUEST_CODE);
     }
 
-    protected void onAuthenticationFailed() {
-        ToastUtil.showLong(this, getResources().getString(R.string.toast_add_lock_falied));
-    }
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if(resultCode == Activity.RESULT_OK) switch (requestCode) {
+//            case ConstantUtil.SCAN_QRCODE_REQUEST_CODE:
+//                mScanQRHelper.ScanDoCode(data);
+//                break;
+//            case ConstantUtil.SETTING_PWD_REQUEST_CODE:
+//                break;
+//        }
+//        LogUtil.d(TAG, "测试测试测试测试");
+//    }
 
     /**
      * 创建用户
      *
-     * @param userId
+     * @param userId 用户ID
      */
     private void createDeviceUser(short userId) {
         DeviceUser user = new DeviceUser();
@@ -228,27 +262,27 @@ public class BaseDoResultActivity extends AppCompatActivity {
         user.setUserPermission(ConstantUtil.DEVICE_MASTER);
         if (userIdInt < 101) {
             user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-            user.setUserName(this.getString(R.string.administrator) + userId);
+            user.setUserName(mActivity.getString(R.string.administrator) + userId);
         } else if (userIdInt < 201) {
             user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(this.getString(R.string.members) + userId);
+            user.setUserName(mActivity.getString(R.string.members) + userId);
         } else {
             user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(this.getString(R.string.members) + userId);
+            user.setUserName(mActivity.getString(R.string.members) + userId);
         }
 
         user.setUserStatus(ConstantUtil.USER_UNENABLE);
 
-        DeviceUserDao.getInstance(this).insert(user);
+        DeviceUserDao.getInstance(mActivity).insert(user);
     }
 
     /**
      * 创建设备
      */
     private void createDevice() {
-        DeviceInfo oldDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_nodeId", mNodeId);
+        DeviceInfo oldDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", mNodeId);
         if (oldDevice == null) {
-            DeviceInfo defaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
+            DeviceInfo defaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
             LogUtil.d(TAG, "newDevice: " + "BLEMAC =" + mBleMac);
             mNewDevice = new DeviceInfo();
             mNewDevice.setActivitedTime(Long.valueOf(mTime));
@@ -261,9 +295,9 @@ public class BaseDoResultActivity extends AppCompatActivity {
             if (defaultDevice != null) mNewDevice.setDeviceDefault(false);
             else mNewDevice.setDeviceDefault(true);
             mNewDevice.setDeviceSn("");
-            mNewDevice.setDeviceName(this.getResources().getString(R.string.lock_default_name));
+            mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name));
             mNewDevice.setDeviceSecret(mRandCode);
-            DeviceInfoDao.getInstance(this).insert(mNewDevice);
+            DeviceInfoDao.getInstance(mActivity).insert(mNewDevice);
         }
     }
 
@@ -273,7 +307,7 @@ public class BaseDoResultActivity extends AppCompatActivity {
      * @param str 未加：的MAC字符串
      * @return 标准MAC字符串
      */
-    protected static String getMacAdr(String str) {
+    private static String getMacAdr(String str) {
         str = str.toUpperCase();
         StringBuilder result = new StringBuilder("");
         for (int i = 1; i <= 12; i++) {
@@ -306,10 +340,10 @@ public class BaseDoResultActivity extends AppCompatActivity {
 
                 DialogUtils.closeDialog(mLoadDialog);
 
-//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.this, mDefaultDevice.getBleMac(), false);
+//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.mActivity, mDefaultDevice.getBleMac(), false);
 //                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
 
-                Toast.makeText(BaseDoResultActivity.this, BaseDoResultActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+                Toast.makeText(mActivity, mActivity.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 
         }
