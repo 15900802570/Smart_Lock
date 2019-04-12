@@ -6,6 +6,7 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
@@ -47,7 +48,7 @@ public class BleCmd31Creator implements BleCreator {
         StringUtil.short2Bytes(userId, userIdBuf);
         System.arraycopy(userIdBuf, 0, cmdBuf, 0, 2);
 
-        cmdBuf[3] = cmdType;
+        cmdBuf[2] = cmdType;
 
         Arrays.fill(cmdBuf, 3, 16, (byte) 13);
 

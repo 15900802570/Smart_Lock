@@ -55,9 +55,8 @@
             android:layout_height="match_parent"
             android:background="@color/list_view_bg_grey"
             android:divider="@null"
-            android:paddingStart="@dimen/recyler_left"
-            android:paddingTop="@dimen/recyler_top"
-            android:paddingEnd="@dimen/recyler_right"
+            android:paddingStart="@dimen/dp_10"
+            android:paddingEnd="@dimen/dp_10"
             android:scrollbarSize="10dp"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="vertical" />

@@ -23,13 +23,13 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 public class BaseListViewActivity extends AppCompatActivity implements View.OnClickListener {
     protected RecyclerView mListView;
     protected TextView mTitle;
     protected ImageView mBack;
     private static String TAG = BaseListViewActivity.class.getSimpleName();
-    protected boolean mStatusTag = false;
 
     protected CheckBox mSelectCb;
     protected TextView mTipTv;
@@ -76,7 +76,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
 
         Bundle bundle = getIntent().getExtras();
         mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
-
+        mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.recyler_top)));
     }
 
 

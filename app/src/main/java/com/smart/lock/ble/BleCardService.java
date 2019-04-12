@@ -139,7 +139,6 @@ public class BleCardService extends Service {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
                     Log.d(TAG, "onCharacteristicRead() " + characteristic.getValue());
-                } else {
                 }
             }
         }

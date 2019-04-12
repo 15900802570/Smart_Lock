@@ -109,6 +109,7 @@ public class BleManagerHelper {
     private DeviceInfo mDefaultDevice; //默认设备
     private DeviceUser mDefaultUser; //默认用户
     private DeviceStatus mDefaultStatus; //用户状态
+    private IBindServiceCallback mBindServiceCallback; //注册成功回调
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
@@ -302,6 +303,18 @@ public class BleManagerHelper {
 
     }
 
+    public interface IBindServiceCallback {
+        //连接成功
+        void onBindSuccess();
+
+        //连接失败
+        void onBindFailure();
+
+    }
+
+    public void registerServiceConnectCallBack(IBindServiceCallback iBindServiceCallback) {
+        mBindServiceCallback = iBindServiceCallback;
+    }
 
     /**
      * 蓝牙连接状态回调
@@ -315,11 +328,13 @@ public class BleManagerHelper {
             if (!mService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
             }
+            mBindServiceCallback.onBindSuccess();
         }
 
         public void onServiceDisconnected(ComponentName classname) {
             Log.e(TAG, "mService is Disconnected");
             mService = null;
+            mBindServiceCallback.onBindFailure();
         }
     };
 
@@ -575,7 +590,7 @@ public class BleManagerHelper {
                 mUserId = 0;
                 mBleModel.halt();
                 mContext.unbindService(mServiceConnection);
-                LogUtil.d(TAG, "mServiceConnection = "+(mServiceConnection.hashCode()));
+                LogUtil.d(TAG, "mServiceConnection = " + (mServiceConnection.hashCode()));
                 mIsBind = false;
                 instance = null;
             }

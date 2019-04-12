@@ -86,7 +86,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mLoadDialog.show();
         closeDialog(60);
 
-        LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.toString());
+        LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.getUserPermission());
 
         if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
             mBleManagerHelper.getBleCardService().sendCmd31((byte) 1, mDefaultDevice.getUserId());
@@ -335,7 +335,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         public void setDataSource(ArrayList<DeviceLog> logList) {
             Log.d(TAG, "logList = " + logList.size());
-            if (logList != null && !logList.isEmpty()) {
+            if (!logList.isEmpty()) {
                 mLogList = logList;
             }
 
@@ -356,43 +356,37 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             final DeviceLog logInfo = mLogList.get(position);
             DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
             DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", user.getDevNodeId());
-            if (logInfo != null) {
-                if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                    viewHolder.mEventType.setText(mContext.getString(R.string.password) + mContext.getString(R.string.unlock));
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                    viewHolder.mEventType.setText(mContext.getString(R.string.fingerprint) + mContext.getString(R.string.unlock));
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    viewHolder.mEventType.setText("NFC" + mContext.getString(R.string.unlock));
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                    viewHolder.mEventType.setText(mContext.getString(R.string.remote) + mContext.getString(R.string.unlock));
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                }
-
-                viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
-
-                viewHolder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (viewHolder.mDeleteCb.isChecked()) {
-                            Log.d(TAG, "add1 = " + logInfo.getLogId() + " position = " + position);
-                            mDeleteLogs.add(logInfo);
-                        } else {
-                            Log.d(TAG, "remove1 = " + logInfo.getLogId() + " position = " + position);
-                            mDeleteLogs.remove(logInfo);
-                        }
-                    }
-                });
-
-                if (mVisiBle)
-                    viewHolder.mDeleteRl.setVisibility(View.VISIBLE);
-                else
-                    viewHolder.mDeleteRl.setVisibility(View.GONE);
-
-                viewHolder.mDeleteCb.setChecked(mAllDelete);
+            if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
+                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+            } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
+                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+            } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
+                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
+            } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
+                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
             }
+
+            viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
+
+            viewHolder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (viewHolder.mDeleteCb.isChecked()) {
+                        Log.d(TAG, "add1 = " + logInfo.getLogId() + " position = " + position);
+                        mDeleteLogs.add(logInfo);
+                    } else {
+                        Log.d(TAG, "remove1 = " + logInfo.getLogId() + " position = " + position);
+                        mDeleteLogs.remove(logInfo);
+                    }
+                }
+            });
+
+            if (mVisiBle)
+                viewHolder.mDeleteRl.setVisibility(View.VISIBLE);
+            else
+                viewHolder.mDeleteRl.setVisibility(View.GONE);
+
+            viewHolder.mDeleteCb.setChecked(mAllDelete);
         }
 
         @Override

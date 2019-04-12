@@ -147,6 +147,7 @@
     <string name="fingerprint">指纹</string>
     <string name="modify_username">修改使用者</string>
     <string name="title_event">门锁事件</string>
+    <string name="unlock_event">开门事件</string>
     <string name="event_type">类型编号:</string>
     <string name="remote">远程</string>
     <string name="remote_unlock_success">远程开锁成功</string>

@@ -17,7 +17,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.utils.LogUtil;
 
 
-public class BaseApplication extends Application {
+public class BaseApplication extends Application implements BleManagerHelper.IBindServiceCallback {
     private final static String TAG = "BaseApplication";
     private static Context mContext;
     private DeviceInfo mDefaultDevice; //默认设备
@@ -28,12 +28,23 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         mContext = getApplicationContext();
-        mBleManagerHelper = BleManagerHelper.getInstance(mContext, false);
 
+        mBleManagerHelper = BleManagerHelper.getInstance(mContext, false);
+        mBleManagerHelper.registerServiceConnectCallBack(this);
+
+    }
+
+    public BleManagerHelper getmBleManagerHelper() {
+        return mBleManagerHelper;
+    }
+
+    @Override
+    public void onBindSuccess() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         if (mDefaultDevice == null) {
             return;
         }
+
         mIsConnected = mBleManagerHelper.getServiceConnection();
         if (!mIsConnected) {
             LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
@@ -43,9 +54,11 @@ public class BaseApplication extends Application {
             bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
             mBleManagerHelper.connectBle((byte) 1, bundle);
         }
-    }
-    public BleManagerHelper getmBleManagerHelper() {
-        return mBleManagerHelper;
+        LogUtil.d(TAG,"onBindSuccess!");
     }
 
+    @Override
+    public void onBindFailure() {
+        LogUtil.d(TAG,"onBindFailure!");
+    }
 }

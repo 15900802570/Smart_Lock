@@ -305,4 +305,5 @@
     <string name="pwd_setting_successfully">Password Setting Successfully</string>
     <string name="pwd_setting_failed">Password Setting Failed</string>
     <string name="edit_back">Edit back</string>
+    <string name="unlock_event">Unlock event</string>
 </resources>

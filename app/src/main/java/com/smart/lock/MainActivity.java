@@ -24,6 +24,7 @@ import com.smart.lock.ui.fragment.MeFragment;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
+import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements
         initView();
         initDate();
         initEvent();
+        SystemUtils.getScreen(this);
     }
 
     private void initView() {
