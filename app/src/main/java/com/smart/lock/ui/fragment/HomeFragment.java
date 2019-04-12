@@ -61,7 +61,7 @@ import java.util.Objects;
 
 public class HomeFragment extends BaseFragment implements
         View.OnClickListener,
-        AdapterView.OnItemClickListener{
+        AdapterView.OnItemClickListener {
     private static final String TAG = HomeFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private View mHomeView;
@@ -263,7 +263,7 @@ public class HomeFragment extends BaseFragment implements
         switch (status) {
             case DEVICE_CONNECTING:
                 LogUtil.d(TAG, "DEVICE_CONNECTING");
-                mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.41);
+                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y366dp);
                 mAddLockLl.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
                 mLockStatusTv.setText(R.string.bt_connecting);
@@ -281,7 +281,7 @@ public class HomeFragment extends BaseFragment implements
                 }
                 break;
             case BIND_DEVICE:
-                mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.41);
+                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y366dp);
                 mAddLockLl.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
                 LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
@@ -322,7 +322,7 @@ public class HomeFragment extends BaseFragment implements
                 }
                 break;
             case UNBIND_DEVICE:
-                mNewsVpRL.getLayoutParams().height = (int) (mHeight * 0.61);
+                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.GONE);
                 mAdapter.setImageIds(mAdapter.imageIds);
@@ -482,7 +482,7 @@ public class HomeFragment extends BaseFragment implements
             bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
             mBleManagerHelper.connectBle((byte) 1, bundle);
             mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        }else
+        } else
             refreshView(BIND_DEVICE);
     }
 

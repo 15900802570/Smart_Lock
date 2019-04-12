@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/tb_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/y60dp"
         android:background="@color/white"
         android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
 
@@ -24,7 +24,7 @@
     <RelativeLayout
         android:id="@+id/rl_news_vp"
         android:layout_width="fill_parent"
-        android:layout_height="160dp"
+        android:layout_height="@dimen/y190dp"
         android:layout_below="@+id/tb_toolbar">
 
         <android.support.v4.view.ViewPager
@@ -34,10 +34,10 @@
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="20dip"
+            android:layout_height="@dimen/y20dp"
             android:layout_below="@+id/news_vp"
             android:layout_gravity="bottom"
-            android:layout_marginTop="-100dp"
+            android:layout_marginTop="@dimen/y_117dp"
             android:alpha="0.5"
             android:gravity="center"
             android:orientation="vertical">
@@ -45,23 +45,23 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dip"
+                android:layout_marginTop="@dimen/y3dp"
                 android:orientation="horizontal">
 
                 <View
                     android:id="@+id/dot_0"
-                    android:layout_width="10dip"
-                    android:layout_height="10dip"
-                    android:layout_marginLeft="5dip"
-                    android:layout_marginRight="5dip"
+                    android:layout_width="@dimen/x10dp"
+                    android:layout_height="@dimen/y10dp"
+                    android:layout_marginLeft="@dimen/x5dp"
+                    android:layout_marginRight="@dimen/x5dp"
                     android:background="@drawable/dot_normal" />
 
                 <View
                     android:id="@+id/dot_1"
-                    android:layout_width="10dip"
-                    android:layout_height="10dip"
-                    android:layout_marginLeft="5dip"
-                    android:layout_marginRight="5dip"
+                    android:layout_width="@dimen/x10dp"
+                    android:layout_height="@dimen/y10dp"
+                    android:layout_marginLeft="@dimen/x5dp"
+                    android:layout_marginRight="@dimen/x5dp"
                     android:background="@drawable/dot_focused" />
             </LinearLayout>
 
@@ -75,19 +75,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_news_vp"
-        android:layout_marginTop="-70dp"
+        android:layout_marginTop="@dimen/y_70dp"
         android:background="@drawable/box_corners_homepage"
         android:orientation="horizontal"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:visibility="visible">
+        android:paddingLeft="@dimen/x20dp"
+        android:paddingRight="@dimen/x20dp"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="190dp"
+            android:layout_height="@dimen/y260dp"
             android:background="@drawable/box_corners_homepage_white"
             android:orientation="horizontal"
-            android:paddingRight="10dp">
+            android:paddingRight="@dimen/x18dp">
 
             <ImageView
                 android:id="@+id/iv_scan_qr"
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:padding="20dp"
+                android:padding="@dimen/y20dp"
                 android:src="@mipmap/icon_saoyisao" />
 
             <LinearLayout
@@ -104,7 +104,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:padding="10dp">
+                android:padding="@dimen/y10dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -119,8 +119,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
+                    android:paddingTop="@dimen/x10dp"
+                    android:paddingBottom="@dimen/x10dp"
                     android:text="@string/input_code_of_tag_or_scan_qr"
                     android:textColor="#5A5A5A"
                     android:textSize="15sp" />
@@ -145,21 +145,21 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_news_vp"
-        android:layout_marginTop="-70dp"
+        android:layout_marginTop="@dimen/y_70dp"
         android:background="@drawable/box_corners_homepage"
-        android:paddingLeft="18dp"
-        android:paddingRight="18dp"
-        android:visibility="gone">
+        android:paddingLeft="@dimen/x18dp"
+        android:paddingRight="@dimen/x18dp"
+        android:visibility="visible">
 
         <LinearLayout
             android:id="@+id/ll_management"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="@dimen/y154dp"
             android:background="@drawable/box_corners_homepage_white"
             android:gravity="center"
             android:orientation="vertical"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp">
+            android:paddingTop="@dimen/y5dp"
+            android:paddingBottom="@dimen/y5dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -167,7 +167,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:paddingLeft="15dp">
+                android:paddingLeft="@dimen/x10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -321,7 +321,7 @@
                         android:layout_weight="0.4"
                         android:text="02-01 12:20"
                         android:textColor="#828282"
-                        android:paddingLeft="25dp"
+                        android:paddingLeft="@dimen/x25dp"
                         android:lines="1"
                         android:textSize="15sp" />
                 </LinearLayout>
@@ -335,23 +335,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/ll_management"
-            android:paddingTop="31dp">
+            android:paddingTop="@dimen/y31dp">
 
             <com.smart.lock.widget.MyGridView
                 android:id="@+id/gv_lock"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="@dimen/y245dp"
                 android:background="@drawable/box_corners_homepage_white"
                 android:gravity="center"
                 android:numColumns="3"
                 android:scrollbars="none"
                 android:stretchMode="columnWidth"
                 android:verticalSpacing="1.0dip"
-                android:paddingRight="15dp"
-                android:paddingLeft="15dp"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                app:cardCornerRadius="4.0dip" />
+                android:paddingRight="@dimen/x15dp"
+                android:paddingLeft="@dimen/x15dp"
+                android:paddingTop="@dimen/y5dp"
+                android:paddingBottom="@dimen/y5dp"
+                app:cardCornerRadius="@dimen/y6dp" />
         </LinearLayout>
 
     </RelativeLayout>
