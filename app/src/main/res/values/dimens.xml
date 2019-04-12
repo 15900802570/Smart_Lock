@@ -1,3 +1,45 @@
 <resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <!-- *********************************欢迎界面**************************************** -->
+    <!-- 倒计时区域的宽度 -->
+    <dimen name="countdown_width">48dp</dimen>
+    <!-- 倒计时区域的半径（宽度的一半） -->
+    <dimen name="countdown_radius">24dp</dimen>
+    <!-- 倒计时区域的外边距 -->
+    <dimen name="countdown_margin">15dp</dimen>
+    <!-- 倒计时区域的文字大小 -->
+    <dimen name="countdown_text_size">12sp</dimen>
+    <dimen name="tablayout_indicator_height">2dp</dimen>
+
+    <dimen name="qr_height">260dp</dimen>
+    <dimen name="qr_width">260dp</dimen>
+
+    <dimen name="dialog_height">346dp</dimen>
+    <dimen name="dialog_width">300dp</dimen>
+
+    <dimen name="progress_size">46dp</dimen>
+    <dimen name="frame_inner_margin">15dp</dimen>
+    <dimen name="normal_size">15dp</dimen>
+    <dimen name="prompt_linear_margin_left">15dip</dimen>
+    <dimen name="prompt_linear_margin_right">15dip</dimen>
+    <dimen name="button_width_value">130dip</dimen>
+    <dimen name="height_45dp">80dp</dimen>
+
+    <dimen name="title_msg_size">16sp</dimen>
+    <dimen name="title_bg_height">54dp</dimen>
+    <dimen name="title_back_margin_left">20dp</dimen>
+
+    <dimen name="recyler_top">10.0dip</dimen>
+    <dimen name="recyler_left">13.0dip</dimen>
+    <dimen name="recyler_right">12.0dip</dimen>
+    <dimen name="checkbox_delete_size">23dp</dimen>
+    <dimen name="delete_bg_height">49dp</dimen>
+    <dimen name="checkbox_delete_left">30dp</dimen>
+    <dimen name="checkbox_delete_msg_size">16sp</dimen>
+    <dimen name="edit_right">20dp</dimen>
+    <dimen name="delete_btn_end">18dp</dimen>
 </resources>

@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/tb_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_40"
+        android:layout_height="@dimen/y40dp"
         android:background="@color/white"
         android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
 
@@ -24,7 +24,7 @@
     <RelativeLayout
         android:id="@+id/rl_news_vp"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/dp_160"
+        android:layout_height="@dimen/y16dp"
         android:layout_below="@+id/tb_toolbar">
 
         <android.support.v4.view.ViewPager
@@ -34,7 +34,7 @@
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="@dimen/dp_20"
+            android:layout_height="@dimen/y20dp"
             android:layout_below="@+id/news_vp"
             android:layout_gravity="bottom"
             android:layout_marginTop="-100dp"
@@ -45,23 +45,23 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_3"
+                android:layout_marginTop="@dimen/x3dp"
                 android:orientation="horizontal">
 
                 <View
                     android:id="@+id/dot_0"
-                    android:layout_width="@dimen/dp_10"
-                    android:layout_height="@dimen/dp_10"
-                    android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_width="@dimen/x10dp"
+                    android:layout_height="@dimen/y10dp"
+                    android:layout_marginLeft="@dimen/x5dp"
+                    android:layout_marginRight="@dimen/x5dp"
                     android:background="@drawable/dot_normal" />
 
                 <View
                     android:id="@+id/dot_1"
-                    android:layout_width="@dimen/dp_10"
-                    android:layout_height="@dimen/dp_10"
-                    android:layout_marginLeft="@dimen/dp_5"
-                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_width="@dimen/x10dp"
+                    android:layout_height="@dimen/y10dp"
+                    android:layout_marginLeft="@dimen/x5dp"
+                    android:layout_marginRight="@dimen/x5dp"
                     android:background="@drawable/dot_focused" />
             </LinearLayout>
 
@@ -78,16 +78,16 @@
         android:layout_marginTop="-70dp"
         android:background="@drawable/box_corners_homepage"
         android:orientation="horizontal"
-        android:paddingLeft="@dimen/dp_20"
-        android:paddingRight="@dimen/dp_20"
+        android:paddingLeft="@dimen/x20dp"
+        android:paddingRight="@dimen/x20dp"
         android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_190"
+            android:layout_height="@dimen/y190dp"
             android:background="@drawable/box_corners_homepage_white"
             android:orientation="horizontal"
-            android:paddingEnd="@dimen/dp_10">
+            android:paddingEnd="@dimen/x10dp">
 
             <ImageView
                 android:id="@+id/iv_scan_qr"
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_weight="1"
-                android:padding="@dimen/dp_20"
+                android:padding="@dimen/x20dp"
                 android:src="@mipmap/icon_saoyisao" />
 
             <LinearLayout

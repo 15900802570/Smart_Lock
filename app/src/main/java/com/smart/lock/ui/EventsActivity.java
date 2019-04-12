@@ -334,7 +334,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         }
 
         public void setDataSource(ArrayList<DeviceLog> logList) {
-            Log.d(TAG, "logList = " + logList.size());
             if (!logList.isEmpty()) {
                 mLogList = logList;
             }
