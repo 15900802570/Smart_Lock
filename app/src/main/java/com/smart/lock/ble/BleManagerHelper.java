@@ -328,13 +328,18 @@ public class BleManagerHelper {
             if (!mService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
             }
-            mBindServiceCallback.onBindSuccess();
+            if(mBindServiceCallback!=null) {
+                mBindServiceCallback.onBindSuccess();
+            }
+
         }
 
         public void onServiceDisconnected(ComponentName classname) {
             Log.e(TAG, "mService is Disconnected");
             mService = null;
-            mBindServiceCallback.onBindFailure();
+            if(mBindServiceCallback!=null) {
+                mBindServiceCallback.onBindFailure();
+            }
         }
     };
 

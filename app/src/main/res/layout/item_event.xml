@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_ll_event"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/event_height"
+    android:layout_height="@dimen/y115dp"
     app:clickToClose="true"
     app:drag_edge="right">
 
@@ -12,14 +12,14 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="80.0dip">
+        android:layout_height="@dimen/y115dp">
 
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             app:cardBackgroundColor="@color/white"
-            app:cardCornerRadius="6.0dip"
-            app:cardElevation="1.0dip"
+            app:cardCornerRadius="@dimen/x6dp"
+            app:cardElevation="@dimen/x1dp"
             app:cardPreventCornerOverlap="false">
 
 
@@ -41,7 +41,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:layout_marginStart="@dimen/event_cb_margin_left"
+                        android:layout_marginStart="@dimen/x25dp"
                         android:background="@drawable/selector_delete_checkbox"
                         android:button="@null"
                         android:clickable="true"
@@ -53,14 +53,14 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="fill_parent"
-                    android:layout_marginStart="@dimen/event_iv_margin_left"
+                    android:layout_marginStart="@dimen/x26dp"
                     android:gravity="center_vertical"
                     android:orientation="vertical">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/event_margin_end">
+                        android:layout_marginTop="@dimen/y27dp">
 
                         <ImageView
                             android:id="@+id/iv_event"
@@ -73,11 +73,11 @@
                             android:id="@+id/tv_type"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/event_margin_end"
+                            android:layout_marginStart="@dimen/x14dp"
                             android:layout_toEndOf="@+id/iv_event"
                             android:text="@string/unlock_event"
                             android:textColor="@color/color_text"
-                            android:textSize="@dimen/event_size"
+                            android:textSize="@dimen/d14sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -85,10 +85,11 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
-                            android:layout_marginRight="@dimen/event_margin_end"
+                            android:layout_marginRight="@dimen/x26dp"
                             android:layout_toEndOf="@+id/tv_type"
                             android:gravity="right"
                             android:textColor="@color/color_text"
+                            android:textSize="@dimen/d12sp"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
 
@@ -96,11 +97,12 @@
                         android:id="@+id/tv_event_info"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginTop="@dimen/event_margin_top"
+                        android:layout_marginTop="@dimen/y16dp"
+                        android:gravity="top"
                         android:ellipsize="end"
                         android:singleLine="true"
                         android:textColor="@color/color_text"
-                        android:textSize="@dimen/event_size" />
+                        android:textSize="@dimen/d12sp" />
 
                 </LinearLayout>
 

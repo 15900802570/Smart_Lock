@@ -33,6 +33,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.widget.CustomDialog;
@@ -222,13 +223,15 @@ public abstract class BaseFragment extends Fragment {
         byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac());
         byte[] randCode = StringUtil.hexStringToBytes(info.getDeviceSecret());
 
+        LogUtil.d(TAG, "randCode  : " + randCode.length);
+
         byte[] buf = new byte[64];
         byte[] authBuf = new byte[64];
         authBuf[0] = 0x01;
         System.arraycopy(userId, 0, authBuf, 1, 2);
         System.arraycopy(nodeId, 0, authBuf, 3, 8);
         System.arraycopy(bleMac, 0, authBuf, 11, 6);
-        System.arraycopy(randCode, 0, authBuf, 17, 18);
+        System.arraycopy(randCode, 0, authBuf, 17, 10);
 
         byte[] timeBuf = new byte[4];
         StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);

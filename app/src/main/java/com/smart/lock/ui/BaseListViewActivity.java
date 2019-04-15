@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -36,6 +37,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     protected TextView mDelTv;
     protected TextView mEditTv;
     protected RelativeLayout mSelectEventRl;
+    protected SmartRefreshLayout mRefreshLayout;
 
     /**
      * 等待框
@@ -76,7 +78,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
 
         Bundle bundle = getIntent().getExtras();
         mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
-        mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.recyler_top)));
+        mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y16dp)));
     }
 
 
@@ -100,6 +102,8 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         mEditTv = findViewById(R.id.edit_tv);
         mSelectEventRl = findViewById(R.id.rl_select_delete);
         mSelectEventRl.setVisibility(View.GONE);
+        mRefreshLayout = findViewById(R.id.refreshLayout);
+        mRefreshLayout.setEnableRefresh(false);
 
         mBack.setOnClickListener(this);
         mDelTv.setOnClickListener(this);

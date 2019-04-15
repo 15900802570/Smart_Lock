@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/color_bg">
+    android:background="@color/event_bg">
 
     <RelativeLayout
         android:id="@+id/rl_title"
@@ -41,7 +41,7 @@
             android:textSize="@dimen/title_msg_size" />
     </RelativeLayout>
 
-    <LinearLayout
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -55,69 +55,68 @@
             android:layout_height="match_parent"
             android:background="@color/list_view_bg_grey"
             android:divider="@null"
-            android:paddingStart="@dimen/x26dp"
-            android:paddingEnd="@dimen/x23dp"
+            android:paddingStart="@dimen/x10dp"
+            android:paddingEnd="@dimen/x10dp"
             android:scrollbarSize="@dimen/y10dp"
             android:scrollbarStyle="insideOverlay"
+            android:fitsSystemWindows="true"
             android:scrollbars="vertical" />
 
-    </LinearLayout>
+        <com.scwang.smartrefresh.layout.footer.ClassicsFooter
+            android:id="@+id/loadMore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
 
-    <FrameLayout
-        android:id="@+id/fl_delete"
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_select_delete"
         android:layout_width="match_parent"
         android:layout_height="@dimen/y98dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:background="@color/white">
+        android:layout_gravity="center_vertical"
+        android:background="@color/white"
+        android:orientation="horizontal">
 
+        <CheckBox
+            android:id="@+id/delete_locked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/x59dp"
+            android:background="@drawable/selector_delete_checkbox"
+            android:button="@null"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="visible" />
 
-        <RelativeLayout
-            android:id="@+id/rl_select_delete"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/x33dp"
+            android:layout_toEndOf="@+id/delete_locked"
+            android:text="@string/all_election"
+            android:textColor="#ff555555"
+            android:textSize="@dimen/checkbox_delete_msg_size" />
 
-            <CheckBox
-                android:id="@+id/delete_locked"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/x59dp"
-                android:background="@drawable/selector_delete_checkbox"
-                android:button="@null"
-                android:clickable="true"
-                android:focusable="true"
-                android:visibility="visible" />
+        <TextView
+            android:id="@+id/del_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/x37dp"
+            android:background="@mipmap/delete"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:textColor="#ffbd9744"
+            android:textSize="@dimen/checkbox_delete_msg_size" />
 
-            <TextView
-                android:id="@+id/tv_tips"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/x33dp"
-                android:layout_toEndOf="@+id/delete_locked"
-                android:text="@string/all_election"
-                android:textColor="#ff555555"
-                android:textSize="@dimen/checkbox_delete_msg_size" />
+    </RelativeLayout>
 
-            <TextView
-                android:id="@+id/del_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/x37dp"
-                android:background="@mipmap/delete"
-                android:gravity="center"
-                android:text="@string/delete"
-                android:textColor="#ffbd9744"
-                android:textSize="@dimen/checkbox_delete_msg_size" />
-
-        </RelativeLayout>
-
-
-    </FrameLayout>
 
 </RelativeLayout>

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -22,6 +23,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -67,6 +72,21 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         LocalBroadcastManager.getInstance(this).registerReceiver(eventReceiver, intentFilter());
 
         initData();
+
+        mRefreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+                refreshLayout.finishRefresh(5000/*,false*/);//传入false表示刷新失败
+                Log.d(TAG, "setOnRefreshListener");
+            }
+
+        });
+
+    }
+
+    private void setFooterView(RecyclerView view) {
+        View footer = LayoutInflater.from(this).inflate(R.layout.footer_item, view, false);
+        mEventAdapter.setFooterView(footer);
     }
 
     /**
@@ -327,6 +347,12 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         private Boolean mVisiBle = false;
         public ArrayList<DeviceLog> mDeleteLogs = new ArrayList<>();
         public boolean mAllDelete = false;
+        private static final int BASE_ITEM_TYPE_FOOTER = 2000000;//footerView默认type
+        public static final int TYPE_HEADER = 0;  //说明是带有Header的
+        public static final int TYPE_FOOTER = 1;  //说明是带有Footer的
+        public static final int TYPE_NORMAL = 2;  //说明是不带有header和footer的
+        private View mHeaderView;
+        private View mFooterView;
 
         public EventsAdapter(Context context, ArrayList<DeviceLog> loglist) {
             mContext = context;
@@ -337,11 +363,52 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             if (!logList.isEmpty()) {
                 mLogList = logList;
             }
+        }
 
+        public View getHeaderView() {
+            return mHeaderView;
+        }
+
+        public void setHeaderView(View headerView) {
+            mHeaderView = headerView;
+            notifyItemInserted(0);
+        }
+
+        public View getFooterView() {
+            return mFooterView;
+        }
+
+        public void setFooterView(View footerView) {
+            mFooterView = footerView;
+            LogUtil.d(TAG, "getItemCount = " + getItemCount());
+            notifyItemInserted(getItemCount() - 1);
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            if (mHeaderView == null && mFooterView == null) {
+                return TYPE_NORMAL;
+            }
+            if (position == 0) {
+                //第一个item应该加载Header
+                return TYPE_HEADER;
+            }
+            if (position == getItemCount() - 1) {
+                //最后一个,应该加载Footer
+                return TYPE_FOOTER;
+            }
+            return TYPE_NORMAL;
         }
 
         @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LogUtil.d(TAG, "viewType : " + viewType);
+            if (mHeaderView != null && viewType == TYPE_HEADER) {
+                return new MyViewHolder(mHeaderView);
+            }
+            if (mFooterView != null && viewType == TYPE_FOOTER) {
+                return new MyViewHolder(mFooterView);
+            }
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_event, parent, false);
             SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_event);
             swipeLayout.setClickToClose(false);
@@ -352,45 +419,63 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         @SuppressLint("SetTextI18n")
         @Override
         public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
-            final DeviceLog logInfo = mLogList.get(position);
-            DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
-            DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", user.getDevNodeId());
-            if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-            } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-            } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
-            } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+            if (getItemViewType(position) == TYPE_NORMAL) {
+
+                final DeviceLog logInfo = mLogList.get(position);
+                DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
+                DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", user.getDevNodeId());
+                if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
+                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                }
+
+                viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
+
+                viewHolder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (viewHolder.mDeleteCb.isChecked()) {
+                            Log.d(TAG, "add1 = " + logInfo.getLogId() + " position = " + position);
+                            mDeleteLogs.add(logInfo);
+                        } else {
+                            Log.d(TAG, "remove1 = " + logInfo.getLogId() + " position = " + position);
+                            mDeleteLogs.remove(logInfo);
+                        }
+                    }
+                });
+
+                if (mVisiBle)
+                    viewHolder.mDeleteRl.setVisibility(View.VISIBLE);
+                else
+                    viewHolder.mDeleteRl.setVisibility(View.GONE);
+
+                viewHolder.mDeleteCb.setChecked(mAllDelete);
+            } else if (getItemViewType(position) == TYPE_HEADER) {
+
+                return;
+            } else {
+                return;
             }
 
-            viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
-
-            viewHolder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (viewHolder.mDeleteCb.isChecked()) {
-                        Log.d(TAG, "add1 = " + logInfo.getLogId() + " position = " + position);
-                        mDeleteLogs.add(logInfo);
-                    } else {
-                        Log.d(TAG, "remove1 = " + logInfo.getLogId() + " position = " + position);
-                        mDeleteLogs.remove(logInfo);
-                    }
-                }
-            });
-
-            if (mVisiBle)
-                viewHolder.mDeleteRl.setVisibility(View.VISIBLE);
-            else
-                viewHolder.mDeleteRl.setVisibility(View.GONE);
-
-            viewHolder.mDeleteCb.setChecked(mAllDelete);
         }
 
         @Override
         public int getItemCount() {
-            return mLogList.size();
+            LogUtil.d(TAG, "mHeaderView : " + (mHeaderView == null) + " mFooterView : " + (mFooterView == null));
+            if (mHeaderView == null && mFooterView == null) {
+                return mLogList.size();
+            } else if (mHeaderView == null && mFooterView != null) {
+                return mLogList.size() + 1;
+            } else if (mHeaderView != null && mFooterView == null) {
+                return mLogList.size() + 1;
+            } else {
+                return mLogList.size() + 2;
+            }
         }
 
         public void chioseItemDelete(boolean visible) {
@@ -414,6 +499,12 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
             public MyViewHolder(View itemView) {
                 super(itemView);
+                if (itemView == mHeaderView) {
+                    return;
+                }
+                if (itemView == mFooterView) {
+                    return;
+                }
                 mSwipeLayout = (SwipeLayout) itemView;
                 mEventInfo = itemView.findViewById(R.id.tv_event_info);
                 mEventType = itemView.findViewById(R.id.tv_type);
