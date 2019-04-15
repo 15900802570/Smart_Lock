@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/tb_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/y81dp"
         android:background="@color/white"
         android:minHeight="?android:attr/actionBarSize">  <!-- 最小高度 -->
 
@@ -22,16 +22,16 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="100.0dip"
+            android:layout_height="@dimen/y170dp"
             android:background="@color/white">
 
-            <ImageView
+            <com.smart.lock.widget.CircleImageView
                 android:id="@+id/me_center_head_photo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/x118dp"
+                android:layout_height="@dimen/y118dp"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="37.0dip"
-                android:src="@mipmap/head_photo" />
+                android:layout_marginLeft="@dimen/x30dp"
+                android:src="@mipmap/cat" />
 
             <TextView
                 android:id="@+id/me_center_head_name"
@@ -39,10 +39,10 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/me_center_head_photo"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="10.0dip"
+                android:layout_marginLeft="@dimen/y37dp"
                 android:text="没名字"
                 android:textColor="@color/black"
-                android:textSize="18.0dip" />
+                android:textSize="@dimen/d24sp" />
 
             <ImageView
                 android:id="@+id/me_edit_name"
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/me_center_head_name"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="37.0dip"
+                android:layout_marginLeft="@dimen/y37dp"
                 android:src="@mipmap/edit" />
         </RelativeLayout>
 
@@ -58,7 +58,7 @@
             android:id="@+id/mc_manage"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"/>
+            android:layout_marginTop="@dimen/y28dp"/>
 
         <com.smart.lock.widget.MeDefineView
             android:id="@+id/about_us"

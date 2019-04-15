@@ -123,7 +123,6 @@ public class HomeFragment extends BaseFragment implements
 
     private int mImageIds[]; //主界面图片
     private boolean mIsConnected = false; //服务连接标志
-    private int mHeight;
     private BleConnectModel mBleModel;
 
     public void onAuthenticationSuccess() {
@@ -136,7 +135,6 @@ public class HomeFragment extends BaseFragment implements
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mHeight = this.getResources().getDisplayMetrics().heightPixels;
     }
 
     public View initView() {
@@ -158,16 +156,6 @@ public class HomeFragment extends BaseFragment implements
         mScanQrIv = mHomeView.findViewById(R.id.iv_scan_qr);
         mInstructionBtn = mActivity.findViewById(R.id.one_click_unlock_ib);
         initEvent();
-        LogUtil.d(TAG, "mHeight = " + mHeight);
-        //设置界面比例
-        RelativeLayout.LayoutParams mLockManagerRlParams = (RelativeLayout.LayoutParams) mLockManagerRl.getLayoutParams();
-        mLockManagerRlParams.setMargins(0, -(int) (mHeight * 0.12), 0, 0);
-
-        mMyGridView.getLayoutParams().height = (int) (mHeight * 0.3);
-        mHomeView.findViewById(R.id.ll_management).getLayoutParams().height = (int) (mHeight * 0.14);
-
-        mHomeView.findViewById(R.id.ll_gv_lock).setPadding(0, (int) (mHeight * 0.025), 0, 0);
-
         return mHomeView;
     }
 

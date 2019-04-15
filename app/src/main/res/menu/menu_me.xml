@@ -5,14 +5,14 @@
     <item
         android:id="@+id/action_search"
         android:orderInCategory="100"
-        android:icon="@mipmap/search"
+        android:icon="@drawable/ic_search"
         app:showAsAction="ifRoom"
         android:title="@string/scan_dev"/>
 
     <item
         android:id="@+id/action_scan"
         android:orderInCategory="100"
-        android:icon="@mipmap/scan_qr_64"
+        android:icon="@drawable/ic_scan_qr"
         app:showAsAction="ifRoom"
         android:title="@string/scan_qr" />
 </menu>

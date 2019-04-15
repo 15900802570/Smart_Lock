@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/y81dp"
     android:id="@+id/rl_toggle_switch"
     android:gravity="center"
-    android:layout_margin="5dp"
+    android:layout_margin="@dimen/y5dp"
     android:background="@drawable/selector_button_radius_10">
 
     <TextView
         android:id="@+id/tv_switch_des"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15.0dip"
-        android:layout_marginTop="20.0dip"
-        android:layout_marginBottom="20.0dip"
+        android:layout_marginLeft="@dimen/x25dp"
+        android:layout_marginTop="@dimen/y28dp"
+        android:layout_marginBottom="@dimen/y28dp"
         android:gravity="center_vertical"
         android:text="客厅-灯光"
         android:textColor="#ff000000"
-        android:textSize="15.0dip" />
+        android:textSize="@dimen/d17sp" />
 
     <ToggleButton
         android:id="@+id/iv_switch_light"
-        android:layout_width="55dp"
-        android:layout_height="32dp"
+        android:layout_width="@dimen/x78dp"
+        android:layout_height="@dimen/y41dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="0.0dip"
+        android:layout_marginRight="@dimen/x10dp"
+        android:layout_marginBottom="@dimen/y21dp"
         android:background="@null"
         android:button="@drawable/toggle_button_selector"
         android:checked="false"
