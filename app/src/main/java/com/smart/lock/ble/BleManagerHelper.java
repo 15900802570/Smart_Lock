@@ -163,6 +163,9 @@ public class BleManagerHelper {
     public void connectBle(final byte type, Bundle bundle) {
         mConnectType = type;
         mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
+        if (StringUtil.checkIsNull(mBleMac)) {
+            return;
+        }
         if (mConnectType == 2) {
             mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
@@ -191,7 +194,7 @@ public class BleManagerHelper {
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-
+            LogUtil.d(TAG, "mConnectType = " + mConnectType);
             if (mConnectType == 2) {
                 byte[] imei = new byte[8];
                 System.arraycopy(scanRecord, 19, imei, 0, 8);
@@ -200,8 +203,6 @@ public class BleManagerHelper {
                 if (device.getName() != null) {
                     Log.d(TAG, "device.getName() = " + device.getName());
                 }
-                Log.d(TAG, "imei = " + StringUtil.byteArrayToHexStr(imei));
-                Log.d(TAG, "result = " + StringUtil.byteArrayToHexStr(imei).equals(nodeId));
                 if (StringUtil.byteArrayToHexStr(imei).equals(nodeId)) {
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {
@@ -211,6 +212,8 @@ public class BleManagerHelper {
                     }
                 }
             } else {
+                LogUtil.d(TAG, "scan dev addr : " + device.getAddress());
+                LogUtil.d(TAG, "mBleMac : " + mBleMac);
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mBtAdapter.stopLeScan(mLeScanCallback);
@@ -328,7 +331,7 @@ public class BleManagerHelper {
             if (!mService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
             }
-            if(mBindServiceCallback!=null) {
+            if (mBindServiceCallback != null) {
                 mBindServiceCallback.onBindSuccess();
             }
 
@@ -337,7 +340,7 @@ public class BleManagerHelper {
         public void onServiceDisconnected(ComponentName classname) {
             Log.e(TAG, "mService is Disconnected");
             mService = null;
-            if(mBindServiceCallback!=null) {
+            if (mBindServiceCallback != null) {
                 mBindServiceCallback.onBindFailure();
             }
         }

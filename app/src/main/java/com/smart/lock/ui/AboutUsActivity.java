@@ -23,11 +23,11 @@ public class AboutUsActivity extends AppCompatActivity implements View.OnClickLi
         mVersionTv = findViewById(R.id.tv_version);
         mBack = findViewById(R.id.iv_about_us_back);
         mBack.setOnClickListener(this);
-        try {
-            mVersionTv.setText(getString(R.string.app_name) + " " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            mVersionTv.setText(getString(R.string.app_name) + " " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+//        } catch (PackageManager.NameNotFoundException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

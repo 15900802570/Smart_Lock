@@ -64,9 +64,9 @@
     <style name="RountButtonStyle">
         <item name="android:textSize">17.0sp</item>
         <item name="android:textColor">@color/white</item>
-        <item name="android:background">@drawable/selector_btn_blue_24</item>
-        <item name="android:layout_width">155.0dip</item>
-        <item name="android:layout_height">58.0dip</item>
+        <item name="android:background">@mipmap/butten_create_user</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <!-- popup window 显示消失动画-->

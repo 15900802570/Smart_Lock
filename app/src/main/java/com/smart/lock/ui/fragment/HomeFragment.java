@@ -291,7 +291,6 @@ public class HomeFragment extends BaseFragment implements
                 }
                 if (mDefaultDevice == null) {
                     mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
-
                 }
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
@@ -459,6 +458,7 @@ public class HomeFragment extends BaseFragment implements
             refreshView(UNBIND_DEVICE);
             return;
         }
+        LogUtil.d(TAG,"default ble : " + mDefaultDevice.getBleMac());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mIsConnected = mBleManagerHelper.getServiceConnection();
         if (!mIsConnected) {
@@ -506,8 +506,9 @@ public class HomeFragment extends BaseFragment implements
                 refreshView(DEVICE_CONNECTING);
                 MessageCreator.setSk(mDefaultDevice);
                 Bundle dev = new Bundle();
-                bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                LogUtil.d(TAG,"dev = " + dev.toString());
                 mBleManagerHelper.connectBle((byte) 1, dev);
                 break;
             case R.id.ll_setting:
@@ -593,6 +594,7 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        LogUtil.d(TAG,"requestCode = " + requestCode);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUESTCODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

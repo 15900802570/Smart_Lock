@@ -60,11 +60,11 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*set it to be no title*/
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        /*set it to be full screen*/
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_welcome);
+        /*set it to be no title*/
+//        requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        /*set it to be full screen*/
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         //初始化控件
         initView();
@@ -127,8 +127,9 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        mPermissionHelper.requestPermissionsResult(requestCode, permissions, grantResults); // 接管结果判断
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        LogUtil.d(TAG, "requestCode : " + requestCode);
+        mPermissionHelper.requestPermissionsResult(requestCode, permissions, grantResults); // 接管结果判断
     }
 
 
@@ -137,7 +138,6 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
         Log.d(TAG, "success callBackCode = " + callBackCode);
 
         if (callBackCode == REQ_CODE_CAMERA) {
-//            scanQr();
             openNextActivity(WelcomeActivity.this);//打开下一个界面
         } else if (callBackCode == ACCESS_COARSE_LOCATION) {
             mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
@@ -259,6 +259,8 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
         countdownHandle.removeCallbacks(runnable);
     }
 
+    int count = 0;
+
     //打开下一个界面
     private void openNextActivity(Activity mActivity) {
         //跳转到登录界面并销毁当前界面
@@ -266,9 +268,14 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
             if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                 jLockScreenActivity(mActivity);
             } else {
-                jManiActivity(mActivity);
+                Log.d(TAG, "goto mainActivity! " + count);
+                if (count == 0) {
+                    jManiActivity(mActivity);
+                }
+
             }
         } catch (NullPointerException e) {
+            Log.d(TAG, "goto mainActivity!!");
             jManiActivity(mActivity);
         }
         mActivity.finish();
@@ -280,6 +287,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
      * @param mActivity 上下文
      */
     private void jManiActivity(Activity mActivity) {
+        count++;
         Intent intent = new Intent(mActivity, MainActivity.class);
         mActivity.startActivity(intent);
     }
@@ -307,7 +315,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        LogUtil.d(TAG, "onDestroy");
     }
 
     /*初始化倒计时的秒数*/

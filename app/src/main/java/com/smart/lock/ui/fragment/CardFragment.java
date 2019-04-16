@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -35,6 +36,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +46,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
     private View mCardView;
     private RecyclerView mListView;
-    protected Button mAddBtn;
+    protected TextView mAddTv;
 
     private CardManagerAdapter mCardAdapter;
     private String mLockId = null;
@@ -57,7 +59,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_add:
+            case R.id.tv_add:
                 int count = DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
                 LogUtil.d(TAG, "count = " + count);
                 if (count >= 0 && count < 1) {
@@ -78,7 +80,9 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public View initView() {
         mCardView = View.inflate(mActivity, R.layout.fragment_device_key, null);
-        mAddBtn = mCardView.findViewById(R.id.btn_add);
+        mAddTv = mCardView.findViewById(R.id.tv_add);
+        Drawable top = getResources().getDrawable(R.mipmap.btn_add_card);
+        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top , null, null);
         mListView = mCardView.findViewById(R.id.rv_key);
         return mCardView;
     }
@@ -101,10 +105,11 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         mListView.setLayoutManager(new LinearLayoutManager(mCardView.getContext(), LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mCardAdapter);
+        mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
         LogUtil.d(TAG, "tempUser 1= " + (mTempUser == null ? true : mTempUser.toString()));
 
-        mAddBtn.setVisibility(View.VISIBLE);
-        mAddBtn.setText(R.string.add_card);
+        mAddTv.setVisibility(View.VISIBLE);
+        mAddTv.setText(R.string.add_card);
 
         initEvent();
 
@@ -113,7 +118,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     }
 
     private void initEvent() {
-        mAddBtn.setOnClickListener(this);
+        mAddTv.setOnClickListener(this);
     }
 
     private static IntentFilter intentFilter() {
@@ -145,6 +150,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     showMessage(mCardView.getContext().getResources().getString(R.string.delete_nfc_success));
                     mCardAdapter.removeItem(mCardAdapter.positionDelete);
                 }
+
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
             }
@@ -176,10 +182,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                 mCardAdapter.addItem(deviceKey);
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG1A_STATUS)) {
-
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {

@@ -65,7 +65,6 @@ public class DeviceUserDao {
         }
     }
 
-
     public synchronized void updateDeviceUser(DeviceUser info) {
         try {
             dao.update(info);
@@ -151,7 +150,7 @@ public class DeviceUserDao {
      */
 
     public ArrayList<DeviceUser> queryId(int id) {
-        ArrayList<DeviceUser> list = null;
+        ArrayList<DeviceUser> list = new ArrayList<>();
 
         try {
             DeviceUser DeviceUser = dao.queryForId(id);
@@ -168,7 +167,7 @@ public class DeviceUserDao {
 
 
     public ArrayList<DeviceUser> queryAll() {
-        ArrayList<DeviceUser> list = null;
+        ArrayList<DeviceUser> list = new ArrayList<>();
         try {
             list = (ArrayList<DeviceUser>) dao.queryForAll();
 
@@ -183,7 +182,7 @@ public class DeviceUserDao {
 
 
     public ArrayList<DeviceUser> queryKey(String key, Object valus) {
-        ArrayList<DeviceUser> list = null;
+        ArrayList<DeviceUser> list = new ArrayList<>();
         try {
             list = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", false).where().eq(key, valus).query();
             if (list != null) {
@@ -197,7 +196,7 @@ public class DeviceUserDao {
 
 
     public synchronized DeviceUser queryUser(Object nodeId, Object userId) {
-        DeviceUser deviceUser = null;
+        DeviceUser deviceUser = new DeviceUser();
         try {
             deviceUser = dao.queryBuilder().where().eq("dev_node_id", nodeId).and().eq("user_id", userId).queryForFirst();
             if (deviceUser != null) {
@@ -211,7 +210,7 @@ public class DeviceUserDao {
 
 
     public ArrayList<DeviceUser> queryUsers(Object nodeId, Object permission) {
-        ArrayList<DeviceUser> list = null;
+        ArrayList<DeviceUser> list = new ArrayList<>();
         try {
             list = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", true).where().eq("dev_node_id", nodeId).and().eq("user_permission", permission).query();
             if (list != null) {
@@ -225,7 +224,7 @@ public class DeviceUserDao {
 
 
     public ArrayList<DeviceUser> queryDeviceUsers(Object nodeId) {
-        ArrayList<DeviceUser> list = null;
+        ArrayList<DeviceUser> list = new ArrayList<>();
         try {
             list = (ArrayList<DeviceUser>) dao.queryBuilder().orderBy("user_id", true).where().eq("dev_node_id", nodeId).query();
             if (list != null) {

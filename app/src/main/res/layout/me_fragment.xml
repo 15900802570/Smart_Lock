@@ -30,17 +30,18 @@
                 android:layout_width="@dimen/x118dp"
                 android:layout_height="@dimen/y118dp"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/x30dp"
+                android:layout_marginStart="@dimen/x30dp"
                 android:src="@mipmap/cat" />
 
             <TextView
                 android:id="@+id/me_center_head_name"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/me_center_head_photo"
+                android:layout_toEndOf="@+id/me_center_head_photo"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/y37dp"
-                android:text="没名字"
+                android:layout_marginStart="@dimen/y37dp"
+                android:text="@string/no_name"
+                android:gravity="center_vertical"
                 android:textColor="@color/black"
                 android:textSize="@dimen/d24sp" />
 
@@ -48,10 +49,11 @@
                 android:id="@+id/me_edit_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/me_center_head_name"
+                android:layout_toEndOf="@+id/me_center_head_name"
                 android:layout_centerVertical="true"
-                android:layout_marginLeft="@dimen/y37dp"
-                android:src="@mipmap/edit" />
+                android:layout_marginStart="@dimen/y37dp"
+                android:src="@mipmap/edit"
+                android:visibility="gone"/>
         </RelativeLayout>
 
         <com.smart.lock.widget.MeDefineView

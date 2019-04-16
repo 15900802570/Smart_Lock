@@ -306,4 +306,7 @@
     <string name="pwd_setting_failed">Password Setting Failed</string>
     <string name="edit_back">Edit back</string>
     <string name="unlock_event">Unlock event</string>
+    <string name="delete_fp_failed">Delete Fingerprint Failed</string>
+    <string name="fp_full">Fingerprint Full</string>
+    <string name="device_busy">Device Busy</string>
 </resources>

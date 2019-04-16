@@ -30,6 +30,7 @@ import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MeDefineView;
 
 import java.io.BufferedOutputStream;
@@ -39,7 +40,7 @@ import java.io.IOException;
 
 import java.util.Objects;
 
-public class MeFragment extends BaseFragment implements View.OnClickListener{
+public class MeFragment extends BaseFragment implements View.OnClickListener {
     private View mMeView;
     private MeDefineView mSystemSetTv;
     private MeDefineView mDevManagementTv;
@@ -53,6 +54,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
     private TextView mCameraShotTv;
     private TextView mLocalPhotoTv;
     private TextView mGalleryPhotoTv;
+    private TextView mCancelTv;
 
     private BottomSheetDialog mBottomSheetDialog; //头像选择
 
@@ -74,6 +76,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
         mCameraShotTv = mBottomSheetDialog.findViewById(R.id.camera_shot_tv);
         mLocalPhotoTv = mBottomSheetDialog.findViewById(R.id.local_photo_tv);
         mGalleryPhotoTv = mBottomSheetDialog.findViewById(R.id.gallery_photo_tv);
+        mCancelTv = mBottomSheetDialog.findViewById(R.id.tv_cancel);
 
         mUserProfile = UserProfileDao.getInstance(mMeView.getContext()).queryById(1);
         LogUtil.d(TAG, "mUserProfile : " + ((mUserProfile == null) ? true : mUserProfile.toString()));
@@ -143,7 +146,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
                 searchDev();
                 break;
             case R.id.action_scan:
-                if(mActivity instanceof OnFragmentInteractionListener){
+                if (mActivity instanceof OnFragmentInteractionListener) {
                     ((OnFragmentInteractionListener) mActivity).onScanQrCode();
                 }
                 break;
@@ -163,6 +166,8 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
         mCameraShotTv.setOnClickListener(this);
         mLocalPhotoTv.setOnClickListener(this);
         mGalleryPhotoTv.setOnClickListener(this);
+        mNameTv.setOnClickListener(this);
+        mCancelTv.setOnClickListener(this);
     }
 
     /**
@@ -190,11 +195,12 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
                 Intent aboutIntent = new Intent(mMeView.getContext(), AboutUsActivity.class);
                 this.startActivity(aboutIntent);
                 break;
+            case R.id.me_center_head_name:
             case R.id.me_edit_name:
                 showEditDialog(mMeView.getContext(), getString(R.string.modify_note_name)).show();
                 break;
             case R.id.me_center_head_photo:
-                mBottomSheetDialog.show();
+//                mBottomSheetDialog.show();
                 break;
             case R.id.camera_shot_tv:
                 Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -209,6 +215,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
                         Intent.ACTION_PICK,
                         android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(picture, 2);
+                mBottomSheetDialog.cancel();
+                break;
+            case R.id.tv_cancel:
                 mBottomSheetDialog.cancel();
                 break;
             default:
@@ -230,6 +239,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener{
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String name = editText.getText().toString().trim();
+                if (StringUtil.checkIsNull(name)) {
+                    name = context.getString(R.string.no_name);
+                }
                 mNameTv.setText(name);
                 mUserProfile.setUserName(name);
                 UserProfileDao.getInstance(context).update(mUserProfile);

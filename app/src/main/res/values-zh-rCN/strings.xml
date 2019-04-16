@@ -113,7 +113,9 @@
     <string name="modify_fp_failed">修改指纹失败</string>
     <string name="modify_fp_success">修改指纹成功</string>
     <string name="delete_fp_success">删除指纹成功</string>
-
+    <string name="fp_full">指纹已满</string>
+    <string name="device_busy">设备忙</string>
+    <string name="delete_fp_failed">删除指纹失败</string>
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
     <string name="add_nfc_tips">您已添加过NFC卡,请删除后添加</string>
@@ -190,7 +192,7 @@
     <string name="all_election">全选</string>
     <string name="device_management">设备管理</string>
     <string name="btn_add_new_lock">添加门锁</string>
-    <string name="number">编号</string>
+    <string name="number">编号:</string>
     <string name="set_default">设为默认</string>
     <string name="unbind">解除绑定</string>
     <string name="lock_settings">门锁设置</string>
@@ -247,8 +249,8 @@
     <string name="search_lock">搜索附近的门锁</string>
     <string name="plz_press_setting">请按设置键</string>
     <string name="self_message">个人中心</string>
-    <string name="web_site">官网</string>
-    <string name="customer_service">客服</string>
+    <string name="web_site">官方网站</string>
+    <string name="customer_service">官方电话</string>
     <string name="company">大唐半导体科技有限公司</string>
 
     <string name="check_version">正在检查更新...</string>

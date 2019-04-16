@@ -116,6 +116,7 @@ public class LockSettingActivity extends AppCompatActivity {
         mVersionInfoNa.setDes(getResources().getString(R.string.version_info));
         mSelfCheckNa.setDes(getResources().getString(R.string.self_check));
         mOtaUpdateNa.setDes(getResources().getString(R.string.ota_update));
+        mOtaUpdateNa.setVisibility(View.GONE);
         mFactoryResetNa.setDes(getResources().getString(R.string.restore_the_factory_settings));
 
         mBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);

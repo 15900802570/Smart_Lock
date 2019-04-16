@@ -36,6 +36,7 @@ import com.smart.lock.ui.fragment.MumberFragment;
 import com.smart.lock.ui.fragment.TempFragment;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.widget.NoScrollViewPager;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 
@@ -110,7 +111,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mUserPermissionVp.setAdapter(mUserPagerAdapter);
         initTabLayout();
         mUserPermissionVp.setOffscreenPageLimit(2);
-        mUserPermissionVp.setNoScroll(false);
+        mUserPermissionVp.setNoScroll(true);
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);

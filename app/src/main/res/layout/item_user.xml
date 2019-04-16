@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_ll_user"
     android:layout_width="fill_parent"
-    android:layout_height="80.0dip"
+    android:layout_height="@dimen/y115dp"
     app:clickToClose="true"
     app:drag_edge="right">
 
@@ -11,14 +12,13 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="80.0dip">
+        android:layout_height="@dimen/y115dp">
 
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             app:cardBackgroundColor="@color/white"
             app:cardPreventCornerOverlap="false">
-
 
             <LinearLayout
                 android:id="@+id/ll_content"
@@ -35,22 +35,15 @@
 
                     <CheckBox
                         android:id="@+id/delete_locked"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_centerInParent="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
+                        android:layout_marginStart="@dimen/x24dp"
                         android:background="@drawable/selector_delete_checkbox"
                         android:button="@null"
                         android:clickable="true"
                         android:focusable="true"
                         android:visibility="visible" />
-
-                    <View
-                        style="@style/LineVertical"
-                        android:layout_marginTop="10.0dip"
-                        android:layout_marginBottom="10.0dip"
-                        android:layout_toRightOf="@+id/delete_locked" />
 
                 </RelativeLayout>
 
@@ -68,33 +61,38 @@
                         <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="0.0dip"
+                            android:layout_marginStart="@dimen/x23dp"
+                            android:paddingTop="@dimen/y20dp"
                             android:layout_weight="1.0"
-                            android:gravity="center_vertical">
+                            tools:ignore="NestedWeights">
+
+                            <ImageView
+                                android:id="@+id/iv_man"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@mipmap/icon_man" />
 
                             <TextView
                                 android:id="@+id/tv_username"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginLeft="20.0dip"
-                                android:layout_marginTop="5dp"
-                                android:layout_marginBottom="5dp"
+                                android:layout_marginStart="@dimen/x15dp"
+                                android:layout_toEndOf="@+id/iv_man"
                                 android:background="@drawable/edit_bg"
+                                android:gravity="top"
                                 android:ellipsize="end"
                                 android:focusable="true"
                                 android:focusableInTouchMode="true"
-                                android:gravity="bottom"
                                 android:singleLine="true"
-                                android:textColor="#ff5f646e"
-                                android:textSize="17.0sp" />
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/d18sp" />
 
                             <ImageButton
                                 android:id="@+id/ib_edit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginLeft="10dp"
-                                android:layout_marginTop="5dp"
-                                android:layout_marginBottom="5dp"
-                                android:layout_toRightOf="@+id/tv_username"
+                                android:layout_marginStart="@dimen/x15dp"
+                                android:layout_toEndOf="@+id/tv_username"
                                 android:background="@drawable/edit_bg"
                                 android:src="@mipmap/edit" />
                         </RelativeLayout>
@@ -103,7 +101,8 @@
                             android:id="@+id/rl_id"
                             android:layout_width="fill_parent"
                             android:layout_height="0.0dip"
-                            android:layout_marginTop="5dp"
+                            android:layout_marginStart="@dimen/x23dp"
+                            android:paddingTop="@dimen/y5dp"
                             android:layout_weight="1.0"
                             android:gravity="top"
                             android:orientation="horizontal">
@@ -112,19 +111,18 @@
                                 android:id="@+id/tv_number"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="20.0dip"
                                 android:text="@string/number"
-                                android:textColor="@color/black"
-                                android:textSize="13.0sp" />
+                                android:textColor="#FF555555"
+                                android:textSize="@dimen/d16sp" />
 
                             <TextView
                                 android:id="@+id/tv_user_number"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="5.0dip"
-                                android:layout_toRightOf="@+id/tv_number"
-                                android:textColor="#ff002800"
-                                android:textSize="13.0sp" />
+                                android:layout_marginStart="@dimen/x5dp"
+                                android:layout_toEndOf="@+id/tv_number"
+                                android:textColor="#FF555555"
+                                android:textSize="@dimen/d16sp" />
 
                         </RelativeLayout>
                     </LinearLayout>
@@ -142,7 +140,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/normal"
                             android:textColor="@color/red"
-                            android:textSize="16.0sp"
+                            android:textSize="@dimen/d16sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 

@@ -26,23 +26,22 @@
             android:id="@+id/iv_about_us_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/icon_arrow_blue_left"
             android:onClick="onClick"
-            android:paddingLeft="@dimen/x15dp" />
+            android:paddingStart="@dimen/x15dp"
+            android:src="@drawable/icon_arrow_blue_left" />
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_below="@+id/rl_about_us_title"
         android:background="@color/line" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8.0dip"
+        android:layout_marginTop="@dimen/y8dp"
         android:background="@color/white">
 
         <TextView
@@ -50,33 +49,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginTop="60.0dip"
-            android:drawableTop="@mipmap/icon"
-            android:drawablePadding="9.0dip"
+            android:layout_marginTop="@dimen/y61dp"
+            android:drawableTop="@mipmap/dt_logo"
+            android:drawablePadding="@dimen/y9dp"
             android:gravity="center"
-            android:textSize="14.0sp" />
+            android:textSize="@dimen/d14sp" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8.0dip"
+        android:layout_marginTop="@dimen/y8dp"
         android:background="@color/white"
         android:orientation="vertical">
 
         <RelativeLayout
             android:id="@+id/layout_about"
             android:layout_width="fill_parent"
-            android:layout_height="50.0dip"
+            android:layout_height="@dimen/y70dp"
             android:descendantFocusability="blocksDescendants"
-            android:paddingLeft="16.0dip">
+            android:paddingStart="@dimen/x20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:gravity="center"
                 android:text="@string/web_site"
-                android:textSize="16.0sp" />
+                android:textColor="#696969"
+                android:textSize="@dimen/d20sp" />
 
             <TextView
                 android:id="@+id/tv_company_web"
@@ -84,11 +84,11 @@
                 android:layout_height="fill_parent"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginEnd="19.0dip"
+                android:layout_marginEnd="@dimen/x19dp"
                 android:gravity="center"
-                android:text="www.datangic.com"
-                android:textColor="#ffafb1b6"
-                android:textSize="16.0sp" />
+                android:text="www.dinggu.net"
+                android:textColor="#696969"
+                android:textSize="@dimen/d20sp" />
         </RelativeLayout>
 
         <View
@@ -99,27 +99,28 @@
         <RelativeLayout
             android:id="@+id/layout_service"
             android:layout_width="fill_parent"
-            android:layout_height="50.0dip"
+            android:layout_height="@dimen/y70dp"
             android:descendantFocusability="blocksDescendants"
-            android:paddingLeft="16.0dip">
+            android:paddingStart="@dimen/d20sp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:gravity="center"
                 android:text="@string/customer_service"
-                android:textSize="16.0sp" />
+                android:textColor="#696969"
+                android:textSize="@dimen/d20sp" />
 
             <TextView
                 android:id="@+id/tv_service"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="20.0dip"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/x20dp"
                 android:gravity="center"
-                android:text="+86-021-31271000"
-                android:textColor="#ffafb1b6"
-                android:textSize="16.0sp" />
+                android:text="400-883-5858"
+                android:textColor="#696969"
+                android:textSize="@dimen/d20sp" />
         </RelativeLayout>
 
         <View
@@ -128,18 +129,18 @@
             android:background="#ffdddddd" />
     </LinearLayout>
 
-    <Space
-        android:layout_width="fill_parent"
-        android:layout_height="0.0dip"
-        android:layout_weight="1.0" />
+    <!--<Space-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="0.0dip"-->
+        <!--android:layout_weight="1.0" />-->
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="17.0dip"
-        android:text="@string/company"
-        android:textColor="#ffafb1b6"
-        android:textSize="13.0sp" />
+    <!--<TextView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="center_horizontal"-->
+    <!--android:layout_marginBottom="17.0dip"-->
+    <!--android:text="@string/company"-->
+    <!--android:textColor="#ffafb1b6"-->
+    <!--android:textSize="13.0sp" />-->
 
 </LinearLayout>

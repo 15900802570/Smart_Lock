@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -35,6 +36,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +46,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     private View mFpView;
     private RecyclerView mListView;
-    protected Button mAddBtn;
+    protected TextView mAddTv;
 
     private FpManagerAdapter mFpAdapter;
     private String mLockId = null;
@@ -57,7 +59,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_add:
+            case R.id.tv_add:
                 int count = DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
                 if (count >= 0 && count < 5) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -77,7 +79,9 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     @Override
     public View initView() {
         mFpView = View.inflate(mActivity, R.layout.fragment_device_key, null);
-        mAddBtn = mFpView.findViewById(R.id.btn_add);
+        mAddTv = mFpView.findViewById(R.id.tv_add);
+        Drawable top = getResources().getDrawable(R.mipmap.btn_add_fingerprint);
+        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
         mListView = mFpView.findViewById(R.id.rv_key);
         return mFpView;
     }
@@ -100,10 +104,11 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         mListView.setLayoutManager(new LinearLayoutManager(mFpView.getContext(), LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mFpAdapter);
+        mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
         LogUtil.d(TAG, "tempUser 1= " + (mTempUser == null ? true : mTempUser.toString()));
 
-        mAddBtn.setVisibility(View.VISIBLE);
-        mAddBtn.setText(R.string.add_fingerprint);
+        mAddTv.setVisibility(View.VISIBLE);
+        mAddTv.setText(R.string.add_fingerprint);
 
         initEvent();
 
@@ -112,7 +117,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     }
 
     private void initEvent() {
-        mAddBtn.setOnClickListener(this);
+        mAddTv.setOnClickListener(this);
     }
 
     private static IntentFilter intentFilter() {
@@ -149,6 +154,12 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 } else if (errCode[3] == 0x0a) {
                     showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_success));
                     mFpAdapter.removeItem(mFpAdapter.positionDelete);
+                }  else if (errCode[3] == 0x23) {
+                    showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_failed));
+                } else if (errCode[3] == 0x24) {
+                    showMessage(mFpView.getContext().getResources().getString(R.string.fp_full));
+                }else if (errCode[3] == 0x25) {
+                    showMessage(mFpView.getContext().getResources().getString(R.string.device_busy));
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);

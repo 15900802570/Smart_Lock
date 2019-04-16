@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@mipmap/ic_welcome_logo2">
 
-        <!-- 倒计时文本 -->
-        <TextView
-            android:id="@+id/id_countdownTextView"
-            android:layout_width="70dp"
-            android:layout_height="35dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="60dp"
-            android:layout_marginBottom="90dp"
-            android:text=""
-            android:textSize="@dimen/countdown_text_size"
-            android:textColor="#ffffff"
-            android:gravity="center"
-            android:background="@drawable/countdown_text_circle_bg_drawable"
-            tools:ignore="ObsoleteLayoutParam" />
+    <!-- 倒计时文本 -->
+    <TextView
+        android:id="@+id/id_countdownTextView"
+        android:layout_width="@dimen/x70dp"
+        android:layout_height="@dimen/y35dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="@dimen/x60dp"
+        android:layout_marginBottom="@dimen/y90dp"
+        android:background="@drawable/countdown_text_circle_bg_drawable"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#ffffff"
+        android:textSize="@dimen/countdown_text_size" />
 
 </RelativeLayout>

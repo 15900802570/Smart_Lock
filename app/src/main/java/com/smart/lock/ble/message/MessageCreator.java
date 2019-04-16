@@ -208,7 +208,8 @@ public class MessageCreator {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
         } else if (errCode[3] == 0x8 || errCode[3] == 0x09 || errCode[3] == 0x0a
                 || errCode[3] == 0x0b || errCode[3] == 0x0c || errCode[3] == 0x0d
-                || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10) {
+                || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10
+                || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
         }
 

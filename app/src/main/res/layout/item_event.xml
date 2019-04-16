@@ -60,7 +60,7 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/y27dp">
+                        android:layout_marginTop="@dimen/y20dp">
 
                         <ImageView
                             android:id="@+id/iv_event"
@@ -77,7 +77,7 @@
                             android:layout_toEndOf="@+id/iv_event"
                             android:text="@string/unlock_event"
                             android:textColor="@color/color_text"
-                            android:textSize="@dimen/d14sp"
+                            android:textSize="@dimen/d16sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -89,7 +89,7 @@
                             android:layout_toEndOf="@+id/tv_type"
                             android:gravity="right"
                             android:textColor="@color/color_text"
-                            android:textSize="@dimen/d12sp"
+                            android:textSize="@dimen/d14sp"
                             tools:ignore="RtlHardcoded" />
                     </RelativeLayout>
 
@@ -98,11 +98,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="@dimen/y16dp"
-                        android:gravity="top"
                         android:ellipsize="end"
+                        android:gravity="top"
                         android:singleLine="true"
                         android:textColor="@color/color_text"
-                        android:textSize="@dimen/d12sp" />
+                        android:textSize="@dimen/d14sp" />
 
                 </LinearLayout>
 

@@ -49,6 +49,8 @@
     <color name="dark_black">#ff333333</color>
     <color name="dark_gray">#ff999999</color>
     <color name="deepskyblue">#ff00bfff</color>
+    <color name="blue_enable">#1693D3FF</color>
+    <color name="yallow_pause">#FF4200FF</color>
     <color name="dim_foreground_disabled_material_dark">#80bebebe</color>
     <color name="dim_foreground_disabled_material_light">#80323232</color>
     <color name="dim_foreground_material_dark">#ffbebebe</color>

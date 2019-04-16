@@ -347,7 +347,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         private Boolean mVisiBle = false;
         public ArrayList<DeviceLog> mDeleteLogs = new ArrayList<>();
         public boolean mAllDelete = false;
-        private static final int BASE_ITEM_TYPE_FOOTER = 2000000;//footerView默认type
         public static final int TYPE_HEADER = 0;  //说明是带有Header的
         public static final int TYPE_FOOTER = 1;  //说明是带有Footer的
         public static final int TYPE_NORMAL = 2;  //说明是不带有header和footer的
@@ -402,7 +401,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LogUtil.d(TAG, "viewType : " + viewType);
             if (mHeaderView != null && viewType == TYPE_HEADER) {
                 return new MyViewHolder(mHeaderView);
             }
@@ -420,18 +418,30 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         @Override
         public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             if (getItemViewType(position) == TYPE_NORMAL) {
-
                 final DeviceLog logInfo = mLogList.get(position);
                 DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
-                DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", user.getDevNodeId());
+                DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", logInfo.getNodeId());
+                String logUser = mContext.getString(R.string.administrator);
+                if (user != null) {
+                    LogUtil.d(TAG, "user : " + user.toString());
+                    logUser = user.getUserName();
+                } else {
+                    if (logInfo.getUserId() < 99) { //管理员编号
+                        logUser = mContext.getString(R.string.administrator) + logInfo.getUserId();
+                    } else if (logInfo.getUserId() >= 100 && logInfo.getUserId() < 200) { //普通用户
+                        logUser = mContext.getString(R.string.members) + logInfo.getUserId();
+                    } else if (logInfo.getUserId() >= 200 && logInfo.getUserId() < 300) { //临时用户
+                        logUser = mContext.getString(R.string.tmp_user) + logInfo.getUserId();
+                    }
+                }
                 if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                    viewHolder.mEventInfo.setText(user.getUserName() + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 }
 
                 viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
@@ -440,10 +450,10 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     @Override
                     public void onClick(View v) {
                         if (viewHolder.mDeleteCb.isChecked()) {
-                            Log.d(TAG, "add1 = " + logInfo.getLogId() + " position = " + position);
+                            Log.d(TAG, "add logid : " + logInfo.getLogId() + " position = " + position);
                             mDeleteLogs.add(logInfo);
                         } else {
-                            Log.d(TAG, "remove1 = " + logInfo.getLogId() + " position = " + position);
+                            Log.d(TAG, "remove logid = " + logInfo.getLogId() + " position = " + position);
                             mDeleteLogs.remove(logInfo);
                         }
                     }
@@ -466,7 +476,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         @Override
         public int getItemCount() {
-            LogUtil.d(TAG, "mHeaderView : " + (mHeaderView == null) + " mFooterView : " + (mFooterView == null));
             if (mHeaderView == null && mFooterView == null) {
                 return mLogList.size();
             } else if (mHeaderView == null && mFooterView != null) {

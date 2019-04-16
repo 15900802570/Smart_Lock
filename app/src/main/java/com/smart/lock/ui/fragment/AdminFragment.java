@@ -1,5 +1,6 @@
 package com.smart.lock.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -37,6 +39,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,11 +52,11 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     private RecyclerView mUsersRv;
     private AdminAdapter mAdminAdapter;
     private LinearLayoutManager mLinerLayoutManager;
-    private Button mAddUserBtn;
+    private TextView mAddUserTv;
     private RelativeLayout mSelectDeleteRl;
-    private TextView mChoiseMumTv;
-    private Button mSelectBtn;
-    private Button mDeleteBtn;
+    private CheckBox mSelectCb;
+    private TextView mTipTv;
+    private TextView mDeleteTv;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,7 +65,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_add:
+            case R.id.tv_add:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mAdminView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
                 if (users != null && users.size() >= 5) {
                     showMessage(mAdminView.getContext().getResources().getString(R.string.administrator) + mAdminView.getContext().getResources().getString(R.string.add_user_tips));
@@ -75,36 +78,22 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     mBleManagerHelper.getBleCardService().sendCmd11((byte) 1, (short) 0);
                 }
                 break;
-            case R.id.btn_select_all:
-                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
-
-                if ((int) mSelectBtn.getTag() == R.string.all_election) {
-                    ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mAdminView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
-                    mAdminAdapter.mDeleteUsers.clear();
-                    int index = -1;
-                    for (DeviceUser user : deleteUsers) {
-                        if (user.getUserId() == mDefaultUser.getUserId()) {
-                            index = deleteUsers.indexOf(user);
-                        }
-                    }
-                    if (index != -1) {
-                        deleteUsers.remove(index);
-                    }
-                    mAdminAdapter.mDeleteUsers.addAll(deleteUsers);
-                    mAdminAdapter.chioseALLDelete(true);
-                    mSelectBtn.setText(R.string.cancel);
-                    mSelectBtn.setTag(R.string.cancel);
-                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
-                    mAdminAdapter.mDeleteUsers.clear();
-                    mSelectBtn.setText(R.string.all_election);
-                    mAdminAdapter.chioseALLDelete(false);
-                    mSelectBtn.setTag(R.string.all_election);
-                }
-                mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
-                mAdminAdapter.notifyDataSetChanged();
-                break;
-            case R.id.btn_delete:
-
+//            case R.id.cb_selete_user:
+//                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
+//
+//                if ((int) mSelectBtn.getTag() == R.string.all_election) {
+//
+//                    mSelectBtn.setText(R.string.cancel);
+//                    mSelectBtn.setTag(R.string.cancel);
+//                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
+//                    mMumberAdapter.mDeleteUsers.clear();
+//                    mSelectBtn.setText(R.string.all_election);
+//                    mMumberAdapter.chioseALLDelete(false);
+//                    mSelectBtn.setTag(R.string.all_election);
+//                }
+//                mMumberAdapter.notifyDataSetChanged();
+//                break;
+            case R.id.del_tv:
                 if (mAdminAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
@@ -113,7 +102,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     }
                     closeDialog(10);
                 } else {
-                    showMessage(getString(R.string.plz_choise_del_log));
+                    showMessage(getString(R.string.plz_choise_del_user));
                 }
 
                 break;
@@ -143,12 +132,11 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     public View initView() {
         mAdminView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
         mUsersRv = mAdminView.findViewById(R.id.rv_users);
-        mAddUserBtn = mAdminView.findViewById(R.id.btn_add);
+        mAddUserTv = mAdminView.findViewById(R.id.tv_add);
         mSelectDeleteRl = mAdminView.findViewById(R.id.rl_select_delete);
-        mChoiseMumTv = mAdminView.findViewById(R.id.tv_select_num);
-        mSelectBtn = mAdminView.findViewById(R.id.btn_select_all);
-        mSelectBtn.setTag(R.string.all_election);
-        mDeleteBtn = mAdminView.findViewById(R.id.btn_delete);
+        mSelectCb = mAdminView.findViewById(R.id.cb_selete_user);
+        mDeleteTv = mAdminView.findViewById(R.id.del_tv);
+        mTipTv = mAdminView.findViewById(R.id.tv_tips);
         return mAdminView;
     }
 
@@ -162,10 +150,10 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         mUsersRv.setLayoutManager(mLinerLayoutManager);
         mUsersRv.setItemAnimator(new DefaultItemAnimator());
         mUsersRv.setAdapter(mAdminAdapter);
-
+        mUsersRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
         LocalBroadcastManager.getInstance(mAdminView.getContext()).registerReceiver(userReciver, intentFilter());
 
-        mAddUserBtn.setText(R.string.create_user);
+        mAddUserTv.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
 
         mLoadDialog = DialogUtils.createLoadingDialog(mAdminView.getContext(), getResources().getString(R.string.data_loading));
@@ -174,9 +162,35 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     }
 
     private void initEvent() {
-        mAddUserBtn.setOnClickListener(this);
-        mSelectBtn.setOnClickListener(this);
-        mDeleteBtn.setOnClickListener(this);
+        mAddUserTv.setOnClickListener(this);
+        mSelectCb.setOnClickListener(this);
+        mDeleteTv.setOnClickListener(this);
+        mSelectCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mAdminView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+                mAdminAdapter.mDeleteUsers.clear();
+                if (isChecked) {
+                    mTipTv.setText(R.string.cancel);
+                    int index = -1;
+                    for (DeviceUser user : deleteUsers) {
+                        if (user.getUserId() == mDefaultUser.getUserId()) {
+                            index = deleteUsers.indexOf(user);
+                        }
+                    }
+                    if (index != -1) {
+                        deleteUsers.remove(index);
+                    }
+                    mAdminAdapter.mDeleteUsers.addAll(deleteUsers);
+                    mAdminAdapter.chioseALLDelete(true);
+                } else {
+                    mTipTv.setText(R.string.all_election);
+                    mAdminAdapter.chioseALLDelete(false);
+                }
+                mAdminAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private static IntentFilter intentFilter() {
@@ -400,24 +414,26 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             if (delIndex != -1) {
                 mDeleteUsers.remove(delIndex);
             }
-            mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onBindViewHolder(@NonNull final AdminViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.unenable));
+                    holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.normal));
+                    holder.mUserStateTv.setText(mContext.getString(R.string.normal));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
                     mSwipelayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.pause));
+                    holder.mUserStateTv.setText(mContext.getString(R.string.pause));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
@@ -425,9 +441,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.invalid));
                     mSwipelayout.setRightSwipeEnabled(false);
                 }
-                holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+                holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
 
-                final AlertDialog editDialog = DialogUtils.showEditDialog(mAdminView.getContext(), mContext.getString(R.string.modify_note_name), userInfo);
+                final AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -439,7 +455,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            LogUtil.d(TAG, "holder.mNameTv = " + holder.mNameTv.getText().toString());
                             holder.mNameTv.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
                         }
                     });
@@ -475,11 +490,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     public void onClick(View v) {
                         if (holder.mDeleteCb.isChecked()) {
                             mDeleteUsers.add(userInfo);
-
                         } else {
                             mDeleteUsers.remove(userInfo);
                         }
-                        mChoiseMumTv.setText(String.valueOf(mAdminAdapter.mDeleteUsers.size()));
                     }
                 });
 

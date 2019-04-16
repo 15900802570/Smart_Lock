@@ -27,6 +27,7 @@ import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SystemUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -97,6 +98,8 @@ public class BleCardService extends Service {
     public static final int ATT_MTU_MAX = 517;
     public static final int ATT_MTU_MIN = 23;
 
+    private long mStartTime = 0, mEndTime = 0;
+
     // Implements callback methods for GATT events that the app cares about. For
     // example,
     // connection change and services discovered.
@@ -104,6 +107,7 @@ public class BleCardService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                mStartTime = System.currentTimeMillis();
                 mConnectionState = STATE_CONNECTED;
 
                 Log.i(TAG, "Connected to GATT server.");
@@ -112,6 +116,8 @@ public class BleCardService extends Service {
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_CONNECTED);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i(TAG, "refresh ble :" + refreshDeviceCache());
+                mEndTime = System.currentTimeMillis();
+                LogUtil.d(TAG, "connect to disconnect : " + (mEndTime - mStartTime));
                 mConnectionState = STATE_DISCONNECTED;
                 mBleChannel.changeChannelState(mBleChannel.STATUS_CHANNEL_WAIT);
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -126,7 +132,7 @@ public class BleCardService extends Service {
 
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_SERVICES_DISCOVERED);
 
-                LogUtil.d(TAG, "mBluetoothGatt = " + gatt.hashCode() + "gatt service size is" + gatt.getServices().size());
+                LogUtil.d(TAG, "mBluetoothGatt = " + gatt.hashCode() + "gatt service size is " + gatt.getServices().size());
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -148,6 +154,7 @@ public class BleCardService extends Service {
             Log.w(TAG, "onCharacteristicChanged()");
 
             if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
+                LogUtil.d(TAG,"characteristic.getValue() length : " + characteristic.getValue().length);
                 mBleProvider.onReceiveBle(characteristic.getValue());
             }
         }

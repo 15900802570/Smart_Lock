@@ -11,8 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/x25dp"
-        android:layout_marginTop="@dimen/y28dp"
-        android:layout_marginBottom="@dimen/y28dp"
+        android:layout_centerVertical="true"
         android:gravity="center_vertical"
         android:text="@string/lock_settings"
         android:textColor="#ff000000"
@@ -20,16 +19,15 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="@dimen/y40dp"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="@dimen/x25dp"
+        android:layout_marginEnd="@dimen/x25dp"
         android:id="@+id/ll_next_activity">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-
             android:src="@drawable/ic_next_activity"/>
     </LinearLayout>
 

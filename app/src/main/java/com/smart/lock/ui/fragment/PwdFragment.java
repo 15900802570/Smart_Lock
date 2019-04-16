@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -15,7 +16,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +34,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
 
     private View mPwdView;
     private RecyclerView mListView;
-    protected Button mAddBtn;
+    protected TextView mAddTv;
 
     private PwdManagerAdapter mPwdAdapter;
     private boolean mIsVisibleFragment = false;
@@ -55,7 +56,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_add:
+            case R.id.tv_add:
                 int count = DeviceKeyDao.getInstance(mPwdView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
                 if (count >= 0 && count < 1) {
                     Bundle bundle = new Bundle();
@@ -76,7 +77,9 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public View initView() {
         mPwdView = View.inflate(mActivity, R.layout.fragment_device_key, null);
-        mAddBtn = mPwdView.findViewById(R.id.btn_add);
+        mAddTv = mPwdView.findViewById(R.id.tv_add);
+        Drawable top = getResources().getDrawable(R.mipmap.btn_add_password);
+        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top , null, null);
         mListView = mPwdView.findViewById(R.id.rv_key);
         return mPwdView;
     }
@@ -99,10 +102,11 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         mListView.setLayoutManager(new LinearLayoutManager(mPwdView.getContext(), LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mPwdAdapter);
+        mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
         LogUtil.d(TAG, "tempUser 1= " + (mTempUser == null ? true : mTempUser.toString()));
 
-        mAddBtn.setVisibility(View.VISIBLE);
-        mAddBtn.setText(R.string.add_password);
+        mAddTv.setVisibility(View.VISIBLE);
+        mAddTv.setText(R.string.add_password);
 
         initEvent();
 
@@ -112,7 +116,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     }
 
     private void initEvent() {
-        mAddBtn.setOnClickListener(this);
+        mAddTv.setOnClickListener(this);
     }
 
     private static IntentFilter intentFilter() {
@@ -219,7 +223,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
             LogUtil.d(TAG, "pwdInfo = " + pwdInfo.toString());
             if (pwdInfo != null) {
                 viewHolder.mNameTv.setText(pwdInfo.getKeyName());
-                viewHolder.mType.setImageResource(R.mipmap.record_pwd);
+                viewHolder.mType.setImageResource(R.mipmap.icon_pwd);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(pwdInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override

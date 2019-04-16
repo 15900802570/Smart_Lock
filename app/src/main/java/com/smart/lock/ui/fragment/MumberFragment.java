@@ -19,7 +19,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -30,6 +32,7 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
@@ -37,6 +40,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,11 +53,11 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
     private RecyclerView mUsersRv;
     private MumberAdapter mMumberAdapter;
     private LinearLayoutManager mLinerLayoutManager;
-    private Button mAddUserBtn;
+    private TextView mAddUserTv;
     private RelativeLayout mSelectDeleteRl;
-    private TextView mChoiseMumTv;
-    private Button mSelectBtn;
-    private Button mDeleteBtn;
+    private CheckBox mSelectCb;
+    private TextView mTipTv;
+    private TextView mDeleteTv;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,9 +66,8 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_add:
+            case R.id.tv_add:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mMumberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
-                LogUtil.d(TAG, "users.size() = " + users.size());
                 if (users.size() >= 90) {
                     showMessage(mMumberView.getContext().getResources().getString(R.string.members) + mMumberView.getContext().getResources().getString(R.string.add_user_tips));
                     return;
@@ -76,35 +79,22 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     mBleManagerHelper.getBleCardService().sendCmd11((byte) 2, (short) 0);
                 }
                 break;
-            case R.id.btn_select_all:
-                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
-
-                if ((int) mSelectBtn.getTag() == R.string.all_election) {
-                    ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mMumberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
-                    mMumberAdapter.mDeleteUsers.clear();
-                    int index = -1;
-                    for (DeviceUser user : deleteUsers) {
-                        if (user.getUserId() == mDefaultUser.getUserId()) {
-                            index = deleteUsers.indexOf(user);
-                        }
-                    }
-                    if (index != -1) {
-                        deleteUsers.remove(index);
-                    }
-                    mMumberAdapter.mDeleteUsers.addAll(deleteUsers);
-                    mMumberAdapter.chioseALLDelete(true);
-                    mSelectBtn.setText(R.string.cancel);
-                    mSelectBtn.setTag(R.string.cancel);
-                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
-                    mMumberAdapter.mDeleteUsers.clear();
-                    mSelectBtn.setText(R.string.all_election);
-                    mMumberAdapter.chioseALLDelete(false);
-                    mSelectBtn.setTag(R.string.all_election);
-                }
-                mChoiseMumTv.setText(String.valueOf(mMumberAdapter.mDeleteUsers.size()));
-                mMumberAdapter.notifyDataSetChanged();
-                break;
-            case R.id.btn_delete:
+//            case R.id.cb_selete_user:
+//                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
+//
+//                if ((int) mSelectBtn.getTag() == R.string.all_election) {
+//
+//                    mSelectBtn.setText(R.string.cancel);
+//                    mSelectBtn.setTag(R.string.cancel);
+//                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
+//                    mMumberAdapter.mDeleteUsers.clear();
+//                    mSelectBtn.setText(R.string.all_election);
+//                    mMumberAdapter.chioseALLDelete(false);
+//                    mSelectBtn.setTag(R.string.all_election);
+//                }
+//                mMumberAdapter.notifyDataSetChanged();
+//                break;
+            case R.id.del_tv:
                 if (mMumberAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
@@ -114,7 +104,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     }
                     closeDialog(10);
                 } else {
-                    showMessage(getString(R.string.plz_choise_del_log));
+                    showMessage(getString(R.string.plz_choise_del_user));
                 }
 
                 break;
@@ -144,12 +134,11 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
     public View initView() {
         mMumberView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
         mUsersRv = mMumberView.findViewById(R.id.rv_users);
-        mAddUserBtn = mMumberView.findViewById(R.id.btn_add);
+        mAddUserTv = mMumberView.findViewById(R.id.tv_add);
         mSelectDeleteRl = mMumberView.findViewById(R.id.rl_select_delete);
-        mChoiseMumTv = mMumberView.findViewById(R.id.tv_select_num);
-        mSelectBtn = mMumberView.findViewById(R.id.btn_select_all);
-        mSelectBtn.setTag(R.string.all_election);
-        mDeleteBtn = mMumberView.findViewById(R.id.btn_delete);
+        mSelectCb = mMumberView.findViewById(R.id.cb_selete_user);
+        mDeleteTv = mMumberView.findViewById(R.id.del_tv);
+        mTipTv = mMumberView.findViewById(R.id.tv_tips);
         return mMumberView;
     }
 
@@ -163,18 +152,46 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         mUsersRv.setLayoutManager(mLinerLayoutManager);
         mUsersRv.setItemAnimator(new DefaultItemAnimator());
         mUsersRv.setAdapter(mMumberAdapter);
+        mUsersRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
 
         LocalBroadcastManager.getInstance(mMumberView.getContext()).registerReceiver(mumberUserReciver, intentFilter());
-        mAddUserBtn.setText(R.string.create_user);
+        mAddUserTv.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
         mLoadDialog = DialogUtils.createLoadingDialog(mMumberView.getContext(), getResources().getString(R.string.data_loading));
         initEvent();
+
     }
 
     private void initEvent() {
-        mAddUserBtn.setOnClickListener(this);
-        mSelectBtn.setOnClickListener(this);
-        mDeleteBtn.setOnClickListener(this);
+        mAddUserTv.setOnClickListener(this);
+        mSelectCb.setOnClickListener(this);
+        mDeleteTv.setOnClickListener(this);
+        mSelectCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mMumberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
+                mMumberAdapter.mDeleteUsers.clear();
+                if (isChecked) {
+                    mTipTv.setText(R.string.cancel);
+                    int index = -1;
+                    for (DeviceUser user : deleteUsers) {
+                        if (user.getUserId() == mDefaultUser.getUserId()) {
+                            index = deleteUsers.indexOf(user);
+                        }
+                    }
+                    if (index != -1) {
+                        deleteUsers.remove(index);
+                    }
+                    mMumberAdapter.mDeleteUsers.addAll(deleteUsers);
+                    mMumberAdapter.chioseALLDelete(true);
+                } else {
+                    mTipTv.setText(R.string.all_election);
+                    mMumberAdapter.chioseALLDelete(false);
+                }
+                mMumberAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private static IntentFilter intentFilter() {
@@ -402,7 +419,6 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             if (delIndex != -1) {
                 mDeleteUsers.remove(delIndex);
             }
-            mChoiseMumTv.setText(String.valueOf(mMumberAdapter.mDeleteUsers.size()));
 
         }
 
@@ -416,11 +432,13 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     mSwipelayout.setClickToClose(false);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setText(mMumberView.getContext().getResources().getString(R.string.normal));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
                     mSwipelayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mMumberView.getContext().getResources().getString(R.string.pause));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
@@ -480,7 +498,6 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                         } else {
                             mDeleteUsers.remove(userInfo);
                         }
-                        mChoiseMumTv.setText(String.valueOf(mMumberAdapter.mDeleteUsers.size()));
                     }
                 });
 

@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_btn_setting"
     android:layout_width="match_parent"
     android:layout_height="@dimen/y81dp"
-    android:id="@+id/rl_btn_setting"
-    android:gravity="center"
     android:layout_margin="@dimen/y5dp"
-    android:background="@drawable/selector_button_radius_10">
+    android:background="@drawable/selector_button_radius_10"
+    android:gravity="center">
 
     <TextView
         android:id="@+id/tv_btn_info_des"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/x25dp"
         android:layout_marginRight="@dimen/x25dp"
-        android:layout_marginTop="@dimen/y28dp"
-        android:layout_marginBottom="@dimen/y28dp"
         android:gravity="center_vertical"
         android:text="@string/lock_settings"
         android:textColor="#ff000000"
@@ -24,21 +23,22 @@
         android:id="@+id/ll_btn_setting_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="@dimen/y28dp"
         android:layout_marginBottom="@dimen/y28dp"
-        android:orientation="vertical"
         android:gravity="center"
-        android:paddingRight="@dimen/x30dp">
+        android:orientation="vertical"
+        android:paddingEnd="@dimen/x30dp">
+
         <TextView
             android:id="@+id/btn_setting_des"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@string/unbind"
             android:gravity="center"
+            android:text="@string/unbind"
             android:textColor="@color/lite_blue"
-            android:textSize="@dimen/d17sp"/>
+            android:textSize="@dimen/d17sp" />
     </LinearLayout>
 
 </RelativeLayout>
