@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements
         initView();
         initDate();
         initEvent();
+
         SystemUtils.getScreen(this);
     }
 

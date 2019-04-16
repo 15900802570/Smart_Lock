@@ -68,6 +68,7 @@
     <dimen name="y65dp">43.333dp</dimen>
     <dimen name="y66dp">44.0dp</dimen>
     <dimen name="y67dp">44.667dp</dimen>
+    <dimen name="y_67dp">-44.667dp</dimen>
     <dimen name="y68dp">45.333dp</dimen>
     <dimen name="y69dp">46.0dp</dimen>
     <dimen name="y70dp">46.667dp</dimen>
@@ -109,6 +110,7 @@
     <dimen name="y105dp">70.0dp</dimen>
     <dimen name="y106dp">70.667dp</dimen>
     <dimen name="y107dp">71.333dp</dimen>
+    <dimen name="y_107dp">-71.333dp</dimen>
     <dimen name="y108dp">72.0dp</dimen>
     <dimen name="y109dp">72.667dp</dimen>
     <dimen name="y110dp">73.333dp</dimen>
@@ -119,7 +121,6 @@
     <dimen name="y115dp">76.667dp</dimen>
     <dimen name="y116dp">77.333dp</dimen>
     <dimen name="y117dp">78.0dp</dimen>
-    <dimen name="y_117dp">-78.0dp</dimen>
     <dimen name="y118dp">78.667dp</dimen>
     <dimen name="y119dp">79.333dp</dimen>
     <dimen name="y120dp">80.0dp</dimen>

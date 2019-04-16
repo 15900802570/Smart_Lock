@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/y81dp"
     android:id="@+id/rl_next_activity"
-    android:layout_margin="5dp"
+    android:layout_margin="@dimen/y5dp"
     android:background="@drawable/selector_button_radius_10">
 
     <TextView
         android:id="@+id/tv_next_des"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15.0dip"
-        android:layout_marginTop="20.0dip"
-        android:layout_marginBottom="20.0dip"
+        android:layout_marginLeft="@dimen/x25dp"
+        android:layout_marginTop="@dimen/y28dp"
+        android:layout_marginBottom="@dimen/y28dp"
         android:gravity="center_vertical"
         android:text="@string/lock_settings"
         android:textColor="#ff000000"
-        android:textSize="15.0dip" />
+        android:textSize="@dimen/d17sp" />
     <LinearLayout
-        android:layout_width="50dip"
-        android:layout_height="40dip"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/y40dp"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
+        android:layout_marginRight="@dimen/x25dp"
         android:id="@+id/ll_next_activity">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+
             android:src="@drawable/ic_next_activity"/>
     </LinearLayout>
 

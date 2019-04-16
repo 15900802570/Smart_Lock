@@ -17,7 +17,7 @@
     <RelativeLayout
         android:id="@+id/rl_home"
         android:layout_width="fill_parent"
-        android:layout_height="74dp"
+        android:layout_height="@dimen/y74dp"
         android:layout_alignParentBottom="true">
 
         <RadioGroup
@@ -47,16 +47,16 @@
     <LinearLayout
         android:id="@+id/ll_one_click"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/y131dp"
         android:gravity="center"
         android:layout_alignParentBottom="true">
         <ImageView
             android:id="@+id/one_click_unlock_ib"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingBottom="31dp"
+            android:paddingBottom="@dimen/y31dp"
             android:src="@mipmap/btn_oneclickunlock"
-            android:visibility="gone"/>
+            android:visibility="visible"/>
     </LinearLayout>
 
 

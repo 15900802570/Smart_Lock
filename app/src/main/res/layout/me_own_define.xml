@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/y100dp"
     android:background="@drawable/selector_me_one" >
 
     <ImageView
         android:id="@+id/im_me_define"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
+        android:layout_width="@dimen/x48dp"
+        android:layout_height="@dimen/y48dp"
         android:layout_centerVertical="true"
-        android:layout_marginBottom="21.0dip"
-        android:layout_marginLeft="20.0dip"
-        android:layout_marginTop="21.0dip"
+        android:layout_marginBottom="@dimen/y16dp"
+        android:layout_marginLeft="@dimen/x36dp"
+        android:layout_marginTop="@dimen/y38dp"
         android:adjustViewBounds="true"
         android:src="@mipmap/self_message"/>
 
@@ -20,25 +20,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="9.0dip"
+        android:layout_marginLeft="@dimen/x30dp"
         android:layout_toRightOf="@+id/im_me_define"
         android:gravity="center"
+        android:textColor="#ff676767"
         android:text="个人信息"
-        android:textColor="#ff000000"
-        android:textSize="16.0dip" />
+        android:textSize="@dimen/d20sp" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20.0dip"
+        android:layout_marginRight="@dimen/x32dp"
         android:src="@mipmap/icon_arrow_45_45" />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="0.5dip"
-        android:layout_below="@+id/im_me_define"
+        android:layout_alignParentBottom="true"
         android:background="#30000000" />
 
 </RelativeLayout>
