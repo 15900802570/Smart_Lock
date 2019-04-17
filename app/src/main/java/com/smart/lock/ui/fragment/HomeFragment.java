@@ -297,7 +297,7 @@ public class HomeFragment extends BaseFragment implements
                 }
                 LogUtil.d(TAG, "Default = " + mDefaultDevice + "\n" +
                         "Default user = " + mDefaultUser);
-                if (mDefaultDevice != null & mDefaultUser != null) {
+                if (mDefaultDevice != null && mDefaultUser != null) {
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     Log.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());

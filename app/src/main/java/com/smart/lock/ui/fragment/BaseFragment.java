@@ -235,7 +235,7 @@ public abstract class BaseFragment extends Fragment {
 
         byte[] timeBuf = new byte[4];
         StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
-        System.arraycopy(timeBuf, 0, authBuf, 35, 4);
+        System.arraycopy(timeBuf, 0, authBuf, 27, 4);
 
         Arrays.fill(authBuf, 39, 64, (byte) 0x25);
 

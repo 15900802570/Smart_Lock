@@ -128,6 +128,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     @Override
     public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         mDevManagementAdapter.addItem(deviceInfo);
+        LogUtil.d(TAG,"NewDevice = " + deviceInfo);
         mDevManagementAdapter.notifyDataSetChanged();
     }
 
