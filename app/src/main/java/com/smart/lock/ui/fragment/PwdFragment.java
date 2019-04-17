@@ -186,7 +186,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         public PwdManagerAdapter(Context context) {
             mContext = context;
             mPwdList = DeviceKeyDao.getInstance(mPwdView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD);
-            LogUtil.d(TAG, "mPwdList = " + mPwdList.toString());
         }
 
         public void setDataSource(ArrayList<DeviceKey> pwdList) {

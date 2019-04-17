@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_ll_recycler"
     android:layout_width="fill_parent"
-    android:layout_height="120.0dip"
+    android:layout_height="@dimen/y115dp"
     app:clickToClose="true"
     app:drag_edge="right">
 
@@ -11,12 +11,11 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="120.0dip">
+        android:layout_height="@dimen/y115dp">
 
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_marginBottom="10.0dip"
             app:cardCornerRadius="6.0dip"
             app:cardPreventCornerOverlap="false"
             app:cardUseCompatPadding="true">
@@ -28,24 +27,20 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="80.0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_marginLeft="10.0dip"
-                    android:layout_marginRight="10.0dip"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/x29dp"
+                    android:paddingEnd="@dimen/x25dp">
 
                     <ImageView
                         android:id="@+id/iv_type"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp" />
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@mipmap/icon_pwd" />
 
                 </LinearLayout>
-
-                <View
-                    style="@style/LineVertical"
-                    android:layout_marginTop="10.0dip"
-                    android:layout_marginBottom="10.0dip" />
 
                 <LinearLayout
                     android:layout_width="fill_parent"
@@ -62,26 +57,27 @@
                             android:id="@+id/tv_username"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="20.0dip"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginBottom="5dp"
+                            android:layout_marginTop="@dimen/x25dp"
                             android:background="@drawable/edit_bg"
-                            android:gravity="center_vertical"
                             android:ellipsize="end"
                             android:focusable="true"
                             android:focusableInTouchMode="true"
+                            android:layout_centerVertical="true"
+                            android:gravity="center_vertical"
+                            android:text="@string/password"
                             android:singleLine="true"
-                            android:textColor="#ff5f646e"
-                            android:textSize="17.0sp" />
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/d20sp" />
 
                         <ImageButton
                             android:id="@+id/ib_edit"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
                             android:layout_marginTop="5dp"
                             android:layout_marginBottom="5dp"
-                            android:layout_toRightOf="@+id/tv_username"
+                            android:layout_centerVertical="true"
+                            android:layout_toEndOf="@+id/tv_username"
                             android:background="@drawable/edit_bg"
                             android:src="@mipmap/edit" />
                     </RelativeLayout>
@@ -99,10 +95,9 @@
                             android:id="@+id/tv_create"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="20.0dip"
                             android:text="@string/create_time"
-                            android:textColor="#ff002800"
-                            android:textSize="13.0sp" />
+                            android:textColor="#FF555555"
+                            android:textSize="@dimen/d16sp" />
 
                         <TextView
                             android:id="@+id/tv_create_time"

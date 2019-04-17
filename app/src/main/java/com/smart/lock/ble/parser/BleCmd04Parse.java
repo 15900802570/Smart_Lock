@@ -26,7 +26,7 @@ public class BleCmd04Parse implements BleCommandParse {
     public Message parse(byte[] cmd) {
 
         //计算命令长度
-        int packetLen = (cmd[1]) * 256 + (cmd[2] + 5);
+        int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
 
         byte[] buf = new byte[256];
@@ -39,7 +39,7 @@ public class BleCmd04Parse implements BleCommandParse {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        LogUtil.d(TAG, "buf=" + buf.length + Arrays.toString(buf));
         byte[] batPerscent = new byte[1];
         byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];
@@ -57,13 +57,14 @@ public class BleCmd04Parse implements BleCommandParse {
             userState = new byte[100];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 64);
             System.arraycopy(buf, 84, userState, 0, 100);
+            LogUtil.d(TAG, "userState 1=" + userState.length + Arrays.toString(userState));
         } else {
             tmpPwdSk = new byte[32 * 4];
             userState = new byte[100];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
             System.arraycopy(buf, 148, userState, 0, 100);
+            LogUtil.d(TAG, "userState 2=" + userState.length + Arrays.toString(userState));
         }
-
         return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState);
     }
 

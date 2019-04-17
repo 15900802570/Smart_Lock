@@ -464,7 +464,8 @@ public class BleProvider {
 
         if (isNewCommand()) {
             LogUtil.d(TAG, "command = " + Arrays.toString(command));
-            mPacketLength = (command[1] * 256) + (command[2] + 5);
+            LogUtil.d(TAG, "command [2] : " + command[2]);
+            mPacketLength = (command[1] * 256) + ((command[2] < 0 ? (256 + command[2]) : command[2]) + 5);
 
             Log.i(TAG, "recvResponse() new cmd length = " + mPacketLength);
 

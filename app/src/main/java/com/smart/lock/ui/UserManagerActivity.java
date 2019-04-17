@@ -125,7 +125,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     private void initActionBar() {
         mTitleTv.setText(R.string.permission_manager);
 
-        mUsetSetTb.setNavigationIcon(R.mipmap.icon_arrow_blue_left_45_45);
+        mUsetSetTb.setNavigationIcon(R.mipmap.btn_back);
         mUsetSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

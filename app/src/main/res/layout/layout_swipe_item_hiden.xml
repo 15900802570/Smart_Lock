@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_hide"
-    android:layout_width="150.0dip"
-    android:layout_height="110dp"
-    android:orientation="horizontal"
-    android:paddingBottom="5.0dip"
-    android:paddingTop="5dp">
+    android:layout_width="@dimen/x140dp"
+    android:layout_height="@dimen/y115dp"
+    android:orientation="horizontal">
 
     <LinearLayout
         android:id="@+id/ll_modify"
         android:layout_width="0.0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="@color/colorBlue"
+        android:background="@drawable/box_corners_green_radius_6"
         android:gravity="center">
 
         <TextView
@@ -23,7 +21,7 @@
             android:gravity="center"
             android:text="@string/edit"
             android:textColor="@color/white"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d14sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -31,7 +29,7 @@
         android:layout_width="0.0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="@color/red"
+        android:background="@drawable/box_corners_red_radius_6"
         android:gravity="center">
 
         <TextView
@@ -42,7 +40,7 @@
             android:gravity="center"
             android:text="@string/delete"
             android:textColor="@color/white"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d14sp" />
     </LinearLayout>
 
 </LinearLayout>

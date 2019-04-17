@@ -198,3 +198,7 @@
 
  -dontwarn com.j256.**
  -dontwarn org.bouncycastle.**
+ -dontwarn org.w3c.**
+ -dontwarn net.sf**
+ -dontwarn java.beans.**
+ -dontwarn org.apache.**

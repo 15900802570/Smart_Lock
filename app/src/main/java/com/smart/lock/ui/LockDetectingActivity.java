@@ -71,7 +71,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private EditText mRemarkEt;
     private LinearLayout mRefreshDevLl;
     private RecyclerView mDevList;
-    private FrameLayout mScanDev;
+    private RelativeLayout mScanDev;
     private LinearLayout mScanEmpty;
     private ProgressBar mScanDevBar;
 
@@ -223,16 +223,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
+                mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
-                int size = DeviceUserDao.getInstance(LockDetectingActivity.this).queryUsers(mNodeId, ConstantUtil.DEVICE_MASTER).size();
-                if (size >= 5) {
-                    showMessage(LockDetectingActivity.this.getString(R.string.add_user_tips));
-                    mIsConnected = mBleManagerHelper.getServiceConnection();
-                    if (mIsConnected) {
-                        mBleManagerHelper.getBleCardService().disconnect();
-                    }
-                    return;
-                }
                 if (mMode == SEARCH_LOCK) {
                     mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getResources().getString(R.string.plz_press_setting));
                     mLoadDialog.show();
@@ -247,7 +239,15 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
             // 4.2.3 MSG 12
             if (action.equals(BleMsg.EXTRA_DATA_MSG_12)) {
-
+                int size = DeviceUserDao.getInstance(LockDetectingActivity.this).queryUsers(mNodeId, ConstantUtil.DEVICE_MASTER).size();
+                if (size >= 5) {
+                    showMessage(LockDetectingActivity.this.getString(R.string.add_user_tips));
+                    mIsConnected = mBleManagerHelper.getServiceConnection();
+                    if (mIsConnected) {
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
+                    return;
+                }
                 String userId = StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID));
                 LogUtil.d(TAG, "userId = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_USER_ID)));
                 byte[] nodeIdBuf = intent.getByteArrayExtra(BleMsg.KEY_NODE_ID);
@@ -398,6 +398,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 R.drawable.progressbar_loading));
         mScanDevBar.setProgressDrawable(getResources().getDrawable(
                 R.drawable.progressbar_loading));
+        mScanDevBar.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -408,6 +409,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 R.mipmap.dialog_loading_img));
         mScanDevBar.setProgressDrawable(getResources().getDrawable(
                 R.mipmap.dialog_loading_img));
+        mScanDevBar.setVisibility(View.GONE);
     }
 
     /**
@@ -510,7 +512,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 break;
             case R.id.btn_confirm:
                 String deviceName = mRemarkEt.getText().toString().trim();
-                mDetectingDevice.setDeviceName((deviceName.equals("") == true) ? getString(R.string.lock_default_name) : deviceName);
+                mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? getString(R.string.lock_default_name) : deviceName));
                 DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
                 if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                     finish();
@@ -579,6 +581,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                             mBluetoothAdapter.stopLeScan(mLeScanCallback);
                         }
                         mBleMac = dev.getAddress();
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getResources().getString(R.string.checking_security));
+                        mLoadDialog.show();
+                        closeDialog(10);
                         detectDevice(dev);
                     }
                 });

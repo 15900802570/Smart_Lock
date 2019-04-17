@@ -271,7 +271,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             final DeviceKey fpInfo = mFpList.get(position);
             LogUtil.d(TAG, "fpInfo = " + fpInfo.toString());
             viewHolder.mNameTv.setText(fpInfo.getKeyName());
-            viewHolder.mType.setImageResource(R.mipmap.record_fingerprint);
+            viewHolder.mType.setImageResource(R.mipmap.icon_fingerprint);
             viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(fpInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
 
             viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {

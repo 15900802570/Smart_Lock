@@ -214,6 +214,10 @@ public class BleManagerHelper {
             } else {
                 LogUtil.d(TAG, "scan dev addr : " + device.getAddress());
                 LogUtil.d(TAG, "mBleMac : " + mBleMac);
+                if (StringUtil.checkIsNull(mBleMac)) {
+                    mBtAdapter.stopLeScan(mLeScanCallback);
+                    return;
+                }
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mBtAdapter.stopLeScan(mLeScanCallback);

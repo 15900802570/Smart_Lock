@@ -8,18 +8,18 @@
     <RelativeLayout
         android:id="@+id/rl_title"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/y81dp"
         android:background="#ffffffff">
 
         <ImageView
             android:id="@+id/iv_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="@color/transparent"
-            android:padding="10.0dip"
-            android:src="@mipmap/icon_arrow_blue_left_45_45" />
+            android:padding="@dimen/x31dp"
+            android:src="@mipmap/btn_back" />
 
         <TextView
             android:id="@+id/tv_message_title"
@@ -30,7 +30,7 @@
             android:padding="10.0dip"
             android:text="@string/lock_detection"
             android:textColor="#ff000000"
-            android:textSize="18.0dip" />
+            android:textSize="@dimen/d18sp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -46,54 +46,134 @@
             android:background="@color/color_bg"
             android:orientation="vertical">
 
-            <FrameLayout
+            <RelativeLayout
                 android:id="@+id/fl_scan_dev"
                 android:layout_width="fill_parent"
-                android:layout_height="240.0dip">
+                android:layout_height="wrap_content">
 
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@mipmap/ic_searching">
+                <!--<RelativeLayout-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:background="@mipmap/ic_searching">-->
 
-                    <TextView
-                        android:id="@+id/tv_scan_lock"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="@string/tv_scan_lock" />
-                </RelativeLayout>
+                <!--<TextView-->
+                <!--android:id="@+id/tv_scan_lock"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerInParent="true"-->
+                <!--android:text="@string/tv_scan_lock" />-->
+                <!--</RelativeLayout>-->
+
+
+                <ImageView
+                    android:id="@+id/iv_lock"
+                    android:layout_width="@dimen/x81dp"
+                    android:layout_height="@dimen/y163dp"
+                    android:layout_marginStart="@dimen/x131dp"
+                    android:layout_marginTop="@dimen/y58dp"
+                    android:layout_marginBottom="@dimen/y41dp"
+                    android:src="@mipmap/icon_ele_lock" />
 
                 <ImageView
                     android:id="@+id/iv_searching"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:src="@mipmap/ic_searching_round" />
-            </FrameLayout>
+                    android:layout_width="@dimen/x58dp"
+                    android:layout_height="@dimen/y58dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/x30dp"
+                    android:layout_toEndOf="@+id/iv_lock"
+                    android:src="@mipmap/icon_refresh" />
+
+                <ImageView
+                    android:id="@+id/iv_shild"
+                    android:layout_width="@dimen/x75dp"
+                    android:layout_height="@dimen/y87dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/x30dp"
+                    android:layout_toEndOf="@+id/iv_searching"
+                    android:src="@mipmap/icon_shield" />
+
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_scan_lock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/tv_scan_lock"
+                android:textColor="#FF515151"
+                android:textSize="@dimen/d21sp" />
+
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/y1dp"
+                android:layout_gravity="bottom|center"
+                android:layout_marginTop="@dimen/x56dp"
+                android:background="@color/color_hint"
+                android:visibility="visible" />
 
             <LinearLayout
                 android:id="@+id/scan_empty"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
+                android:layout_marginTop="@dimen/y46dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:visibility="visible">
 
-                <FrameLayout
-                    android:layout_width="300dp"
-                    android:layout_height="60dp"
-                    android:background="@mipmap/scan_lock_bg">
+                <!--<FrameLayout-->
+                <!--android:layout_width="300dp"-->
+                <!--android:layout_height="60dp"-->
+                <!--android:background="@mipmap/scan_lock_bg">-->
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:text="@string/please_approach_lock"
-                        android:textColor="#ffa7aab0"
-                        android:textSize="13.0sp" />
-                </FrameLayout>
+                <!--<TextView-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_gravity="center_horizontal"-->
+                <!--android:text="@string/please_approach_lock"-->
+                <!--android:textColor="#ffa7aab0"-->
+                <!--android:textSize="13.0sp" />-->
+                <!--</FrameLayout>-->
+
+                <ImageView
+                    android:layout_width="@dimen/x40dp"
+                    android:layout_height="@dimen/y64dp"
+                    android:layout_marginStart="@dimen/x64dp"
+                    android:layout_marginTop="@dimen/y5dp"
+                    android:layout_marginBottom="@dimen/y5dp"
+                    android:src="@mipmap/icon_phone" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x5dp"
+                    android:gravity="center"
+                    android:text="······"
+                    android:textSize="@dimen/d21sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/x5dp"
+                    android:gravity="center"
+                    android:text="@string/please_approach_lock"
+                    android:textSize="@dimen/d21sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/x5dp"
+                    android:gravity="center"
+                    android:text="······"
+                    android:textSize="@dimen/d21sp" />
+
+                <ImageView
+                    android:layout_width="@dimen/x41dp"
+                    android:layout_height="@dimen/y82dp"
+                    android:layout_marginEnd="@dimen/x63dp"
+                    android:src="@mipmap/icon_electronic_lock" />
 
             </LinearLayout>
 
@@ -101,7 +181,7 @@
                 android:id="@+id/refresh_dev_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="@dimen/y5dp"
                 android:background="@color/white"
                 android:orientation="vertical"
                 android:visibility="visible">
@@ -116,15 +196,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:padding="10dp"
                         android:layout_gravity="center_vertical"
+                        android:padding="@dimen/x10dp"
                         android:text="@string/searched_dev"
-                        android:textSize="16dp" />
+                        android:textSize="@dimen/d14sp" />
 
                     <ProgressBar
                         android:id="@+id/pb_scan_ble_dev"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="@dimen/x30dp"
+                        android:layout_height="@dimen/y30dp"
                         android:layout_gravity="center_vertical"
                         android:indeterminateBehavior="repeat"
                         android:indeterminateDrawable="@mipmap/dialog_loading_img"
@@ -150,10 +230,10 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:orientation="vertical"
-                android:paddingLeft="30dip"
-                android:paddingTop="30.0dip"
-                android:paddingRight="30dip"
-                android:paddingBottom="30dip"
+                android:paddingLeft="@dimen/x40dp"
+                android:paddingTop="@dimen/y40dp"
+                android:paddingRight="@dimen/x40dp"
+                android:paddingBottom="@dimen/y40dp"
                 android:visibility="gone">
 
                 <TextView
@@ -161,41 +241,41 @@
                     android:layout_height="wrap_content"
                     android:text="@string/please_check"
                     android:textColor="#99000000"
-                    android:textSize="13.0sp" />
+                    android:textSize="@dimen/d12sp" />
 
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="4.0dip"
+                    android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check1"
                     android:textColor="#99000000"
-                    android:textSize="13.0sp" />
+                    android:textSize="@dimen/d12sp" />
 
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="4.0dip"
+                    android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check2"
                     android:textColor="#99000000"
-                    android:textSize="13.0sp" />
+                    android:textSize="@dimen/d12sp" />
 
                 <TextView
                     android:id="@+id/find_nodevices_check3"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="4.0dip"
+                    android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check3"
                     android:textColor="#99000000"
-                    android:textSize="13.0sp" />
+                    android:textSize="@dimen/d12sp" />
 
                 <TextView
                     android:id="@+id/find_nodevices_last"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="4.0dip"
+                    android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check_end"
                     android:textColor="#99000000"
-                    android:textSize="13.0sp" />
+                    android:textSize="@dimen/d12sp" />
             </LinearLayout>
 
         </LinearLayout>
@@ -204,7 +284,7 @@
         <LinearLayout
             android:id="@+id/ll_rescanning"
             android:layout_width="fill_parent"
-            android:layout_height="60.0dip"
+            android:layout_height="@dimen/y60dp"
             android:layout_alignParentBottom="true"
             android:orientation="horizontal"
             android:visibility="gone">
@@ -212,14 +292,15 @@
             <Button
                 android:id="@+id/btn_rescanning"
                 android:layout_width="match_parent"
-                android:layout_height="40.0dip"
+                android:layout_height="@dimen/y50dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="16.0dip"
-                android:layout_marginRight="8.0dip"
+                android:layout_marginStart="@dimen/x16dp"
+                android:layout_marginEnd="@dimen/x8dp"
+                android:layout_marginBottom="@dimen/y10dp"
                 android:background="@drawable/selector_add_device_scan_btn_new"
                 android:text="@string/rescanning"
                 android:textColor="@color/blue2"
-                android:textSize="14.0sp" />
+                android:textSize="@dimen/d13sp" />
 
         </LinearLayout>
     </RelativeLayout>
@@ -230,62 +311,62 @@
         android:layout_height="fill_parent"
         android:background="@color/white"
         android:orientation="vertical"
-        android:paddingLeft="17.0dip"
-        android:paddingRight="17.0dip"
+        android:paddingStart="@dimen/x17dp"
+        android:paddingEnd="@dimen/x17dp"
         android:visibility="gone">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="55.0dip"
+            android:layout_marginTop="@dimen/y55dp"
             android:src="@mipmap/ic_success" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16.0dip"
+            android:layout_marginTop="@dimen/y16dp"
             android:text="@string/toast_add_lock_success"
             android:textColor="@color/black"
-            android:textSize="18.0sp" />
+            android:textSize="@dimen/d16sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="16.0dip"
+            android:layout_marginTop="@dimen/y16dp"
             android:text="@string/plz_set_lock_name"
             android:textColor="@color/color_text"
-            android:textSize="16.0sp" />
+            android:textSize="@dimen/d15sp" />
 
         <EditText
             android:id="@+id/et_remark"
             android:layout_width="fill_parent"
-            android:layout_height="50.0dip"
-            android:layout_marginTop="18.0dip"
+            android:layout_height="@dimen/y70dp"
+            android:layout_marginTop="@dimen/y18dp"
             android:background="@drawable/box_corners_transparent"
-            android:drawableLeft="@mipmap/lock"
-            android:drawablePadding="15.0dip"
+            android:drawableStart="@mipmap/lock"
+            android:drawablePadding="@dimen/x15dp"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:hint="@string/lock_default_name"
             android:maxLength="20"
             android:maxLines="1"
-            android:paddingLeft="10.0dip"
+            android:paddingStart="@dimen/x10dp"
             android:singleLine="true"
-            android:textSize="16.0sp" />
+            android:textSize="@dimen/d15sp" />
 
 
         <Button
             android:id="@+id/btn_confirm"
             android:layout_width="fill_parent"
-            android:layout_height="48.0dip"
-            android:layout_marginTop="30.0dip"
+            android:layout_height="@dimen/y58dp"
+            android:layout_marginTop="@dimen/y30dp"
             android:background="@drawable/selector_btn"
             android:text="@string/confirm"
             android:textColor="@color/white"
-            android:textSize="17.0sp" />
+            android:textSize="@dimen/d16sp" />
 
     </LinearLayout>
 </LinearLayout>

@@ -159,6 +159,10 @@
         <item name="tabBackground">@drawable/tab_background</item>
     </style>
 
+    <style name="TabLayoutTextStyle">
+        <item name="android:textSize">@dimen/d20sp</item>
+    </style>
+
     <!--自定义Dialog-->
     <style name="CustomDialog" parent="Theme.AppCompat.Dialog">
         <item name="android:backgroundDimEnabled">true</item><!--true 屏幕变暗-->

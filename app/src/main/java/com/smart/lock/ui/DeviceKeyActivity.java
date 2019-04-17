@@ -129,7 +129,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private void initActionBar() {
         mTitleTv.setText(R.string.unlock_key);
 
-        mUsetSetTb.setNavigationIcon(R.mipmap.icon_arrow_blue_left_45_45);
+        mUsetSetTb.setNavigationIcon(R.mipmap.btn_back);
         mUsetSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,8 +153,8 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
      */
     private void initTabLayout() {
         mUserPermissionTl.setTabMode(TabLayout.MODE_FIXED);
-        mUserPermissionTl.setSelectedTabIndicatorColor(getResources().getColor(android.R.color.holo_blue_dark));
-        mUserPermissionTl.setSelectedTabIndicatorHeight((int) getResources().getDimension(R.dimen.tablayout_indicator_height));
+        mUserPermissionTl.setSelectedTabIndicatorColor(getResources().getColor(R.color.yellow_selete));
+        mUserPermissionTl.setSelectedTabIndicatorHeight(getResources().getDimensionPixelSize(R.dimen.y5dp));
         mUserPermissionTl.setupWithViewPager(mUserPermissionVp);
     }
 

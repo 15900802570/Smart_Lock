@@ -82,7 +82,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         mCardView = View.inflate(mActivity, R.layout.fragment_device_key, null);
         mAddTv = mCardView.findViewById(R.id.tv_add);
         Drawable top = getResources().getDrawable(R.mipmap.btn_add_card);
-        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top , null, null);
+        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
         mListView = mCardView.findViewById(R.id.rv_key);
         return mCardView;
     }
@@ -251,7 +251,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
             LogUtil.d(TAG, "cardInfo = " + cardInfo.toString());
             if (cardInfo != null) {
                 viewHolder.mNameTv.setText(cardInfo.getKeyName());
-                viewHolder.mType.setImageResource(R.mipmap.record_nfc);
+                viewHolder.mType.setImageResource(R.mipmap.icon_card);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(cardInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
