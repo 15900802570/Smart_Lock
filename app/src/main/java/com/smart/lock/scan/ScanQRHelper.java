@@ -17,8 +17,10 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
@@ -45,6 +47,8 @@ public class ScanQRHelper {
     private String mBleMac;
     private String mRandCode;
     private String mTime;
+    private int mStatus = -1;
+    private int unLockTime = 0;
     private Dialog mLoadDialog;
     protected Handler mHandler = new Handler();
     private DeviceInfo mNewDevice;
@@ -166,7 +170,7 @@ public class ScanQRHelper {
             LocalBroadcastManager.getInstance(mActivity).registerReceiver(devCheckReceiver, intentFilter());
             mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
             mLoadDialog.show();
-            closeDialog(10);
+//            closeDialog(10);
             BleManagerHelper.setSk(mBleMac, mRandCode);
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
@@ -193,10 +197,16 @@ public class ScanQRHelper {
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 LogUtil.d(TAG, "array = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_STATUS)));
                 createDeviceUser(Short.parseShort(mUserId, 16));
-                createDevice();
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
-                onAuthenticationSuccess();
+                mStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
+                unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
+                LogUtil.d(TAG,"unLockTime = " + unLockTime);
+                if (unLockTime != 0) {
+                    createDevice();
+                    createDeviceStatus();
+                    mHandler.removeCallbacks(mRunnable);
+                    DialogUtils.closeDialog(mLoadDialog);
+                    onAuthenticationSuccess();
+                }
             }
             if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
                 onAuthenticationFailed();
@@ -217,9 +227,14 @@ public class ScanQRHelper {
     }
 
     private void onAuthenticationFailed() {
+        if (BleManagerHelper.getInstance(mActivity, false).getBleCardService() != null && BleManagerHelper.getInstance(mActivity, false).getServiceConnection()) {
+            BleManagerHelper.getInstance(mActivity, false).getBleCardService().stopSelf();
+        }
+        DialogUtils.closeDialog(mLoadDialog);
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));
         mScanQRResultInterface.onAuthenticationFailed();
     }
+
     /**
      * 打开第三方二维码扫描库
      */
@@ -302,6 +317,36 @@ public class ScanQRHelper {
     }
 
     /**
+     * 创建设备状态
+     */
+    private void createDeviceStatus() {
+        DeviceStatus deviceStatus = DeviceStatusDao.getInstance(mActivity)
+                .queryOrCreateByNodeId(mNodeId);
+        switch (mStatus) {
+            case 0:
+                deviceStatus.setVoicePrompt(false);
+                deviceStatus.setNormallyOpen(false);
+                break;
+            case 1:
+                deviceStatus.setVoicePrompt(false);
+                deviceStatus.setNormallyOpen(true);
+                break;
+            case 2:
+                deviceStatus.setVoicePrompt(true);
+                deviceStatus.setNormallyOpen(false);
+                break;
+            case 3:
+                deviceStatus.setVoicePrompt(true);
+                deviceStatus.setNormallyOpen(true);
+                break;
+            default:
+                break;
+        }
+        deviceStatus.setRolledBackTime(unLockTime);
+        DeviceStatusDao.getInstance(mActivity).updateDeviceStatus(deviceStatus);
+    }
+
+    /**
      * 转成标准MAC地址
      *
      * @param str 未加：的MAC字符串
@@ -344,6 +389,7 @@ public class ScanQRHelper {
 //                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
 
                 Toast.makeText(mActivity, mActivity.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+                onAuthenticationFailed();
             }
 
         }

@@ -56,6 +56,8 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     private static final int REQ_CODE_CAMERA = 1;
     private static final int ACCESS_COARSE_LOCATION = 2;
     private static final int ACCESS_FINE_LOCATION = 3;
+    private static final int READ_EXTERNAL_STORAGE = 4;
+    private static final int WRITE_EXTERNAL_STORAGE = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,12 +139,16 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     public void requestPermissionsSuccess(int callBackCode) {
         Log.d(TAG, "success callBackCode = " + callBackCode);
 
-        if (callBackCode == REQ_CODE_CAMERA) {
+        if (callBackCode == WRITE_EXTERNAL_STORAGE) {
             openNextActivity(WelcomeActivity.this);//打开下一个界面
         } else if (callBackCode == ACCESS_COARSE_LOCATION) {
             mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
         } else if (callBackCode == ACCESS_FINE_LOCATION) {
             mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, REQ_CODE_CAMERA);
+        } else if (callBackCode == REQ_CODE_CAMERA){
+            mPermissionHelper.requestPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE );
+        }  else if (callBackCode == READ_EXTERNAL_STORAGE){
+            mPermissionHelper.requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE );
         }
     }
 
@@ -166,7 +172,9 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
         return new String[]{
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
         };
     }
 

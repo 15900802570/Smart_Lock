@@ -294,6 +294,12 @@ public class DialogUtils {
         window.setGravity(Gravity.CENTER);
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
+        v.findViewById(R.id.dialog_cancel_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tipsDialog.dismiss();
+            }
+        });
 
         return tipsDialog;
     }
