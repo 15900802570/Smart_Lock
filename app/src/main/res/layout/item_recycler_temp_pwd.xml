@@ -2,7 +2,7 @@
 <com.daimajia.swipe.SwipeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="110dp"
+    android:layout_height="@dimen/y115dp"
     android:id="@+id/item_ll_temp_pwd"
     app:clickToClose="true"
     app:drag_edge="right"
@@ -10,15 +10,15 @@
     <include layout="@layout/layout_swipe_item_hidden_share_or_delete"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="110.0dip">
+        android:layout_height="@dimen/y115dp">
 
     <android.support.v7.widget.CardView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginBottom="5.0dip"
-        android:layout_marginLeft="7.0dip"
-        android:layout_marginRight="7.0dip"
-        app:cardCornerRadius="6.0dip"
+        android:layout_marginBottom="@dimen/y5dp"
+        android:layout_marginLeft="@dimen/x10dp"
+        android:layout_marginRight="@dimen/x10dp"
+        app:cardCornerRadius="@dimen/y6dp"
         app:cardUseCompatPadding="true"
         app:cardPreventCornerOverlap="false">
     <LinearLayout
@@ -28,47 +28,47 @@
         android:id="@+id/ll_temp_pwd">
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="35dp"
+        android:layout_height="@dimen/y53dp"
         android:text="@string/temp_pwd_valid"
         android:layout_weight="3"
         android:layout_gravity="center"
         android:gravity="center"
-        android:textSize="20sp"
+        android:textSize="@dimen/d20sp"
         android:src="@mipmap/icon_valid"
         android:id="@+id/iv_temp_pwd_valid"/>
     <View
-        android:layout_height="100dp"
+        android:layout_height="@dimen/y110dp"
         android:layout_width="0.5dip"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:paddingTop="@dimen/y5dp"
+        android:paddingBottom="@dimen/y5dp"
         android:background="@color/line" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingTop="5dp"
+            android:paddingLeft="@dimen/x10dp"
+            android:paddingRight="@dimen/x10dp"
+            android:paddingTop="@dimen/y5dp"
             android:layout_gravity="center"
-            android:paddingBottom="5dp">
+            android:paddingBottom="@dimen/x5dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="15dp">
+                android:paddingBottom="@dimen/y15dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
+                    android:textSize="@dimen/d16sp"
                     android:text="@string/temp_pwd"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
-                    android:textSize="16sp"
+                    android:paddingLeft="@dimen/x15dp"
+                    android:paddingRight="@dimen/x15dp"
+                    android:textSize="@dimen/d16sp"
                     android:id="@+id/tv_temp_pwd"
                     android:text="@string/password"/>
             </LinearLayout>
@@ -81,14 +81,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/temp_pwd_failure_time"
-                        android:textSize="16sp"/>
+                        android:textSize="@dimen/d16sp"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:paddingLeft="15dp"
-                        android:paddingRight="15dp"
+                        android:paddingLeft="@dimen/x15dp"
+                        android:paddingRight="@dimen/x15dp"
                         android:id="@+id/tv_temp_pwd_failure_time"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/d16sp"
                         android:text="2019-02-25 14:19"/>
                 </LinearLayout>
         </LinearLayout>

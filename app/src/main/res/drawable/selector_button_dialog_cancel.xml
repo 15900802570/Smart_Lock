@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_pressed="true"
+        android:drawable="@drawable/box_corners_dialog_cancel_pressed_true"/>
+    <item
+        android:state_pressed="false"
+        android:drawable="@drawable/box_corners_dialog_cancel_pressed_false"/>
+</selector>

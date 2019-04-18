@@ -149,42 +149,50 @@ public class DialogUtils {
         return warningDialog;
     }
 
-    public static Dialog createPromptDialog(final Activity mActivity, String msg, final Class<?> cls) {
+    public static Dialog createEditorDialog(final Context context, String title, String msg) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-        builder.setTitle("提示")
-                .setMessage(msg)
-                .setCancelable(true)
-                .setPositiveButton(mActivity.getResources().getString(R.string.confirm),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (cls != null) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View v = inflater.inflate(R.layout.dialog_editor, null);// 得到加载view
+        LinearLayout layout = v.findViewById(R.id.dialog_editor_ll);  // 加载布局
+        TextView titleTextView = v.findViewById(R.id.dialog_title_tv);
+        EditText editTextView =  v.findViewById(R.id.editor_et);          // 提示文字
 
-                                }
-                            }
-                        })
-                .setNegativeButton(mActivity.getResources().getString(R.string.cancel),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        });
-        Dialog promptDialog = builder.create();
+        titleTextView.setText(title);
+        editTextView.setText(msg);// 设置加载信息
+
+        final Dialog editorDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        editorDialog.setCancelable(true); // 是否可以按“返回键”消失
+        editorDialog.setCanceledOnTouchOutside(true); // 点击加载框以外的区域
+        editorDialog.setContentView(layout, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));// 设置布局
+
         /**
          *将显示Dialog的方法封装在这里面
          */
-        Window window = promptDialog.getWindow();
+        Window window = editorDialog.getWindow();
         WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
         window.setGravity(Gravity.CENTER);
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
-        promptDialog.show();
+        editorDialog.show();
 
-        return promptDialog;
+        v.findViewById(R.id.dialog_cancel_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editorDialog.dismiss();
+            }
+        });
+        v.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editorDialog.dismiss();
+            }
+        });
+
+        return editorDialog;
 
     }
 

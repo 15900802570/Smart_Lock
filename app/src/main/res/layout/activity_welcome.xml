@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/ic_welcome_logo2">
+    android:background="@mipmap/ic_welcome_logo3">
 
     <!-- 倒计时文本 -->
     <TextView

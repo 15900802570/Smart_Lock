@@ -24,6 +24,7 @@ public class DeviceInfoDao {
 
     public static String NODE_ID = "device_nodeId";
     public static String DEVICE_DATE = "device_date";
+    public static String DEVICE_DEFAULT = "device_default";
 
 
     protected DeviceInfoDao(Context context) {

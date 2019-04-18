@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_editor_ll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/x19dp"
+    android:paddingRight="@dimen/x19dp"
+    android:gravity="center"
+    android:background="@color/transparent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/dialog_title_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y67dp"
+            android:gravity="center"
+            android:text="温馨提示"
+            android:textColor="@color/white"
+            android:background="@drawable/box_corners_dialog_title_radius_13"
+            android:textSize="@dimen/d22sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y113dp"
+            android:gravity="center"
+            android:paddingRight="@dimen/x34dp"
+            android:paddingLeft="@dimen/x34dp"
+            android:background="@color/white">
+            <EditText
+                android:id="@+id/editor_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="@dimen/x10dp"
+                android:text="@string/tips"
+                android:maxLines="1"
+                android:textCursorDrawable="@color/alpha_gray"
+                android:background="@drawable/shape_editor"
+                android:textSize="@dimen/d21sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y82dp"
+        android:background="@drawable/box_corners_dialog_btn_radius_13"
+        android:paddingLeft="@dimen/x34dp"
+        android:paddingRight="@dimen/x34dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/dialog_confirm_btn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y57dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_button_dialog_confirm"
+            android:gravity="center"
+            android:layout_marginEnd="@dimen/x14dp"
+            android:onClick="dialogEditOnClick"
+            android:text="@string/confirm"
+            android:textColor="@color/white"/>
+
+        <Button
+            android:id="@+id/dialog_cancel_btn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y57dp"
+            android:layout_marginStart="@dimen/x14dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_button_dialog_cancel"
+            android:gravity="center"
+            android:onClick="dialogEditOnClick"
+            android:text="@string/cancel"
+            android:textColor="@color/white"/>
+    </LinearLayout>
+</LinearLayout>

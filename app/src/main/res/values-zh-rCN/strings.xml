@@ -307,8 +307,9 @@
     <string name="man">男</string>
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
-    <string name = "setting_dev_info">正在设置设备信息</string>
+
     <string name = "no_name">没名字</string>
+
     <string name = "choise_photo">选择头像</string>
     <string name = "camera_shot">拍摄新照片</string>
     <string name = "local_photo">从预置图片中选择</string>
@@ -318,4 +319,5 @@
     <string name="pwd_setting_failed">密码设置失败</string>
 
     <string name="version_download">版本下载中</string>
+    <string name="delete_failed">多设备下默认设备无法删除!</string>
 </resources>

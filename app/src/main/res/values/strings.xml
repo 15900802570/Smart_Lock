@@ -311,4 +311,5 @@
     <string name="device_busy">Device Busy</string>
     <string name="setting_dev_info">Setting up device information</string>
     <string name="version_download">Version Download</string>
+    <string name="delete_failed">Default devices cannot be deleted under multiple devices</string>
 </resources>

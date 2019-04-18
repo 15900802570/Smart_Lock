@@ -17,7 +17,7 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
-        <item name="android:background">@mipmap/ic_welcome_logo</item>
+        <item name="android:background">@mipmap/ic_welcome_logo3</item>
     </style>
 
     <style name="LockScreen">

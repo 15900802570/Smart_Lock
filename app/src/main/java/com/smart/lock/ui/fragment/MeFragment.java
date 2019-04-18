@@ -12,10 +12,12 @@ import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -198,7 +200,8 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 break;
             case R.id.me_center_head_name:
             case R.id.me_edit_name:
-                showEditDialog(mMeView.getContext(), getString(R.string.modify_note_name)).show();
+//                showEditDialog(mMeView.getContext(), getString(R.string.modify_note_name)).show();
+                DialogUtils.createEditorDialog(mActivity, "修改呢称",mNameTv.getText().toString());
                 break;
             case R.id.me_center_head_photo:
 //                mBottomSheetDialog.show();

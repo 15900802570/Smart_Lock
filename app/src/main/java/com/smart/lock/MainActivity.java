@@ -234,4 +234,10 @@ public class MainActivity extends AppCompatActivity implements
     public void onScanQrCode() {
         mScanQRHelper.scanQr();
     }
+
+    public void dialogEditOnClick(View view){
+        if(view.getId() == R.id.dialog_confirm_btn){
+
+        }
+    }
 }
