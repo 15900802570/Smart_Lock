@@ -105,6 +105,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mAboutUsTv.setDes(mMeView.getResources().getString(R.string.about_us));
 
         mAboutUsTv.setImage(R.mipmap.ic_about_us);
+        mAboutUsTv.setVisibility(View.GONE);
         if (mDefaultUser != null) {
             mNameTv.setText(mDefaultUser.getUserName());
         }

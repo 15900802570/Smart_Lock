@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- 背景部分 -->
+    <!-- 形象的表达：bottom left ... 类似于设置 margin -->
+    <item
+        android:left="1dp"
+        android:bottom="1dp">
+        <selector>
+            <item android:state_focused="false" android:state_pressed="true" >
+                <shape android:shape="rectangle" >
+                    <solid android:color="@color/pressed_true"/>
+                    <corners android:radius="6dp" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle" >
+                    <solid android:color="@color/white"/>
+                    <corners android:radius="6dp" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</layer-list>

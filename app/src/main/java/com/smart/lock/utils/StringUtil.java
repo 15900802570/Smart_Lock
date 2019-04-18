@@ -409,4 +409,17 @@ public class StringUtil {
             return diff > 0 ? 1 : -1;
         }
     }
+
+    public static String getBytes(byte[] bytes) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            int res = bytes[i];
+            if (res < 0) {
+                res = 256 + res;
+            }
+            sb.append(res);
+            if (sb.length() > 0 && sb.length() != bytes.length) sb.append(" ");
+        }
+        return sb.toString();
+    }
 }

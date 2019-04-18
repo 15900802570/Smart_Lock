@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/item_ll_recycler"
     android:layout_width="fill_parent"
-    android:layout_height="@dimen/y115dp"
+    android:layout_height="@dimen/y120dp"
     app:clickToClose="true"
     app:drag_edge="right">
 
@@ -11,7 +11,7 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/y115dp">
+        android:layout_height="@dimen/y120dp">
 
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"
@@ -49,20 +49,18 @@
 
                     <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="0.0dip"
-                        android:layout_weight="1.0"
+                        android:layout_height="wrap_content"
                         android:gravity="center_vertical">
 
                         <TextView
                             android:id="@+id/tv_username"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="@dimen/x25dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/y20dp"
                             android:background="@drawable/edit_bg"
                             android:ellipsize="end"
                             android:focusable="true"
                             android:focusableInTouchMode="true"
-                            android:layout_centerVertical="true"
                             android:gravity="center_vertical"
                             android:text="@string/password"
                             android:singleLine="true"
@@ -72,11 +70,9 @@
                         <ImageButton
                             android:id="@+id/ib_edit"
                             android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
-                            android:layout_marginTop="5dp"
-                            android:layout_marginBottom="5dp"
-                            android:layout_centerVertical="true"
+                            android:layout_marginTop="@dimen/y28dp"
                             android:layout_toEndOf="@+id/tv_username"
                             android:background="@drawable/edit_bg"
                             android:src="@mipmap/edit" />
@@ -85,9 +81,7 @@
                     <RelativeLayout
                         android:id="@+id/rl_id"
                         android:layout_width="fill_parent"
-                        android:layout_height="0.0dip"
-                        android:layout_marginTop="5dp"
-                        android:layout_weight="1.0"
+                        android:layout_height="wrap_content"
                         android:gravity="top"
                         android:orientation="horizontal">
 
@@ -103,17 +97,11 @@
                             android:id="@+id/tv_create_time"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="5.0dip"
-                            android:layout_toRightOf="@+id/tv_create"
+                            android:layout_marginStart="@dimen/x5dp"
+                            android:layout_toEndOf="@+id/tv_create"
                             android:textColor="#ff002800"
-                            android:textSize="13.0sp" />
+                            android:textSize="@dimen/d16sp" />
 
-                        <ImageView
-                            android:id="@+id/iv_eyes"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:layout_marginRight="15.0dip" />
                     </RelativeLayout>
                 </LinearLayout>
             </LinearLayout>

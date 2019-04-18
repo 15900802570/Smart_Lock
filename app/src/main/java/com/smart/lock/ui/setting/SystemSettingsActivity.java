@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -70,7 +71,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     private NextActivityDefineView mSetDevInfoNv;
 
-
     private Dialog mPromptDialog;
 
     private Dialog mFingerprintDialog;
@@ -82,8 +82,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     protected DialogFactory mDialog;
 
 
-    private int REQUEST_CODE_NEW_PASSWORD = 1;
-    private int REQUEST_CODE_MODIFY_PASSWORD = 1;
+    private int REQUEST_CODE_PASSWORD = 2;
 
     private EditText mNumPwd1Et;
     private EditText mNumPwd2Et;
@@ -95,7 +94,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private String mBleMac; //蓝牙地址
 
     private Dialog mLoadDialog;
-
+    private Context mCtx;
 
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -193,7 +192,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             LogUtil.e(TAG, "初始化自动连接失败" + e);
             mOpenTestTb.setChecked(false);
         }
-
+        mCtx = this;
         mDialog = DialogFactory.getInstance(this);
         mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
@@ -256,7 +255,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                 intent.putExtra(ConstantUtil.IS_RETURN, true);
                 SystemSettingsActivity.this.startActivityForResult(intent.
-                        putExtra(ConstantUtil.TYPE, ConstantUtil.MODIFY_PASSWORD), REQUEST_CODE_MODIFY_PASSWORD);
+                        putExtra(ConstantUtil.TYPE, ConstantUtil.MODIFY_PASSWORD), REQUEST_CODE_PASSWORD);
                 break;
 
             case R.id.next_check_version:
@@ -308,7 +307,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                 intent.putExtra(ConstantUtil.IS_RETURN, true);
                 SystemSettingsActivity.this.startActivityForResult(intent.
-                        putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), REQUEST_CODE_NEW_PASSWORD);
+                        putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), REQUEST_CODE_PASSWORD);
                 break;
         }
         mPromptDialog.cancel();
@@ -327,7 +326,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                     intent.putExtra(ConstantUtil.IS_RETURN, true);
                     SystemSettingsActivity.this.startActivityForResult(intent.
-                            putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), REQUEST_CODE_NEW_PASSWORD);
+                            putExtra(ConstantUtil.TYPE, ConstantUtil.LOGIN_PASSWORD), REQUEST_CODE_PASSWORD);
                 }
                 break;
 
@@ -400,39 +399,58 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_NEW_PASSWORD) {
-            switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
-                case 1:
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-                    mNumPwdSwitchLightTBtn.setChecked(true);
-                    mNumPwdSwitchTv.setVisibility(View.GONE);
-                    mModifyPwdNv.setVisibility(View.VISIBLE);
-                    mIsPwdRequired = true;
-                    break;
-                case -1:
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
-                    SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                            writeString(ConstantUtil.NUM_PWD, "");
-                    mNumPwdSwitchLightTBtn.setChecked(false);
-                    mIsPwdRequired = false;
-                    if (mIsFP > 1) {
+        if (resultCode == RESULT_OK && data != null) {
+
+            if (requestCode == REQUEST_CODE_SCAN) {
+                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                LogUtil.d(TAG, "content = " + content);
+                String[] dvInfo = content.split(",");
+                if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
+                    mSn = dvInfo[0];
+                    mBleMac = dvInfo[1];
+                    mNodeId = dvInfo[2];
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                    bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                    bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+                    LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
+                            " sn = " + mSn + "\n" +
+                            "mNodeId = " + mNodeId);
+                    BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle,this);
+                } else {
+                    ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
+                }
+            } else if (requestCode == REQUEST_CODE_PASSWORD) {
+                switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
+                    case 1:
                         SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                                writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
-                        mFingerprintSwitchLightTbtn.setChecked(false);
-                        mIsFPRequired = false;
-                    }
-                    break;
-                default:
-                    break;
+                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                        mNumPwdSwitchLightTBtn.setChecked(true);
+                        mNumPwdSwitchTv.setVisibility(View.GONE);
+                        mModifyPwdNv.setVisibility(View.VISIBLE);
+                        mIsPwdRequired = true;
+                        break;
+                    case -1:
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                writeString(ConstantUtil.NUM_PWD, "");
+                        mNumPwdSwitchLightTBtn.setChecked(false);
+                        mIsPwdRequired = false;
+                        if (mIsFP > 1) {
+                            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                                    writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
+                            mFingerprintSwitchLightTbtn.setChecked(false);
+                            mIsFPRequired = false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
-        } else if(requestCode == REQUEST_CODE_NEW_PASSWORD) {
-            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
-                    writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-            mNumPwdSwitchLightTBtn.setChecked(true);
-            mIsPwdRequired = true;
         }
+
     }
 
     @Override

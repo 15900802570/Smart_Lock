@@ -150,6 +150,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         return intentFilter;
     }
 
+    int count = 0;
     private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
@@ -157,6 +158,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
             if (action.equals(BleMsg.STR_RSP_MSG32_LOG)) {
                 final byte[] log = intent.getByteArrayExtra(BleMsg.KEY_LOG);
+                count++;
+                LogUtil.d(TAG, "receiver " + count + " log!");
 
                 byte[] userId = new byte[2];
                 byte[] logId = new byte[4];

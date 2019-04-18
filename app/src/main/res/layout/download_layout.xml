@@ -1,63 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dialog_prompt_view"
+    android:layout_width="@dimen/x503dp"
     android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/white_radius_6"
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/dialog_title"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_height="@dimen/y78dp"
+        android:background="@drawable/top_yellow_radius_6"
         android:gravity="center"
-        android:text="@string/new_version"
-        android:textColor="@android:color/white"
-        android:textSize="20dip" />
+        android:text="@string/version_download"
+        android:textColor="@color/white"
+        android:textSize="@dimen/d26sp" />
 
-    <RelativeLayout
+    <TextView
+        android:id="@+id/dialog_msg"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+        android:layout_marginStart="@dimen/x40dp"
+        android:layout_marginTop="@dimen/y38dp"
+        android:layout_marginEnd="@dimen/x40dp"
+        android:layout_marginBottom="@dimen/y54dp"
+        android:gravity="left"
+        android:padding="2dp"
+        android:textColor="@color/black"
+        android:textSize="@dimen/d20sp" />
 
-        <ProgressBar
-            android:id="@+id/down_pb"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="10dip"
-            android:layout_marginRight="10dip" />
-
-        <TextView
-            android:id="@+id/down_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="@string/downloading"
-            android:textColor="@android:color/black"
-            android:textSize="20sp" />
-    </RelativeLayout>
-
-    <LinearLayout
+    <com.smart.lock.widget.PercentageProgressBar
+        android:id="@+id/down_pb"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/download_tv"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:textColor="@android:color/black"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/down_bt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-    </LinearLayout>
+        android:layout_height="@dimen/y32dp"
+        android:layout_marginStart="@dimen/x40dp"
+        android:layout_marginTop="@dimen/y38dp"
+        android:layout_marginEnd="@dimen/x40dp"
+        android:progressDrawable="@drawable/level_progress_bg"
+        android:layout_marginBottom="@dimen/y59dp" />
 
 </LinearLayout>

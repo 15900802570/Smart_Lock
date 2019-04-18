@@ -241,7 +241,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/please_check"
                     android:textColor="#99000000"
-                    android:textSize="@dimen/d12sp" />
+                    android:textSize="@dimen/d14sp" />
 
                 <TextView
                     android:layout_width="fill_parent"
@@ -249,7 +249,7 @@
                     android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check1"
                     android:textColor="#99000000"
-                    android:textSize="@dimen/d12sp" />
+                    android:textSize="@dimen/d14sp" />
 
                 <TextView
                     android:layout_width="fill_parent"
@@ -257,7 +257,7 @@
                     android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check2"
                     android:textColor="#99000000"
-                    android:textSize="@dimen/d12sp" />
+                    android:textSize="@dimen/d14sp" />
 
                 <TextView
                     android:id="@+id/find_nodevices_check3"
@@ -266,7 +266,7 @@
                     android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check3"
                     android:textColor="#99000000"
-                    android:textSize="@dimen/d12sp" />
+                    android:textSize="@dimen/d14sp" />
 
                 <TextView
                     android:id="@+id/find_nodevices_last"
@@ -275,7 +275,7 @@
                     android:paddingTop="@dimen/y4dp"
                     android:text="@string/please_check_end"
                     android:textColor="#99000000"
-                    android:textSize="@dimen/d12sp" />
+                    android:textSize="@dimen/d14sp" />
             </LinearLayout>
 
         </LinearLayout>
@@ -284,7 +284,7 @@
         <LinearLayout
             android:id="@+id/ll_rescanning"
             android:layout_width="fill_parent"
-            android:layout_height="@dimen/y60dp"
+            android:layout_height="@dimen/y80dp"
             android:layout_alignParentBottom="true"
             android:orientation="horizontal"
             android:visibility="gone">
@@ -296,7 +296,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/x16dp"
                 android:layout_marginEnd="@dimen/x8dp"
-                android:layout_marginBottom="@dimen/y10dp"
+                android:layout_marginBottom="@dimen/y5dp"
                 android:background="@drawable/selector_add_device_scan_btn_new"
                 android:text="@string/rescanning"
                 android:textColor="@color/blue2"

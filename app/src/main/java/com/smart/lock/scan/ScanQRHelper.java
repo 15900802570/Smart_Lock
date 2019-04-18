@@ -175,7 +175,7 @@ public class ScanQRHelper {
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
-            BleManagerHelper.getInstance(mActivity, false).connectBle((byte) 1, bundle);
+            BleManagerHelper.getInstance(mActivity, false).connectBle((byte) 1, bundle,mActivity);
         }
     }
 

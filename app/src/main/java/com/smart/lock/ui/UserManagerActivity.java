@@ -67,7 +67,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     private Runnable mRunnable = new Runnable() {
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
                 DialogUtils.closeDialog(mLoadDialog);
 
                 Toast.makeText(UserManagerActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
@@ -278,8 +277,8 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
      */
     private void initTabLayout() {
         mUserPermissionTl.setTabMode(TabLayout.MODE_FIXED);
-        mUserPermissionTl.setSelectedTabIndicatorColor(getResources().getColor(android.R.color.holo_blue_dark));
-        mUserPermissionTl.setSelectedTabIndicatorHeight((int) getResources().getDimension(R.dimen.tablayout_indicator_height));
+        mUserPermissionTl.setSelectedTabIndicatorColor(getResources().getColor(R.color.yellow_selete));
+        mUserPermissionTl.setSelectedTabIndicatorHeight(getResources().getDimensionPixelSize(R.dimen.y5dp));
         mUserPermissionTl.setupWithViewPager(mUserPermissionVp);
     }
 

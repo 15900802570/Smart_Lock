@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smart.lock.R;
+import com.smart.lock.entity.VersionModel;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
@@ -49,28 +50,27 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
     private String tempPath;
     private String fileName;
     private int versionCode;
-    private Button bt;
-    private ProgressBar pb;
-    private TextView tv;
-    private TextView downloadTv;
+    private PercentageProgressBar pb;
     private boolean isMastDoanload = false;
     private boolean isHaveBackDownload = false;
     private String fileSizeText = null;
     private NotificationManager nm;
     private boolean isSuccess = true;
+    private TextView mVerMsgTv;
+    private VersionModel mModel;
 
     /**
      * 需要下载的文件
      */
     private String url;
 
-    public DownloadDialog(Activity context, String url, int versionCode, boolean isMastdoanload) {
-
+    public DownloadDialog(Activity context, VersionModel model, boolean isMastdoanload) {
         super(context, R.style.AppDialog);
         this.isMastDoanload = isMastdoanload;
         mContext = context;
-        this.url = ConstantUtil.BASE_URL + url;
-        this.versionCode = versionCode;
+        mModel = model;
+        this.url = ConstantUtil.BASE_URL + model.path;
+        this.versionCode = model.versionCode;
         getPath();
         nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         setCancelable(false);
@@ -90,8 +90,8 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
         fileSize = 0;
         if (pb != null)
             pb.setProgress(0);
-        if (tv != null)
-            tv.setText("" + 0 + "%");
+//        if (tv != null)
+//            tv.setText("" + 0 + "%");
         toDoanload();
         listConn();
     }
@@ -116,19 +116,9 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
     }
 
     private void init() {
-        bt = (Button) this.findViewById(R.id.down_bt);
-        bt.setOnClickListener(this);
-        tv = (TextView) this.findViewById(R.id.down_tv);
-        pb = (ProgressBar) this.findViewById(R.id.down_pb);
-        downloadTv = (TextView) this.findViewById(R.id.download_tv);
-        if (isMastDoanload) {
-            LogUtil.i("version", "强制更新");
-            bt.setVisibility(View.GONE);
-        } else {
-            LogUtil.i("version", "非强制更新");
-            bt.setVisibility(View.GONE);
-            bt.setText(mContext.getString(R.string.after_down));
-        }
+        pb = this.findViewById(R.id.down_pb);
+        mVerMsgTv = this.findViewById(R.id.dialog_msg);
+        mVerMsgTv.setText(mModel.msg);
     }
 
     private Timer listNetworkTimer = null;
@@ -280,19 +270,20 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
                     Toast.makeText(mContext, mContext.getString(R.string.ready_download),
                             Toast.LENGTH_SHORT).show();
                     pb.setVisibility(ProgressBar.VISIBLE);
+                    pb.setProgress(0);
                     LogUtil.i(TAG, "一共:" + fileSize);
-                    pb.setMax(fileSize);
+//                    pb.setMax(100);
                     fileSizeText = FileUtil.formatFileSize(fileSize);
                     break;
                 case DOWNLOAD_WORK:
                     LogUtil.i(TAG, "已下载:" + downloadSize);
-                    pb.setProgress(downloadSize);
+//                    pb.setProgress(downloadSize);
                     if (fileSize < 1) {
                         fileSize = 1;
                     }
                     int res = downloadSize * 100 / fileSize;
-                    tv.setText("" + res + "%");
-                    downloadTv.setText(FileUtil.formatFileSize(downloadSize) + "/" + fileSizeText);
+//                    tv.setText("" + res + "%");
+                    pb.setProgress(res);
                     break;
                 case DOWNLOAD_OK:
                     File downFile = new File(path);
@@ -379,12 +370,11 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.down_bt) {
-            if (!isHaveBackDownload) {
-                mContext.moveTaskToBack(true);
-            }
-        } else {
-        }
+//        if (i == R.id.down_bt) {
+//            if (!isHaveBackDownload) {
+//                mContext.moveTaskToBack(true);
+//            }
+//        }
     }
 
     private Thread thread;

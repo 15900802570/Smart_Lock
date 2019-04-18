@@ -223,8 +223,8 @@ public class CheckVersionThread {
 
     public void toDownload(boolean mastDownload) {
         if (downloadDialog == null) {
-            downloadDialog = new DownloadDialog(mContext, downloadUrl,
-                    mVersionAction.respondData.model.versionCode, mastDownload);
+            downloadDialog = new DownloadDialog(mContext,
+                    mVersionAction.respondData.model, mastDownload);
             downloadDialog.setHaveBackDownload(isShowLoadDialog);
             downloadDialog.setOnDownLoadListener(onDownLoadListener);
         }

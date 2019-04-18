@@ -1,5 +1,6 @@
 package com.smart.lock.ble;
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -27,6 +28,7 @@ import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.BleConnectModel;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -110,10 +112,12 @@ public class BleManagerHelper {
     private DeviceUser mDefaultUser; //默认用户
     private DeviceStatus mDefaultStatus; //用户状态
     private IBindServiceCallback mBindServiceCallback; //注册成功回调
+    private Dialog mLoadDialog;
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
             if (mBleModel.getState() == BleConnectModel.BLE_CONNECTION) {
+                DialogUtils.closeDialog(mLoadDialog);
                 mBleModel.setState(BleConnectModel.BLE_DISCONNECTED);
                 mBtAdapter.stopLeScan(mLeScanCallback);
             }
@@ -160,13 +164,17 @@ public class BleManagerHelper {
      *
      * @return
      */
-    public void connectBle(final byte type, Bundle bundle) {
+    public void connectBle(final byte type, Bundle bundle, Context context) {
         mConnectType = type;
         mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
         if (StringUtil.checkIsNull(mBleMac)) {
             return;
         }
         if (mConnectType == 2) {
+            mContext = context;
+            DialogUtils.closeDialog(mLoadDialog);
+            mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.tv_scan_lock));
+            mLoadDialog.show();
             mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
         } else
@@ -206,6 +214,9 @@ public class BleManagerHelper {
                 if (StringUtil.byteArrayToHexStr(imei).equals(nodeId)) {
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.bt_connecting));
+                        mLoadDialog.show();
                         boolean result = mService.connect(device.getAddress());
                         LogUtil.d(TAG, "result = " + result);
 
@@ -382,6 +393,9 @@ public class BleManagerHelper {
             }
 
             if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
+                DialogUtils.closeDialog(mLoadDialog);
+                mHandler.removeCallbacks(mRunnable);
+
                 Log.d(TAG, "UART_DISCONNECT_MSG");
                 MessageCreator.m128AK = null;
                 MessageCreator.m256AK = null;
@@ -398,6 +412,11 @@ public class BleManagerHelper {
             }
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
+                if (mConnectType == 2) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.setting_dev_info));
+                    mLoadDialog.show();
+                }
                 if (mService != null) {
                     Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
                     if (mMode == 0) {

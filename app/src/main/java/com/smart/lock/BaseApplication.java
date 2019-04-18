@@ -30,7 +30,7 @@ public class BaseApplication extends Application implements BleManagerHelper.IBi
         mContext = getApplicationContext();
 
         mBleManagerHelper = BleManagerHelper.getInstance(mContext, false);
-        mBleManagerHelper.registerServiceConnectCallBack(this);
+//        mBleManagerHelper.registerServiceConnectCallBack(this);
 
     }
 
@@ -52,7 +52,7 @@ public class BaseApplication extends Application implements BleManagerHelper.IBi
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, mDefaultDevice.getUserId());
             bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-            mBleManagerHelper.connectBle((byte) 1, bundle);
+            mBleManagerHelper.connectBle((byte) 1, bundle,this);
         }
         LogUtil.d(TAG,"onBindSuccess!");
     }

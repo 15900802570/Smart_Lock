@@ -171,7 +171,7 @@ public class HomeFragment extends BaseFragment implements
                         Bundle bundle = new Bundle();
                         bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
                         bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                        mBleManagerHelper.connectBle((byte) 1, bundle);
+                        mBleManagerHelper.connectBle((byte) 1, bundle, mHomeView.getContext());
                     } else
                         mBleManagerHelper.getBleCardService().disconnect();
                 }
@@ -458,7 +458,7 @@ public class HomeFragment extends BaseFragment implements
             refreshView(UNBIND_DEVICE);
             return;
         }
-        LogUtil.d(TAG,"default ble : " + mDefaultDevice.getBleMac());
+        LogUtil.d(TAG, "default ble : " + mDefaultDevice.getBleMac());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mIsConnected = mBleManagerHelper.getServiceConnection();
         if (!mIsConnected) {
@@ -468,7 +468,7 @@ public class HomeFragment extends BaseFragment implements
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
             bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-            mBleManagerHelper.connectBle((byte) 1, bundle);
+            mBleManagerHelper.connectBle((byte) 1, bundle, mHomeView.getContext());
             mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         } else
             refreshView(BIND_DEVICE);
@@ -508,8 +508,8 @@ public class HomeFragment extends BaseFragment implements
                 Bundle dev = new Bundle();
                 dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
                 dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                LogUtil.d(TAG,"dev = " + dev.toString());
-                mBleManagerHelper.connectBle((byte) 1, dev);
+                LogUtil.d(TAG, "dev = " + dev.toString());
+                mBleManagerHelper.connectBle((byte) 1, dev, mHomeView.getContext());
                 break;
             case R.id.ll_setting:
                 if (mIsConnected) {
@@ -594,7 +594,7 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        LogUtil.d(TAG,"requestCode = " + requestCode);
+        LogUtil.d(TAG, "requestCode = " + requestCode);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUESTCODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

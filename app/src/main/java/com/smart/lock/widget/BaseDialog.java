@@ -76,7 +76,6 @@ public class BaseDialog extends Dialog {
     @Override
     public void cancel() {
         try {
-            // if(isShowing())
             super.cancel();
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,13 +91,10 @@ public class BaseDialog extends Dialog {
         title = findViewById(R.id.dialog_title);
         msg = findViewById(R.id.dialog_msg);
         btOk = findViewById(R.id.confirmBtn);
-//        btOk.setBackgroundResource(R.drawable.gem_short_button);
         btOk.setOnClickListener(okclick);
         btNo = findViewById(R.id.cancelBtn);
-//        btNo.setBackgroundResource(R.drawable.gem_short_button);
         btNo.setOnClickListener(noClick);
         btNo.setVisibility(View.GONE);
-//        btOk.setBackgroundResource(R.drawable.gem_long_button);
     }
 
     @Override
@@ -134,15 +130,14 @@ public class BaseDialog extends Dialog {
 //                btOk.setBackgroundResource(R.drawable.gem_short_button);
 //                btNo.setBackgroundResource(R.drawable.gem_short_button);
 
-                LayoutParams btOkLin = new LayoutParams(
-                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-//                btOkLin.setMargins(ps, ps, SystemUtils.dipToPx(mContext, 4), ps);
-                btOk.setLayoutParams(btOkLin);
-
-                LayoutParams btNoLin = new LayoutParams(
-                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-//                btNoLin.setMargins(SystemUtils.dipToPx(mContext, 4), ps, ps, ps);
-                btNo.setLayoutParams(btNoLin);
+//                LayoutParams btOkLin = new LayoutParams(
+//                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
+//                btOk.setLayoutParams(btOkLin);
+//
+//                LayoutParams btNoLin = new LayoutParams(
+//                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
+////                btNoLin.setMargins(SystemUtils.dipToPx(mContext, 4), ps, ps, ps);
+//                btNo.setLayoutParams(btNoLin);
                 break;
         }
     }

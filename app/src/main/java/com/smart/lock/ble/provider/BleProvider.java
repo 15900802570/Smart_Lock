@@ -42,6 +42,7 @@ import com.smart.lock.ble.parser.BleCmd32Parse;
 import com.smart.lock.ble.parser.BleCmd3EParse;
 import com.smart.lock.ble.parser.BleCommandParse;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -463,8 +464,7 @@ public class BleProvider {
     private void parseBle(byte[] command, BleMessageListener bleMsgListener) {
 
         if (isNewCommand()) {
-            LogUtil.d(TAG, "command = " + Arrays.toString(command));
-            LogUtil.d(TAG, "command [2] : " + command[2]);
+            LogUtil.d(TAG, "command = " + StringUtil.getBytes(command));
             mPacketLength = (command[1] * 256) + ((command[2] < 0 ? (256 + command[2]) : command[2]) + 5);
 
             Log.i(TAG, "recvResponse() new cmd length = " + mPacketLength);

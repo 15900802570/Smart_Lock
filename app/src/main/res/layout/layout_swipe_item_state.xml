@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_hide"
-    android:layout_width="75.0dip"
-    android:layout_height="80dp"
+    android:layout_width="@dimen/x70dp"
+    android:layout_height="@dimen/y115dp"
     android:orientation="horizontal"
-    android:paddingTop="5dp"
-    android:paddingBottom="5.0dip">
+    android:paddingTop="@dimen/y5dp"
+    android:paddingBottom="@dimen/y2dp">
 
     <LinearLayout
         android:id="@+id/ll_pause"
         android:layout_width="0.0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="@color/colorBlue"
+        android:background="@drawable/box_corners_yellow_radius_6"
         android:gravity="center">
 
         <TextView
@@ -23,7 +23,7 @@
             android:gravity="center"
             android:text="@string/pause"
             android:textColor="@color/white"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d14sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -31,7 +31,7 @@
         android:layout_width="0.0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="@color/orange"
+        android:background="@drawable/box_corners_blue_radius_6"
         android:gravity="center">
 
         <TextView
@@ -42,7 +42,7 @@
             android:gravity="center"
             android:text="@string/recovery"
             android:textColor="@color/white"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d14sp" />
     </LinearLayout>
 
 

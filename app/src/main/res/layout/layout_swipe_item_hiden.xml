@@ -2,15 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_hide"
     android:layout_width="@dimen/x140dp"
-    android:layout_height="@dimen/y115dp"
-    android:orientation="horizontal">
+    android:layout_height="@dimen/y120dp"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/y5dp">
 
     <LinearLayout
         android:id="@+id/ll_modify"
         android:layout_width="0.0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="@drawable/box_corners_green_radius_6"
+        android:background="@drawable/green_left_radius_6"
         android:gravity="center">
 
         <TextView
@@ -29,7 +30,7 @@
         android:layout_width="0.0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1.0"
-        android:background="@drawable/box_corners_red_radius_6"
+        android:background="@drawable/red_right_radius_6"
         android:gravity="center">
 
         <TextView
