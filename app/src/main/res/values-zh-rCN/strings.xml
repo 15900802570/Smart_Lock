@@ -268,6 +268,13 @@
     <string name="down_finish">下载完成 </string>
     <string name="down_alert"> 下载提示 </string>
 
+    <string name="recovery_user_success">恢复用户成功</string>
+    <string name="recovery_user_failed">恢复用户失败</string>
+    <string name="delete_key_success">删除用户信息成功</string>
+    <string name="delete_key_failed">群删用户信息失败</string>
+    <string name="delete_users_success">群删用户成功</string>
+    <string name="delete_users_failed">群删用户失败</string>
+
     <string name="fix_alert">已经下载完成,点击安装 </string>
     <string name="friend_tip_title">温馨提示 </string>
     <string name="dialog_load_data">正在加载数据 </string>

@@ -31,7 +31,7 @@ public class MessageCreator {
 
     public static byte pwdRandom[] = new byte[16]; //随机数
 
-    public static boolean mIs128Code = true; //false 256
+    public static boolean mIs128Code = false; //false 256
 
     public static byte m256AK[] = new byte[32];//256会话秘钥
 

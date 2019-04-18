@@ -30,7 +30,7 @@
             android:layout_centerVertical="true"
             android:onClick="onClick"
             android:paddingStart="@dimen/x15dp"
-            android:src="@drawable/icon_arrow_blue_left" />
+            android:src="@mipmap/btn_back" />
     </RelativeLayout>
 
     <View
