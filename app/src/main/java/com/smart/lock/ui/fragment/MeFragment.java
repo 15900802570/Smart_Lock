@@ -2,6 +2,7 @@
 package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,12 +13,10 @@ import android.provider.MediaStore;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,6 +58,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private TextView mCancelTv;
 
     private BottomSheetDialog mBottomSheetDialog; //头像选择
+    private Dialog mEditorNameDialog;
 
 
     public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +90,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         } else {
             mNameTv.setText(mUserProfile.getUserName());
         }
+        mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_name), mNameTv.getText().toString());
         initEvent();
         return mMeView;
     }
@@ -171,6 +172,17 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mGalleryPhotoTv.setOnClickListener(this);
         mNameTv.setOnClickListener(this);
         mCancelTv.setOnClickListener(this);
+        //修改呢称响应事件
+        mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String newName = ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                mNameTv.setText(newName);
+                mUserProfile.setUserName(newName);
+                UserProfileDao.getInstance(mActivity).update(mUserProfile);
+                mEditorNameDialog.dismiss();
+            }
+        });
     }
 
     /**
@@ -200,8 +212,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 break;
             case R.id.me_center_head_name:
             case R.id.me_edit_name:
-//                showEditDialog(mMeView.getContext(), getString(R.string.modify_note_name)).show();
-                DialogUtils.createEditorDialog(mActivity, "修改呢称",mNameTv.getText().toString());
+                mEditorNameDialog.show();
                 break;
             case R.id.me_center_head_photo:
 //                mBottomSheetDialog.show();
