@@ -317,4 +317,5 @@
     <string name = "set_dev_info">设置设备信息</string>
     <string name="pwd_setting_successfully">密码设置成功</string>
     <string name="pwd_setting_failed">密码设置失败</string>
+    <string name="delete_failed">多设备下默认设备无法删除!</string>
 </resources>

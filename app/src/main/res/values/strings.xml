@@ -309,4 +309,5 @@
     <string name="delete_fp_failed">Delete Fingerprint Failed</string>
     <string name="fp_full">Fingerprint Full</string>
     <string name="device_busy">Device Busy</string>
+    <string name="delete_failed">Default devices cannot be deleted under multiple devices</string>
 </resources>

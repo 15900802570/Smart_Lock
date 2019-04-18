@@ -220,8 +220,12 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        if (deviceInfo.getDeviceDefault()) {
+                        DeviceInfo default_nor =DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
+                        if(deviceInfo.getDeviceDefault() & default_nor != null){
+                            ToastUtil.showLong(DeviceManagementActivity.this,R.string.delete_failed);
+                            mDevManagementAdapter.notifyDataSetChanged();
+                            return;
+                        }else if (deviceInfo.getDeviceDefault() ) {
                             BleManagerHelper.getInstance(DeviceManagementActivity.this, false).getBleCardService().disconnect();
                         }
                         DeviceUserDao.getInstance(DeviceManagementActivity.this).

@@ -43,7 +43,7 @@
                 android:text="@string/no_name"
                 android:gravity="center_vertical"
                 android:textColor="@color/black"
-                android:textSize="@dimen/d24sp" />
+                android:textSize="@dimen/d24sp"/>
 
             <ImageView
                 android:id="@+id/me_edit_name"

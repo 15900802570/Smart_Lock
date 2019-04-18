@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/ll_hide_share"
-    android:layout_width="81.0dip"
-    android:layout_height="105dp"
+    android:layout_width="@dimen/x81dp"
+    android:layout_height="@dimen/y110dp"
     android:paddingBottom="2.6dip"
     android:paddingTop="3dp">
 
     <LinearLayout
         android:id="@+id/ll_share"
-        android:layout_width="75.0dip"
+        android:layout_width="@dimen/x75dp"
         android:layout_height="fill_parent"
         android:background="@drawable/box_corners_green_radius_6"
         android:gravity="center"
@@ -21,7 +21,7 @@
             android:drawablePadding="2.0dip"
             android:gravity="center"
             android:text="@string/share"
-            android:textSize="16sp"
+            android:textSize="@dimen/d16sp"
             android:textColor="@color/white" />
         <!--<ImageView-->
             <!--android:id="@+id/iv_share"-->
@@ -34,7 +34,7 @@
 
     <LinearLayout
         android:id="@+id/ll_delete"
-        android:layout_width="75.0dip"
+        android:layout_width="@dimen/x75dp"
         android:layout_height="fill_parent"
         android:background="@drawable/box_corners_red_radius_6"
         android:gravity="center">
@@ -46,7 +46,7 @@
             android:drawablePadding="2.0dip"
             android:gravity="center"
             android:text="@string/delete"
-            android:textSize="16sp"
+            android:textSize="@dimen/d16sp"
             android:textColor="@color/white" />
         <!--<ImageView-->
             <!--android:id="@+id/iv_delete"-->

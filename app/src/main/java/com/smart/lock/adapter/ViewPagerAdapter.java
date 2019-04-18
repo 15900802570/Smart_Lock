@@ -14,25 +14,26 @@ import java.util.ArrayList;
 public class ViewPagerAdapter extends PagerAdapter {
 
     private ArrayList<ImageView> images;
-    public int imageIds[];
+    private Context mActivity;
 
-    public ViewPagerAdapter(Context context) {
+    public ViewPagerAdapter(Context context,int[] imageIds) {
 
-        imageIds = new int[] {
-                R.mipmap.homepage_adv1,
-                R.mipmap.homepage_adv2
-        };
-
+        mActivity = context;
         images = new ArrayList<ImageView>();
-        for (int i = 0; i < imageIds.length; i++) {
+        for (int imageId : imageIds) {
             ImageView imageView = new ImageView(context);
-            imageView.setBackgroundResource(imageIds[i]);
+            imageView.setBackgroundResource(imageId);
             images.add(imageView);
         }
     }
 
     public void setImageIds(int[] imageIds) {
-        this.imageIds = imageIds;
+        images = new ArrayList<ImageView>();
+        for (int imageId : imageIds) {
+            ImageView imageView = new ImageView(mActivity);
+            imageView.setBackgroundResource(imageId);
+            images.add(imageView);
+        }
     }
 
     @Override
@@ -64,6 +65,10 @@ public class ViewPagerAdapter extends PagerAdapter {
         view.addView(images.get(position));
 
         return images.get(position);
+    }
+
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
 }

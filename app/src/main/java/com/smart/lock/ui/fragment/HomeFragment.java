@@ -122,6 +122,7 @@ public class HomeFragment extends BaseFragment implements
     };
 
     private int mImageIds[]; //主界面图片
+    private int mImageIdsNor[];
     private boolean mIsConnected = false; //服务连接标志
     private BleConnectModel mBleModel;
 
@@ -200,7 +201,16 @@ public class HomeFragment extends BaseFragment implements
         mDots.add((View) getView().findViewById(R.id.dot_0));
         mDots.add((View) getView().findViewById(R.id.dot_1));
 
-        mAdapter = new ViewPagerAdapter(mHomeView.getContext());
+        mImageIds = new int[]{
+                R.mipmap.homepage_adv1,
+                R.mipmap.homepage_adv5
+        };
+        mImageIdsNor = new int[]{
+                R.mipmap.homepage_adv1_nor,
+                R.mipmap.homepage_adv5_nor
+        };
+
+        mAdapter = new ViewPagerAdapter(mHomeView.getContext(),mImageIds);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -227,11 +237,6 @@ public class HomeFragment extends BaseFragment implements
 
             }
         });
-
-        mImageIds = new int[]{
-                R.mipmap.homepage_adv3,
-                R.mipmap.homepage_adv4
-        };
 
         mBleManagerHelper = BleManagerHelper.getInstance(mHomeView.getContext(), false);
         LocalBroadcastManager.getInstance(mHomeView.getContext()).registerReceiver(deviceReciver, intentFilter());
@@ -264,7 +269,7 @@ public class HomeFragment extends BaseFragment implements
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
-                    mAdapter.setImageIds(mImageIds);
+                    mAdapter.setImageIds(mImageIdsNor);
                     mAdapter.notifyDataSetChanged();
                 }
                 break;
@@ -303,7 +308,7 @@ public class HomeFragment extends BaseFragment implements
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
-                    mAdapter.setImageIds(mImageIds);
+                    mAdapter.setImageIds(mImageIdsNor);
                     mAdapter.notifyDataSetChanged();
                     LogUtil.d(TAG, "默认设备");
                 }
@@ -312,7 +317,7 @@ public class HomeFragment extends BaseFragment implements
                 mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.GONE);
-                mAdapter.setImageIds(mAdapter.imageIds);
+                mAdapter.setImageIds(mImageIds);
                 mAdapter.notifyDataSetChanged();
                 break;
             case BATTER_FULL:
