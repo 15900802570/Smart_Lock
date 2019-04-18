@@ -99,6 +99,7 @@ public class BleCardService extends Service {
     public static final int ATT_MTU_MIN = 23;
 
     private long mStartTime = 0, mEndTime = 0;
+    private long mStartTime2 = 0, mEndTime2 = 0;
 
     // Implements callback methods for GATT events that the app cares about. For
     // example,
@@ -109,15 +110,14 @@ public class BleCardService extends Service {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mStartTime = System.currentTimeMillis();
                 mConnectionState = STATE_CONNECTED;
-
+                mEndTime2 = System.currentTimeMillis();
+                LogUtil.d(TAG, "connect to success : " + (mEndTime2 - mStartTime2));
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_CONNECTED);
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i(TAG, "refresh ble :" + refreshDeviceCache());
-                mEndTime = System.currentTimeMillis();
-                LogUtil.d(TAG, "connect to disconnect : " + (mEndTime - mStartTime));
                 mConnectionState = STATE_DISCONNECTED;
                 mBleChannel.changeChannelState(mBleChannel.STATUS_CHANNEL_WAIT);
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -129,7 +129,8 @@ public class BleCardService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 Log.w(TAG, "mBluetoothGatt = " + mBluetoothGatt);
-
+                mEndTime = System.currentTimeMillis();
+                LogUtil.d(TAG, "connect to disconnect : " + (mEndTime - mStartTime));
                 mBleChannel.notifyData(BleMsg.ACTION_GATT_SERVICES_DISCOVERED);
 
                 LogUtil.d(TAG, "mBluetoothGatt = " + gatt.hashCode() + "gatt service size is " + gatt.getServices().size());
@@ -154,7 +155,7 @@ public class BleCardService extends Service {
             Log.w(TAG, "onCharacteristicChanged()");
 
             if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
-                LogUtil.d(TAG,"characteristic.getValue() length : " + characteristic.getValue().length);
+                LogUtil.d(TAG, "characteristic.getValue() length : " + characteristic.getValue().length);
                 mBleProvider.onReceiveBle(characteristic.getValue());
             }
         }
@@ -306,6 +307,7 @@ public class BleCardService extends Service {
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false.
+        mStartTime2 = System.currentTimeMillis();
         Log.d(TAG, "mBluetoothGatt is : " + ((mBluetoothGatt == null) ? true : mBluetoothGatt.hashCode()));
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
 
