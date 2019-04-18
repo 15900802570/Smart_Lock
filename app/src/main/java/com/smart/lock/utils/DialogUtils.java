@@ -177,15 +177,8 @@ public class DialogUtils {
         window.setGravity(Gravity.CENTER);
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
-        editorDialog.show();
 
         v.findViewById(R.id.dialog_cancel_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editorDialog.dismiss();
-            }
-        });
-        v.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 editorDialog.dismiss();
