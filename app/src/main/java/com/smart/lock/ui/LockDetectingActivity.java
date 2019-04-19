@@ -356,37 +356,43 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      * @param enable
      */
     private void scanLeDevice(final boolean enable) {
-        if (enable) {
-            if (mMode == DETECTING_LOCK) {
-                mHandler.postDelayed(mStopScan, SCAN_PERIOD);
-                mRefreshDevLl.setVisibility(View.GONE);
-                mRescanLl.setVisibility(View.GONE);
-                mTipsLl.setVisibility(View.GONE);
-                mSearchingIv.startAnimation(mRotateAnimation);
-                mScanLockTv.setText(R.string.tv_scan_lock);
-            } else if (mMode == SEARCH_LOCK) {
-                mRefreshDevLl.setVisibility(View.VISIBLE);
-                mBleAdapter.mBluetoothDevlist.clear();
-                mBleAdapter.notifyDataSetChanged();
-                mScanDev.setVisibility(View.GONE);
-                mScanEmpty.setVisibility(View.GONE);
-                mRescanLl.setVisibility(View.VISIBLE);
-                mRescanBtn.setText(R.string.stop_scan);
-                startRefresh();
-            }
-            mScanning = true;
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
+
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            this.startActivity(enableIntent);
         } else {
-            if (mMode == DETECTING_LOCK) {
-                mSearchingIv.clearAnimation();
-            } else if (mMode == SEARCH_LOCK) {
-                mRescanBtn.setText(R.string.rescanning);
-                stopRefresh();
+            if (enable) {
+                if (mMode == DETECTING_LOCK) {
+                    mHandler.postDelayed(mStopScan, SCAN_PERIOD);
+                    mRefreshDevLl.setVisibility(View.GONE);
+                    mRescanLl.setVisibility(View.GONE);
+                    mTipsLl.setVisibility(View.GONE);
+                    mSearchingIv.startAnimation(mRotateAnimation);
+                    mScanLockTv.setText(R.string.tv_scan_lock);
+                } else if (mMode == SEARCH_LOCK) {
+                    mRefreshDevLl.setVisibility(View.VISIBLE);
+                    mBleAdapter.mBluetoothDevlist.clear();
+                    mBleAdapter.notifyDataSetChanged();
+                    mScanDev.setVisibility(View.GONE);
+                    mScanEmpty.setVisibility(View.GONE);
+                    mRescanLl.setVisibility(View.VISIBLE);
+                    mRescanBtn.setText(R.string.stop_scan);
+                    startRefresh();
+                }
+                mScanning = true;
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
+            } else {
+                if (mMode == DETECTING_LOCK) {
+                    mSearchingIv.clearAnimation();
+                } else if (mMode == SEARCH_LOCK) {
+                    mRescanBtn.setText(R.string.rescanning);
+                    stopRefresh();
+                }
+
+                mScanning = false;
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
             }
-
-            mScanning = false;
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-
         }
     }
 

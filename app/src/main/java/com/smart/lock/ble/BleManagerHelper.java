@@ -180,6 +180,8 @@ public class BleManagerHelper {
         } else
             mUserId = bundle.getShort(BleMsg.KEY_USER_ID);
 
+        Log.d(TAG, "mBtAdapter.isEnabled() : " + mBtAdapter.isEnabled());
+
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -409,6 +411,14 @@ public class BleManagerHelper {
                 if (mMode == 1) {
                     startScanDevice();
                 }
+                if (StringUtil.checkNotNull(mBleMac) && mBleModel.getState() == BleConnectModel.BLE_DISCONNECTED) {
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mService.connect(mBleMac);
+                        }
+                    }, 2000);
+                }
             }
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
@@ -437,7 +447,6 @@ public class BleManagerHelper {
                         LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
                     }
                 }
-
                 mHandler.removeCallbacks(mRunnable);
             }
 

@@ -116,7 +116,12 @@ public class HomeFragment extends BaseFragment implements
 
     private int mBattery = 0;
     private int REQUESTCODE = 0;
-    private String[] mPermission = new String[]{
+    private String[] mExternalPermission = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+
+    private String[] mBlePermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
@@ -479,6 +484,17 @@ public class HomeFragment extends BaseFragment implements
             refreshView(BIND_DEVICE);
     }
 
+//    private boolean checkBlePermission(){
+//        if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+//            return true
+//        } else {
+//            ActivityCompat.requestPermissions(mActivity, mExternalPermission, REQUESTCODE);
+//        }
+//
+//        return true;
+//    }
+
     public void onPause() {
         super.onPause();
     }
@@ -537,7 +553,7 @@ public class HomeFragment extends BaseFragment implements
                 if (mBleManagerHelper.getServiceConnection()) {
                     mBleManagerHelper.getBleCardService().sendCmd21(nodeId);
                 } else
-                    showMessage("未连接");
+                    showMessage(mHomeView.getContext().getString(R.string.unconnected));
             default:
                 break;
         }
@@ -583,7 +599,7 @@ public class HomeFragment extends BaseFragment implements
                             && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         startIntent(UserManagerActivity.class, bundle);
                     } else {
-                        ActivityCompat.requestPermissions(mActivity, mPermission, REQUESTCODE);
+                        ActivityCompat.requestPermissions(mActivity, mExternalPermission, REQUESTCODE);
                     }
                 } else
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
