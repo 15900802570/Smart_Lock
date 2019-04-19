@@ -90,11 +90,12 @@ public class DeviceStatusDao {
         }
     }
 
-    public void delete(DeviceStatus deviceStatus) {
+    public int delete(DeviceStatus deviceStatus) {
         try {
-            dao.delete(deviceStatus);
+            return dao.delete(deviceStatus);
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         }
     }
     /**

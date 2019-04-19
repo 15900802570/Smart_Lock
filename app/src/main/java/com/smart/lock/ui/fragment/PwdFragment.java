@@ -1,6 +1,7 @@
 package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,6 +36,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
@@ -79,7 +82,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         mPwdView = View.inflate(mActivity, R.layout.fragment_device_key, null);
         mAddTv = mPwdView.findViewById(R.id.tv_add);
         Drawable top = getResources().getDrawable(R.mipmap.btn_add_password);
-        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top , null, null);
+        mAddTv.setCompoundDrawablesWithIntrinsicBounds(null, top, null, null);
         mListView = mPwdView.findViewById(R.id.rv_key);
         return mPwdView;
     }
@@ -224,6 +227,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                 viewHolder.mNameTv.setText(pwdInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.icon_pwd);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(pwdInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
+                viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), pwdInfo.getKeyName());
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -246,22 +250,27 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                     }
                 });
 
-                final AlertDialog editDialog = DialogUtils.showEditKeyDialog(mContext, mContext.getString(R.string.modify_note_name), pwdInfo);
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        editDialog.show();
+                        viewHolder.mEditorNameDialog.show();
                     }
                 });
 
-                if (editDialog != null) {
-                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(pwdInfo.getDeviceNodeId(), pwdInfo.getUserId(), pwdInfo.getLockId(), ConstantUtil.USER_PWD).getKeyName());
+                viewHolder.mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String newName = ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        if (!newName.isEmpty()) {
+                            viewHolder.mNameTv.setText(newName);
+                            pwdInfo.setKeyName(newName);
+                            DeviceKeyDao.getInstance(mActivity).updateDeviceKey(pwdInfo);
+                        } else {
+                            ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
                         }
-                    });
-                }
+                        viewHolder.mEditorNameDialog.dismiss();
+                    }
+                });
 
             }
 
@@ -281,6 +290,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
             LinearLayout mDelete;
             LinearLayout mModifyLl;
             ImageButton mEditIbtn;
+            Dialog mEditorNameDialog;
 
             public ViewHolder(View itemView) {
                 super(itemView);

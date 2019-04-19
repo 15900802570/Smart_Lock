@@ -18,6 +18,8 @@ public class DeviceLogDao {
     private Context mContext;
     private static DeviceLogDao instance;
 
+    public static String DEVICE_NODE_ID ="node_id";
+
     protected DeviceLogDao(Context context) {
         this.mContext = context;
         try {

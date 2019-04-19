@@ -1,6 +1,7 @@
 package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,6 +38,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
@@ -273,7 +276,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             viewHolder.mNameTv.setText(fpInfo.getKeyName());
             viewHolder.mType.setImageResource(R.mipmap.icon_fingerprint);
             viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(fpInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
-
+            viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), fpInfo.getKeyName());
             viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -295,23 +298,27 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 }
             });
 
-            final AlertDialog editDialog = DialogUtils.showEditKeyDialog(mContext, mContext.getString(R.string.modify_note_name), fpInfo);
             viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    editDialog.show();
+                    viewHolder.mEditorNameDialog.show();
                 }
             });
 
-            if (editDialog != null) {
-                editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        viewHolder.mNameTv.setText(DeviceKeyDao.getInstance(mContext).queryByLockId(fpInfo.getDeviceNodeId(), fpInfo.getUserId(), fpInfo.getLockId(), ConstantUtil.USER_FINGERPRINT).getKeyName());
+            viewHolder.mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String newName = ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                    if (!newName.isEmpty()) {
+                        viewHolder.mNameTv.setText(newName);
+                        fpInfo.setKeyName(newName);
+                        DeviceKeyDao.getInstance(mActivity).updateDeviceKey(fpInfo);
+                    } else {
+                        ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
                     }
-                });
-            }
-
+                    viewHolder.mEditorNameDialog.dismiss();
+                }
+            });
         }
 
         @Override
@@ -328,6 +335,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             TextView mCreateTime;
             LinearLayout mDelete;
             LinearLayout mModifyLl;
+            Dialog mEditorNameDialog;
 
             public ViewHolder(View itemView) {
                 super(itemView);

@@ -15,6 +15,7 @@ public class TempPwdDao {
     private Dao<TempPwd, Integer> dao;
     private Context mContext;
     private static TempPwdDao instance;
+    public static String DEVICE_NODE_ID = "device_nodeId";
 
     private TempPwdDao(Context context) {
         this.mContext = context;
@@ -61,7 +62,17 @@ public class TempPwdDao {
             e.printStackTrace();
         }
         return num;
+    }
 
+    public int deleteAllByNodeId(Object object) {
+        int num = -1;
+        try {
+            dao.deleteBuilder().where().eq(DEVICE_NODE_ID, object);
+            num = 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return num;
     }
 
     public ArrayList<TempPwd> queryId(int id) {
@@ -80,7 +91,7 @@ public class TempPwdDao {
     }
 
     public TempPwd queryMaxCreateTime() {
-        TempPwd tempPwd =null;
+        TempPwd tempPwd = null;
         try {
             tempPwd = dao.queryBuilder().orderBy("pwd_create_time", false).queryForFirst();
             if (tempPwd != null) {
@@ -91,17 +102,18 @@ public class TempPwdDao {
         }
         return tempPwd;
     }
+
     public ArrayList<TempPwd> queryAllByDevNodeId(String devNodeId) {
         ArrayList<TempPwd> list = null;
         try {
-            list = (ArrayList<TempPwd>)dao.queryBuilder().
-                    orderBy("pwd_create_time",false).
-                    where().eq("device_nodeId",devNodeId).
+            list = (ArrayList<TempPwd>) dao.queryBuilder().
+                    orderBy("pwd_create_time", false).
+                    where().eq("device_nodeId", devNodeId).
                     query();
-            if(list != null){
+            if (list != null) {
                 return list;
             }
-        }catch (SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return list;

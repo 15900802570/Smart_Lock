@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
@@ -253,6 +254,8 @@ public class LockSettingActivity extends AppCompatActivity {
                 }
                 if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                     final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
+                    LogUtil.d(TAG, "测试INGING");
+                    LogUtil.d(TAG, "errorCode = " + errCode[3]);
                     switch (errCode[3]) {
                         case 0x15: // 组合开锁设置成功
                             if (mDeviceStatus.isCombinationLock()) {
@@ -513,13 +516,17 @@ public class LockSettingActivity extends AppCompatActivity {
      */
     public void clearAllDataOfApplication() {
         if (
-                DeviceInfoDao.getInstance(this).deleteAll() != -1 &&
-                        DeviceKeyDao.getInstance(this).deleteAll() != -1 &&
-                        DeviceLogDao.getInstance(this).deleteAll() != -1 &&
-                        DeviceStatusDao.getInstance(this).deleteAll() != -1 &&
-                        DeviceUserDao.getInstance(this).deleteAll() != -1 &&
-                        TempPwdDao.getInstance(this).deleteAll() != -1) {
+                DeviceKeyDao.getInstance(this).delete(DeviceKeyDao.getInstance(this).queryFirstData(DeviceKeyDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId())) != -1 &&
+                        DeviceStatusDao.getInstance(this).delete(mDeviceStatus) != -1 &&
+                        DeviceUserDao.getInstance(this).delete(DeviceUserDao.getInstance(this).queryFirstData(DeviceUserDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId())) != -1 &&
+                        TempPwdDao.getInstance(this).deleteAllByNodeId(mDefaultDevice.getDeviceId()) != -1 &&
+                        DeviceInfoDao.getInstance(this).delete(mDefaultDevice) != -1) {
             mRestore = true;
+            mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
+            if (mDefaultDevice != null) {
+                mDefaultDevice.setDeviceDefault(true);
+                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDevice);
+            }
         } else {
             ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
         }

@@ -87,11 +87,12 @@ public class DeviceKeyDao {
         }
     }
 
-    public void delete(DeviceKey info) {
+    public int delete(DeviceKey info) {
         try {
-            dao.delete(info);
+            return dao.delete(info);
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         }
 
     }

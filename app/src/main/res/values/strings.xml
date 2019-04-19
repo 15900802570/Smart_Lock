@@ -313,4 +313,5 @@
     <string name="version_download">Version Download</string>
     <string name="delete_failed">Default devices cannot be deleted under multiple devices</string>
     <string name="modify_name">Modify Name</string>
+    <string name="cannot_be_empty_str">Nickname cannot be empty</string>
 </resources>
