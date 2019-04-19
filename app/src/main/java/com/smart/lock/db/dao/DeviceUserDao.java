@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.utils.LogUtil;
@@ -46,7 +47,18 @@ public class DeviceUserDao {
         }
         return instance;
     }
-
+    public DeviceUser queryFirstData(String key, Object value) {
+        DeviceUser  deviceUser = null;
+        try {
+            deviceUser = dao.queryBuilder().where().eq(key, value).queryForFirst();
+            if (deviceUser != null) {
+                return deviceUser;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public void insert(DeviceUser DeviceUser) {
 
@@ -90,7 +102,7 @@ public class DeviceUserDao {
     }
 
 
-    public synchronized void delete(DeviceUser info) {
+    public synchronized int delete(DeviceUser info) {
         try {
             if (info.getQrPath() != null) {
                 File delQr = new File(info.getQrPath());
@@ -106,9 +118,10 @@ public class DeviceUserDao {
             }
 
 
-            dao.delete(info);
+            return  dao.delete(info);
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         }
 
     }

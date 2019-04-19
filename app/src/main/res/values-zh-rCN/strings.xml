@@ -328,4 +328,5 @@
     <string name="version_download">版本下载中</string>
     <string name="delete_failed">多设备下默认设备无法删除!</string>
     <string name="modify_name">修改呢称</string>
+    <string name="cannot_be_empty_str">昵称不能为空</string>
 </resources>

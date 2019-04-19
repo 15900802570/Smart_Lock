@@ -89,11 +89,12 @@ public class DeviceInfoDao {
         }
     }
 
-    public void delete(DeviceInfo info) {
+    public int delete(DeviceInfo info) {
         try {
-            dao.delete(info);
+             return dao.delete(info);
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         }
 
     }
