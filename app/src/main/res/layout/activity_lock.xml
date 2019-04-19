@@ -10,9 +10,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"
+        android:layout_marginTop="@dimen/x101dp"
         android:text="@string/please_input_pwd"
-        android:textSize="18sp" />
+        android:textSize="@dimen/d24sp" />
     <!-- 密码显示框 -->
     <LinearLayout
         android:id="@+id/num_pwd_tv"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/info_tv"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/x53dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
@@ -31,44 +31,43 @@
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd2"
             style="@style/style_edit2"
-            android:layout_marginStart="20sp" />
+            android:layout_marginStart="@dimen/x53dp" />
 
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd3"
             style="@style/style_edit2"
-            android:layout_marginStart="20sp" />
+            android:layout_marginStart="@dimen/x53dp" />
 
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd4"
             style="@style/style_edit2"
-            android:layout_marginStart="20dp" />
+            android:layout_marginStart="@dimen/x53dp" />
     </LinearLayout>
     <!-- 数字键盘 -->
     <com.smart.lock.ui.login.NumericKeyboard
         android:id="@+id/num_kb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="70dp" />
+        android:layout_marginTop="@dimen/x152dp" />
     <!-- 底部布局 -->
     <RelativeLayout
         android:id="@+id/rl_bottom"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/x48dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="40dp"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp">
+        android:layout_marginBottom="@dimen/x94dp"
+        android:paddingEnd="@dimen/x94dp">
         <!-- 删除按钮 -->
         <TextView
             android:id="@+id/tv_delete"
-            android:layout_width="70dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/x70dp"
+            android:layout_height="@dimen/x50dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:gravity="center"
             android:onClick="doClick"
             android:text="@string/delete"
-            android:textSize="18sp"
-            android:visibility="gone" />
+            android:textSize="@dimen/d24sp"
+            android:visibility="gone"/>
     </RelativeLayout>
 </RelativeLayout>

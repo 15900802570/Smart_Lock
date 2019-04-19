@@ -29,6 +29,16 @@
             android:textSize="@dimen/checkbox_delete_msg_size" />
 
         <TextView
+            android:id="@+id/tv_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/x25dp"
+            android:layout_toRightOf="@+id/tv_message_title"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:textSize="@dimen/checkbox_delete_msg_size"/>
+
+        <TextView
             android:id="@+id/edit_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

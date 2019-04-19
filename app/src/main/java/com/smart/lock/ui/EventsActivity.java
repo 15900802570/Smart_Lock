@@ -160,7 +160,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 final byte[] log = intent.getByteArrayExtra(BleMsg.KEY_LOG);
                 count++;
                 LogUtil.d(TAG, "receiver " + count + " log!");
-
+                mCountTv.setText(String.valueOf(count));
                 byte[] userId = new byte[2];
                 byte[] logId = new byte[4];
                 byte[] time = new byte[4];
