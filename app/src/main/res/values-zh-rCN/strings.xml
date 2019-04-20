@@ -333,4 +333,6 @@
     <string name="modify_name">修改呢称</string>
     <string name="cannot_be_empty_str">昵称不能为空</string>
     <string name="card">卡片</string>
+    <string name="_2019_03_15">2019-03-15</string>
+    <string name="_2019_03_14">2019-03-14</string>
 </resources>

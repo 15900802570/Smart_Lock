@@ -51,8 +51,8 @@
             android:layout_height="match_parent"
             android:layout_marginStart="@dimen/x12dp"
             android:background="@drawable/box_corners_white"
-            android:gravity="center"
-            android:paddingStart="@dimen/x13dp"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/x11dp"
             android:text="@string/tmp_user"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
@@ -82,8 +82,9 @@
             android:layout_width="@dimen/x200dp"
             android:layout_height="match_parent"
             android:background="@drawable/box_corners_white"
-            android:gravity="center"
-            android:text="2019-03-14"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/x11dp"
+            android:text="@string/_2019_03_14"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
 
@@ -99,10 +100,11 @@
             android:id="@+id/tv_end_date"
             android:layout_width="@dimen/x200dp"
             android:layout_height="match_parent"
-            android:background="@drawable/box_corners_white"
             android:layout_marginStart="@dimen/x20dp"
-            android:gravity="center"
-            android:text="2019-03-15"
+            android:background="@drawable/box_corners_white"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/x11dp"
+            android:text="@string/_2019_03_15"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
 

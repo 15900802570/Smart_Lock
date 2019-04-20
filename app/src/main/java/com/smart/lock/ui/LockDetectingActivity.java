@@ -319,10 +319,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
                 mBleManagerHelper.getBleCardService().disconnect();
-
                 mRescanLl.setVisibility(View.VISIBLE);
                 mTipsLl.setVisibility(View.VISIBLE);
                 mScanLockTv.setText(R.string.bt_connect_failed);
+            }
+
+            if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
+                mIsConnected = false;
+                mScanLockTv.setText(R.string.disconnect_ble);
+                mRescanLl.setVisibility(View.VISIBLE);
+                mTipsLl.setVisibility(View.VISIBLE);
             }
         }
     };

@@ -128,7 +128,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     @Override
     public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         mDevManagementAdapter.addItem(deviceInfo);
-        LogUtil.d(TAG,"NewDevice = " + deviceInfo);
+        LogUtil.d(TAG, "NewDevice = " + deviceInfo);
         mDevManagementAdapter.notifyDataSetChanged();
     }
 
@@ -220,12 +220,13 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DeviceInfo default_nor =DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
-                        if(deviceInfo.getDeviceDefault() & default_nor != null){
-                            ToastUtil.showLong(DeviceManagementActivity.this,R.string.delete_failed);
+                        DeviceInfo default_nor = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
+                        if (deviceInfo.getDeviceDefault() & default_nor != null) {
+                            ToastUtil.showLong(DeviceManagementActivity.this, R.string.delete_failed);
                             mDevManagementAdapter.notifyDataSetChanged();
                             return;
-                        }else if (deviceInfo.getDeviceDefault() ) {
+                        } else if (deviceInfo.getDeviceDefault()) {
+                            BleManagerHelper.getInstance(DeviceManagementActivity.this, false).setBleMac(null);
                             BleManagerHelper.getInstance(DeviceManagementActivity.this, false).getBleCardService().disconnect();
                         }
                         DeviceUserDao.getInstance(DeviceManagementActivity.this).
@@ -275,7 +276,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     protected void onResume() {
         super.onResume();
         long l = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryCount();
-        LogUtil.d(TAG,"type = "+ l +'\n'+
+        LogUtil.d(TAG, "type = " + l + '\n' +
                 "count = " + mDevManagementAdapter.getItemCount());
         if (l > mDevManagementAdapter.getItemCount()) {
             mDevManagementAdapter.addItem(DeviceInfoDao.getInstance(DeviceManagementActivity.this).getNewDeviceInfo());

@@ -572,6 +572,15 @@ public class BleManagerHelper {
     }
 
     /**
+     * 设置蓝牙地址
+     * @param bleMac ble addr
+     */
+    public void setBleMac(String bleMac) {
+
+        mBleMac = bleMac;
+    }
+
+    /**
      * 获取蓝牙连接状态
      *
      * @return

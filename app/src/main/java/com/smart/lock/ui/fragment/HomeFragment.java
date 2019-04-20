@@ -81,6 +81,7 @@ public class HomeFragment extends BaseFragment implements
     private ImageView mBleConnectIv;
     private ImageView mInstructionBtn;
     private ImageView mScanQrIv;
+    private LinearLayout mDevStatusLl;
 
     private ViewPagerAdapter mAdapter; //news adapter
     private LockManagerAdapter mLockAdapter; //gridView adapter
@@ -161,6 +162,7 @@ public class HomeFragment extends BaseFragment implements
         mBleConnectIv = mHomeView.findViewById(R.id.iv_connect);
         mScanQrIv = mHomeView.findViewById(R.id.iv_scan_qr);
         mInstructionBtn = mActivity.findViewById(R.id.one_click_unlock_ib);
+        mDevStatusLl = mHomeView.findViewById(R.id.ll_status);
         initEvent();
         return mHomeView;
     }
@@ -191,6 +193,7 @@ public class HomeFragment extends BaseFragment implements
         mMyGridView.setOnItemClickListener(this);
         mBleConnectIv.setOnClickListener(this);
         mInstructionBtn.setOnClickListener(this);
+        mDevStatusLl.setOnClickListener(this);
         mScanQrIv.setOnClickListener((View.OnClickListener) mActivity);
     }
 
@@ -215,7 +218,7 @@ public class HomeFragment extends BaseFragment implements
                 R.mipmap.homepage_adv5_nor
         };
 
-        mAdapter = new ViewPagerAdapter(mHomeView.getContext(),mImageIds);
+        mAdapter = new ViewPagerAdapter(mHomeView.getContext(), mImageIds);
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
