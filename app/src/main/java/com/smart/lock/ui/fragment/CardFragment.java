@@ -282,6 +282,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).setText(viewHolder.mNameTv.getText());
                         viewHolder.mEditorNameDialog.show();
                     }
                 });

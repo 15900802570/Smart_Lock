@@ -203,6 +203,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="left"
                     android:layout_weight="1"
+                    android:onClick="onClick"
                     android:orientation="horizontal">
 
                     <ImageView

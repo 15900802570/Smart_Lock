@@ -55,7 +55,7 @@
         android:layout_width="fill_parent"
         android:layout_height="@dimen/x48dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/x94dp"
+        android:layout_marginBottom="@dimen/x57dp"
         android:paddingEnd="@dimen/x94dp">
         <!-- 删除按钮 -->
         <TextView

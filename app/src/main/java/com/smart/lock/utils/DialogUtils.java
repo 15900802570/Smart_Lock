@@ -12,6 +12,8 @@ import android.os.CountDownTimer;
 import android.support.annotation.IdRes;
 import android.support.annotation.LayoutRes;
 import android.support.design.widget.BottomSheetDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -155,7 +157,38 @@ public class DialogUtils {
         View v = inflater.inflate(R.layout.dialog_editor, null);// 得到加载view
         LinearLayout layout = v.findViewById(R.id.dialog_editor_ll);  // 加载布局
         TextView titleTextView = v.findViewById(R.id.dialog_title_tv);
-        EditText editTextView =  v.findViewById(R.id.editor_et);          // 提示文字
+        final EditText editTextView = v.findViewById(R.id.editor_et);          // 提示文字
+        final ImageView clearImageView = v.findViewById(R.id.dialog_clear_iv);
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editTextView.getEditableText().length() >= 1) {
+                    clearImageView.setVisibility(View.VISIBLE);
+                } else {
+                    clearImageView.setVisibility(View.GONE);
+                }
+            }
+        };
+
+        editTextView.addTextChangedListener(textWatcher);
+
+        clearImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editTextView.setText("");
+            }
+        });
 
         titleTextView.setText(title);
         editTextView.setText(msg);// 设置加载信息
@@ -224,7 +257,8 @@ public class DialogUtils {
 
         return alertDialog;
     }
-    public static Dialog createTipsDialogWithConfirm(Context context, String msg){
+
+    public static Dialog createTipsDialogWithConfirm(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_tips_with_confirm, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_ll);  // 加载布局

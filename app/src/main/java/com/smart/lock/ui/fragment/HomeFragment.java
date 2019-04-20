@@ -523,7 +523,7 @@ public class HomeFragment extends BaseFragment implements
             case R.id.iv_scan_qr:
 //                mScanQRHelper.scanQr();
                 break;
-            case R.id.iv_connect:
+            case R.id.ll_status:
                 refreshView(DEVICE_CONNECTING);
                 MessageCreator.setSk(mDefaultDevice);
                 Bundle dev = new Bundle();
