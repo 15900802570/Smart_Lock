@@ -73,6 +73,7 @@
     <string name="add_lock_success">添加成功</string>
     <string name="toast_add_lock_success">门锁添加成功!</string>
     <string name="toast_add_lock_falied">门锁添加失败!</string>
+    <string name="complete">完成</string>
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="data_loading">请稍候</string>
@@ -219,7 +220,7 @@
     <string name="set_unlock_time">设置开锁时段</string>
     <string name="set_unlock_key">设置开锁信息</string>
     <string name="note_name">备注:</string>
-    <string name="add_unlock_time">添加时段</string>
+    <string name="add_unlock_time">添加开锁时段</string>
     <string name="set_unlock_time_success">设置临时用户有效期成功</string>
     <string name="set_life_cycle_success">临时用户生命周期设置成功</string>
     <string name="s">秒</string>
@@ -333,6 +334,5 @@
     <string name="modify_name">修改呢称</string>
     <string name="cannot_be_empty_str">昵称不能为空</string>
     <string name="card">卡片</string>
-    <string name="_2019_03_15">2019-03-15</string>
-    <string name="_2019_03_14">2019-03-14</string>
+    <string name="_1970_01_01">1970-01-01</string>
 </resources>

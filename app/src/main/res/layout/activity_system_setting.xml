@@ -28,8 +28,8 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:src="@mipmap/btn_back"
-            android:paddingLeft="@dimen/x15dp" />
+            android:paddingLeft="@dimen/x15dp"
+            android:src="@mipmap/btn_back" />
     </RelativeLayout>
 
 
@@ -67,25 +67,25 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick" />
 
-            <com.smart.lock.widget.ToggleSwitchDefineView
-                android:id="@+id/tw_open_test"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:onClick="onClick" />
-
             <com.smart.lock.widget.NextActivityDefineView
                 android:id="@+id/next_check_version"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
-                android:visibility="visible"/>
+                android:visibility="visible" />
 
             <com.smart.lock.widget.NextActivityDefineView
                 android:id="@+id/next_set_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
-                android:visibility="visible"/>
+                android:visibility="visible" />
+
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/tw_open_test"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick" />
         </LinearLayout>
     </ScrollView>
 

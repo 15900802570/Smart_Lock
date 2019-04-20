@@ -99,7 +99,7 @@ public class BleManagerHelper {
     private long mStartTime = 0;
     private long mEndTime = 0;
 
-    private static final long SCAN_PERIOD = 20000;
+    private static final long SCAN_PERIOD = 30000;
     private BleConnectModel mBleModel; //蓝牙连接状态实例
 
     private DeviceInfo mDefaultDevice; //默认设备
@@ -169,6 +169,7 @@ public class BleManagerHelper {
         }
         if (mConnectType == 2) {
             mContext = context;
+            mHandler.removeCallbacks(mRunnable);
             DialogUtils.closeDialog(mLoadDialog);
             mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.tv_scan_lock));
             mLoadDialog.show();
@@ -385,6 +386,10 @@ public class BleManagerHelper {
                 if (mMode == 1) {
                     startScanDevice();
                 }
+                mDefaultDevice = null;
+                mDefaultUser = null;
+                mDefaultStatus = null;
+
                 LogUtil.d(TAG, "active ble : " + mService.isActiveDisConnect());
                 if (StringUtil.checkNotNull(mBleMac) && mBleModel.getState() == BleConnectModel.BLE_DISCONNECTED) {
                     new Handler().postDelayed(new Runnable() {
@@ -398,6 +403,7 @@ public class BleManagerHelper {
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
                 if (mConnectType == 2) {
+                    mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.setting_dev_info));
                     mLoadDialog.show();
@@ -573,6 +579,7 @@ public class BleManagerHelper {
 
     /**
      * 设置蓝牙地址
+     *
      * @param bleMac ble addr
      */
     public void setBleMac(String bleMac) {

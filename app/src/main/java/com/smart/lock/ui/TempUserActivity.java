@@ -104,12 +104,12 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
-        mBleManagerHelper = BleManagerHelper.getInstance(this,  false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
 
-        mStartDate.setText(mTempUser.getLcBegin() == null ? ("1970-01-01") : mTempUser.getLcBegin());
-        mEndDate.setText(mTempUser.getLcEnd() == null ? ("1970-01-01") : mTempUser.getLcEnd());
+        mStartDate.setText(mTempUser.getLcBegin() == null ? getString(R.string._1970_01_01) : mTempUser.getLcBegin());
+        mEndDate.setText(mTempUser.getLcEnd() == null ? getString(R.string._1970_01_01) : mTempUser.getLcEnd());
         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
     }
 
@@ -127,7 +127,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     private void initActionBar() {
         mTitleTv.setText(R.string.temp_user_setting);
-
         mUsetSetTb.setNavigationIcon(R.mipmap.btn_back);
         mUsetSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -300,9 +299,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
      * @param seconds
      */
     protected void closeDialog(final int seconds) {
-
         mHandler.removeCallbacks(mRunnable);
-
         mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 

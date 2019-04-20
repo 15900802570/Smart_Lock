@@ -214,6 +214,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_12);
         intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
         intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
+        intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
         return intentFilter;
     }
 

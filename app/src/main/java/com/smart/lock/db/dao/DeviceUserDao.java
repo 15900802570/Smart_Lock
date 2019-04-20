@@ -382,5 +382,12 @@ public class DeviceUserDao {
         return context.deleteDatabase(DBname);
     }
 
+    public void registerObserver(Dao.DaoObserver ob) {
+        dao.registerObserver(ob);
+    }
+
+    public void unregisterObserver(Dao.DaoObserver ob) {
+        dao.unregisterObserver(ob);
+    }
 
 }

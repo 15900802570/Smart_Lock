@@ -320,7 +320,7 @@
     <string name="enter_pwd_again">Enter your password again</string>
     <string name="card">Card</string>
     <string name="set_user_validity_period">Setting User Validity Period</string>
-    <string name="to">" to "</string>
-    <string name="_2019_03_15">2019-03-15</string>
-    <string name="_2019_03_14">2019-03-14</string>
+    <string name="to">" To "</string>
+    <string name="_1970_01_01">1970-01-01</string>
+    <string name="complete">Complete</string>
 </resources>
