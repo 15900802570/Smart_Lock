@@ -32,6 +32,7 @@ import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MeDefineView;
 
 import java.io.BufferedOutputStream;
@@ -177,9 +178,13 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             @Override
             public void onClick(View view) {
                 String newName = ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
-                mNameTv.setText(newName);
-                mUserProfile.setUserName(newName);
-                UserProfileDao.getInstance(mActivity).update(mUserProfile);
+                if (!newName.isEmpty()) {
+                    mNameTv.setText(newName);
+                    mUserProfile.setUserName(newName);
+                    UserProfileDao.getInstance(mActivity).update(mUserProfile);
+                } else {
+                    ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
+                }
                 mEditorNameDialog.dismiss();
             }
         });

@@ -20,28 +20,39 @@
         <item name="android:background">@mipmap/ic_welcome_logo3</item>
     </style>
 
-    <style name="LockScreen">
-        <item name="android:windowTranslucentStatus">true</item>
-    </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <!-- 顶部输入框的样式 -->
-    <style name="style_edit">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:gravity">center</item>
-    </style>
 
     <!-- 顶部输入框的样式 -->
-    <style name="style_edit2">
-        <item name="android:layout_width">13dp</item>
-        <item name="android:layout_height">13dp</item>
+    <style name="style_password1">
+        <item name="android:layout_width">@dimen/x19dp</item>
+        <item name="android:layout_height">@dimen/x19dp</item>
         <item name="android:gravity">center</item>
-        <item name="android:background">@drawable/selector_circle_test</item>
+        <item name="android:background">@drawable/selector_circle_password1</item>
+    </style>
+
+    <style name="style_password2">
+        <item name="android:layout_width">@dimen/x19dp</item>
+        <item name="android:layout_height">@dimen/x19dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/selector_circle_password2</item>
+    </style>
+
+    <style name="style_password3">
+        <item name="android:layout_width">@dimen/x19dp</item>
+        <item name="android:layout_height">@dimen/x19dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/selector_circle_password3</item>
+    </style>
+
+    <style name="style_password4">
+        <item name="android:layout_width">@dimen/x19dp</item>
+        <item name="android:layout_height">@dimen/x19dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/selector_circle_password4</item>
     </style>
 
 
@@ -196,7 +207,7 @@
         -->
         <item name="android:layout_height">50dip</item>
         <item name="android:layout_width">fill_parent</item>
-        <item name="android:textSize">20dip</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
         <item name="android:gravity">center_vertical|center_horizontal</item>

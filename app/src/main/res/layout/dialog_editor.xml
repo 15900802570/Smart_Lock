@@ -37,23 +37,23 @@
             <EditText
                 android:id="@+id/editor_et"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/x61dp"
                 android:background="@drawable/shape_editor"
                 android:maxLines="1"
+                android:maxLength="17"
                 android:paddingStart="@dimen/x10dp"
                 android:singleLine="true"
                 android:text="@string/tips"
-                android:textCursorDrawable="@color/alpha_gray"
+                android:textCursorDrawable="@color/bgColor_overlay"
                 android:textSize="@dimen/d21sp" />
 
             <ImageView
                 android:id="@+id/dialog_clear_iv"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/x61dp"
                 android:layout_alignEnd="@id/editor_et"
                 android:foregroundGravity="center"
-                android:paddingTop="@dimen/x4dp"
-                android:paddingEnd="@dimen/x5dp"
+                android:paddingEnd="@dimen/x10dp"
                 android:src="@drawable/ic_clear" />
         </RelativeLayout>
 
