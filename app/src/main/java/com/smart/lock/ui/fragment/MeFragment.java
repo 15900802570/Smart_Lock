@@ -212,6 +212,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 break;
             case R.id.me_center_head_name:
             case R.id.me_edit_name:
+                ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).setText(mNameTv.getText());
                 mEditorNameDialog.show();
                 break;
             case R.id.me_center_head_photo:

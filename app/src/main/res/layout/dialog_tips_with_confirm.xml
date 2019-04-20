@@ -3,8 +3,8 @@
     android:id="@+id/dialog_tips_with_confirm_ll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="25dp"
-    android:paddingRight="25dp"
+    android:paddingLeft="@dimen/x19dp"
+    android:paddingRight="@dimen/x19dp"
     android:orientation="vertical"
     android:gravity="center"
     android:background="@color/transparent">
@@ -14,27 +14,27 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:paddingTop="15dp"
-        android:orientation="vertical"
-        android:background="@color/white">
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/x78dp"
             android:gravity="center"
-            android:text="@string/tips"
-            android:textColor="@color/black"
-            android:textSize="18sp" />
+            android:background="@drawable/box_corners_dialog_title_radius_13"
+            android:text="@string/friend_tip_title"
+            android:textColor="@color/white"
+            android:textSize="@dimen/d22sp" />
 
         <TextView
             android:id="@+id/tips_tv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/x115dp"
+            android:background="@color/white"
             android:gravity="center"
-            android:paddingTop="10dp"
-            android:paddingBottom="15dp"
+            android:paddingRight="@dimen/x34dp"
+            android:paddingLeft="@dimen/x34dp"
             android:text="@string/tips"
-            android:textSize="15sp" />
+            android:textSize="@dimen/d19sp" />
 
         <!--<Button-->
             <!--android:id="@+id/dialog_cancel_btn"-->
@@ -47,19 +47,21 @@
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffeeee"
-        android:paddingTop="0.3dp"
+        android:layout_height="@dimen/y82dp"
+        android:background="@drawable/box_corners_dialog_btn_radius_13"
+        android:paddingLeft="@dimen/x34dp"
+        android:paddingRight="@dimen/x34dp"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/dialog_confirm_btn"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/selector_button"
+            android:layout_height="@dimen/y61dp"
+            android:background="@drawable/selector_button_dialog_confirm"
             android:gravity="center"
             android:onClick="tipsOnClick"
-            android:text="@string/confirm"/>
+            android:text="@string/confirm"
+            android:textColor="@color/white"/>
 
     </LinearLayout>
 </LinearLayout>

@@ -22,11 +22,9 @@
     <LinearLayout
         android:id="@+id/ll_btn_setting_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginTop="@dimen/y28dp"
-        android:layout_marginBottom="@dimen/y28dp"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingEnd="@dimen/x30dp">

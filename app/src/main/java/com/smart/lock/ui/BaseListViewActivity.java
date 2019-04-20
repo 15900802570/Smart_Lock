@@ -36,6 +36,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     protected TextView mTipTv;
     protected TextView mDelTv;
     protected TextView mEditTv;
+    protected TextView mCountTv;
     protected RelativeLayout mSelectEventRl;
     protected SmartRefreshLayout mRefreshLayout;
 
@@ -100,6 +101,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         mTipTv = findViewById(R.id.tv_tips);
         mDelTv = findViewById(R.id.del_tv);
         mEditTv = findViewById(R.id.edit_tv);
+        mCountTv = findViewById(R.id.tv_count);
         mSelectEventRl = findViewById(R.id.rl_select_delete);
         mSelectEventRl.setVisibility(View.GONE);
         mRefreshLayout = findViewById(R.id.refreshLayout);

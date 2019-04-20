@@ -157,11 +157,11 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 } else if (errCode[3] == 0x0a) {
                     showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_success));
                     mFpAdapter.removeItem(mFpAdapter.positionDelete);
-                }  else if (errCode[3] == 0x23) {
+                } else if (errCode[3] == 0x23) {
                     showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_failed));
                 } else if (errCode[3] == 0x24) {
                     showMessage(mFpView.getContext().getResources().getString(R.string.fp_full));
-                }else if (errCode[3] == 0x25) {
+                } else if (errCode[3] == 0x25) {
                     showMessage(mFpView.getContext().getResources().getString(R.string.device_busy));
                 }
                 DialogUtils.closeDialog(mLoadDialog);
@@ -301,6 +301,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).setText(viewHolder.mNameTv.getText());
                     viewHolder.mEditorNameDialog.show();
                 }
             });
