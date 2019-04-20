@@ -23,6 +23,7 @@ public class NumericKeyboard extends View {
     private float offset_x = 0, offset_y = 0; //偏移大小
     private int number = -1;//点击的数字
     private float radius = 0; //半径
+    private float click_radius = 0;
     private float size = 0; //字体大小
     private OnNumberClick onNumberClick;//数字点击事件
     Shader mShader;
@@ -71,7 +72,8 @@ public class NumericKeyboard extends View {
         // 获取绘制1的y坐标
         // 绘制1的y坐标
         float first_y = (float) (SystemUtils.getSystemDisplay(context)[1] - SystemUtils.getSystemDisplay(context)[1] / 3) / (float) 3.5;
-        radius = getResources().getDimension(R.dimen.x55dp);
+        radius = getResources().getDimension(R.dimen.x50dp);
+        click_radius = first_x * (float) 1.5;
         size = getResources().getDimension(R.dimen.d33sp);
         offset_x = -getResources().getDimension(R.dimen.x13dp);
         offset_y = getResources().getDimension(R.dimen.x15dp);
@@ -235,57 +237,57 @@ public class NumericKeyboard extends View {
      */
     private void handleDown(float x, float y) {
         //判断点击的是那一列的数据
-        if (xs[0] - getResources().getDimension(R.dimen.x35dp) <= x && x <= xs[0] + getResources().getDimension(R.dimen.x35dp)) {//第一列
+        if (xs[0] - click_radius <= x && x <= xs[0] + click_radius) {//第一列
             //获取点击处的圆心横坐标
             circle_x = xs[0];
             //判断点击的是哪一排
-            if (ys[0] - getResources().getDimension(R.dimen.x35dp) <= y && ys[0] + getResources().getDimension(R.dimen.x35dp) >= y) {//第1排
+            if (ys[0] - click_radius <= y && ys[0] + click_radius >= y) {//第1排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[0];
                 number = 1;//设置点击的数字
-            } else if (ys[1] - getResources().getDimension(R.dimen.x35dp) <= y && ys[1] + getResources().getDimension(R.dimen.x35dp) >= y) {//第2排
+            } else if (ys[1] - click_radius <= y && ys[1] + click_radius >= y) {//第2排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[1];
                 number = 4;//设置点击的数字
-            } else if (ys[2] - getResources().getDimension(R.dimen.x35dp) <= y && ys[2] + getResources().getDimension(R.dimen.x35dp) >= y) {//第3排
+            } else if (ys[2] - click_radius <= y && ys[2] + click_radius >= y) {//第3排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[2];
                 number = 7;//设置点击的数字
             }
-        } else if (xs[1] - getResources().getDimension(R.dimen.x35dp) <= x && x <= xs[1] + getResources().getDimension(R.dimen.x35dp)) {//第2列
+        } else if (xs[1] - click_radius <= x && x <= xs[1] + click_radius) {//第2列
             //获取点击处的圆心横坐标
             circle_x = xs[1];
             //判断点击的是哪一排
-            if (ys[0] - getResources().getDimension(R.dimen.x35dp) <= y && ys[0] + getResources().getDimension(R.dimen.x35dp) >= y) {//第1排
+            if (ys[0] - click_radius <= y && ys[0] + click_radius >= y) {//第1排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[0];
                 number = 2;//设置点击的数字
-            } else if (ys[1] - getResources().getDimension(R.dimen.x35dp) <= y && ys[1] + getResources().getDimension(R.dimen.x35dp) >= y) {//第2排
+            } else if (ys[1] - click_radius <= y && ys[1] + click_radius >= y) {//第2排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[1];
                 number = 5;//设置点击的数字
-            } else if (ys[2] - getResources().getDimension(R.dimen.x35dp) <= y && ys[2] + getResources().getDimension(R.dimen.x35dp) >= y) {//第3排
+            } else if (ys[2] - click_radius <= y && ys[2] + click_radius >= y) {//第3排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[2];
                 number = 8;//设置点击的数字
-            } else if (ys[3] - getResources().getDimension(R.dimen.x35dp) <= y && ys[3] + getResources().getDimension(R.dimen.x35dp) >= y) {//第4排
+            } else if (ys[3] - click_radius <= y && ys[3] + click_radius >= y) {//第4排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[3];
                 number = 0;//设置点击的数字
             }
-        } else if (xs[2] - getResources().getDimension(R.dimen.x35dp) <= x && x <= xs[2] + getResources().getDimension(R.dimen.x35dp)) {//第3列
+        } else if (xs[2] - click_radius <= x && x <= xs[2] + click_radius) {//第3列
             //获取点击处的圆心横坐标
             circle_x = xs[2];
             //判断点击的是哪一排
-            if (ys[0] - getResources().getDimension(R.dimen.x35dp) <= y && ys[0] + getResources().getDimension(R.dimen.x35dp) >= y) {//第1排
+            if (ys[0] - click_radius <= y && ys[0] + click_radius >= y) {//第1排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[0];
                 number = 3;//设置点击的数字
-            } else if (ys[1] - getResources().getDimension(R.dimen.x35dp) <= y && ys[1] + getResources().getDimension(R.dimen.x35dp) >= y) {//第2排
+            } else if (ys[1] - click_radius <= y && ys[1] + click_radius >= y) {//第2排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[1];
                 number = 6;//设置点击的数字
-            } else if (ys[2] - getResources().getDimension(R.dimen.x35dp) <= y && ys[2] + getResources().getDimension(R.dimen.x35dp) >= y) {//第3排
+            } else if (ys[2] - click_radius <= y && ys[2] + click_radius >= y) {//第3排
                 //获取点击的数字圆的圆心纵坐标
                 circle_y = ys[2];
                 number = 9;//设置点击的数字

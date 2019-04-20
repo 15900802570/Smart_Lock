@@ -82,7 +82,7 @@ public class PasswordTextView extends TextView {
          *
          * @param content
          */
-        public void textChanged(String content);
+        void textChanged(String content);
     }
 
 }

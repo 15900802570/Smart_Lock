@@ -79,10 +79,10 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 mInfoTv.setText("输入密码");
                 setAllText(false);
                 break;
-                case FingerprintManager.FINGERPRINT_ERROR_CANCELED:
-                    break;
-                    default:
-                        break;
+            case FingerprintManager.FINGERPRINT_ERROR_CANCELED:
+                break;
+            default:
+                break;
         }
     }
 
@@ -100,7 +100,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
         mInfoTv = findViewById(R.id.info_tv);//提示信息
         mDeleteTv = findViewById(R.id.tv_delete);
 
-        switch (type){
+        switch (type) {
             case ConstantUtil.SETTING_PASSWORD:
                 mInfoTv.setText(getString(R.string.please_input_pwd_first));
                 break;
@@ -120,13 +120,13 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 if (mIsFP == 4 && isFPRequired && !isReturn) {
                     mInfoTv.setText("指纹 / 输入密码");
                     initFP();
-                }else {
+                } else {
                     mInfoTv.setText(getString(R.string.please_input_pwd));
                 }
                 break;
         }
-        if(notCancel){
-            DialogUtils.createTipsDialogWithConfirm(LockScreenActivity.this,getString(R.string.setting_password_for_security)).show();
+        if (notCancel) {
+            DialogUtils.createTipsDialogWithConfirm(LockScreenActivity.this, getString(R.string.setting_password_for_security)).show();
         }
     }
 
@@ -180,7 +180,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
     /**
      * 验证函数
      */
-    private void onAuthenticated(){
+    private void onAuthenticated() {
         //输入字段
         String input = num_pwd1.getTextContent() + num_pwd2.getTextContent() +
                 num_pwd3.getTextContent() + num_pwd4.getTextContent();
@@ -220,9 +220,9 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 break;
             case ConstantUtil.MODIFY_PASSWORD:
                 LogUtil.d("修改密码");
-                if(!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))){
+                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
                     shakes();
-                }else {
+                } else {
                     type = ConstantUtil.SETTING_PASSWORD;
                     mInfoTv.setText(getString(R.string.please_input_pwd_first));
                 }
@@ -368,9 +368,9 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
 
     @Override
     public void onBackPressed() {
-        if(notCancel){
-            ToastUtil.showLong(this,getString(R.string.setting_password_for_security));
-        }else {
+        if (notCancel) {
+            ToastUtil.showLong(this, getString(R.string.setting_password_for_security));
+        } else {
             super.onBackPressed();
             if (isReturn) {
                 setResult(RESULT_CANCELED, new Intent().putExtra(ConstantUtil.CONFIRM, 0));

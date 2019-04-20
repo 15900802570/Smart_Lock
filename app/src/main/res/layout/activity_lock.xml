@@ -26,21 +26,21 @@
 
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd1"
-            style="@style/style_edit2" />
+            style="@style/style_password1" />
 
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd2"
-            style="@style/style_edit2"
+            style="@style/style_password2"
             android:layout_marginStart="@dimen/x53dp" />
 
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd3"
-            style="@style/style_edit2"
+            style="@style/style_password3"
             android:layout_marginStart="@dimen/x53dp" />
 
         <com.smart.lock.ui.login.PasswordTextView
             android:id="@+id/num_pwd4"
-            style="@style/style_edit2"
+            style="@style/style_password4"
             android:layout_marginStart="@dimen/x53dp" />
     </LinearLayout>
     <!-- 数字键盘 -->
@@ -53,17 +53,19 @@
     <RelativeLayout
         android:id="@+id/rl_bottom"
         android:layout_width="fill_parent"
-        android:layout_height="@dimen/x48dp"
+        android:layout_height="@dimen/x57dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/x57dp"
         android:paddingEnd="@dimen/x94dp">
         <!-- 删除按钮 -->
         <TextView
             android:id="@+id/tv_delete"
-            android:layout_width="@dimen/x70dp"
-            android:layout_height="@dimen/x50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
+            android:paddingStart="@dimen/x25dp"
+            android:paddingEnd="@dimen/x25dp"
             android:gravity="center"
             android:onClick="doClick"
             android:text="@string/delete"
