@@ -201,7 +201,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 } else if (type[0] == 1) {
                     keyName = EventsActivity.this.getResources().getString(R.string.fingerprint);
                 } else if (type[0] == 2) {
-                    keyName = "NFC";
+                    keyName = EventsActivity.this.getResources().getString(R.string.card);
                 } else {
                     keyName = EventsActivity.this.getResources().getString(R.string.remote);
                 }
@@ -442,7 +442,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
                     viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + "NFC" + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.card) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
                     viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 }

@@ -35,8 +35,6 @@ public class BleChannel implements Runnable {
     private static MsgSession mMsgSession;
     private static Handler mChannelHandler;
 
-    private Service mSrv;
-
     private BluetoothGatt mBleGatt;
 
     private String mPwd;
@@ -44,12 +42,13 @@ public class BleChannel implements Runnable {
     private short mCrc;
 
     private BleProvider mBleProvider;
+    private Context mCtx;
 
     /**
      * BleChannel().
      */
-    public BleChannel(Service service, BluetoothGatt bleGatt) {
-        mSrv = service;
+    public BleChannel(Context context, BluetoothGatt bleGatt) {
+        mCtx = context;
         mBleGatt = bleGatt;
         mChannelStatus = STATUS_CHANNEL_WAIT;
 
@@ -106,7 +105,7 @@ public class BleChannel implements Runnable {
      * Close().
      */
     public void Close() {
-        mSrv = null;
+        mCtx = null;
         mBleGatt = null;
         mChannelStatus = STATUS_CHANNEL_WAIT;
     }
@@ -115,7 +114,7 @@ public class BleChannel implements Runnable {
      * notifyData(final byte[] data).
      */
     public int notifyData(final String action, final int data) {
-        if (null == mSrv)
+        if (null == mCtx)
             return -1;
 
         if (null == action)
@@ -123,7 +122,7 @@ public class BleChannel implements Runnable {
 
         final Intent intent = new Intent(action);
         intent.putExtra(BleMsg.EXTRA_DATA_INT, data);
-        LocalBroadcastManager.getInstance(mSrv).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(mCtx).sendBroadcast(intent);
         return 0;
     }
 
@@ -131,7 +130,7 @@ public class BleChannel implements Runnable {
      * notifyData(final byte[] data).
      */
     public int notifyData(final String action, final byte[] data) {
-        if (null == mSrv)
+        if (null == mCtx)
             return -1;
 
         if (null == data)
@@ -141,7 +140,7 @@ public class BleChannel implements Runnable {
             return -1;
         final Intent intent = new Intent(action);
         intent.putExtra(BleMsg.EXTRA_DATA_BYTE, data);
-        LocalBroadcastManager.getInstance(mSrv).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(mCtx).sendBroadcast(intent);
         return 0;
     }
 
@@ -149,7 +148,7 @@ public class BleChannel implements Runnable {
      * notifyData(final byte[] random,final byte[] key).
      */
     public int notifyData(final String action, final byte[] random, final byte[] key) {
-        if (null == mSrv)
+        if (null == mCtx)
             return -1;
 
         if (null == random)
@@ -164,7 +163,7 @@ public class BleChannel implements Runnable {
         final Intent intent = new Intent(action);
         intent.putExtra(BleMsg.KEY_RANDOM, random);
         intent.putExtra(BleMsg.KEY_AK, key);
-        LocalBroadcastManager.getInstance(mSrv).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(mCtx).sendBroadcast(intent);
         return 0;
     }
 
@@ -177,7 +176,7 @@ public class BleChannel implements Runnable {
             return -1;
 
         final Intent intent = new Intent(action);
-        LocalBroadcastManager.getInstance(mSrv).sendBroadcast(intent);
+        LocalBroadcastManager.getInstance(mCtx).sendBroadcast(intent);
         return 0;
     }
 

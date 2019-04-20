@@ -484,9 +484,6 @@ public class BleProvider {
 
         Log.d(TAG, "mRspLength : " + mRspLength);
         if (mRspLength < mPacketLength) {
-
-            Log.d(TAG, "packet is not recevier complete!");
-
             return;
         }
 

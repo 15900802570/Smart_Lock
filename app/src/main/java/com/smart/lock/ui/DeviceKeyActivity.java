@@ -91,7 +91,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mTitleList = new ArrayList<>();
         mTitleList.add(getString(R.string.password));
         mTitleList.add(getString(R.string.fingerprint));
-        mTitleList.add("NFC");
+        mTitleList.add(getString(R.string.card));
 
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);

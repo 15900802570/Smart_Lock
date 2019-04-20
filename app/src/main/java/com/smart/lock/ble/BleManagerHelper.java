@@ -66,12 +66,6 @@ public class BleManagerHelper {
 
     private Handler mHandler;
 
-
-    /**
-     * 服务注册标志
-     */
-    private boolean mIsBind = false;
-
     /**
      * 服务连接标志
      */
@@ -136,7 +130,9 @@ public class BleManagerHelper {
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         mBleModel = BleConnectModel.getInstance(context);
 
-        serviceInit();
+//        serviceInit();
+        mService = BleCardService.getInstance(mContext);
+        mService.initialize();
         LocalBroadcastManager.getInstance(mContext).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -168,6 +164,7 @@ public class BleManagerHelper {
         mConnectType = type;
         mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
         if (StringUtil.checkIsNull(mBleMac)) {
+            mStartTime = System.currentTimeMillis();
             return;
         }
         if (mConnectType == 2) {
@@ -179,9 +176,6 @@ public class BleManagerHelper {
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
         } else
             mUserId = bundle.getShort(BleMsg.KEY_USER_ID);
-
-        Log.d(TAG, "mBtAdapter.isEnabled() : " + mBtAdapter.isEnabled());
-
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -204,7 +198,6 @@ public class BleManagerHelper {
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-            LogUtil.d(TAG, "mConnectType = " + mConnectType);
             if (mConnectType == 2) {
                 byte[] imei = new byte[8];
                 System.arraycopy(scanRecord, 19, imei, 0, 8);
@@ -220,13 +213,10 @@ public class BleManagerHelper {
                         mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.bt_connecting));
                         mLoadDialog.show();
                         boolean result = mService.connect(device.getAddress());
-                        LogUtil.d(TAG, "result = " + result);
 
                     }
                 }
             } else {
-                LogUtil.d(TAG, "scan dev addr : " + device.getAddress());
-                LogUtil.d(TAG, "mBleMac : " + mBleMac);
                 if (StringUtil.checkIsNull(mBleMac)) {
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     return;
@@ -237,7 +227,6 @@ public class BleManagerHelper {
                     LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                     if (!mIsConnected && mService != null) {
                         boolean result = mService.connect(mBleMac);
-                        LogUtil.d(TAG, "result = " + result);
 
                     }
                 }
@@ -263,7 +252,6 @@ public class BleManagerHelper {
                 code = StringUtil.hexStringToBytes(sDevSecret);
                 System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
             }
-            LogUtil.d(TAG, "m128SK = " + Arrays.toString(MessageCreator.m128SK));
         } else {
             System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
             byte[] code = new byte[10];
@@ -274,7 +262,6 @@ public class BleManagerHelper {
                 System.arraycopy(code, 0, MessageCreator.m256SK, 6, 10); //写入secretCode
                 Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
             }
-            LogUtil.d(TAG, "m256AK = " + Arrays.toString(MessageCreator.m256SK));
         }
 
     }
@@ -286,19 +273,6 @@ public class BleManagerHelper {
     public void setTempMode(Boolean isOtaMode, int mode) {
         mTempMode = isOtaMode;
         mMode = mode;
-    }
-
-
-    /**
-     * 初始化蓝牙服务
-     */
-    public void serviceInit() {
-        Intent bindIntent = new Intent(mContext, BleCardService.class);
-        LogUtil.d(TAG, "mIsBind = " + mIsBind);
-        if (!mIsBind) {
-            mStartTime = System.currentTimeMillis();
-            mIsBind = mContext.bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        }
     }
 
     /**
@@ -341,7 +315,7 @@ public class BleManagerHelper {
      */
     private ServiceConnection mServiceConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName className, IBinder rawBinder) {
-            mService = ((BleCardService.LocalBinder) rawBinder).getService();
+//            mService = ((BleCardService.LocalBinder) rawBinder).getService();
             Log.e(TAG, "mService is connection");
             mEndTime = System.currentTimeMillis();
             LogUtil.d("connecting ble time : " + (mEndTime - mStartTime));
@@ -411,13 +385,14 @@ public class BleManagerHelper {
                 if (mMode == 1) {
                     startScanDevice();
                 }
+                LogUtil.d(TAG, "active ble : " + mService.isActiveDisConnect());
                 if (StringUtil.checkNotNull(mBleMac) && mBleModel.getState() == BleConnectModel.BLE_DISCONNECTED) {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             mService.connect(mBleMac);
                         }
-                    }, 2000);
+                    }, 5000);
                 }
             }
 
@@ -428,7 +403,6 @@ public class BleManagerHelper {
                     mLoadDialog.show();
                 }
                 if (mService != null) {
-                    Log.d(TAG, "ACTION_GATT_SERVICES_DISCOVERED");
                     if (mMode == 0) {
                         mService.enableTXNotification();
                         new Handler().postDelayed(new Runnable() {
@@ -492,6 +466,7 @@ public class BleManagerHelper {
                 LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
                 LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
                 LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
+
                 byte[] buf = new byte[4];
                 System.arraycopy(syncUsers, 0, buf, 0, 4);
                 long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
@@ -618,29 +593,24 @@ public class BleManagerHelper {
      * 停止蓝牙服务
      */
     public void stopService() {
+        if (mService != null) {
+            mService.disconnect();
+            mService.close();
+//                mService.stopSelf();
+            mService = null;
+            mBleMac = null;
+            mConnectType = 0;
+            mUserId = 0;
+            mBleModel.halt();
+//                mContext.unbindService(mServiceConnection);
+//                LogUtil.d(TAG, "mServiceConnection = " + (mServiceConnection.hashCode()));
+            instance = null;
+        }
 
-        if (mIsBind) {
-            if (mService != null) {
-                mService.disconnect();
-                mService.close();
-                mService.stopSelf();
-                mService = null;
-                mBleMac = null;
-                mConnectType = 0;
-                mUserId = 0;
-                mBleModel.halt();
-                mContext.unbindService(mServiceConnection);
-                LogUtil.d(TAG, "mServiceConnection = " + (mServiceConnection.hashCode()));
-                mIsBind = false;
-                instance = null;
-            }
-
-            try {
-                LocalBroadcastManager.getInstance(mContext).unregisterReceiver(UARTStatusChangeReceiver);
-            } catch (Exception ignore) {
-                Log.e(TAG, ignore.toString());
-            }
-
+        try {
+            LocalBroadcastManager.getInstance(mContext).unregisterReceiver(UARTStatusChangeReceiver);
+        } catch (Exception ignore) {
+            Log.e(TAG, ignore.toString());
         }
 
     }

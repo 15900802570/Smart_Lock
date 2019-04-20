@@ -88,7 +88,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
 
     private void initView() {
         mUserNameEt = findViewById(R.id.et_username);
-        mModifyPwdBtn = findViewById(R.id.btn_edit);
+//        mModifyPwdBtn = findViewById(R.id.btn_edit);
         mFirstPwdEt = findViewById(R.id.et_first_pwd);
         mSecondPwdEt = findViewById(R.id.et_second_pwd);
         mSetPwdBtn = findViewById(R.id.btn_set_pwd);
@@ -106,11 +106,13 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         if (mCmdType.equals(ConstantUtil.CREATE)) {
             mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
             mNodeId = mDefaultDevice.getDeviceNodeId();
-            mUserNameEt.setText(getResources().getString(R.string.me) + getResources().getString(R.string.password));
+            mUserNameEt.setText(getString(R.string.me) + getString(R.string.password));
+            mUserNameEt.setSelection((getString(R.string.me) + getString(R.string.password)).length());
             mTitleTv.setText(R.string.create_pwd);
         } else {
             mModifyDeviceKey = (DeviceKey) getIntent().getSerializableExtra(BleMsg.KEY_MODIFY_DEVICE_KEY);
             mUserNameEt.setText(mModifyDeviceKey.getKeyName());
+            mUserNameEt.setSelection(mModifyDeviceKey.getKeyName().length());
             mNodeId = mModifyDeviceKey.getDeviceNodeId();
             mTitleTv.setText(R.string.modify_pwd);
         }
@@ -122,7 +124,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
     }
 
     private void initEvent() {
-        mModifyPwdBtn.setOnClickListener(this);
         mSetPwdBtn.setOnClickListener(this);
         mBackIv.setOnClickListener(this);
     }
@@ -197,7 +198,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
                 byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
                 Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                mCt.reSetTimeOut(seconds[0]*1000);
+                mCt.reSetTimeOut(seconds[0] * 1000);
                 if (!mLoadDialog.isShowing()) {
                     mLoadDialog.show();
                 }
@@ -245,7 +246,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
                 closeDialog(5);
-                mCt =   mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 0, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd);
+                mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 0, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd);
             }
 
         }
@@ -255,8 +256,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_edit:
-                break;
             case R.id.btn_set_pwd:
                 checkPwd();
                 break;

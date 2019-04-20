@@ -102,10 +102,10 @@
     <string name="add_user_failed">新增用户失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
-    <string name="add_nfc_failed">录入NFC卡失败</string>
-    <string name="modify_nfc_failed">修改NFC卡失败</string>
-    <string name="delete_nfc_success">删除NFC卡成功</string>
-    <string name="modify_nfc_success">修改NFC卡成功</string>
+    <string name="add_nfc_failed">录入卡片失败</string>
+    <string name="modify_nfc_failed">修改卡片失败</string>
+    <string name="delete_nfc_success">删除卡片成功</string>
+    <string name="modify_nfc_success">修改卡片成功</string>
     <string name="add_pwd_failed">录入密码失败</string>
     <string name="delete_pwd_success">删除密码成功</string>
 
@@ -118,7 +118,7 @@
     <string name="delete_fp_failed">删除指纹失败</string>
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
-    <string name="add_nfc_tips">您已添加过NFC卡,请删除后添加</string>
+    <string name="add_nfc_tips">您已添加过卡片,请删除后添加</string>
     <string name="add_pwd_tips">您已添加过密码,请删除后添加</string>
     <string name="add_fp_tips">添加指纹过多,请删除后添加</string>
     <string name="temp_pwd_invalid">失效</string>
@@ -138,7 +138,8 @@
     <string name="add_fingerprint">添加指纹</string>
     <string name="password">密码</string>
     <string name="pwd_length">密码长度为6位</string>
-    <string name="user_name">使用者:</string>
+    <string name="enter_pwd_again">请再次输入密码</string>
+    <string name="user_name">用户:</string>
     <string name="edit">编辑</string>
     <string name="input_new_pwd">请输入新密码:</string>
     <string name="input_new_pwd_again">请再次输入新密码:</string>
@@ -159,6 +160,8 @@
     <string name="administrator">管理员</string>
     <string name="members">普通用户</string>
     <string name="tmp_user">临时用户</string>
+    <string name="user_pwd">用户密码:</string>
+    <string name="user_confirm">确认密码:</string>
     <string name="del_log_failed">删除log成功</string>
     <string name="no_authority">无权限</string>
     <string name="prompt_email">邮件</string>
@@ -243,7 +246,7 @@
     <string name="use">使用</string>
     <string name="open">打开了</string>
     <string name="rejected_permission">您拒绝了权限申请</string>
-
+    <string name="unenable_ble">您放弃打开了蓝牙</string>
     <string name="disconnect_ble">连接已断开</string>
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
     <string name="search_lock">搜索附近的门锁</string>
@@ -310,7 +313,7 @@
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
     <string name="setting_password_for_security">为确保安全，请设置密码</string>
-
+    <string name="set_user_validity_period">设置用户有效期:</string>
     <string name="man">男</string>
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
@@ -329,4 +332,5 @@
     <string name="delete_failed">多设备下默认设备无法删除!</string>
     <string name="modify_name">修改呢称</string>
     <string name="cannot_be_empty_str">昵称不能为空</string>
+    <string name="card">卡片</string>
 </resources>

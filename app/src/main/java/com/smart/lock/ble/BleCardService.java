@@ -38,7 +38,7 @@ import java.util.UUID;
  * Service for managing connection and data communication with a GATT server
  * hosted on a given Bluetooth LE device.
  */
-public class BleCardService extends Service {
+public class BleCardService {
     private final static String TAG = "BleCardService";
 
     private BluetoothManager mBluetoothManager;
@@ -95,11 +95,34 @@ public class BleCardService extends Service {
      */
     private BleMessageListenerImpl mBleMessageListenerImpl;
 
+    private boolean mActiveDisConnect = false;
+
     public static final int ATT_MTU_MAX = 517;
     public static final int ATT_MTU_MIN = 23;
 
     private long mStartTime = 0, mEndTime = 0;
     private long mStartTime2 = 0, mEndTime2 = 0;
+    private Context mCtx;
+    private static BleCardService mInstance;
+
+    public BleCardService(Context context) {
+        mCtx = context;
+    }
+
+    /**
+     * 构造方法
+     *
+     * @param context
+     * @return
+     */
+    public static BleCardService getInstance(Context context) {
+        synchronized (BleCardService.class) {
+            if (mInstance == null) {
+                mInstance = new BleCardService(context);
+            }
+        }
+        return mInstance;
+    }
 
     // Implements callback methods for GATT events that the app cares about. For
     // example,
@@ -196,56 +219,6 @@ public class BleCardService extends Service {
     }
 
 
-//    @SuppressLint("NewApi")
-//    @Override
-//    public int onStartCommand(Intent intent, int flags, int startId) {
-//        startForeground(1, new Notification());
-//        // 绑定建立链接
-//        bindService(new Intent(this, GuardService.class),
-//                mServiceConnection, Context.BIND_IMPORTANT);
-//
-//
-//        // Do an appropriate action based on the intent.
-//        if (intent.getAction().equals(ACTION_STOP) == true) {
-//            stop();
-//            stopSelf();
-//        } else if (intent.getAction().equals(ACTION_START) == true) {
-//            start();
-//            getLock(mCtx);
-//        } else if (intent.getAction().equals(ACTION_KEEPALIVE) == true) {
-//            keepAlive();
-//        } else if (intent.getAction().equals(ACTION_RECONNECT) == true) {
-//            if (isNetworkAvailable()) {
-//                reconnectIfNecessary();
-//            }
-//        }
-//        return START_STICKY;
-//    }
-
-    public class LocalBinder extends Binder {
-        public BleCardService getService() {
-            return BleCardService.this;
-        }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        // After using a given device, you should make sure that
-        // BluetoothGatt.close() is called
-        // such that resources are cleaned up properly. In this particular
-        // example, close() is
-        // invoked when the UI is disconnected from the Service.
-        close();
-        return super.onUnbind(intent);
-    }
-
-    private final IBinder mBinder = new LocalBinder();
-
     /**
      * Initializes a reference to the local Bluetooth adapter.
      *
@@ -256,7 +229,7 @@ public class BleCardService extends Service {
         // through
         // BluetoothManager.
         if (mBluetoothManager == null) {
-            mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            mBluetoothManager = (BluetoothManager) mCtx.getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
                 Log.e(TAG, "Unable to initialize BluetoothManager.");
                 return false;
@@ -309,20 +282,20 @@ public class BleCardService extends Service {
         // parameter to false.
         mStartTime2 = System.currentTimeMillis();
         Log.d(TAG, "mBluetoothGatt is : " + ((mBluetoothGatt == null) ? true : mBluetoothGatt.hashCode()));
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+        mBluetoothGatt = device.connectGatt(mCtx, false, mGattCallback);
 
         if (null != mBluetoothGatt) {
-            mBleChannel = new BleChannel(this, mBluetoothGatt);
+            mBleChannel = new BleChannel(mCtx, mBluetoothGatt);
 
             mBleProvider = new BleProvider(true, mBluetoothGatt, mBleChannel);
 
-            mBleMessageListenerImpl = new BleMessageListenerImpl(this, mBleProvider);
+            mBleMessageListenerImpl = new BleMessageListenerImpl(mCtx, mBleProvider);
 
             mBleProvider.registerMessageCallBack(mBleMessageListenerImpl);
 
             mBleReceiver = new BleReceiver(mBleProvider);
 
-            mBleReceiver.registerReceiver(this, mKeyResult, mBleActions);
+            mBleReceiver.registerReceiver(mCtx, mKeyResult, mBleActions);
 
             mBleProvider.start();
 
@@ -348,9 +321,14 @@ public class BleCardService extends Service {
             return;
         }
         LogUtil.d(TAG, "service disconnect!");
+        mActiveDisConnect = true;
         mBluetoothGatt.disconnect();
         mBleChannel.Close();
+    }
 
+    //判断是主动断开
+    public boolean isActiveDisConnect() {
+        return mActiveDisConnect;
     }
 
     /**
@@ -367,7 +345,7 @@ public class BleCardService extends Service {
         mBluetoothGatt.close();
         mBluetoothGatt = null;
 
-        mBleReceiver.unregisterReceiver(this);
+        mBleReceiver.unregisterReceiver(mCtx);
         mBleProvider.unRegisterclear();
         mBleProvider.halt();
     }
@@ -433,13 +411,6 @@ public class BleCardService extends Service {
     }
 
     /**
-     *
-     */
-    public void sendHexData(byte[] value) {
-        mBleChannel.sendHexData(value);
-    }
-
-    /**
      * MSG 01
      */
     public boolean sendCmd01(byte cmdType, short userId) {
@@ -498,7 +469,7 @@ public class BleCardService extends Service {
         user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
         ct.request();
         return ct;
 
@@ -545,7 +516,7 @@ public class BleCardService extends Service {
         deviceKey.setLockId(String.valueOf(lockId));
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
@@ -673,7 +644,7 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }
@@ -756,7 +727,7 @@ public class BleCardService extends Service {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(this, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
         ct.request();
         return ct;
     }

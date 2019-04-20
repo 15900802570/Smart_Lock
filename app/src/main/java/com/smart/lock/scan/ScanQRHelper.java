@@ -228,7 +228,7 @@ public class ScanQRHelper {
 
     private void onAuthenticationFailed() {
         if (BleManagerHelper.getInstance(mActivity, false).getBleCardService() != null && BleManagerHelper.getInstance(mActivity, false).getServiceConnection()) {
-            BleManagerHelper.getInstance(mActivity, false).getBleCardService().stopSelf();
+            BleManagerHelper.getInstance(mActivity, false).getBleCardService().close();
         }
         DialogUtils.closeDialog(mLoadDialog);
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));

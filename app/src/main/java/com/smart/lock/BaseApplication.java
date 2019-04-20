@@ -32,6 +32,21 @@ public class BaseApplication extends Application implements BleManagerHelper.IBi
         mBleManagerHelper = BleManagerHelper.getInstance(mContext, false);
 //        mBleManagerHelper.registerServiceConnectCallBack(this);
 
+        mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
+        if (mDefaultDevice == null) {
+            return;
+        }
+
+        mIsConnected = mBleManagerHelper.getServiceConnection();
+        if (!mIsConnected) {
+            LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
+            MessageCreator.setSk(mDefaultDevice);
+            Bundle bundle = new Bundle();
+            bundle.putShort(BleMsg.KEY_USER_ID, mDefaultDevice.getUserId());
+            bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+            mBleManagerHelper.connectBle((byte) 1, bundle,this);
+        }
+
     }
 
     public BleManagerHelper getmBleManagerHelper() {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/color_bg"
@@ -8,17 +9,17 @@
     <RelativeLayout
         android:id="@+id/rl_title"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/y81dp"
         android:background="#ffffffff">
 
         <ImageView
             android:id="@+id/iv_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="@color/transparent"
-            android:padding="10.0dip"
+            android:padding="@dimen/x31dp"
             android:src="@mipmap/btn_back" />
 
         <TextView
@@ -27,142 +28,120 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
-            android:padding="10.0dip"
             android:text="@string/create_pwd"
             android:textColor="#ff000000"
-            android:textSize="18.0dip" />
+            android:textSize="@dimen/d18sp" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_marginTop="8.0dip"
         android:background="@color/white"
         android:orientation="vertical"
-        android:paddingLeft="16.0dip"
-        android:paddingBottom="16dp"
-        android:paddingRight="16.0dip">
+        android:paddingTop="@dimen/y40dp">
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="50.0dip"
-            android:layout_marginTop="25.0dip"
+            android:layout_height="@dimen/y43dp"
+            android:layout_marginStart="@dimen/x56dp"
+            android:layout_marginEnd="@dimen/x84dp"
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="80.0dip"
+                android:layout_width="@dimen/x120dp"
                 android:layout_height="fill_parent"
                 android:gravity="center_vertical"
-                android:paddingLeft="3.0dip"
                 android:text="@string/user_name"
                 android:textColor="@color/color_text"
-                android:textSize="17.0sp" />
+                android:textSize="@dimen/d16sp" />
 
             <EditText
                 android:id="@+id/et_username"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1.0"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@drawable/box_corners_white"
                 android:ellipsize="end"
-                android:paddingLeft="5.0dip"
-                android:paddingRight="5.0dip"
+                android:paddingStart="@dimen/x16dp"
                 android:singleLine="true"
                 android:textColor="@color/color_text"
-                android:textSize="17.0sp" />
+                android:textSize="@dimen/d16sp" />
 
-            <Button
-                android:id="@+id/btn_edit"
-                android:layout_width="70.0dip"
-                android:layout_height="40.0dip"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="10.0dip"
-                android:background="@drawable/btn_edit_bg"
-                android:text="@string/edit"
-                android:textColor="@color/color_text"
-                android:textSize="13.0sp"
-                android:visibility="gone"/>
         </LinearLayout>
-
-        <View
-            android:layout_width="wrap_content"
-            android:layout_height="0.5dip"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="bottom|center"
-            android:background="@color/color_hint"
-            android:visibility="visible" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="vertical">
+            android:layout_marginStart="@dimen/x56dp"
+            android:layout_marginTop="@dimen/y42dp"
+            android:layout_marginEnd="@dimen/x84dp"
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/x120dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:paddingLeft="5.0dip"
-                android:paddingRight="5.0dip"
-                android:text="@string/input_new_pwd"
-                android:textSize="16.0sp" />
+                android:text="@string/user_pwd"
+                android:textSize="@dimen/d16sp" />
 
             <EditText
                 android:id="@+id/et_first_pwd"
                 android:layout_width="fill_parent"
-                android:layout_height="50dp"
+                android:layout_height="@dimen/y43dp"
                 android:background="@drawable/box_corners_white"
                 android:ellipsize="end"
-                android:inputType="numberPassword"
-                android:paddingLeft="5.0dip"
-                android:paddingRight="5.0dip"
-                android:singleLine="true"
                 android:hint="@string/pwd_length"
+                android:inputType="numberPassword"
                 android:maxLength="6"
+                android:paddingLeft="@dimen/x16dp"
+                android:paddingRight="@dimen/x16dp"
+                android:singleLine="true"
                 android:textColor="@color/color_text"
-                android:textSize="17.0sp" />
+                android:textSize="@dimen/d16sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginStart="@dimen/x56dp"
+            android:layout_marginTop="@dimen/y42dp"
+            android:layout_marginEnd="@dimen/x84dp"
+            android:orientation="horizontal">
 
             <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/x120dp"
+                android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:paddingLeft="5.0dip"
-                android:paddingRight="5.0dip"
-                android:text="@string/input_new_pwd_again"
-                android:textSize="16.0sp" />
+                android:text="@string/user_confirm"
+                android:textSize="@dimen/d16sp" />
 
             <EditText
                 android:id="@+id/et_second_pwd"
                 android:layout_width="fill_parent"
-                android:layout_height="50dp"
+                android:layout_height="@dimen/y43dp"
                 android:background="@drawable/box_corners_white"
                 android:ellipsize="end"
-                android:inputType="numberPassword"
-                android:paddingLeft="5.0dip"
-                android:paddingRight="5.0dip"
                 android:hint="@string/pwd_length"
+                android:inputType="numberPassword"
                 android:maxLength="6"
+                android:paddingLeft="@dimen/x16dp"
+                android:paddingRight="@dimen/x16dp"
                 android:singleLine="true"
                 android:textColor="@color/color_text"
-                android:textSize="17.0sp" />
+                android:textSize="@dimen/d16sp" />
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btn_set_pwd"
             android:layout_width="fill_parent"
-            android:layout_height="48.0dip"
-            android:layout_marginTop="25.0dip"
+            android:layout_height="@dimen/y66dp"
+            android:layout_marginLeft="@dimen/x32dp"
+            android:layout_marginTop="@dimen/y64dp"
+            android:layout_marginRight="@dimen/x32dp"
             android:background="@drawable/selector_btn"
             android:text="@string/confirm"
             android:textColor="@color/white"
-            android:textSize="17.0sp" />
+            android:textSize="@dimen/d20sp" />
     </LinearLayout>
 </LinearLayout>

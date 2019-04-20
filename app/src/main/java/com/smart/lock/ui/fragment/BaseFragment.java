@@ -2,6 +2,7 @@ package com.smart.lock.ui.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,6 +61,7 @@ public abstract class BaseFragment extends Fragment {
     protected DeviceUser mTempUser;
     protected ImageView mInstructionBtn; //一键开锁
     protected ClientTransaction mCt;
+    private Context mCtx;
 
     /**
      * 超时提示框启动器
@@ -67,12 +69,8 @@ public abstract class BaseFragment extends Fragment {
     protected Runnable mRunnable = new Runnable() {
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
                 DialogUtils.closeDialog(mLoadDialog);
-
-//                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
-
-                Toast.makeText(BaseFragment.this.getContext(), BaseFragment.this.getContext().getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+                Toast.makeText(mCtx, mCtx.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 
         }
@@ -87,6 +85,7 @@ public abstract class BaseFragment extends Fragment {
         super.onCreate(savedInstanceState);
         this.mActivity = getActivity();
         mHandler = new Handler();
+        mCtx = this.getContext();
     }
 
     @Nullable
@@ -273,7 +272,7 @@ public abstract class BaseFragment extends Fragment {
      * @param msg 提示信息
      */
     protected void showMessage(String msg) {
-        Toast.makeText(BaseFragment.this.getContext(), msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mCtx, msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -282,7 +282,6 @@ public class HomeFragment extends BaseFragment implements
                 mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y366dp);
                 mAddLockLl.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
-                LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
 
                 if (mIsConnected) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
@@ -305,17 +304,14 @@ public class HomeFragment extends BaseFragment implements
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                 }
-                LogUtil.d(TAG, "Default = " + mDefaultDevice + "\n" +
-                        "Default user = " + mDefaultUser);
+                LogUtil.d(TAG, "Default = " + mDefaultDevice + "\n" + "Default user = " + mDefaultUser);
                 if (mDefaultDevice != null && mDefaultUser != null) {
                     mNodeId = mDefaultDevice.getDeviceNodeId();
-                    Log.d(TAG, "mDefaultUser = " + mDefaultUser.toString());
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
                     mAdapter.setImageIds(mImageIdsNor);
                     mAdapter.notifyDataSetChanged();
-                    LogUtil.d(TAG, "默认设备");
                 }
                 break;
             case UNBIND_DEVICE:

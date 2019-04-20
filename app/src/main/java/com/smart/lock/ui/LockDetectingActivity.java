@@ -74,6 +74,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private RelativeLayout mScanDev;
     private LinearLayout mScanEmpty;
     private ProgressBar mScanDevBar;
+    private View mLine;
 
     private Animation mRotateAnimation;
     private static final long SCAN_PERIOD = 10000; //scanning for 10 seconds
@@ -94,6 +95,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private final int DETECTING_LOCK = 0x1;
     private final int SEARCH_LOCK = 0x2;
     private int mMode = DETECTING_LOCK;
+    private int REQUEST_ENABLE_BT = 100;
 
     //back time
     private long mBackPressedTime;
@@ -149,6 +151,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mScanDev = findViewById(R.id.fl_scan_dev);
         mScanEmpty = findViewById(R.id.scan_empty);
         mScanDevBar = findViewById(R.id.pb_scan_ble_dev);
+        mLine = findViewById(R.id.line);
     }
 
     private void initDate() {
@@ -190,6 +193,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
         LocalBroadcastManager.getInstance(this).registerReceiver(detectReciver, makeGattUpdateIntentFilter());
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mRefreshDevLl.setVisibility(View.GONE);
         scanLeDevice(true);
     }
 
@@ -359,8 +363,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            this.startActivity(enableIntent);
+//            enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         } else {
             if (enable) {
                 if (mMode == DETECTING_LOCK) {
@@ -370,7 +374,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mTipsLl.setVisibility(View.GONE);
                     mSearchingIv.startAnimation(mRotateAnimation);
                     mScanLockTv.setText(R.string.tv_scan_lock);
+                    mLine.setVisibility(View.VISIBLE);
                 } else if (mMode == SEARCH_LOCK) {
+                    mLine.setVisibility(View.GONE);
+                    mScanLockTv.setVisibility(View.GONE);
                     mRefreshDevLl.setVisibility(View.VISIBLE);
                     mBleAdapter.mBluetoothDevlist.clear();
                     mBleAdapter.notifyDataSetChanged();
@@ -647,7 +654,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
+
+        if (requestCode == 1 && data != null) {
             switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
                 case 1:
                     SharedPreferenceUtil.getInstance(this).
@@ -660,6 +668,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     finish();
                     break;
             }
+        } else if (requestCode == REQUEST_ENABLE_BT) {
+            LogUtil.d(TAG, "requestCode = " + requestCode + " resultCode :" + resultCode);
+            if (resultCode == RESULT_OK) {
+                scanLeDevice(true);
+            } else if (resultCode == RESULT_CANCELED) {
+                showMessage(getString(R.string.unenable_ble));
+                finish();
+            }
+
         }
+
     }
 }

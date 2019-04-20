@@ -119,10 +119,10 @@
     <string name="add_user_failed">Failure to add new users</string>
     <string name="delete_user_success">Delete User Successfully</string>
     <string name="delete_user_failed">Delete user failed</string>
-    <string name="add_nfc_failed">Failed to enter NFC card</string>
-    <string name="modify_nfc_failed">Failed to modify NFC card</string>
-    <string name="delete_nfc_success">Successful deletion of NFC card</string>
-    <string name="modify_nfc_success">Successful modification of NFC card</string>
+    <string name="add_nfc_failed">Failed to enter card</string>
+    <string name="modify_nfc_failed">Failed to modify card</string>
+    <string name="delete_nfc_success">Successful deletion of card</string>
+    <string name="modify_nfc_success">Successful modification of card</string>
     <string name="add_pwd_failed">Failed to enter password</string>
     <string name="delete_pwd_success">Successful password deletion</string>
     <string name="add_fp_failed">Input Fingerprint Failure</string>
@@ -130,7 +130,7 @@
     <string name="modify_fp_success">Successful fingerprint modification</string>
     <string name="delete_fp_success">Successful fingerprint deletion</string>
     <string name="create_time">Creation time:</string>
-    <string name="add_nfc_tips">You have added the NFC card, please delete it and add it.</string>
+    <string name="add_nfc_tips">You have added the card, please delete it and add it.</string>
     <string name="add_pwd_tips">You have added a password, please delete it and add it.</string>
     <string name="add_fp_tips">Add too many fingerprints, please delete and add</string>
     <string name="plz_reconnect">Device connection failed, please reconnect!</string>
@@ -314,4 +314,10 @@
     <string name="delete_failed">Default devices cannot be deleted under multiple devices</string>
     <string name="modify_name">Modify Name</string>
     <string name="cannot_be_empty_str">Nickname cannot be empty</string>
+    <string name="unenable_ble">Unenable Bluetooth</string>
+    <string name="user_pwd">User Password</string>
+    <string name="user_confirm">Confirm Password</string>
+    <string name="enter_pwd_again">Enter your password again</string>
+    <string name="card">Card</string>
+    <string name="set_user_validity_period">Setting User Validity Period</string>
 </resources>

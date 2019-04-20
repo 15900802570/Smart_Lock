@@ -51,21 +51,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content">
 
-                <!--<RelativeLayout-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:background="@mipmap/ic_searching">-->
-
-                <!--<TextView-->
-                <!--android:id="@+id/tv_scan_lock"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerInParent="true"-->
-                <!--android:text="@string/tv_scan_lock" />-->
-                <!--</RelativeLayout>-->
-
-
                 <ImageView
                     android:id="@+id/iv_lock"
                     android:layout_width="@dimen/x81dp"
@@ -105,8 +90,8 @@
                 android:textColor="#FF515151"
                 android:textSize="@dimen/d21sp" />
 
-
             <View
+                android:id="@+id/line"
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/y1dp"
                 android:layout_gravity="bottom|center"

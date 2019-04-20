@@ -462,7 +462,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialog) {
-                            LogUtil.d(TAG, "holder.mNameTv = " + holder.mNameTv.getText().toString());
                             holder.mNameTv.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
                         }
                     });
@@ -498,7 +497,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     public void onClick(View v) {
                         if (holder.mDeleteCb.isChecked()) {
                             mDeleteUsers.add(userInfo);
-
                         } else {
                             mDeleteUsers.remove(userInfo);
                         }
