@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/x20dp"
-            android:text=" 至 "
+            android:text="@string/to"
             android:textColor="@color/black"
             android:textSize="@dimen/d20sp" />
 

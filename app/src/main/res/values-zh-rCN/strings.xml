@@ -317,7 +317,7 @@
     <string name="man">男</string>
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
-
+    <string name="to"> 至 </string>
     <string name = "no_name">没名字</string>
 
     <string name = "choise_photo">选择头像</string>
