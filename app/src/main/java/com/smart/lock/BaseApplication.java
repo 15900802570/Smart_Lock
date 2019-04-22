@@ -19,7 +19,7 @@ import com.smart.lock.utils.LogUtil;
 
 public class BaseApplication extends Application implements BleManagerHelper.IBindServiceCallback {
     private final static String TAG = "BaseApplication";
-    private static Context mContext;
+    private Context mContext;
     private DeviceInfo mDefaultDevice; //默认设备
     protected BleManagerHelper mBleManagerHelper; //蓝牙服务
     private boolean mIsConnected = false; //服务连接标志

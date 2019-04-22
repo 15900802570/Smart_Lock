@@ -1,6 +1,7 @@
 package com.smart.lock;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -112,10 +113,8 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
                             Message msg = countdownHandle.obtainMessage();
                             msg.what = MSG_COUNT_WHAT;//message的what值
                             msg.arg1 = countdownNum;//倒计时的秒数
-
                             countdownHandle.sendMessage(msg);
                         }
-
                     }
                 };
                 timer.schedule(task, 0, 1000);
@@ -145,10 +144,10 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
             mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
         } else if (callBackCode == ACCESS_FINE_LOCATION) {
             mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, REQ_CODE_CAMERA);
-        } else if (callBackCode == REQ_CODE_CAMERA){
-            mPermissionHelper.requestPermissions(Manifest.permission.READ_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE );
-        }  else if (callBackCode == READ_EXTERNAL_STORAGE){
-            mPermissionHelper.requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE );
+        } else if (callBackCode == REQ_CODE_CAMERA) {
+            mPermissionHelper.requestPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE);
+        } else if (callBackCode == READ_EXTERNAL_STORAGE) {
+            mPermissionHelper.requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE);
         }
     }
 
@@ -190,6 +189,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
             mOuter = new WeakReference<>(activity);
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void handleMessage(Message msg) {
 
@@ -205,12 +205,11 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
                             if (timer != null) {
                                 timer.cancel();//销毁计时器
                             }
-
 //                            openNextActivity(theActivity);//打开下一个界面
                             mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_COARSE_LOCATION);
 
                         } else {
-                            theActivity.mCountdownTextView.setText("跳过" + msg.arg1 + "s");
+                            theActivity.mCountdownTextView.setText(getString(R.string.skip) + msg.arg1 + getString(R.string.s));
                         }
                         break;
 
@@ -276,14 +275,12 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
             if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                 jLockScreenActivity(mActivity);
             } else {
-                Log.d(TAG, "goto mainActivity! " + count);
                 if (count == 0) {
                     jManiActivity(mActivity);
                 }
 
             }
         } catch (NullPointerException e) {
-            Log.d(TAG, "goto mainActivity!!");
             jManiActivity(mActivity);
         }
         mActivity.finish();
@@ -330,6 +327,4 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     private void initCountdownNum() {
         countdownNum = NUM;
     }
-
-
 }

@@ -1,10 +1,8 @@
 package com.smart.lock.ui.fragment;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
@@ -321,8 +319,8 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         super.onDestroy();
         try {
             LocalBroadcastManager.getInstance(mPwdView.getContext()).unregisterReceiver(pwdReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
     }
 }

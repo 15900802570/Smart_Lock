@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +44,7 @@ import com.smart.lock.widget.CustomDialog;
 
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Objects;
 
 public abstract class BaseFragment extends Fragment {
     public Activity mActivity;
@@ -59,7 +63,6 @@ public abstract class BaseFragment extends Fragment {
     protected DeviceInfo mDefaultDevice; //默认设备
     protected DeviceUser mDefaultUser;//当前用户
     protected DeviceUser mTempUser;
-    protected ImageView mInstructionBtn; //一键开锁
     protected ClientTransaction mCt;
     private Context mCtx;
 
@@ -89,7 +92,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Nullable
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return initView();
     }
 
@@ -107,20 +110,21 @@ public abstract class BaseFragment extends Fragment {
      * @param cls    新Activity
      * @param bundle 数据包
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     protected void startIntent(Class<?> cls, Bundle bundle) {
         Intent intent = new Intent();
         if (bundle != null) {
             intent.putExtras(bundle);
         }
 
-        intent.setClass(getView().getContext(), cls);
+        intent.setClass(Objects.requireNonNull(getView()).getContext(), cls);
         startActivity(intent);
     }
 
     /**
      * 创建用户
      *
-     * @param userId
+     * @param userId 用户ID
      */
     protected synchronized DeviceUser createDeviceUser(short userId, String path, int permission) {
         DeviceUser user = new DeviceUser();
@@ -147,7 +151,7 @@ public abstract class BaseFragment extends Fragment {
     /**
      * 创建二维码
      *
-     * @param authBuf
+     * @param authBuf 授权码
      */
     protected String createQRcodeImage(byte[] authBuf) {
 
@@ -257,7 +261,7 @@ public abstract class BaseFragment extends Fragment {
     /**
      * 超时提醒
      *
-     * @param seconds
+     * @param seconds 秒
      */
     protected void closeDialog(final int seconds) {
 

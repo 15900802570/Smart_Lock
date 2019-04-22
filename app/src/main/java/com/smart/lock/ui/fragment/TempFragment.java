@@ -92,13 +92,13 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 //                        deleteUsers.remove(index);
 //                    }
 //                    mTempAdapter.mDeleteUsers.addAll(deleteUsers);
-//                    mTempAdapter.chioseALLDelete(true);
+//                    mTempAdapter.chooseALLDelete(true);
 //                    mSelectBtn.setText(R.string.cancel);
 //                    mSelectBtn.setTag(R.string.cancel);
 //                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
 //                    mTempAdapter.mDeleteUsers.clear();
 //                    mSelectBtn.setText(R.string.all_election);
-//                    mTempAdapter.chioseALLDelete(false);
+//                    mTempAdapter.chooseALLDelete(false);
 //                    mSelectBtn.setTag(R.string.all_election);
 //                }
 //                mChoiseMumTv.setText(String.valueOf(mTempAdapter.mDeleteUsers.size()));

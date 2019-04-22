@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -37,7 +36,6 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
-import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
@@ -51,7 +49,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     private View mAdminView;
     private RecyclerView mUsersRv;
     private AdminAdapter mAdminAdapter;
-    private LinearLayoutManager mLinerLayoutManager;
     private TextView mAddUserTv;
     private RelativeLayout mSelectDeleteRl;
     private CheckBox mSelectCb;
@@ -88,7 +85,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 //                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
 //                    mMumberAdapter.mDeleteUsers.clear();
 //                    mSelectBtn.setText(R.string.all_election);
-//                    mMumberAdapter.chioseALLDelete(false);
+//                    mMumberAdapter.chooseALLDelete(false);
 //                    mSelectBtn.setTag(R.string.all_election);
 //                }
 //                mMumberAdapter.notifyDataSetChanged();
@@ -117,8 +114,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         } else {
             mSelectDeleteRl.setVisibility(View.GONE);
         }
-        mAdminAdapter.chioseALLDelete(false);
-        mAdminAdapter.chioseItemDelete(choise);
+        mAdminAdapter.chooseALLDelete(false);
+        mAdminAdapter.chooseItemDelete(choise);
         mAdminAdapter.notifyDataSetChanged();
     }
 
@@ -146,12 +143,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext(), false);
         mAdminAdapter = new AdminAdapter(mAdminView.getContext());
-        mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
         mUsersRv.setItemAnimator(new DefaultItemAnimator());
         mUsersRv.setAdapter(mAdminAdapter);
         mUsersRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
-        LocalBroadcastManager.getInstance(mAdminView.getContext()).registerReceiver(userReciver, intentFilter());
+        LocalBroadcastManager.getInstance(mAdminView.getContext()).registerReceiver(userReceiver, intentFilter());
 
         mAddUserTv.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
@@ -183,10 +180,10 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                         deleteUsers.remove(index);
                     }
                     mAdminAdapter.mDeleteUsers.addAll(deleteUsers);
-                    mAdminAdapter.chioseALLDelete(true);
+                    mAdminAdapter.chooseALLDelete(true);
                 } else {
                     mTipTv.setText(R.string.all_election);
-                    mAdminAdapter.chioseALLDelete(false);
+                    mAdminAdapter.chooseALLDelete(false);
                 }
                 mAdminAdapter.notifyDataSetChanged();
             }
@@ -205,11 +202,13 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     /**
      * 广播接收
      */
-    private final BroadcastReceiver userReciver = new BroadcastReceiver() {
+    private final BroadcastReceiver userReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            if (action == null) {
+                return;
+            }
             // 4.2.3 MSG 12
             if (action.equals(BleMsg.EXTRA_DATA_MSG_12)) {
                 DeviceUser user = (DeviceUser) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
@@ -317,15 +316,15 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         }
     };
 
-    private class AdminAdapter extends RecyclerView.Adapter<AdminAdapter.AdminViewHoler> {
+    private class AdminAdapter extends RecyclerView.Adapter<AdminAdapter.AdminViewHolder> {
         private Context mContext;
         private ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
-        public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
-        public boolean mAllDelete = false;
+        ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
+        boolean mAllDelete = false;
         private SwipeLayout mSwipelayout;
 
-        public AdminAdapter(Context context) {
+        AdminAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
             int index = -1;
@@ -341,15 +340,15 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
         @NonNull
         @Override
-        public AdminViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public AdminViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
             mSwipelayout = inflate.findViewById(R.id.item_ll_user);
             mSwipelayout.setClickToClose(true);
             mSwipelayout.setRightSwipeEnabled(true);
-            return new AdminViewHoler(inflate);
+            return new AdminViewHolder(inflate);
         }
 
-        public void setDataSource() {
+        void setDataSource() {
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
             int index = -1;
             for (DeviceUser user : mUserList) {
@@ -362,16 +361,16 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             }
         }
 
-        public void chioseItemDelete(boolean visible) {
+        void chooseItemDelete(boolean visible) {
             mVisiBle = visible;
         }
 
 
-        public void chioseALLDelete(boolean allDelete) {
+        void chooseALLDelete(boolean allDelete) {
             mAllDelete = allDelete;
         }
 
-        public void changeUserState(DeviceUser changeUser, int state) {
+        void changeUserState(DeviceUser changeUser, int state) {
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId() == changeUser.getUserId()) {
@@ -382,12 +381,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             }
         }
 
-        public void addItem(DeviceUser user) {
+        void addItem(DeviceUser user) {
             mUserList.add(mUserList.size(), user);
             notifyItemInserted(mUserList.size());
         }
 
-        public void removeItem(DeviceUser delUser) {
+        void removeItem(DeviceUser delUser) {
 
             int index = -1;
             int delIndex = -1;
@@ -418,7 +417,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
 
         @SuppressLint("SetTextI18n")
         @Override
-        public void onBindViewHolder(@NonNull final AdminViewHoler holder, final int position) {
+        public void onBindViewHolder(@NonNull final AdminViewHolder holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
@@ -534,7 +533,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
         }
 
         @Override
-        public void onViewAttachedToWindow(@NonNull AdminViewHoler holder) {
+        public void onViewAttachedToWindow(@NonNull AdminViewHolder holder) {
             super.onViewAttachedToWindow(holder);
             holder.mNameTv.setEnabled(false);
             holder.mNameTv.setEnabled(true);
@@ -545,7 +544,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             return mUserList.size();
         }
 
-        public class AdminViewHoler extends RecyclerView.ViewHolder {
+        class AdminViewHolder extends RecyclerView.ViewHolder {
             RelativeLayout mDeleteRl;
             TextView mUserStateTv;
             ImageButton mEditIbtn;
@@ -557,7 +556,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
             CheckBox mDeleteCb;
             LinearLayout mUserContent;
 
-            public AdminViewHoler(View itemView) {
+            AdminViewHolder(View itemView) {
                 super(itemView);
                 mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);
@@ -577,9 +576,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     public void onDestroy() {
         super.onDestroy();
         try {
-            LocalBroadcastManager.getInstance(mAdminView.getContext()).unregisterReceiver(userReciver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+            LocalBroadcastManager.getInstance(mAdminView.getContext()).unregisterReceiver(userReceiver);
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
     }
 }

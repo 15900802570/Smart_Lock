@@ -25,7 +25,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -43,7 +42,6 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.login.LockScreenActivity;
-import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -191,7 +189,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             return;
         }
         mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getString(R.string.add_locking));
-        LocalBroadcastManager.getInstance(this).registerReceiver(detectReciver, makeGattUpdateIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(detectReceiver, makeGattUpdateIntentFilter());
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
         mRefreshDevLl.setVisibility(View.GONE);
         scanLeDevice(true);
@@ -206,7 +204,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
 
     /**
-     * @return
+     * @return intentFilter
      */
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
@@ -220,11 +218,13 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     /**
      * 广播接收
      */
-    private final BroadcastReceiver detectReciver = new BroadcastReceiver() {
+    private final BroadcastReceiver detectReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            if (action == null) {
+                return;
+            }
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 mHandler.removeCallbacks(mRunnable);
@@ -336,7 +336,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     /**
      * 创建用户
      *
-     * @param userId
+     * @param userId 用户ID
      */
     private void createDeviceUser(short userId, String nodeId) {
         DeviceUser user = new DeviceUser();
@@ -385,7 +385,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mLine.setVisibility(View.GONE);
                     mScanLockTv.setVisibility(View.GONE);
                     mRefreshDevLl.setVisibility(View.VISIBLE);
-                    mBleAdapter.mBluetoothDevlist.clear();
+                    mBleAdapter.mBluetoothDevList.clear();
                     mBleAdapter.notifyDataSetChanged();
                     mScanDev.setVisibility(View.GONE);
                     mScanEmpty.setVisibility(View.GONE);
@@ -461,7 +461,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     /**
      * 搜索结果处理
      *
-     * @param device
+     * @param device 设备信息
      */
     private void detectDevice(BluetoothDevice device) {
 
@@ -472,7 +472,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             scanLeDevice(false);
             mRescanLl.setVisibility(View.GONE);
             mTipsLl.setVisibility(View.GONE);
-            mScanLockTv.setText("安全校验中");
+            mScanLockTv.setText(getString(R.string.checking_security));
             String mac = device.getAddress().replace(":", "");
             LogUtil.d(TAG, "mac = " + mac);
             byte[] macByte = StringUtil.hexStringToBytes(mac);
@@ -510,9 +510,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         }
 
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(detectReciver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(detectReceiver);
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
 
     }
@@ -554,24 +554,24 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
         private Context mContext;
-        public ArrayList<BluetoothDevice> mBluetoothDevlist;
+        public ArrayList<BluetoothDevice> mBluetoothDevList;
 
         public BleAdapter(Context context, ArrayList<BluetoothDevice> devList) {
             mContext = context;
-            mBluetoothDevlist = devList;
+            mBluetoothDevList = devList;
         }
 
         public void setDataSource(ArrayList<BluetoothDevice> devList) {
-            mBluetoothDevlist = devList;
+            mBluetoothDevList = devList;
         }
 
         public void addItem(BluetoothDevice bleDev) {
-            int index = mBluetoothDevlist.indexOf(bleDev);
+            int index = mBluetoothDevList.indexOf(bleDev);
             LogUtil.d(TAG, "result = " + index);
             if (index == -1) {
-                mBluetoothDevlist.add(mBluetoothDevlist.size(), bleDev);
-                LogUtil.d(TAG, "mBluetoothDevlist = " + mBluetoothDevlist.size());
-                notifyItemInserted(mBluetoothDevlist.size());
+                mBluetoothDevList.add(mBluetoothDevList.size(), bleDev);
+                LogUtil.d(TAG, "mBluetoothDevList = " + mBluetoothDevList.size());
+                notifyItemInserted(mBluetoothDevList.size());
             }
 
         }
@@ -587,7 +587,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
-            final BluetoothDevice dev = mBluetoothDevlist.get(position);
+            final BluetoothDevice dev = mBluetoothDevList.get(position);
             if (dev != null) {
                 viewHolder.mDevName.setText(dev.getName());
                 viewHolder.mDevMac.setText(dev.getAddress());
@@ -614,7 +614,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public int getItemCount() {
-            return mBluetoothDevlist.size();
+            return mBluetoothDevList.size();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {

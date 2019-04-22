@@ -272,15 +272,15 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         super.onDestroy();
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(pwdReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
     }
 
     /**
      * 超时提醒
      *
-     * @param seconds
+     * @param seconds 秒
      */
     private void closeDialog(final int seconds) {
 

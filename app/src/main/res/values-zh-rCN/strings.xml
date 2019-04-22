@@ -335,4 +335,8 @@
     <string name="card">卡片</string>
     <string name="_2019_03_15">2019-03-15</string>
     <string name="_2019_03_14">2019-03-14</string>
+    <string name="fp_verification_failed">指纹验证失败,请再试一次</string>
+    <string name="upper_limit_of_fp_verification_times">指纹验证次数达到上限</string>
+    <string name="fp_verification_succeeded">指纹验证成功</string>
+    <string name="skip">跳过</string>
 </resources>

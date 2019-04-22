@@ -18,7 +18,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,11 +25,9 @@ import android.widget.Toast;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
-import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.TempPwdDao;
@@ -44,8 +41,6 @@ import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
-
-import java.util.Arrays;
 
 public class LockSettingActivity extends AppCompatActivity {
 

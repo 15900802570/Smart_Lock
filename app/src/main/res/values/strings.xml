@@ -247,7 +247,7 @@
     <string name="web_site">Web Site</string>
     <string name="customer_service">Customer Service</string>
     <string name="check_version">check version...</string>
-    <string name="company">da tang semi</string>
+    <string name="company">Da Tang Semi</string>
     <string name="isnew_version">is new version,can\'t update!</string>
     <string name="ota_updating">Upgrading</string>
     <string name="http_version_latest">" It's the latest version, no need to upgrade"</string>
@@ -323,4 +323,8 @@
     <string name="to">" to "</string>
     <string name="_2019_03_15">2019-03-15</string>
     <string name="_2019_03_14">2019-03-14</string>
+    <string name="fp_verification_failed">Fingerprint verification failed，Try again</string>
+    <string name="upper_limit_of_fp_verification_times">Upper limit of fingerprint verification times</string>
+    <string name="fp_verification_succeeded">Fingerprint verification succeeded</string>
+    <string name="skip">Skip</string>
 </resources>

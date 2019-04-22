@@ -35,7 +35,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
     private TabLayout mUserPermissionTl;
     private NoScrollViewPager mUserPermissionVp;
-    private Toolbar mUsetSetTb;
+    private Toolbar mUserSetTb;
     private TextView mTitleTv;
 
     private boolean mDeleteMode = false;
@@ -83,7 +83,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private void initView() {
         mUserPermissionTl = findViewById(R.id.tl_user_manager);
         mUserPermissionVp = findViewById(R.id.vp_user_manager);
-        mUsetSetTb = findViewById(R.id.tb_user_set);
+        mUserSetTb = findViewById(R.id.tb_user_set);
         mTitleTv = findViewById(R.id.tv_title);
     }
 
@@ -129,8 +129,8 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private void initActionBar() {
         mTitleTv.setText(R.string.unlock_key);
 
-        mUsetSetTb.setNavigationIcon(R.mipmap.btn_back);
-        mUsetSetTb.setNavigationOnClickListener(new View.OnClickListener() {
+        mUserSetTb.setNavigationIcon(R.mipmap.btn_back);
+        mUserSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();

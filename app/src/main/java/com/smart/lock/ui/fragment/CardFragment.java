@@ -366,8 +366,8 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         super.onDestroy();
         try {
             LocalBroadcastManager.getInstance(mCardView.getContext()).unregisterReceiver(cardReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
         }
     }
 

@@ -1,14 +1,16 @@
 package com.smart.lock.ui.fragment;
 
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,7 +19,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -28,7 +29,6 @@ import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
@@ -43,6 +43,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class FingerprintFragment extends BaseFragment implements View.OnClickListener {
     private final static String TAG = FingerprintFragment.class.getSimpleName();
@@ -52,7 +53,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     protected TextView mAddTv;
 
     private FpManagerAdapter mFpAdapter;
-    private String mLockId = null;
     private boolean mIsVisibleFragment = false;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -135,41 +135,50 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     private final BroadcastReceiver fpReceiver = new BroadcastReceiver() {
 
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            if(action == null){
+                return;
+            }
             //MSG1E 设备->apk，返回信息
             if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
 
                 Log.d(TAG, "errCode[3] = " + errCode[3]);
 
-                if (errCode[3] == 0x08) {
-                    if (mFpAdapter.positionModify != -1) {
-                        showMessage(mFpView.getContext().getResources().getString(R.string.modify_fp_failed));
-                        mFpAdapter.positionModify = -1;
-                    } else {
-                        showMessage(mFpView.getContext().getResources().getString(R.string.add_fp_failed));
-                    }
-
-                } else if (errCode[3] == 0x09) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.modify_fp_success));
-                } else if (errCode[3] == 0x0a) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_success));
-                    mFpAdapter.removeItem(mFpAdapter.positionDelete);
-                } else if (errCode[3] == 0x23) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_failed));
-                } else if (errCode[3] == 0x24) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.fp_full));
-                } else if (errCode[3] == 0x25) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.device_busy));
+                switch (errCode[3]) {
+                    case 0x08:
+                        if (mFpAdapter.positionModify != -1) {
+                            showMessage(mFpView.getContext().getResources().getString(R.string.modify_fp_failed));
+                            mFpAdapter.positionModify = -1;
+                        } else {
+                            showMessage(mFpView.getContext().getResources().getString(R.string.add_fp_failed));
+                        }
+                        break;
+                    case 0x09:
+                        showMessage(mFpView.getContext().getResources().getString(R.string.modify_fp_success));
+                        break;
+                    case 0x0a:
+                        showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_success));
+                        mFpAdapter.removeItem(mFpAdapter.positionDelete);
+                        break;
+                    case 0x23:
+                        showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_failed));
+                        break;
+                    case 0x24:
+                        showMessage(mFpView.getContext().getResources().getString(R.string.fp_full));
+                        break;
+                    case 0x25:
+                        showMessage(mFpView.getContext().getResources().getString(R.string.device_busy));
+                        break;
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 mHandler.removeCallbacks(mRunnable);
             }
 
             if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
-                DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
+                DeviceKey key = (DeviceKey) Objects.requireNonNull(intent.getExtras()).getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_FINGERPRINT)) {
                     mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
@@ -178,7 +187,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
                 final byte[] lockId = intent.getByteArrayExtra(BleMsg.KEY_LOCK_ID);
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
-                mLockId = String.valueOf(lockId[0]);
+                String mLockId = String.valueOf(lockId[0]);
                 LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
@@ -231,25 +240,25 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     public class FpManagerAdapter extends RecyclerView.Adapter<FpManagerAdapter.ViewHolder> {
         private Context mContext;
-        public ArrayList<DeviceKey> mFpList;
-        public int positionDelete = -1;
-        public int positionModify = -1;
+        ArrayList<DeviceKey> mFpList;
+        int positionDelete = -1;
+        int positionModify = -1;
 
-        public FpManagerAdapter(Context context) {
+        FpManagerAdapter(Context context) {
             mContext = context;
             mFpList = DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT);
         }
 
-        public void setDataSource(ArrayList<DeviceKey> cardList) {
+        void setDataSource(ArrayList<DeviceKey> cardList) {
             mFpList = cardList;
         }
 
-        public void addItem(DeviceKey key) {
+        void addItem(DeviceKey key) {
             mFpList.add(mFpList.size(), key);
             notifyItemInserted(mFpList.size());
         }
 
-        public void removeItem(int index) {
+        void removeItem(int index) {
             LogUtil.d(TAG, "mFpList = " + mFpList.toString());
             if (index != -1 && !mFpList.isEmpty()) {
                 DeviceKey del = mFpList.remove(index);
@@ -260,8 +269,9 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
         }
 
+        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler, parent, false);
             SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_recycler);
             swipeLayout.setClickToClose(true);
@@ -270,7 +280,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final DeviceKey fpInfo = mFpList.get(position);
             LogUtil.d(TAG, "fpInfo = " + fpInfo.toString());
             viewHolder.mNameTv.setText(fpInfo.getKeyName());
@@ -366,8 +376,8 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         super.onDestroy();
         try {
             LocalBroadcastManager.getInstance(mFpView.getContext()).unregisterReceiver(fpReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+        } catch (Exception i) {
+            Log.e(TAG, i.toString());
         }
     }
 }

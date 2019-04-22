@@ -90,9 +90,9 @@ public class FingerprintDialogFragment extends DialogFragment {
                     @Override
                     public void onAuthenticationError(int errorCode, CharSequence errString) {
                         super.onAuthenticationError(errorCode, errString);
-                        LogUtil.i(TGA, "指纹验证错误"+errorCode);
+                        LogUtil.i(TGA, getString(R.string.fp_verification_failed)+errorCode);
                         if(errorCode==FingerprintManager.FINGERPRINT_ERROR_LOCKOUT){
-                            Toast.makeText(mActivity,"指纹验证次数达到上限",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(mActivity,getString(R.string.upper_limit_of_fp_verification_times),Toast.LENGTH_SHORT).show();
                             dismiss();
                             mActivity.onFingerprintAuthenticationError(errorCode);
                         }
@@ -108,7 +108,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                     @Override
                     public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
-                        LogUtil.i(TGA, "指纹验证成功");
+                        LogUtil.i(TGA, getString(R.string.fp_verification_succeeded));
                         mActivity.onFingerprintAuthenticationSucceeded();
                         dismiss();
                         stopFPListening();
@@ -116,8 +116,8 @@ public class FingerprintDialogFragment extends DialogFragment {
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
-                        LogUtil.i(TGA, "指纹验证失败");
-                        mErrorTv.setText("指纹认证失败，请再试一次");
+                        LogUtil.i(TGA, getString(R.string.fp_verification_failed));
+                        mErrorTv.setText(getString(R.string.fp_verification_failed));
                         shakes();
                     }
                 },
