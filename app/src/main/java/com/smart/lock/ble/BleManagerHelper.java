@@ -406,6 +406,10 @@ public class BleManagerHelper {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
+                                mDefaultDevice = DeviceInfoDao.getInstance(mContext).queryFirstData("device_default", true);
+                                if (mDefaultDevice == null && mConnectType != 2) {
+                                    mConnectType = 0;
+                                }
                                 if (mConnectType == 2)
                                     mService.sendCmd05(mBleMac, mNodeId, mSn);
                                 else

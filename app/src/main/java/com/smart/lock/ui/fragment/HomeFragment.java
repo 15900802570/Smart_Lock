@@ -523,13 +523,15 @@ public class HomeFragment extends BaseFragment implements
 //                mScanQRHelper.scanQr();
                 break;
             case R.id.ll_status:
-                refreshView(DEVICE_CONNECTING);
-                MessageCreator.setSk(mDefaultDevice);
-                Bundle dev = new Bundle();
-                dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                LogUtil.d(TAG, "dev = " + dev.toString());
-                mBleManagerHelper.connectBle((byte) 1, dev, mHomeView.getContext());
+                if (!mIsConnected) {
+                    refreshView(DEVICE_CONNECTING);
+                    MessageCreator.setSk(mDefaultDevice);
+                    Bundle dev = new Bundle();
+                    dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                    dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                    LogUtil.d(TAG, "dev = " + dev.toString());
+                    mBleManagerHelper.connectBle((byte) 1, dev, mHomeView.getContext());
+                }
                 break;
             case R.id.ll_setting:
                 if (mIsConnected) {

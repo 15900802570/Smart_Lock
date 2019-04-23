@@ -106,7 +106,7 @@
     <string name="checking_security">Safety Check</string>
     <string name="add_locking">In the generating device...</string>
     <string name="retry_connect">Connection timeout, please re-operate ...</string>
-    <string name="plz_set_lock_name">Please set the name of the door lock:</string>
+    <string name="plz_set_lock_name">Please set the name of the door lock (max length:6):</string>
     <string name="lock_default_name">Intelligent door lock</string>
     <string name="battery_unknow">Unknown</string>
     <string name="device_sync">synchronization</string>
@@ -320,7 +320,6 @@
     <string name="enter_pwd_again">Enter your password again</string>
     <string name="card">Card</string>
     <string name="set_user_validity_period">Setting User Validity Period</string>
-    <string name="to">" to "</string>
     <string name="_2019_03_15">2019-03-15</string>
     <string name="_2019_03_14">2019-03-14</string>
     <string name="fp_verification_failed">Fingerprint verification failed，Try again</string>

@@ -79,7 +79,7 @@
     <string name="checking_security">安全校验中...</string>
     <string name="add_locking">生成设备中...</string>
     <string name="retry_connect">连接超时,请重新操作...</string>
-    <string name="plz_set_lock_name">请设置门锁名称:</string>
+    <string name="plz_set_lock_name">请设置门锁名称(最多支持6个字符):</string>
     <string name="lock_default_name">智能门锁</string>
     <string name="battery_0">0%</string>
     <string name="battery_10">10%</string>
