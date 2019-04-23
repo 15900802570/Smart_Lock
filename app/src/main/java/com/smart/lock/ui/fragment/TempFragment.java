@@ -1,5 +1,6 @@
 package com.smart.lock.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -25,6 +28,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.j256.ormlite.dao.Dao;
 import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
@@ -55,6 +59,29 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
     private CheckBox mSelectCb;
     private TextView mTipTv;
     private TextView mDeleteTv;
+    /**
+     * 定义一个内容观察者
+     */
+    private Dao.DaoObserver mOb = new Dao.DaoObserver() {
+        @Override
+        public void onChange() {
+            mHandler.sendEmptyMessage(0);
+        }
+    };
+
+    @SuppressLint("HandlerLeak")
+    Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    refreshView();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,11 +96,12 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     showMessage(mTempView.getContext().getResources().getString(R.string.tmp_user) + mTempView.getContext().getResources().getString(R.string.add_user_tips));
                     return;
                 }
+                mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 3, (short) 0);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 3, (short) 0,BleMsg.INT_DEFAULT_TIMEOUT);
                 }
                 break;
 //            case R.id.btn_select_all:
@@ -109,7 +137,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
-                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
+                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     closeDialog(10);
                 } else {
@@ -153,8 +181,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
     public void initDate() {
         mDefaultDevice = DeviceInfoDao.getInstance(mTempView.getContext()).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+        mDefaultUser = DeviceUserDao.getInstance(mTempView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mTempView.getContext(), false);
+        DeviceUserDao.getInstance(mTempView.getContext()).registerObserver(mOb);
         mTempAdapter = new TempAdapter(mTempView.getContext());
         mLinerLayoutManager = new LinearLayoutManager(mTempView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
@@ -474,7 +503,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });
@@ -486,7 +515,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });
@@ -507,6 +536,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
                     @Override
                     public void onClick(View v) {
+                        LogUtil.d(TAG, "userInfo = " + userInfo.toString());
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
                         startIntent(TempUserActivity.class, bundle);
@@ -520,10 +550,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
 
                 holder.mDeleteCb.setChecked(mAllDelete);
             }
-
-
         }
-
 
         @Override
         public int getItemCount() {
@@ -563,6 +590,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        DeviceUserDao.getInstance(mTempView.getContext()).unregisterObserver(mOb);
         try {
             LocalBroadcastManager.getInstance(mTempView.getContext()).unregisterReceiver(userReciver);
         } catch (Exception ignore) {

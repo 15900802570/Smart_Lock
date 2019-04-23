@@ -235,9 +235,9 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                     mLoadDialog.show();
                     closeDialog(5);
                     if (mTempUser != null)
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mTempUser.getUserId(), (byte) 0, firstPwd);
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mTempUser.getUserId(), (byte) 0, firstPwd,BleMsg.INT_DEFAULT_TIMEOUT);
                     else
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mDefaultDevice.getUserId(), (byte) 0, firstPwd);
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 0, mDefaultDevice.getUserId(), (byte) 0, firstPwd,BleMsg.INT_DEFAULT_TIMEOUT);
 
                 } else {
                     showMessage(getResources().getString(R.string.add_pwd_tips));
@@ -246,7 +246,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
                 closeDialog(5);
-                mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 0, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd);
+                mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 0, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd,BleMsg.INT_DEFAULT_TIMEOUT);
             }
 
         }

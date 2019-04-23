@@ -30,184 +30,177 @@
         android:layout_below="@+id/tb_unlock_time"
         android:background="@color/gray2" />
 
-    <TextView
-        android:id="@+id/tv_add_tips"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/line"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="30dp"
-        android:text="设置开锁时段:"
-        android:textColor="@color/black"
-        android:textSize="14dp" />
-
     <LinearLayout
         android:id="@+id/ll_unlock_time1"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@+id/tv_add_tips"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="3dp"
+        android:layout_height="@dimen/y45dp"
+        android:layout_below="@+id/line"
+        android:layout_marginStart="@dimen/x27dp"
+        android:layout_marginTop="@dimen/y39dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_start_time"
-            android:layout_width="110dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="@dimen/x165dp"
+            android:layout_height="@dimen/y45dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center"
             android:text="08:00"
-            android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textColor="#FF555555"
+            android:textSize="@dimen/d20sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:text=" 至 "
+            android:layout_marginStart="@dimen/x14dp"
+            android:layout_marginEnd="@dimen/x14dp"
+            android:text="@string/to"
             android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d20sp" />
 
         <TextView
             android:id="@+id/tv_end_time"
-            android:layout_width="110dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="@dimen/x165dp"
+            android:layout_height="@dimen/y45dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center"
             android:text="09:00"
-            android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textColor="#FF555555"
+            android:textSize="@dimen/d20sp" />
 
-        <Button
-            android:id="@+id/btn_del_time1"
+        <TextView
+            android:id="@+id/tv_del_time1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/box_corners_red"
-            android:text="@string/delete" />
+            android:layout_marginStart="@dimen/x32dp"
+            android:text="@string/delete"
+            android:textColor="@color/red"
+            android:textSize="@dimen/d20sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_unlock_time2"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/y45dp"
         android:layout_below="@+id/ll_unlock_time1"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="@dimen/x27dp"
+        android:layout_marginTop="@dimen/y39dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_start_time2"
-            android:layout_width="110dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="@dimen/x165dp"
+            android:layout_height="@dimen/y45dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center"
             android:text="11:00"
-            android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textColor="#FF555555"
+            android:textSize="@dimen/d20sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:text=" 至 "
+            android:layout_marginStart="@dimen/x14dp"
+            android:layout_marginEnd="@dimen/x14dp"
+            android:text="@string/to"
             android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d20sp" />
 
         <TextView
             android:id="@+id/tv_end_time2"
-            android:layout_width="110dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="@dimen/x165dp"
+            android:layout_height="@dimen/y45dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center"
             android:text="12:00"
-            android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textColor="#FF555555"
+            android:textSize="@dimen/d20sp" />
 
-        <Button
-            android:id="@+id/btn_del_time2"
+        <TextView
+            android:id="@+id/tv_del_time2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/box_corners_red"
-            android:text="@string/delete" />
+            android:layout_marginStart="@dimen/x32dp"
+            android:text="@string/delete"
+            android:textColor="@color/red"
+            android:textSize="@dimen/d20sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_unlock_time3"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/y45dp"
         android:layout_below="@+id/ll_unlock_time2"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="@dimen/x27dp"
+        android:layout_marginTop="@dimen/y39dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_start_time3"
-            android:layout_width="110dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="@dimen/x165dp"
+            android:layout_height="@dimen/y45dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center"
             android:text="17:00"
-            android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textColor="#FF555555"
+            android:textSize="@dimen/d20sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:text=" 至 "
+            android:layout_marginStart="@dimen/x14dp"
+            android:layout_marginEnd="@dimen/x14dp"
+            android:text="@string/to"
             android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textSize="@dimen/d20sp" />
 
         <TextView
             android:id="@+id/tv_end_time3"
-            android:layout_width="110dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="5dp"
+            android:layout_width="@dimen/x165dp"
+            android:layout_height="@dimen/y45dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center"
             android:text="18:00"
-            android:textColor="@color/black"
-            android:textSize="14dp" />
+            android:textColor="#FF555555"
+            android:textSize="@dimen/d20sp" />
 
-        <Button
-            android:id="@+id/btn_del_time3"
+        <TextView
+            android:id="@+id/tv_del_time3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:background="@drawable/box_corners_red"
-            android:text="@string/delete" />
+            android:layout_marginStart="@dimen/x32dp"
+            android:text="@string/delete"
+            android:textColor="@color/red"
+            android:textSize="@dimen/d20sp" />
 
     </LinearLayout>
 
-
-    <FrameLayout
-        android:id="@+id/fl_add"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/ll_add_user"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/mask">
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="0dp"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_add_unlock_time"
-            style="@style/RountButtonStyle"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20.0dip"
+        <TextView
+            android:id="@+id/tv_add_unlock_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/y20dp"
+            android:drawableTop="@mipmap/add_unlock_time"
+            android:gravity="center_horizontal"
             android:text="@string/add_unlock_time"
+            android:textSize="@dimen/d12sp"
             android:visibility="visible" />
-    </FrameLayout>
 
+    </LinearLayout>
 
 </RelativeLayout>

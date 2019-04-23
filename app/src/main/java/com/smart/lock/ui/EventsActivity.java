@@ -104,7 +104,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         mLoadDialog = DialogUtils.createLoadingDialog(EventsActivity.this, EventsActivity.this.getResources().getString(R.string.data_loading));
         mLoadDialog.show();
-        closeDialog(60);
+        closeDialog(30);
 
         LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.getUserPermission());
 
@@ -299,7 +299,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
                         int logId = devLog.getLogId();
                         LogUtil.d(TAG, "logId = " + logId);
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog);
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     closeDialog(10);
                 } else {

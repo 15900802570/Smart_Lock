@@ -327,4 +327,8 @@
     <string name="upper_limit_of_fp_verification_times">Upper limit of fingerprint verification times</string>
     <string name="fp_verification_succeeded">Fingerprint verification succeeded</string>
     <string name="skip">Skip</string>
+    <string name="to">" To "</string>
+    <string name="_1970_01_01">1970-01-01</string>
+    <string name="complete">Complete</string>
+    <string name="input_timeout">Input TimeOut</string>
 </resources>

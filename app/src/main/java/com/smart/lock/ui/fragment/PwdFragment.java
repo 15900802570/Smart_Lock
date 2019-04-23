@@ -233,7 +233,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0));
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {

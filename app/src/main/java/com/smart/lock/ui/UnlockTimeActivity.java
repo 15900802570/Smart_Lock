@@ -54,13 +54,13 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private TextView mSecondEndTime;
     private TextView mThirdStartTime;
     private TextView mThirtEndTime;
-    private Button mAddUnlockTimeBtn;
+    private TextView mAddUnlockTimeTv;
     private LinearLayout mFirstUnlockTimeLl;
     private LinearLayout mSecondUnlockTimeLl;
     private LinearLayout mThirtUnlockTimeLl;
-    private Button mDelFirstBtn;
-    private Button mDelSecondBtn;
-    private Button mDelThirdBtn;
+    private TextView mDelFirstTv;
+    private TextView mDelSecondTv;
+    private TextView mDelThirdTv;
 
     private boolean mDeleteMode = false;
 
@@ -118,13 +118,13 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         mSecondEndTime = findViewById(R.id.tv_end_time2);
         mThirdStartTime = findViewById(R.id.tv_start_time3);
         mThirtEndTime = findViewById(R.id.tv_end_time3);
-        mAddUnlockTimeBtn = findViewById(R.id.btn_add_unlock_time);
+        mAddUnlockTimeTv = findViewById(R.id.tv_add_unlock_time);
         mFirstUnlockTimeLl = findViewById(R.id.ll_unlock_time1);
         mSecondUnlockTimeLl = findViewById(R.id.ll_unlock_time2);
         mThirtUnlockTimeLl = findViewById(R.id.ll_unlock_time3);
-        mDelFirstBtn = findViewById(R.id.btn_del_time1);
-        mDelSecondBtn = findViewById(R.id.btn_del_time2);
-        mDelThirdBtn = findViewById(R.id.btn_del_time3);
+        mDelFirstTv = findViewById(R.id.tv_del_time1);
+        mDelSecondTv = findViewById(R.id.tv_del_time2);
+        mDelThirdTv = findViewById(R.id.tv_del_time3);
     }
 
     private void initData() {
@@ -160,10 +160,10 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         mSecondEndTime.setOnClickListener(this);
         mThirdStartTime.setOnClickListener(this);
         mThirtEndTime.setOnClickListener(this);
-        mAddUnlockTimeBtn.setOnClickListener(this);
-        mDelFirstBtn.setOnClickListener(this);
-        mDelSecondBtn.setOnClickListener(this);
-        mDelThirdBtn.setOnClickListener(this);
+        mAddUnlockTimeTv.setOnClickListener(this);
+        mDelFirstTv.setOnClickListener(this);
+        mDelSecondTv.setOnClickListener(this);
+        mDelThirdTv.setOnClickListener(this);
     }
 
     private void initActionBar() {
@@ -309,7 +309,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 finish();
                 break;
             case R.id.item_confirm:
-
                 sendUnlocktime();
                 break;
             default:
@@ -475,12 +474,13 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         if (secondBegin != null && secondEnd != null) {
             String secondBeginStr = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH) + "-" + mCalendar.get(Calendar.HOUR_OF_DAY) + " " + secondBegin + ":00";
             String secondEndDateStr = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH) + "-" + mCalendar.get(Calendar.HOUR_OF_DAY) + " " + secondEnd + ":00";
+            LogUtil.d(TAG, "secondBeginStr = " + secondBeginStr + " ;secondEndDateStr = " + secondEndDateStr);
             try {
                 Date secondBeginDate = currentTime.parse(secondBeginStr);
                 Date secondEndDate = currentTime.parse(secondEndDateStr);
 
-                int secondBeginTime = (int) secondBeginDate.getTime() / 1000;
-                int secondEndTime = (int) secondEndDate.getTime() / 1000;
+                int secondBeginTime = Long.valueOf((secondBeginDate.getTime() / 1000)).intValue();
+                int secondEndTime = Long.valueOf((secondEndDate.getTime() / 1000)).intValue();
                 LogUtil.d(TAG, "secondBeginTime = " + secondBeginTime + " ;secondEndTime = " + secondEndTime);
                 byte[] secondTimeBuf = new byte[4];
                 StringUtil.int2Bytes(secondBeginTime, secondTimeBuf);
@@ -497,12 +497,13 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         if (thirdBegin != null && thirdEnd != null) {
             String thirdBeginStr = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH) + "-" + mCalendar.get(Calendar.HOUR_OF_DAY) + " " + thirdBegin + ":00";
             String thirdEndDateStr = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH) + "-" + mCalendar.get(Calendar.HOUR_OF_DAY) + " " + thirdEnd + ":00";
+            LogUtil.d(TAG, "thirdBeginStr = " + thirdBeginStr + " ;thirdEndDateStr = " + thirdEndDateStr);
             try {
                 Date thirdBeginDate = currentTime.parse(thirdBeginStr);
                 Date thirdEndDate = currentTime.parse(thirdEndDateStr);
 
-                int thirdBeginTime = (int) thirdBeginDate.getTime() / 1000;
-                int thirdEndTime = (int) thirdEndDate.getTime() / 1000;
+                int thirdBeginTime = Long.valueOf((thirdBeginDate.getTime() / 1000)).intValue();
+                int thirdEndTime = Long.valueOf((thirdEndDate.getTime() / 1000)).intValue();
                 LogUtil.d(TAG, "thirdBeginTime = " + thirdBeginTime + " ;thirdEndTime = " + thirdEndTime);
                 byte[] thirdTimeBuf = new byte[4];
                 StringUtil.int2Bytes(thirdBeginTime, thirdTimeBuf);
@@ -579,17 +580,17 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             case R.id.tv_end_time3:
                 showTimePickerDialog(TEMP_KEY_THIRD_END_TIME);
                 break;
-            case R.id.btn_del_time1:
+            case R.id.tv_del_time1:
                 mFirstUnlockTimeLl.setVisibility(View.GONE);
                 break;
-            case R.id.btn_del_time2:
+            case R.id.tv_del_time2:
                 mSecondUnlockTimeLl.setVisibility(View.GONE);
                 break;
-            case R.id.btn_del_time3:
+            case R.id.tv_del_time3:
                 mThirtUnlockTimeLl.setVisibility(View.GONE);
                 break;
 
-            case R.id.btn_add_unlock_time:
+            case R.id.tv_add_unlock_time:
                 if (mFirstUnlockTimeLl.getVisibility() == View.GONE) {
                     mFirstUnlockTimeLl.setVisibility(View.VISIBLE);
                     return;

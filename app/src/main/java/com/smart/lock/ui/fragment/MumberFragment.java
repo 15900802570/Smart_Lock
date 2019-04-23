@@ -72,7 +72,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 2, (short) 0);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 2, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                 }
                 break;
 //            case R.id.cb_selete_user:
@@ -96,7 +96,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     mLoadDialog.show();
                     for (DeviceUser devUser : mMemberAdapter.mDeleteUsers) {
                         LogUtil.d(TAG, "devUser = " + devUser.getUserId());
-                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
+                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     closeDialog(10);
                 } else {
@@ -469,7 +469,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });
@@ -481,7 +481,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });

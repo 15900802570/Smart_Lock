@@ -99,7 +99,7 @@ public class BleManagerHelper {
     private long mStartTime = 0;
     private long mEndTime = 0;
 
-    private static final long SCAN_PERIOD = 20000;
+    private static final long SCAN_PERIOD = 30000;
     private BleConnectModel mBleModel; //蓝牙连接状态实例
 
     private DeviceInfo mDefaultDevice; //默认设备
@@ -107,10 +107,12 @@ public class BleManagerHelper {
     private DeviceStatus mDefaultStatus; //用户状态
     private IBindServiceCallback mBindServiceCallback; //注册成功回调
     private Dialog mLoadDialog;
+    private String mDefaultMac = "BA:BA:BA:BA:BA:BA";
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
             if (mBleModel.getState() == BleConnectModel.BLE_CONNECTION) {
+                mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
                 mBleModel.setState(BleConnectModel.BLE_DISCONNECTED);
                 mBtAdapter.stopLeScan(mLeScanCallback);
@@ -169,6 +171,7 @@ public class BleManagerHelper {
         }
         if (mConnectType == 2) {
             mContext = context;
+            mHandler.removeCallbacks(mRunnable);
             DialogUtils.closeDialog(mLoadDialog);
             mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.tv_scan_lock));
             mLoadDialog.show();
@@ -176,6 +179,7 @@ public class BleManagerHelper {
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
         } else
             mUserId = bundle.getShort(BleMsg.KEY_USER_ID);
+
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -198,41 +202,54 @@ public class BleManagerHelper {
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+//            if (mConnectType == 2) {
+//                byte[] imei = new byte[8];
+//                System.arraycopy(scanRecord, 19, imei, 0, 8);
+//                StringUtil.exchange(imei);
+//                String nodeId = "812345678900006";
+//                if (device.getName() != null) {
+//                    Log.d(TAG, "device.getName() = " + device.getName());
+//                }
+//                if (StringUtil.byteArrayToHexStr(imei).equals(nodeId)) {
+//                    mBtAdapter.stopLeScan(mLeScanCallback);
+//                    if (!mIsConnected && mService != null) {
+//                        DialogUtils.closeDialog(mLoadDialog);
+//                        mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.bt_connecting));
+//                        mLoadDialog.show();
+//                        boolean result = mService.connect(device.getAddress());
+//
+//                    }
+//                }
+//            } else {
+            if (StringUtil.checkIsNull(mBleMac)) {
+                mBtAdapter.stopLeScan(mLeScanCallback);
+                return;
+            }
             if (mConnectType == 2) {
-                byte[] imei = new byte[8];
-                System.arraycopy(scanRecord, 19, imei, 0, 8);
-                StringUtil.exchange(imei);
-                String nodeId = "812345678900006";
-                if (device.getName() != null) {
-                    Log.d(TAG, "device.getName() = " + device.getName());
-                }
-                if (StringUtil.byteArrayToHexStr(imei).equals(nodeId)) {
+                if (device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                    LogUtil.d(TAG, "dev rssi = " + rssi);
                     mBtAdapter.stopLeScan(mLeScanCallback);
+                    LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                     if (!mIsConnected && mService != null) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.bt_connecting));
-                        mLoadDialog.show();
                         boolean result = mService.connect(device.getAddress());
-
+                        LogUtil.d(TAG, "result = " + result);
                     }
                 }
             } else {
-                if (StringUtil.checkIsNull(mBleMac)) {
-                    mBtAdapter.stopLeScan(mLeScanCallback);
-                    return;
-                }
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                     if (!mIsConnected && mService != null) {
                         boolean result = mService.connect(mBleMac);
-
+                        LogUtil.d(TAG, "result = " + result);
                     }
                 }
             }
 
         }
+
+//        }
     };
 
     /**
@@ -311,33 +328,6 @@ public class BleManagerHelper {
     }
 
     /**
-     * 蓝牙连接状态回调
-     */
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className, IBinder rawBinder) {
-//            mService = ((BleCardService.LocalBinder) rawBinder).getService();
-            Log.e(TAG, "mService is connection");
-            mEndTime = System.currentTimeMillis();
-            LogUtil.d("connecting ble time : " + (mEndTime - mStartTime));
-            if (!mService.initialize()) {
-                Log.e(TAG, "Unable to initialize Bluetooth");
-            }
-            if (mBindServiceCallback != null) {
-                mBindServiceCallback.onBindSuccess();
-            }
-
-        }
-
-        public void onServiceDisconnected(ComponentName classname) {
-            Log.e(TAG, "mService is Disconnected");
-            mService = null;
-            if (mBindServiceCallback != null) {
-                mBindServiceCallback.onBindFailure();
-            }
-        }
-    };
-
-    /**
      * @return
      */
     private static IntentFilter makeGattUpdateIntentFilter() {
@@ -380,11 +370,18 @@ public class BleManagerHelper {
                 mBleModel.setState(BleConnectModel.BLE_DISCONNECTED);
                 mIsConnected = false;
                 mMode = mTempMode ? 1 : 0;
-                mConnectType = 0;
                 mUserId = 0;
                 if (mMode == 1) {
                     startScanDevice();
                 }
+                mDefaultDevice = null;
+                mDefaultUser = null;
+                mDefaultStatus = null;
+                if (mConnectType == 2) {
+                    mConnectType = 0;
+                    return;
+                }
+
                 LogUtil.d(TAG, "active ble : " + mService.isActiveDisConnect());
                 if (StringUtil.checkNotNull(mBleMac) && mBleModel.getState() == BleConnectModel.BLE_DISCONNECTED) {
                     new Handler().postDelayed(new Runnable() {
@@ -398,6 +395,7 @@ public class BleManagerHelper {
 
             if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
                 if (mConnectType == 2) {
+                    mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.setting_dev_info));
                     mLoadDialog.show();
@@ -495,7 +493,7 @@ public class BleManagerHelper {
                     mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
                     DeviceInfoDao.getInstance(mContext).updateDeviceInfo(mDefaultDevice);
 
-                    mService.sendCmd25(mDefaultDevice.getUserId());
+                    mService.sendCmd25(mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
 
                     mDefaultUser = DeviceUserDao.getInstance(mContext).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                     mDefaultStatus = DeviceStatusDao.getInstance(mContext).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
@@ -573,6 +571,7 @@ public class BleManagerHelper {
 
     /**
      * 设置蓝牙地址
+     *
      * @param bleMac ble addr
      */
     public void setBleMac(String bleMac) {

@@ -62,6 +62,9 @@ public class BleMsg {
 
     public static final String OTA_SEND_DATA = "OTA_SEND_DATA";
 
+
+    public static final int INT_DEFAULT_TIMEOUT = 10;
+
     /**
      * 设备->APK，IK校验失败
      */

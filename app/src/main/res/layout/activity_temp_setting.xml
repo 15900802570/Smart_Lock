@@ -22,11 +22,10 @@
             android:textSize="@dimen/d23sp" />
     </android.support.v7.widget.Toolbar>
 
-    <!--<View-->
-    <!--android:id="@+id/line"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="0.5dp"-->
-    <!--android:background="@color/gray2" />-->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#FFEEEEEE"/>
 
     <LinearLayout
         android:id="@+id/ll_modify_memo"
@@ -84,7 +83,7 @@
             android:background="@drawable/box_corners_white"
             android:gravity="center_vertical"
             android:paddingStart="@dimen/x11dp"
-            android:text="@string/_2019_03_14"
+            android:text="@string/_1970_01_01"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
 
@@ -104,7 +103,7 @@
             android:background="@drawable/box_corners_white"
             android:gravity="center_vertical"
             android:paddingStart="@dimen/x11dp"
-            android:text="@string/_2019_03_15"
+            android:text="@string/_1970_01_01"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
 
