@@ -22,23 +22,6 @@ public class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
     }
 
-    /**
-     * 转成标准MAC地址
-     *
-     * @param str 未加：的MAC字符串
-     * @return 标准MAC字符串
-     */
-    protected static String getMacAdr(String str) {
-        str = str.toUpperCase();
-        StringBuilder result = new StringBuilder("");
-        for (int i = 1; i <= 12; i++) {
-            result.append(str.charAt(i - 1));
-            if (i % 2 == 0) {
-                result.append(":");
-            }
-        }
-        return result.substring(0, 17);
-    }
 
     /**
      * 吐司提示

@@ -411,6 +411,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     mSn = dvInfo[0];
                     mBleMac = dvInfo[1];
                     mNodeId = dvInfo[2];
+//                    mBleMac = StringUtil.getMacAdr(mBleMac);
 
                     Bundle bundle = new Bundle();
                     bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);

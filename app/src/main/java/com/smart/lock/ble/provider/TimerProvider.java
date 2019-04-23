@@ -3,6 +3,7 @@ package com.smart.lock.ble.provider;
 import android.util.Log;
 
 import com.smart.lock.ble.TimerListener;
+import com.smart.lock.utils.LogUtil;
 
 
 /**
@@ -10,6 +11,7 @@ import com.smart.lock.ble.TimerListener;
  */
 public class TimerProvider {
 
+    private static final String TAG = TimerProvider.class.getSimpleName();
     TimerListener listener;
     long time;
     String label;
@@ -56,6 +58,7 @@ public class TimerProvider {
      * When the Timeout fires
      */
     public void onInnerTimeout() {
+        LogUtil.d(TAG, "active : " + active + " listener != null" + (listener != null));
         if (active && listener != null)
             listener.onTimeout(this);
         listener = null;
@@ -67,7 +70,11 @@ public class TimerProvider {
     }
 
     public void reSetTimeOut(long timeout) {
+        if (innerTimer != null) {
+            innerTimer.cancel();
+        }
         time = timeout;
+        innerTimer = new InnerTimerST(time, this);
     }
 }
 
@@ -83,7 +90,7 @@ class InnerTimerST extends java.util.TimerTask {
     }
 
     public void run() {
-        Log.d("ClientTransaction", "single_timer is run!~");
+        Log.d("ClientTransaction", "single_timer is run!~" + (listener != null));
         if (listener != null) {
             listener.onInnerTimeout();
             listener = null;

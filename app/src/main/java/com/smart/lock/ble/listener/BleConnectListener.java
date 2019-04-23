@@ -8,6 +8,7 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.UIReceiver;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
+import com.smart.lock.ble.provider.TimerProvider;
 import com.smart.lock.utils.LogUtil;
 
 public class BleConnectListener implements BleMessageListener {
@@ -20,7 +21,7 @@ public class BleConnectListener implements BleMessageListener {
     }
 
     @Override
-    public void onReceive(BleProvider provider, Message message) {
+    public void onReceive(Message message, TimerProvider timer) {
 
         try {
             int type = message.getType();
@@ -33,7 +34,7 @@ public class BleConnectListener implements BleMessageListener {
 
                 final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
                 if (random != null && random.length != 0) {
-                    sendCmd03(random, provider);
+//                    sendCmd03(random, provider);
                 } else {
                     Log.w(TAG, "random is null!");
                 }

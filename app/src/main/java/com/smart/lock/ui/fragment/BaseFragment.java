@@ -70,7 +70,10 @@ public abstract class BaseFragment extends Fragment {
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
                 DialogUtils.closeDialog(mLoadDialog);
-                Toast.makeText(mCtx, mCtx.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
+                if(mBleManagerHelper.getServiceConnection()) {
+                    showMessage(mCtx.getResources().getString(R.string.plz_reconnect));
+                }else
+                    showMessage(mCtx.getResources().getString(R.string.input_timeout));
             }
 
         }

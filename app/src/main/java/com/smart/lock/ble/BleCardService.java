@@ -289,7 +289,7 @@ public class BleCardService {
 
             mBleProvider = new BleProvider(true, mBluetoothGatt, mBleChannel);
 
-            mBleMessageListenerImpl = new BleMessageListenerImpl(mCtx, mBleProvider);
+            mBleMessageListenerImpl = new BleMessageListenerImpl(mCtx, this);
 
             mBleProvider.registerMessageCallBack(mBleMessageListenerImpl);
 
@@ -456,10 +456,11 @@ public class BleCardService {
     /**
      * MSG 11
      */
-    public ClientTransaction sendCmd11(final byte cmdType, final short userId) {
+    public ClientTransaction sendCmd11(final byte cmdType, final short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_11);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+        msg.setTimeout(timeOut);
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
         bundle.putShort(BleMsg.KEY_USER_ID, userId);
@@ -469,7 +470,7 @@ public class BleCardService {
         user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
         ct.request();
         return ct;
 
@@ -498,10 +499,11 @@ public class BleCardService {
      * @param pwd     录入密码
      * @return
      */
-    public ClientTransaction sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, String pwd) {
+    public ClientTransaction sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, String pwd, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_15);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+        msg.setTimeout(timeOut);
 
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
@@ -516,7 +518,7 @@ public class BleCardService {
         deviceKey.setLockId(String.valueOf(lockId));
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
         ct.request();
         return ct;
     }
@@ -633,18 +635,17 @@ public class BleCardService {
      * @param userId 用户编号
      * @return 是否发送成功
      */
-    public ClientTransaction sendCmd25(final short userId) {
+    public ClientTransaction sendCmd25(final short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_25);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
+        msg.setTimeout(timeOut);
 
         Bundle bundle = msg.getData();
-
         bundle.putShort(BleMsg.KEY_USER_ID, userId);
-
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
         ct.request();
         return ct;
     }
@@ -713,11 +714,11 @@ public class BleCardService {
      * @param logId   日志编号
      * @return 是否发送成功
      */
-    public ClientTransaction sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog) {
+    public ClientTransaction sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_33);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
-
+        msg.setTimeout(timeOut);
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
 
@@ -727,7 +728,7 @@ public class BleCardService {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
-        ClientTransaction ct = new ClientTransaction(msg, 10, new BleMessageListenerImpl(mCtx, mBleProvider), mBleProvider);
+        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
         ct.request();
         return ct;
     }

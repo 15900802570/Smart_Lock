@@ -159,7 +159,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mHandler = new Handler();
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mBleMac = getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
+            mBleMac = StringUtil.getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
             mSn = extras.getString(BleMsg.KEY_NODE_SN);
             mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
         } else {
@@ -234,11 +234,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mLoadDialog = DialogUtils.createLoadingDialog(LockDetectingActivity.this, LockDetectingActivity.this.getResources().getString(R.string.plz_press_setting));
                     mLoadDialog.show();
                     closeDialog(10);
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 7, (short) 0);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 7, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     mLoadDialog.show();
                     closeDialog(10);
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 0, (short) 0);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 0, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                 }
             }
 

@@ -56,6 +56,9 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
                 DialogUtils.closeDialog(mLoadDialog);
+                if(mBleManagerHelper.getServiceConnection()){
+                    showMessage("");
+                }
                 Toast.makeText(BaseListViewActivity.this, BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 

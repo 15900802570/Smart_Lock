@@ -24,13 +24,12 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
     private static final String TAG = ClientTransaction.class.getSimpleName();
 
     /**
-     * @param timeout
      * @param agent
      * @param bleProvider
      */
-    public ClientTransaction(Message message, int timeout, BleMessageListener agent, BleProvider bleProvider) {
+    public ClientTransaction(Message message, BleMessageListener agent, BleProvider bleProvider) {
         mMessage = message;
-        mTimeout = timeout;
+        mTimeout = message.getTimeout();
         listener = agent;
         BleMsgProvider = bleProvider;
         listenerKey = message.getKey();
@@ -50,8 +49,12 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
     }
 
     @Override
-    public void onReceive(BleProvider bleProvide, Message message) {
-        listener.onReceive(bleProvide, message);
+    public void onReceive(Message message, TimerProvider timerProvider) {
+        listener.onReceive(message, timerProvider);
+    }
+
+    public TimerProvider getTimer() {
+        return timer;
     }
 
     /**
@@ -83,7 +86,7 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
             Log.w(TAG, "listenerKey : " + listenerKey + " has already removed");
         } else {
             mMessage.setException(Message.EXCEPTION_TIMEOUT);
-            listener.onReceive(BleMsgProvider, mMessage);
+            listener.onReceive(mMessage, timer);
         }
     }
 
@@ -104,7 +107,7 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
     public void reSetTimeOut(long timeOut) {
         if (timer.isActive()) {
             timer.halt();
-            LogUtil.d(TAG,"timer is cancel");
+            LogUtil.d(TAG, "timer is cancel");
             timer.reSetTimeOut(timeOut);
             timer.start();
         }

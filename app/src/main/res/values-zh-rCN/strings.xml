@@ -335,4 +335,6 @@
     <string name="cannot_be_empty_str">昵称不能为空</string>
     <string name="card">卡片</string>
     <string name="_1970_01_01">1970-01-01</string>
+    <string name="input_timeout">录入超时</string>
+    <string name="setting_dev_info">设置设备信息</string>
 </resources>

@@ -182,6 +182,7 @@ public class BleProvider {
     private static byte[] mRspBuf;
 
     private boolean mCheckTimeOut = false; //是否超时
+    private ClientTransaction mCt;
 
     public BleProvider(boolean debug, BluetoothGatt bleGatt, BleChannel bleChannel) {
 
@@ -551,26 +552,17 @@ public class BleProvider {
      * @param bleMsgListener 回调监听器
      */
     private void dispatchMessage(Message msg, BleMessageListener bleMsgListener) {
-        if (bleMsgListener == null) {
-            // 回调监听器为空，获取监听器
-            BleMessageListener listener = messageListenerMap.get(msg.getType());
-
-            if (listener != null) {
-                // 回调
-                listener.onReceive(this, msg);
-            } else {
-                Log.w(TAG, "no messageListener for message type : " + msg.getType());
-                // 回收消息
-                msg.recycle();
-            }
-        } else {
-            if (debug) {
-                Log.d(TAG, "devLog : " + bleMsgListener.getListenerKey()
-                        + " transactionBleMsgListenerMap size : "
-                        + transactionBleMsgListenerMap.size());
-            }
-            bleMsgListener.onReceive(this, msg);
+        if (debug) {
+            Log.d(TAG, "listener key : " + bleMsgListener.getListenerKey()
+                    + " transactionBleMsgListenerMap size : "
+                    + transactionBleMsgListenerMap.size());
         }
+        LogUtil.d(TAG, "bleMsgListener instanceof ct:" + (bleMsgListener instanceof ClientTransaction));
+        if (mCt != null) {
+            bleMsgListener.onReceive(msg, mCt.getTimer());
+        } else
+            bleMsgListener.onReceive(msg, null);
+
     }
 
     /**
@@ -754,6 +746,7 @@ public class BleProvider {
                     + " transactionBleMsgListenerMap size : "
                     + transactionBleMsgListenerMap.size());
         }
+        mCt = (ClientTransaction) listener;
         mCheckTimeOut = true;
         return true;
     }
@@ -763,6 +756,7 @@ public class BleProvider {
             return null;
         }
         mCheckTimeOut = false;
+        mCt = null;
         if (debug) {
             Log.d(TAG, "removeBleMsgListener : " + key + " removeBleMsgListener size : "
                     + transactionBleMsgListenerMap.size());

@@ -1,40 +1,36 @@
-
 package com.smart.lock.ble.listener;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.smart.lock.R;
 import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
-import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.TimerProvider;
+import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.entity.BleConnectModel;
 import com.smart.lock.utils.LogUtil;
 
-import java.sql.Time;
 import java.util.Arrays;
 
-/**
- * 根据message消息类型进行具体的业务处理
- */
-public class BleMessageListenerImpl implements BleMessageListener {
-    private static final String TAG = "BleMessageListenerImpl";
-    private Context mContext;
-    private MsgExceptionListener mExceptionListener;
+public class MainEngine implements BleMessageListener {
+
+    private static final String TAG = MainEngine.class.getSimpleName();
+    private Context mCtx; //上下文
     private BleCardService mService;
+    private BleConnectModel mBleModel;
+    private DeviceInfo mDevInfo;
 
-    public BleMessageListenerImpl(Context context, BleCardService service) {
-        mContext = context;
+    /**
+     * 连接方式 0-扫描二维码 1-普通安全连接,2-设置设备信息
+     */
+    private byte mConnectType = BleConnectModel.BLE_SCAN_QR_CONNECT_TYPE;
+
+    public MainEngine(Context context, BleCardService service) {
+        mCtx = context;
         mService = service;
-    }
-
-    public void registerExceptionListener(MsgExceptionListener msgExceptionListener) {
-        mExceptionListener = msgExceptionListener;
     }
 
     @Override
@@ -49,10 +45,8 @@ public class BleMessageListenerImpl implements BleMessageListener {
             LogUtil.e(TAG, "msg exception : " + message.toString());
             switch (exception) {
                 case Message.EXCEPTION_TIMEOUT:
-                    mExceptionListener.msgSendTimeOut(message);
                     break;
                 case Message.EXCEPTION_SEND_FAIL:
-                    mExceptionListener.msgSendFail(message);
                     break;
                 default:
                     break;
@@ -67,22 +61,16 @@ public class BleMessageListenerImpl implements BleMessageListener {
 //                    notifyData(BleMsg.EXTRA_DATA_MSG_02, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_04:
-                    notifyData(BleMsg.EXTRA_DATA_MSG_04, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_12:
-                    notifyData(BleMsg.EXTRA_DATA_MSG_12, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_1A:
-                    notifyData(BleMsg.STR_RSP_MSG1A_STATUS, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_1C:
-                    notifyData(BleMsg.STR_RSP_MSG1C_VERSION, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_1E:
-                    notifyData(BleMsg.STR_RSP_MSG1E_ERRCODE, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_16:
-                    notifyData(BleMsg.STR_RSP_MSG16_LOCKID, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_18:
                     byte[] seconds = extra.getByteArray(BleMsg.KEY_TIME_OUT);
@@ -95,16 +83,12 @@ public class BleMessageListenerImpl implements BleMessageListener {
 //                    notifyData(BleMsg.STR_RSP_MSG18_TIMEOUT, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_2E:
-                    notifyData(BleMsg.STR_RSP_MSG2E_ERRCODE, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_26:
-                    notifyData(BleMsg.STR_RSP_MSG26_USERINFO, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_32:
-                    notifyData(BleMsg.STR_RSP_MSG32_LOG, extra);
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_3E:
-                    notifyData(BleMsg.STR_RSP_MSG3E_ERROR, extra);
                     break;
                 default:
                     Log.w(TAG, "Message type : " + type + " can not be handler");
@@ -114,24 +98,11 @@ public class BleMessageListenerImpl implements BleMessageListener {
         } finally {
             message.recycle();
         }
-
     }
-
-    /**
-     * @param action 广播标识
-     * @param extra  bundle
-     */
-    public void notifyData(final String action, Bundle extra) {
-
-        final Intent intent = new Intent(action);
-        intent.putExtras(extra);
-        LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
-    }
-
 
     @Override
     public String getListenerKey() {
-        return TAG;
+        return null;
     }
 
     @Override
@@ -139,13 +110,72 @@ public class BleMessageListenerImpl implements BleMessageListener {
 
     }
 
+
     /**
-     * 吐司提示
+     * 扫描二维码注册
      *
-     * @param msg 提示信息
+     * @param connectModel 注册信息
+     * @return 发送结果
      */
-    private void showMessage(String msg) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+    public boolean scanQrRegister(BleConnectModel connectModel) {
+        LogUtil.d(TAG, "scan qr register ble !");
+        mBleModel = connectModel;
+        if (mBleModel == null) return false;
+        if (mDevInfo == null) return false;
+        mDevInfo = mBleModel.getDevInfo();
+        changeRegisterType(BleConnectModel.BLE_SCAN_QR_CONNECT_TYPE);
+        return mService.sendCmd01(BleConnectModel.BLE_SCAN_QR_CONNECT_TYPE, mDevInfo.getUserId());
     }
+
+    /**
+     * 普通连接方式注册
+     *
+     * @param connectModel 注册信息
+     * @return 发送结果
+     */
+    public boolean otherRegister(BleConnectModel connectModel) {
+        LogUtil.d(TAG, "other register ble !");
+        mBleModel = connectModel;
+        if (mBleModel == null) return false;
+        if (mDevInfo == null) return false;
+        mDevInfo = mBleModel.getDevInfo();
+        changeRegisterType(BleConnectModel.BLE_OTHER_CONNECT_TYPE);
+        return mService.sendCmd01(BleConnectModel.BLE_OTHER_CONNECT_TYPE, mDevInfo.getUserId());
+    }
+
+    /**
+     * 普通连接方式注册
+     *
+     * @param connectModel 注册信息
+     * @return 发送结果
+     */
+    public boolean setInfoRegister(BleConnectModel connectModel) {
+        LogUtil.d(TAG, "other register ble !");
+        mBleModel = connectModel;
+        if (mBleModel == null) return false;
+        if (mDevInfo == null) return false;
+        mDevInfo = mBleModel.getDevInfo();
+        changeRegisterType(BleConnectModel.BLE_OTHER_CONNECT_TYPE);
+        return mService.sendCmd01(BleConnectModel.BLE_OTHER_CONNECT_TYPE, mDevInfo.getUserId());
+    }
+
+    /**
+     * 切换注册类型
+     * @param type 切换类型
+     */
+    private void changeRegisterType(byte type) {
+        LogUtil.d(TAG, "change connect ble type from : " + mConnectType + " to " + type + "!");
+        mConnectType = type;
+    }
+
+    /**
+     * 获取注册类型
+     * @return 注册类型
+     */
+    public byte getRegisterType(){
+        return mConnectType;
+    }
+
+
 
 }

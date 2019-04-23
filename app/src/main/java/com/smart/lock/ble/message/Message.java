@@ -262,7 +262,7 @@ public class Message implements Serializable {
      */
     protected boolean isOta = false;
     /**
-     * AT指令发送接口超时时间
+     * 指令发送接口超时时间
      */
     protected int timeout = 30;
     /**

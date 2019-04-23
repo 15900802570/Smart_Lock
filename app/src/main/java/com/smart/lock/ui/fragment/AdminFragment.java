@@ -31,6 +31,7 @@ import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
@@ -57,6 +58,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
     private CheckBox mSelectCb;
     private TextView mTipTv;
     private TextView mDeleteTv;
+    private ClientTransaction mCt;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,30 +77,15 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 1, (short) 0);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 1, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                 }
                 break;
-//            case R.id.cb_selete_user:
-//                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
-//
-//                if ((int) mSelectBtn.getTag() == R.string.all_election) {
-//
-//                    mSelectBtn.setText(R.string.cancel);
-//                    mSelectBtn.setTag(R.string.cancel);
-//                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
-//                    mMumberAdapter.mDeleteUsers.clear();
-//                    mSelectBtn.setText(R.string.all_election);
-//                    mMumberAdapter.chioseALLDelete(false);
-//                    mSelectBtn.setTag(R.string.all_election);
-//                }
-//                mMumberAdapter.notifyDataSetChanged();
-//                break;
             case R.id.del_tv:
                 if (mAdminAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     for (DeviceUser devUser : mAdminAdapter.mDeleteUsers) {
-                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId());
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     closeDialog(10);
                 } else {
@@ -467,7 +454,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });
@@ -479,7 +466,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });

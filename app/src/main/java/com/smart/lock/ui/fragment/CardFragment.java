@@ -69,7 +69,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     closeDialog(15);
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0));
+                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0),BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getResources().getString(R.string.add_nfc_tips));
                 }
@@ -264,7 +264,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(10);
                         positionDelete = position;
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0),BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 });
 
@@ -275,7 +275,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(10);
                         positionModify = position;
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0));
+                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0),BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 });
 

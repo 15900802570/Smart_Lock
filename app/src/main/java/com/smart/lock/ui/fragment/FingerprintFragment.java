@@ -68,7 +68,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     closeDialog(15);
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0));
+                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getResources().getString(R.string.add_fp_tips));
                 }
@@ -284,7 +284,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     mLoadDialog.show();
                     closeDialog(10);
                     positionDelete = position;
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
+                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 }
             });
             viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
@@ -294,7 +294,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     mLoadDialog.show();
                     closeDialog(10);
                     positionModify = position;
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0));
+                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 }
             });
 
