@@ -15,7 +15,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.smart.lock.ble.provider.BleProvider;
+import com.smart.lock.utils.LogUtil;
 
+import java.security.acl.LastOwnerException;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -85,7 +87,7 @@ public class BleChannel implements Runnable {
 
                     read_length = mMsgSession.readData(0x02, buf, buf.length);
 
-                    Log.i(TAG, "recevie buf = " + Arrays.toString(buf));
+                    Log.i(TAG, "receive buf = " + Arrays.toString(buf));
                     if (0 == read_length)
                         return;
 
@@ -937,7 +939,7 @@ public class BleChannel implements Runnable {
         } else {
             int packet_len;
             if (0x02 == value[0]) {
-                Log.d(TAG, "recevie 02");
+                Log.d(TAG, "receive 02");
                 packet_len = (value[1]) * 256 + (value[2] + 5);
                 byte[] pdu = Arrays.copyOfRange(value, 3, packet_len - 2);
                 Log.d(TAG, "pdu = " + Arrays.toString(pdu) + "pdu length : " + pdu.length);
@@ -974,8 +976,21 @@ public class BleChannel implements Runnable {
                     notifyData(BleMsg.EXTRA_DATA_MSG_02, respRandom, AK);
                 }
                 //设备->APK 设备应答信息
+            } else if (0x0E == value[0]) {
+                LogUtil.d(TAG, "receive 0x0E");
+                packet_len = (value[1]) * 256 + (value[2] + 5);
+                byte[] pdu = Arrays.copyOfRange(value, 3, packet_len - 2);
+                Log.d(TAG, "pdu = " + Arrays.toString(pdu) + "pdu length : " + pdu.length);
+
+                byte[] ik = Arrays.copyOfRange(value, packet_len - 2, packet_len);
+
+                byte[] errCode = new byte[4];
+                errCode = Arrays.copyOfRange(pdu, 0, 4);
+                Log.d(TAG, "buf = " + Arrays.toString(errCode));
+                notifyData(BleMsg.STR_RSP_MSG0E_ERRCODE, errCode);
+
             } else if (0x1E == value[0]) {
-                Log.d(TAG, "recevie 0x1E");
+                Log.d(TAG, "receive 0x1E");
                 packet_len = (value[1]) * 256 + (value[2] + 5);
                 byte[] pdu = Arrays.copyOfRange(value, 3, packet_len - 2);
                 Log.d(TAG, "pdu = " + Arrays.toString(pdu) + "pdu length : " + pdu.length);
@@ -1009,7 +1024,7 @@ public class BleChannel implements Runnable {
 
                 //智能锁APK。智能锁将录入的锁体密钥上报给APK。
             } else if (0x16 == value[0]) {
-                Log.d(TAG, "recevie 16");
+                Log.d(TAG, "receive 16");
                 packet_len = (value[1]) * 256 + (value[2] + 5);
                 byte[] pdu = Arrays.copyOfRange(value, 3, packet_len - 2);
                 Log.d(TAG, "pdu = " + Arrays.toString(pdu) + "pdu length : " + pdu.length);
@@ -1041,7 +1056,7 @@ public class BleChannel implements Runnable {
 
                 //智能锁APK。APK收到该状态字后和APK自身存储的状态字比较。
             } else if (0x1A == value[0]) {
-                Log.d(TAG, "recevie 1A");
+                Log.d(TAG, "receive 1A");
                 packet_len = (value[1]) * 256 + (value[2] + 5);
                 byte[] pdu = Arrays.copyOfRange(value, 3, packet_len - 2);
 
@@ -1073,7 +1088,7 @@ public class BleChannel implements Runnable {
 
                 //是APK给智能锁下发密钥录入指令后，智能锁录入前提供给APK的超时时间，
             } else if (0x18 == value[0]) {
-                Log.d(TAG, "recevie 18");
+                Log.d(TAG, "receive 18");
                 packet_len = (value[1]) * 256 + (value[2] + 5);
                 byte[] pdu = Arrays.copyOfRange(value, 3, packet_len - 2);
 

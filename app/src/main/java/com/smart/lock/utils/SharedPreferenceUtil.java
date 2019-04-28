@@ -64,6 +64,18 @@ public class SharedPreferenceUtil {
 		editor.apply();//提交写入的数据
 	}
 
+	public void writeInt(String key, int value){
+		Editor editor = sp.edit();
+		editor.putInt(key,value);
+		editor.apply();
+	}
+
+	public void writeLong(String key, long value){
+		Editor editor = sp.edit();
+		editor.putLong(key,value);
+		editor.apply();
+	}
+
 	/**
 	 * 根据key读取SharedPreferences中的String类型的数据
 	 * @param key
@@ -79,5 +91,13 @@ public class SharedPreferenceUtil {
 	 */
 	public Boolean readBoolean(String key){
 		return sp.getBoolean(key, false);
+	}
+
+	public int readInt(String key){
+		return sp.getInt(key, 0);
+	}
+
+	public long readLong(String key){
+		return sp.getLong(key, 0);
 	}
 }

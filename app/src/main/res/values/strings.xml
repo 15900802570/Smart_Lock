@@ -330,4 +330,9 @@
     <string name="_1970_01_01">1970-01-01</string>
     <string name="complete">Complete</string>
     <string name="input_timeout">Input TimeOut</string>
+    <string name="software_is_locked">The software is locked</string>
+    <string name="please_retry">Please try again in</string>
+    <string name="retry_later">seconds</string>
+    <string name="the_user_delete_by_admin">This account has been deleted by the administrator. Please contact the administrator.</string>
+    <string name="lock_reset">Restoring factory settings...</string>
 </resources>

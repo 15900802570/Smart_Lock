@@ -99,7 +99,7 @@
     <string name="pause_user_success">暂停用户成功</string>
     <string name="pause_user_failed">暂停用户失败</string>
     <string name="add_user_success">新增用户成功</string>
-    <string name="add_user_failed">新增用户失败</string>
+    <string name="add_user_failed">用户已满，新增用户失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
     <string name="add_nfc_failed">录入卡片失败</string>
@@ -342,4 +342,9 @@
     <string name="_1970_01_01">1970-01-01</string>
     <string name="input_timeout">录入超时</string>
     <string name="setting_dev_info">设置设备信息</string>
+    <string name="software_is_locked">已锁定</string>
+    <string name="please_retry">请在</string>
+    <string name="retry_later">秒后重试</string>
+    <string name="the_user_delete_by_admin">该账户已被管理员删除，请联系管理员.</string>
+    <string name="lock_reset">恢复出厂设置...</string>
 </resources>

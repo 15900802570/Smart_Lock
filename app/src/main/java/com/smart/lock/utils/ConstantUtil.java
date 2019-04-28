@@ -51,6 +51,16 @@ public class ConstantUtil {
     public static final String NUM_PWD = "NumPwd";
 
     /**
+     * 检测输入密码次数
+     */
+    public static final String NUM_COUNTER = "NumCounter";
+
+    /**
+     * 错误计时
+     */
+    public static final String ERROR_TIME = "ErrorTime";
+
+    /**
      * 初始设置密码
      */
     public static final int SETTING_PASSWORD = 0;

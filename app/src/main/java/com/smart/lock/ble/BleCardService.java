@@ -27,6 +27,7 @@ import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 
 import java.lang.reflect.Method;
@@ -254,7 +255,8 @@ public class BleCardService {
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    public boolean connect(final String address) {
+    public boolean connect(String address) {
+        address = StringUtil.checkBleMac(address);
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;

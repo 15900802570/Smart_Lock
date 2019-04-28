@@ -37,6 +37,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
@@ -213,6 +214,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
                 System.arraycopy(intent.getByteArrayExtra(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 10);
+
+                LogUtil.d(TAG, "MAC = "+ Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_BLE_MAC)));
+                LogUtil.d(TAG,"MAC = " +StringUtil.bytesToHexString(intent.getByteArrayExtra(BleMsg.KEY_BLE_MAC)));
 
                 byte[] timeBuf = new byte[4];
                 StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);

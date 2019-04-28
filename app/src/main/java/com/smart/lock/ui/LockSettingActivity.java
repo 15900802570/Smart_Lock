@@ -61,6 +61,7 @@ public class LockSettingActivity extends AppCompatActivity {
 
     private BottomSheetDialog mBottomSheetDialog; //时间设置弹框
     private Dialog mWarningDialog;
+    private Dialog mWriting;
     private int mSetTime;
     private boolean mRestore = false;
 
@@ -112,7 +113,7 @@ public class LockSettingActivity extends AppCompatActivity {
         mVersionInfoNa.setDes(getResources().getString(R.string.version_info));
         mSelfCheckNa.setDes(getResources().getString(R.string.self_check));
         mOtaUpdateNa.setDes(getResources().getString(R.string.ota_update));
-        mOtaUpdateNa.setVisibility(View.GONE);
+        mOtaUpdateNa.setVisibility(View.VISIBLE);
         mFactoryResetNa.setDes(getResources().getString(R.string.restore_the_factory_settings));
 
         mBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
@@ -323,6 +324,9 @@ public class LockSettingActivity extends AppCompatActivity {
                                         R.string.restore_the_factory_settings_success,
                                         Toast.LENGTH_LONG);
                                 mBleManagerHelper.getBleCardService().disconnect();
+                                BleManagerHelper.getInstance(LockSettingActivity.this, false).setBleMac(null);
+                                BleManagerHelper.getInstance(LockSettingActivity.this, false).getBleCardService().disconnect();
+                                mWriting.cancel();
                                 finish();
                             } else {
                                 finish();
@@ -499,6 +503,8 @@ public class LockSettingActivity extends AppCompatActivity {
 
                 break;
             case R.id.warning_confirm_btn:
+                mWriting = DialogUtils.createLoadingDialog(this,getResources().getString(R.string.lock_reset));
+                mWriting.show();
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 8);
                 clearAllDataOfApplication();
                 break;

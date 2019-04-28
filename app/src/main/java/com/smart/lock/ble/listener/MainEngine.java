@@ -1,6 +1,5 @@
 package com.smart.lock.ble.listener;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -53,26 +52,26 @@ public class MainEngine implements BleMessageListener {
             }
 
             switch (type) {
-                case Message.TYPE_BLE_RECEV_CMD_02:
+                case Message.TYPE_BLE_RECEIVER_CMD_02:
                     final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
                     if (random != null && random.length != 0) {
                         mService.sendCmd03(random);
                     }
 //                    notifyData(BleMsg.EXTRA_DATA_MSG_02, extra);
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_04:
+                case Message.TYPE_BLE_RECEIVER_CMD_04:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_12:
+                case Message.TYPE_BLE_RECEIVER_CMD_12:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_1A:
+                case Message.TYPE_BLE_RECEIVER_CMD_1A:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_1C:
+                case Message.TYPE_BLE_RECEIVER_CMD_1C:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_1E:
+                case Message.TYPE_BLE_RECEIVER_CMD_1E:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_16:
+                case Message.TYPE_BLE_RECEIVER_CMD_16:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_18:
+                case Message.TYPE_BLE_RECEIVER_CMD_18:
                     byte[] seconds = extra.getByteArray(BleMsg.KEY_TIME_OUT);
                     Log.d(TAG, "seconds : " + Arrays.toString(seconds) + " timer : " + (timer == null));
                     if (seconds != null && timer != null) {
@@ -82,13 +81,13 @@ public class MainEngine implements BleMessageListener {
 
 //                    notifyData(BleMsg.STR_RSP_MSG18_TIMEOUT, extra);
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_2E:
+                case Message.TYPE_BLE_RECEIVER_CMD_2E:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_26:
+                case Message.TYPE_BLE_RECEIVER_CMD_26:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_32:
+                case Message.TYPE_BLE_RECEIVER_CMD_32:
                     break;
-                case Message.TYPE_BLE_RECEV_CMD_3E:
+                case Message.TYPE_BLE_RECEIVER_CMD_3E:
                     break;
                 default:
                     Log.w(TAG, "Message type : " + type + " can not be handler");

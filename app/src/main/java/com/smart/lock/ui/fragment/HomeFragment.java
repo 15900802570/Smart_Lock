@@ -40,6 +40,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.BleConnectModel;
@@ -48,6 +49,7 @@ import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
+import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -282,7 +284,7 @@ public class HomeFragment extends BaseFragment implements
                 }
                 break;
             case BIND_DEVICE:
-                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y366dp);
+                mNewsVpRL.getLayoutParams().height = (int) mActivity.getResources().getDimension(R.dimen.y366dp);
                 mAddLockLl.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
 
@@ -445,6 +447,29 @@ public class HomeFragment extends BaseFragment implements
                 mHandler.removeCallbacks(mRunnable);
                 DialogUtils.closeDialog(mLoadDialog);
             }
+
+            if (action.equals(BleMsg.STR_RSP_MSG0E_ERRCODE)){
+                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
+                Log.d(TAG, "errCode[3] = " + errCode[3]);
+                if( errCode[3] == 2){
+                    DialogUtils.createTipsDialogWithCancel(mActivity,getString(R.string.the_user_delete_by_admin)).show();
+                    // 删除相关数据
+                    if( mDefaultDevice != null){
+                        DeviceUserDao.getInstance(mActivity).
+                                deleteByKey(DeviceUserDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId());
+                        DeviceKeyDao.getInstance(mActivity).
+                                deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId());
+                        DeviceStatusDao.getInstance(mActivity).
+                                deleteByKey(DeviceStatusDao.DEVICE_NODEID, mDefaultDevice.getDeviceNodeId());
+                        DeviceInfoDao.getInstance(mActivity).
+                                delete(mDefaultDevice);
+                        mDefaultDevice = null;
+                    }
+                    // 刷新界面
+                    refreshView(UNBIND_DEVICE);
+                }
+
+            }
         }
     };
 
@@ -457,6 +482,8 @@ public class HomeFragment extends BaseFragment implements
         intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
         intentFilter.addAction(BleMsg.STR_RSP_MSG26_USERINFO);
         intentFilter.addAction(BleMsg.STR_RSP_MSG2E_ERRCODE);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG0E_ERRCODE);
         return intentFilter;
     }
 

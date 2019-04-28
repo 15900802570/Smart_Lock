@@ -78,7 +78,7 @@ public class BleCmd02Parse implements BleCommandParse {
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEV_CMD_02;
+        return Message.TYPE_BLE_RECEIVER_CMD_02;
     }
 
     /**

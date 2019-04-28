@@ -71,6 +71,11 @@ public class BleMsg {
     public static final String STR_RSP_IK_ERR = "com.datang.uart.rsp.IK_ERR";
 
     /**
+     * 设备->APK ,连接错误码
+     */
+    public static final String STR_RSP_MSG0E_ERRCODE = "com.datang.uart.rsp.MSG0E_ERRCODE";
+
+    /**
      * 设备->APK，校验类型
      */
     public static final String STR_RSP_MSG1E_ERRCODE = "com.datang.uart.rsp.MSG1E_ERRCODE";

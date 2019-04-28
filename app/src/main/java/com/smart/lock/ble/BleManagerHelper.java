@@ -107,7 +107,7 @@ public class BleManagerHelper {
     private DeviceStatus mDefaultStatus; //用户状态
     private IBindServiceCallback mBindServiceCallback; //注册成功回调
     private Dialog mLoadDialog;
-    private String mDefaultMac = "BA:BA:BA:BA:BA:BA";
+    private String mDefaultMac = "D8:87:D5:00:C4:AA";
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
@@ -225,19 +225,23 @@ public class BleManagerHelper {
                 mBtAdapter.stopLeScan(mLeScanCallback);
                 return;
             }
+            LogUtil.d(TAG, "ADD MAC = " + device.getAddress());
             if (mConnectType == 2) {
-                if (device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
-                    LogUtil.d(TAG, "dev rssi = " + rssi);
-                    mBtAdapter.stopLeScan(mLeScanCallback);
-                    LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
-                    if (!mIsConnected && mService != null) {
-                        boolean result = mService.connect(device.getAddress());
-                        LogUtil.d(TAG, "result = " + result);
+                if (device.getName() != null) {
+                    if (device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME) && device.getAddress().equals(mDefaultMac)) {
+                        LogUtil.d(TAG, "dev rssi = " + rssi);
+                        mBtAdapter.stopLeScan(mLeScanCallback);
+                        LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
+                        if (!mIsConnected && mService != null) {
+                            LogUtil.d(TAG, "ADD = " + device.getAddress());
+                            boolean result = mService.connect(device.getAddress());
+                            LogUtil.d(TAG, "result = " + result);
+                        }
                     }
                 }
             } else {
+                LogUtil.d(TAG, "BLE MAC = " + mBleMac);
                 if (device.getAddress().equals(mBleMac)) {
-                    LogUtil.d(TAG, "dev rssi = " + rssi);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                     if (!mIsConnected && mService != null) {
@@ -340,6 +344,7 @@ public class BleManagerHelper {
         intentFilter.addAction(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_02);
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_04);
+        intentFilter.addAction(BleMsg.STR_RSP_MSG0E_ERRCODE);
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_12);
         intentFilter.addAction(BleMsg.STR_RSP_MSG26_USERINFO);
         return intentFilter;
@@ -352,7 +357,10 @@ public class BleManagerHelper {
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            if (action == null) {
+                return;
+            }
+            LogUtil.d(TAG, "ACTION = " + action);
             if (action.equals(BleMsg.ACTION_GATT_CONNECTED)) {
                 Log.d(TAG, "UART_CONNECT_MSG");
                 mBleModel.setState(BleConnectModel.BLE_CONNECTED);
@@ -410,9 +418,9 @@ public class BleManagerHelper {
                                 if (mDefaultDevice == null && mConnectType != 2) {
                                     mConnectType = 0;
                                 }
-                                if (mConnectType == 2)
+                                if (mConnectType == 2) {
                                     mService.sendCmd05(mBleMac, mNodeId, mSn);
-                                else
+                                } else
                                     mService.sendCmd01(mConnectType, mUserId);
                             }
                         }, 1000);

@@ -3,7 +3,6 @@ package com.smart.lock.ble.listener;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.UIReceiver;
 import com.smart.lock.ble.message.Message;
@@ -30,7 +29,7 @@ public class BleConnectListener implements BleMessageListener {
 
             LogUtil.i(TAG, "onReceive Message type : " + Message.getMessageTypeTag(type));
 
-            if (type == Message.TYPE_BLE_RECEV_CMD_02) {
+            if (type == Message.TYPE_BLE_RECEIVER_CMD_02) {
 
                 final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
                 if (random != null && random.length != 0) {
@@ -39,7 +38,7 @@ public class BleConnectListener implements BleMessageListener {
                     Log.w(TAG, "random is null!");
                 }
 
-            } else if (type == Message.TYPE_BLE_RECEV_CMD_04) {
+            } else if (type == Message.TYPE_BLE_RECEIVER_CMD_04) {
                 mNotify.onChanged(extra);
             } else {
                 Log.w(TAG, "Message type : " + type + " can not be handler");

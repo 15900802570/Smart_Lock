@@ -184,12 +184,10 @@ public class MainActivity extends AppCompatActivity implements
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                         ToastUtil.showLong(this,
                                 getResources().getString(R.string.pwd_setting_successfully));
-                        finish();
 
                     } else {
                         ToastUtil.showLong(this,
                                 getResources().getString(R.string.pwd_setting_failed));
-                        finish();
                     }
                     break;
             }

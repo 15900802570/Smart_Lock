@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 
 public class OtaUpdateActivity extends Activity implements View.OnClickListener {
 
@@ -325,7 +326,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
     }
 
     private void initDate() {
-        mDefaultDev = (DeviceInfo) getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
+        mDefaultDev = (DeviceInfo) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
 
         mHandler = new Handler();
 

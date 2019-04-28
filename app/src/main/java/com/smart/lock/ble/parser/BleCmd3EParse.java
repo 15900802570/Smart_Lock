@@ -47,7 +47,7 @@ public class BleCmd3EParse implements BleCommandParse {
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEV_CMD_3E;
+        return Message.TYPE_BLE_RECEIVER_CMD_3E;
     }
 
     /**
