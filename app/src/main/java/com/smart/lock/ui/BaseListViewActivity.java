@@ -85,16 +85,6 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y16dp)));
     }
 
-
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
-        return intentFilter;
-    }
-
-    /**
-     * 初始化控件
-     */
     protected void initView() {
         mListView = findViewById(R.id.list_view);
         mTitle = findViewById(R.id.tv_message_title);

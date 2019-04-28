@@ -29,10 +29,10 @@ import com.smart.lock.R;
 import com.smart.lock.action.AbstractTransaction;
 import com.smart.lock.action.CheckVersionAction;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.Device;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.transfer.HttpCodeHelper;
@@ -577,8 +577,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                             mBtAdapter.stopLeScan(mLeScanCallback);
                             LogUtil.d(TAG, "mIsConnected = " + mBleManagerHelper.getServiceConnection());
                             if (!mBleManagerHelper.getServiceConnection() && mBleManagerHelper.getBleCardService() != null) {
-                                boolean result = mBleManagerHelper.getBleCardService().connect(mDefaultDev.getBleMac());
-                                LogUtil.d(TAG, "result = " + result);
+//                                boolean result = mBleManagerHelper.getBleCardService().connect(mDefaultDev.getBleMac());
+//                                LogUtil.d(TAG, "result = " + result);
 
                             }
                         }

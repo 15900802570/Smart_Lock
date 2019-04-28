@@ -58,9 +58,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private Runnable mRunnable = new Runnable() {
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
                 DialogUtils.closeDialog(mLoadDialog);
-
                 Toast.makeText(DeviceKeyActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
             }
 

@@ -27,10 +27,14 @@ import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.ui.PwdSetActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
@@ -42,7 +46,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PwdFragment extends BaseFragment implements View.OnClickListener {
+public class PwdFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = PwdFragment.class.getSimpleName();
 
     private View mPwdView;
@@ -50,7 +54,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     protected TextView mAddTv;
 
     private PwdManagerAdapter mPwdAdapter;
-    private boolean mIsVisibleFragment = false;
+    private Context mCtx;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,7 +64,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                int count = DeviceKeyDao.getInstance(mPwdView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
+                int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
                 if (count >= 0 && count < 1) {
                     Bundle bundle = new Bundle();
                     bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
@@ -97,12 +101,14 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     }
 
     public void initDate() {
-        mDefaultDevice = DeviceInfoDao.getInstance(mPwdView.getContext()).queryFirstData("device_default", true);
+        mCtx = mPwdView.getContext();
+        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mPwdView.getContext(), false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper.addUiListener(this);
 
-        mPwdAdapter = new PwdManagerAdapter(mPwdView.getContext());
-        mListView.setLayoutManager(new LinearLayoutManager(mPwdView.getContext(), LinearLayoutManager.VERTICAL, false));
+        mPwdAdapter = new PwdManagerAdapter(mCtx);
+        mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mPwdAdapter);
         mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
@@ -110,75 +116,80 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
 
         mAddTv.setVisibility(View.VISIBLE);
         mAddTv.setText(R.string.add_password);
-
         initEvent();
-
-        mLoadDialog = DialogUtils.createLoadingDialog(mPwdView.getContext(), mPwdView.getContext().getResources().getString(R.string.data_loading));
-
-        LocalBroadcastManager.getInstance(mPwdView.getContext()).registerReceiver(pwdReceiver, intentFilter());
+        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
     }
 
     private void initEvent() {
         mAddTv.setOnClickListener(this);
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SERVER_DATA);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG16_LOCKID);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1A_STATUS);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG18_TIMEOUT);
-        return intentFilter;
+    @Override
+    public void deviceStateChange(Device device, int state) {
+
     }
 
-    private final BroadcastReceiver pwdReceiver = new BroadcastReceiver() {
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
+        Bundle extra = msg.getData();
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_1E:
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
 
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            //MSG1E 设备->apk，返回信息
-            if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
-
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-
-                if (errCode[3] == 0x0d) {
-                    showMessage(mPwdView.getContext().getResources().getString(R.string.delete_pwd_success));
-
-                    mPwdAdapter.removeItem(mPwdAdapter.positionDelete);
-                }
-
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
-
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG1A_STATUS)) {
-
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
-                Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
-                byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                if (mIsVisibleFragment) {
-                    Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                    mCt.reSetTimeOut(seconds[0] * 1000);
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                    }
-                    closeDialog((int) seconds[0]);
-                }
-
-            }
         }
-    };
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_DELETE_PASSWORD_SUCCESS:
+                showMessage(getString(R.string.delete_pwd_success));
+                mPwdAdapter.removeItem(mPwdAdapter.positionDelete);
+                break;
+            default:
+                break;
+        }
+        DialogUtils.closeDialog(mLoadDialog);
+    }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        mIsVisibleFragment = isVisibleToUser;
-        LogUtil.d(TAG, "pwd isVisibleToUser = " + isVisibleToUser);
+    public void reConnectBle(Device device) {
+
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
     }
 
     public class PwdManagerAdapter extends RecyclerView.Adapter<PwdManagerAdapter.ViewHolder> {
@@ -188,7 +199,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
 
         public PwdManagerAdapter(Context context) {
             mContext = context;
-            mPwdList = DeviceKeyDao.getInstance(mPwdView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD);
+            mPwdList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD);
         }
 
         public void setDataSource(ArrayList<DeviceKey> pwdList) {
@@ -222,8 +233,8 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
         @Override
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
             final DeviceKey pwdInfo = mPwdList.get(position);
-            LogUtil.d(TAG, "pwdInfo = " + pwdInfo.toString());
             if (pwdInfo != null) {
+                LogUtil.d(TAG, "pwdInfo = " + pwdInfo.toString());
                 viewHolder.mNameTv.setText(pwdInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.icon_pwd);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(pwdInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
@@ -233,9 +244,8 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        closeDialog(10);
                         positionDelete = position;
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 0, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_PASSWORD, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
@@ -310,7 +320,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        ArrayList<DeviceKey> pwdList = DeviceKeyDao.getInstance(mPwdView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD);
+        ArrayList<DeviceKey> pwdList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD);
         LogUtil.d(TAG, "pwdList = " + pwdList);
         mPwdAdapter.setDataSource(pwdList);
         mPwdAdapter.notifyDataSetChanged();
@@ -319,10 +329,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(mPwdView.getContext()).unregisterReceiver(pwdReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
+        mBleManagerHelper.removeUiListener(this);
     }
 }

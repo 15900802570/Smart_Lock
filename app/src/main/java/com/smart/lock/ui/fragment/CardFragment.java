@@ -29,11 +29,14 @@ import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -44,7 +47,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CardFragment extends BaseFragment implements View.OnClickListener {
+public class CardFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = CardFragment.class.getSimpleName();
 
     private View mCardView;
@@ -53,7 +56,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
     private CardManagerAdapter mCardAdapter;
     private String mLockId = null;
-    private boolean mIsVisibleFragment = false;
+    private Context mCtx;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,13 +66,12 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                int count = DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
+                int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
                 LogUtil.d(TAG, "count = " + count);
                 if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    closeDialog(15);
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 2, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0),BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getResources().getString(R.string.add_nfc_tips));
                 }
@@ -100,12 +102,13 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     }
 
     public void initDate() {
-        mDefaultDevice = DeviceInfoDao.getInstance(mCardView.getContext()).queryFirstData("device_default", true);
+        mCtx = mCardView.getContext();
+        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mCardView.getContext(), false);
-
-        mCardAdapter = new CardManagerAdapter(mCardView.getContext());
-        mListView.setLayoutManager(new LinearLayoutManager(mCardView.getContext(), LinearLayoutManager.VERTICAL, false));
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper.addUiListener(this);
+        mCardAdapter = new CardManagerAdapter(mCtx);
+        mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mCardAdapter);
         mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
@@ -115,99 +118,111 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         mAddTv.setText(R.string.add_card);
 
         initEvent();
-
-        LocalBroadcastManager.getInstance(mCardView.getContext()).registerReceiver(cardReceiver, intentFilter());
-
     }
 
     private void initEvent() {
         mAddTv.setOnClickListener(this);
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SERVER_DATA);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG16_LOCKID);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1A_STATUS);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG18_TIMEOUT);
-        return intentFilter;
+    @Override
+    public void deviceStateChange(Device device, int state) {
+
     }
 
-    private final BroadcastReceiver cardReceiver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            //MSG1E 设备->apk，返回信息
-            if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-
-                if (errCode[3] == 0x0e) {
-                    showMessage(mCardView.getContext().getResources().getString(R.string.add_nfc_failed));
-                } else if (errCode[3] == 0x0f) {
-                    showMessage(mCardView.getContext().getResources().getString(R.string.modify_nfc_success));
-                    mCardAdapter.notifyDataSetChanged();
-                } else if (errCode[3] == 0x10) {
-                    showMessage(mCardView.getContext().getResources().getString(R.string.delete_nfc_success));
-                    mCardAdapter.removeItem(mCardAdapter.positionDelete);
-                }
-
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
-                DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
+        Bundle extra = msg.getData();
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_1E:
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            case Message.TYPE_BLE_RECEV_CMD_16:
+                DeviceKey key = (DeviceKey) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 LogUtil.d(TAG, "key = " + ((key == null) ? true : key.toString()));
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_NFC)) {
-                    mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
 
-                final byte[] lockId = intent.getByteArrayExtra(BleMsg.KEY_LOCK_ID);
+                final byte[] lockId = extra.getByteArray(BleMsg.KEY_LOCK_ID);
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 mLockId = String.valueOf(lockId[0]);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName(mCardView.getContext().getString(R.string.me) + mCardView.getContext().getString(R.string.card) );
+                deviceKey.setKeyName(mCtx.getString(R.string.me) + mCtx.getString(R.string.card));
                 deviceKey.setKeyType(ConstantUtil.USER_NFC);
                 deviceKey.setLockId(mLockId);
-                DeviceKeyDao.getInstance(mCardView.getContext()).insert(deviceKey);
+                DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
                 if (mTempUser != null) {
                     mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                    DeviceUserDao.getInstance(mCardView.getContext()).updateDeviceUser(mTempUser);
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
                 mCardAdapter.addItem(deviceKey);
                 DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
-            }
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
 
-            if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
-                Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
-                byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                if (mIsVisibleFragment) {
-                    Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                    mCt.reSetTimeOut(seconds[0] * 1000);
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                    }
-                    closeDialog((int) seconds[0]);
-                }
-
-            }
         }
-    };
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_ENTER_OR_MODIFY_NFC_FAILED:
+                showMessage(mCtx.getResources().getString(R.string.add_nfc_failed));
+                break;
+            case BleMsg.TYPE_MODIFY_NFC_SUCCESS:
+                showMessage(mCtx.getResources().getString(R.string.modify_nfc_success));
+                mCardAdapter.notifyDataSetChanged();
+                break;
+            case BleMsg.TYPE_DELETE_NFC_SUCCESS:
+                showMessage(mCtx.getResources().getString(R.string.delete_nfc_success));
+                mCardAdapter.removeItem(mCardAdapter.positionDelete);
+                break;
+            default:
+                break;
+        }
+        DialogUtils.closeDialog(mLoadDialog);
+    }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        LogUtil.d(TAG, "card isVisibleToUser = " + isVisibleToUser);
-        mIsVisibleFragment = isVisibleToUser;
+    public void reConnectBle(Device device) {
+
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
     }
 
     public class CardManagerAdapter extends RecyclerView.Adapter<CardManagerAdapter.ViewHolder> {
@@ -218,7 +233,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
 
         public CardManagerAdapter(Context context) {
             mContext = context;
-            mCardList = DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC);
+            mCardList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC);
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {
@@ -234,7 +249,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
             if (index != -1 && !mCardList.isEmpty()) {
                 DeviceKey del = mCardList.remove(index);
 
-                DeviceKeyDao.getInstance(mCardView.getContext()).delete(del);
+                DeviceKeyDao.getInstance(mCtx).delete(del);
                 notifyDataSetChanged();
             }
         }
@@ -251,8 +266,8 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         @Override
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
             final DeviceKey cardInfo = mCardList.get(position);
-            LogUtil.d(TAG, "cardInfo = " + cardInfo.toString());
             if (cardInfo != null) {
+                LogUtil.d(TAG, "cardInfo = " + cardInfo.toString());
                 viewHolder.mNameTv.setText(cardInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.icon_card);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(cardInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
@@ -262,9 +277,8 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        closeDialog(10);
                         positionDelete = position;
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0),BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 });
 
@@ -273,9 +287,8 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        closeDialog(10);
                         positionModify = position;
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 2, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0),BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 });
 
@@ -342,10 +355,10 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
         super.onResume();
         Log.d(TAG, "onResume");
 
-        mCardAdapter.setDataSource(DeviceKeyDao.getInstance(mCardView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC));
+        mCardAdapter.setDataSource(DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC));
         mCardAdapter.notifyDataSetChanged();
 
-        mLoadDialog = DialogUtils.createLoadingDialog(mCardView.getContext(), mCardView.getContext().getResources().getString(R.string.data_loading));
+        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
 
         mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
 
@@ -364,11 +377,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(mCardView.getContext()).unregisterReceiver(cardReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
+        mBleManagerHelper.removeUiListener(this);
     }
 
 }

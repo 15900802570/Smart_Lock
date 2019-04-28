@@ -5,11 +5,13 @@ import android.util.Log;
 import com.smart.lock.ble.TimerListener;
 import com.smart.lock.utils.LogUtil;
 
+import java.io.Serializable;
+
 
 /**
  * 超时提供者
  */
-public class TimerProvider {
+public class TimerProvider implements Serializable {
 
     private static final String TAG = TimerProvider.class.getSimpleName();
     TimerListener listener;

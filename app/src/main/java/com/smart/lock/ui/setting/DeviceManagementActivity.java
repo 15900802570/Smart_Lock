@@ -47,7 +47,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
     private Dialog mAddNewDevDialog;
     private ScanQRHelper mScanQRHelper;
-
+    private Context mCtx;
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -94,6 +94,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         mDevManagementRv.setItemAnimator(new DefaultItemAnimator());
         mDevManagementRv.setAdapter(mDevManagementAdapter);
         mScanQRHelper = new ScanQRHelper(this, this);
+        mCtx = this;
     }
 
     private void initEvent() {
@@ -134,7 +135,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
     @Override
     public void onAuthenticationFailed() {
-        mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(DeviceManagementActivity.this, getString(R.string.disconnect_ble_first));
+        mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.disconnect_ble_first));
         mAddNewDevDialog.show();
     }
 
@@ -168,7 +169,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
         private DevManagementAdapter(Context context) {
             mContext = context;
-            mDevList = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryAll();
+            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
         }
 
         private void addItem(DeviceInfo deviceInfo) {
@@ -209,10 +210,10 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                     @Override
                     public void onClick(View v) {
                         mDefaultInfo.setDeviceDefault(false);
-                        DeviceInfoDao.getInstance(DeviceManagementActivity.this).updateDeviceInfo(mDefaultInfo);
+                        DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
                         deviceInfo.setDeviceDefault(true);
-                        DeviceInfoDao.getInstance(DeviceManagementActivity.this).updateDeviceInfo(deviceInfo);
-                        mDevList = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryAll();
+                        DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
+                        mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
                         mDevManagementAdapter.notifyDataSetChanged();
                         LogUtil.d(TAG, "设置为默认设备");
                     }
@@ -220,22 +221,21 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DeviceInfo default_nor = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
+                        DeviceInfo default_nor = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
                         if (deviceInfo.getDeviceDefault() & default_nor != null) {
-                            ToastUtil.showLong(DeviceManagementActivity.this, R.string.delete_failed);
+                            ToastUtil.showLong(mCtx, R.string.delete_failed);
                             mDevManagementAdapter.notifyDataSetChanged();
                             return;
                         } else if (deviceInfo.getDeviceDefault()) {
-                            BleManagerHelper.getInstance(DeviceManagementActivity.this, false).setBleMac(null);
-                            BleManagerHelper.getInstance(DeviceManagementActivity.this, false).getBleCardService().disconnect();
+                            BleManagerHelper.getInstance(mCtx, false).getBleCardService().disconnect();
                         }
-                        DeviceUserDao.getInstance(DeviceManagementActivity.this).
+                        DeviceUserDao.getInstance(mCtx).
                                 deleteByKey(DeviceUserDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
-                        DeviceKeyDao.getInstance(DeviceManagementActivity.this).
+                        DeviceKeyDao.getInstance(mCtx).
                                 deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
-                        DeviceStatusDao.getInstance(DeviceManagementActivity.this).
+                        DeviceStatusDao.getInstance(mCtx).
                                 deleteByKey(DeviceStatusDao.DEVICE_NODEID, deviceInfo.getDeviceNodeId());
-                        DeviceInfoDao.getInstance(DeviceManagementActivity.this).
+                        DeviceInfoDao.getInstance(mCtx).
                                 delete(deviceInfo);
                         mDevList.remove(position);
                         mDevManagementAdapter.notifyDataSetChanged();
@@ -275,11 +275,11 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     @Override
     protected void onResume() {
         super.onResume();
-        long l = DeviceInfoDao.getInstance(DeviceManagementActivity.this).queryCount();
+        long l = DeviceInfoDao.getInstance(mCtx).queryCount();
         LogUtil.d(TAG, "type = " + l + '\n' +
                 "count = " + mDevManagementAdapter.getItemCount());
         if (l > mDevManagementAdapter.getItemCount()) {
-            mDevManagementAdapter.addItem(DeviceInfoDao.getInstance(DeviceManagementActivity.this).getNewDeviceInfo());
+            mDevManagementAdapter.addItem(DeviceInfoDao.getInstance(mCtx).getNewDeviceInfo());
             mDevManagementAdapter.notifyDataSetChanged();
         }
     }

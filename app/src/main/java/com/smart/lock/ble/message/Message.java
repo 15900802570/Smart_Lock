@@ -495,7 +495,7 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        return "Message [exception=" + exception + ", type=" + type + ", isSyn=" + isOta + "]";
+        return "Message [exception=" + exception + ", type=" + type + ", isSyn=" + isOta + ", bundle=" + getData().toString() + "]";
     }
 
 }

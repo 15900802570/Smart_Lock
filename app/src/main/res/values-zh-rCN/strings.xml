@@ -28,6 +28,7 @@
     <string name="bt_connect_failed">连接失败</string>
     <string name="bt_connect_success">连接成功</string>
     <string name="bt_connecting">连接中...</string>
+    <string name="bt_connected">已连接</string>
     <string name="bt_setting">设置</string>
     <string name="bt_update_time">更新于:</string>
 
@@ -337,4 +338,5 @@
     <string name="_1970_01_01">1970-01-01</string>
     <string name="input_timeout">录入超时</string>
     <string name="setting_dev_info">设置设备信息</string>
+    <string name="plz_set_right_life_cycle">请设置正确的生命周期</string>
 </resources>

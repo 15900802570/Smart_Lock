@@ -297,4 +297,116 @@ public class BleMsg {
      * 设置默认页
      */
     public static final String KEY_CURRENT_ITEM = "currentItem";
+    //连接方式
+    public static final String KEY_BLE_CONNECT_TYPE = "bleConnectType";
+
+
+    /**
+     * MSG 2E ERRCODE
+     */
+    public static final byte TYPE_REMOTE_UNLOCK_SUCCESS = 0x00; //远程开锁成功
+    public static final byte TYPE_RAND_CODE_UPDARE_SUCCESS = 0x01; //动态码更新成功
+    public static final byte TYPE_NO_AUTHORITY = 0x02; //无权限
+    public static final byte TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS = 0x03; //无权限
+    public static final byte TYPE_SET_BROADCAST_NAME_SUCCESS = 0x04; //配置广播名成功
+    public static final byte TYPE_SET_BROADCAST_NAME_FAILED = 0x05; //配置广播名失败
+
+    /**
+     * MSG 11 TYPE
+     */
+    public static final byte TYPE_SCAN_QR_ADD_MASTER = 0x00; //扫描绑定增加管理员，此时锁侧提示用户按键后才会增加管理员，如果超时没有按键则通过MSG1E返回失败码
+    public static final byte TYPT_CONNECT_ADD_MASTER = 0x01; //普通安全连接增加管理员
+    public static final byte TYPT_CONNECT_ADD_MUMBER = 0x02; //普通安全连接增加普通用户
+    public static final byte TYPT_CONNECT_ADD_TEMP = 0x03; //普通安全连接增加临时用户
+    public static final byte TYPT_DELETE_USER = 0x04; //删除用户
+    public static final byte TYPT_PAUSE_USER = 0x05; //暂停用户
+    public static final byte TYPT_RECOVERY_USER = 0x06; //重新启动用户
+    public static final byte TYPT_NO_SCAN_QR_ADD_USER = 0x07; //无扫描增加管理员
+    public static final byte TYPT_CANCEL_SCAN_QR = 0x08; //取消扫描
+
+    /**
+     * MSG 1E ERRCODE
+     */
+    public static final byte TYPE_PAUSE_USER_SUCCESS = 0x00; //暂停用户成功
+    public static final byte TYPE_PAUSE_USER_FAILED = 0x01; //暂停用户失败
+    public static final byte TYPE_ADD_USER_SUCCESS = 0x02; //新增用户成功
+    public static final byte TYPE_ADD_USER_FAILED = 0x03; //新增用户失败
+    public static final byte TYPE_DELETE_USER_SUCCESS = 0x04; //删除用户成功
+    public static final byte TYPE_DELETE_USER_FAILED = 0x05; //删除用户失败
+    public static final byte TYPE_RECOVERY_USER_SUCCESS = 0x06; //启用用户成功
+    public static final byte TYPE_RECOVERY_USER_FAILED = 0x07; //启用用户失败
+    public static final byte TYPE_ENTER_OR_MODIFY_FP_FAILED = 0x08; //录入/修改指纹失败
+    public static final byte TYPE_MODIFY_FP_SUCCESS = 0x09; //修改指纹成功
+    public static final byte TYPE_DELETE_FP_SUCCESS = 0x0a; //删除指纹成功
+    public static final byte TYPE_ENTER_PASSWORD_FAILED = 0x0b; //录入密码失败
+    public static final byte TYPE_ENTER_OR_MODIFY_PASSWORD_SUCCESS = 0x0c; //密码录入/修改成功
+    public static final byte TYPE_DELETE_PASSWORD_SUCCESS = 0x0d; //删除密码成功
+    public static final byte TYPE_ENTER_OR_MODIFY_NFC_FAILED = 0x0e; //录入/修改NFC卡失败
+    public static final byte TYPE_MODIFY_NFC_SUCCESS = 0x0f; //修改NFC卡成功
+    public static final byte TYPE_DELETE_NFC_SUCCESS = 0x10; //删除NFC卡成功
+    public static final byte TYPE_GROUP_DELETE_USER_SUCCESS = 0x11; //群删用户成功
+    public static final byte TYPE_GROUP_DELETE_USER_FAILED = 0x12; //群删用户失败
+    public static final byte TYPE_GROUP_DELETE_KEY_SUCCESS = 0x13; //群删密钥成功
+    public static final byte TYPE_GROUP_DELETE_KEY_FAILED = 0x14; //群删密钥失败
+    public static final byte TYPE_SET_COMBINATION_UNLOCK_SUCCESS = 0x15; //组合开锁功能设置成功
+    public static final byte TYPE_SET_COMBINATION_UNLOCK_FAILED = 0x16; //组合开锁功能设置失败
+    public static final byte TYPE_KEEP_UNLOCK_SUCCESS = 0x17; //常开功能设置成功
+    public static final byte TYPE_KEEP_UNLOCK_FAILED = 0x18; //常开功能设置失败
+    public static final byte TYPE_SET_VOICE_PROMPT_SUCCESS = 0x19; //语音提示设置成功
+    public static final byte TYPE_SET_VOICE_PROMPT_FAILED = 0x1a; //语音提示设置失败
+    public static final byte TYPE_SET_LOCK_CORE_SUCCESS = 0x1b; //智能锁芯设置成功
+    public static final byte TYPE_SET_LOCK_CORE_FAILED = 0x1c; //智能锁芯设置失败
+    public static final byte TYPE_SET_ANTI_PRYING_ALARM_SUCCESS = 0x1d; //防撬报警设置成功
+    public static final byte TYPE_SET_ANTI_PRYING_ALARM_FAILED = 0x1e; //防撬报警设置失败
+    public static final byte TYPE_SET_TEMP_USER_LIFE_SUCCESS = 0x1f; //设置临时用户有效期成功
+    public static final byte TYPE_SET_TEMP_USER_LIFE_FAILED = 0x20; //回锁时间设置成功
+    public static final byte TYPE_NO_AUTHORITY_1E = 0x21; //无权限，对于一些需管理员权限才能操作的设置返回的错误
+    public static final byte TYPE_RESTORE_FACTORY_SETTINGS_SUCCESS = 0x22; //恢复出厂设置成功
+    public static final byte TYPE_DELETE_FP_FAILED = 0x23; //删除指纹失败
+    public static final byte TYPE_FP_FULL = 0x24; //指纹已满
+    public static final byte TYPE_EQUIPMENT_BUSY = 0x25; //设备忙
+
+    public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
+    public static final int STATE_DISCONNECTED = 101;//连接中断
+    public static final int REGISTER_SUCCESS = 102; //注册成功
+    public static final int DISPACTH_MSG_3E = 103; //分发3E
+    public static final int RECEIVER_LOGS = 104; //接受log
+    public static final int STATE_CONNECTED = 105; //连接成功
+    public static final int GATT_SERVICES_DISCOVERED = 106; //发现服务
+
+    /**
+     * msg 15 type
+     */
+    public static final byte TYPE_PASSWORD = 0x00; //密码
+    public static final byte TYPE_FINGERPRINT = 0x01; //指纹
+    public static final byte TYPE_CARD = 0x02; //NFC卡
+
+    /**
+     * msg 15 CMD
+     */
+    public static final byte CMD_TYPE_CREATE = 0x00; //新增
+    public static final byte CMD_TYPE_DELETE = 0x01; //删除
+    public static final byte CMD_TYPE_MODIFY = 0x02; //修改
+    public static final byte CMD_TYPE_CANCEL_CREATE = 0x03; //取消录入
+
+    /**
+     * MSG 31 type
+     */
+    public static final byte TYPE_QUERY_USER_LOG = 0x00; //查询某个用户日志
+    public static final byte TYPE_QUERY_ALL_USERS_LOG = 0x01; //查询所有用户日志，仅管理员有效，否则返回MSG3E错误
+
+    /**
+     * MSG 3E type
+     */
+    public static final byte TYPE_RECEIVER_LOGS_OVER = 0x00; //log传输完毕，包括无log及log传输完成
+    public static final byte TYPE_DELETE_LOG_SUCCESS = 0x01; //删除log成功
+    public static final byte TYPE_DELETE_LOG_FAILED = 0x02; //删除log失败
+    public static final byte TYPE_NO_AUTHORITY_3E = 0x03;  //无权限
+
+    /**
+     * MSG 33 type
+     */
+    public static final byte TYPE_DELETE_ALL_LOGS = 0X00; //删除所有日志
+    public static final byte TYPE_DELETE_USER_LOGS = 0X01; //按USR_ID删除所有日志
+    public static final byte TYPE_DELETE_LOG = 0X02; //删除单条日志
 }

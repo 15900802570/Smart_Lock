@@ -24,12 +24,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.j256.ormlite.stmt.query.In;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 
 
+import com.smart.lock.ble.listener.MainEngine;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.OtaUpdateActivity;
 
@@ -93,7 +98,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private String mNodeId; //设备IMEI
     private String mBleMac; //蓝牙地址
 
-    private Dialog mLoadDialog;
     private Context mCtx;
 
     private String[] mPermission = new String[]{
@@ -102,6 +106,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     };
     private int REQUESTCODE = 0;
     private static final int REQUEST_CODE_SCAN = 1;
+    private BleManagerHelper mBleManagerHelper;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -196,7 +201,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
         mCtx = this;
         mDialog = DialogFactory.getInstance(this);
-        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
     }
 
     public void initEvent() {
@@ -411,7 +416,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     mSn = dvInfo[0];
                     mBleMac = dvInfo[1];
                     mNodeId = dvInfo[2];
-//                    mBleMac = StringUtil.getMacAdr(mBleMac);
 
                     Bundle bundle = new Bundle();
                     bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
@@ -420,7 +424,11 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
                             " sn = " + mSn + "\n" +
                             "mNodeId = " + mNodeId);
-                    BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle, this);
+                    bundle.putByte(BleMsg.KEY_BLE_CONNECT_TYPE, Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE);
+                    Intent intent = new Intent();
+                    intent.setClass(this, LockDetectingActivity.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 } else {
                     ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
                 }

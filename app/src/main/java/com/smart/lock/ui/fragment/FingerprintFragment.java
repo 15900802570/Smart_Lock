@@ -29,11 +29,14 @@ import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -44,7 +47,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FingerprintFragment extends BaseFragment implements View.OnClickListener {
+public class FingerprintFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = FingerprintFragment.class.getSimpleName();
 
     private View mFpView;
@@ -53,7 +56,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     private FpManagerAdapter mFpAdapter;
     private String mLockId = null;
-    private boolean mIsVisibleFragment = false;
+    private Context mCtx;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,12 +66,11 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                int count = DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
+                int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
                 if (count >= 0 && count < 5) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    closeDialog(15);
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 0, (byte) 1, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getResources().getString(R.string.add_fp_tips));
                 }
@@ -99,12 +101,13 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     }
 
     public void initDate() {
-        mDefaultDevice = DeviceInfoDao.getInstance(mFpView.getContext()).queryFirstData("device_default", true);
+        mCtx = mFpView.getContext();
+        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mFpView.getContext(), false);
-
-        mFpAdapter = new FpManagerAdapter(mFpView.getContext());
-        mListView.setLayoutManager(new LinearLayoutManager(mFpView.getContext(), LinearLayoutManager.VERTICAL, false));
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper.addUiListener(this);
+        mFpAdapter = new FpManagerAdapter(mCtx);
+        mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mFpAdapter);
         mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
@@ -115,8 +118,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
         initEvent();
 
-        mLoadDialog = DialogUtils.createLoadingDialog(mFpView.getContext(), mFpView.getContext().getResources().getString(R.string.data_loading));
-        LocalBroadcastManager.getInstance(mFpView.getContext()).registerReceiver(fpReceiver, intentFilter());
+        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
     }
 
     private void initEvent() {
@@ -133,50 +135,35 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         return intentFilter;
     }
 
-    private final BroadcastReceiver fpReceiver = new BroadcastReceiver() {
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        LogUtil.d(TAG, "hidden = " + hidden);
+        super.onHiddenChanged(hidden);
+    }
 
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+    @Override
+    public void deviceStateChange(Device device, int state) {
 
-            //MSG1E 设备->apk，返回信息
-            if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
+    }
 
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-
-                if (errCode[3] == 0x08) {
-                    if (mFpAdapter.positionModify != -1) {
-                        showMessage(mFpView.getContext().getResources().getString(R.string.modify_fp_failed));
-                        mFpAdapter.positionModify = -1;
-                    } else {
-                        showMessage(mFpView.getContext().getResources().getString(R.string.add_fp_failed));
-                    }
-
-                } else if (errCode[3] == 0x09) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.modify_fp_success));
-                } else if (errCode[3] == 0x0a) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_success));
-                    mFpAdapter.removeItem(mFpAdapter.positionDelete);
-                } else if (errCode[3] == 0x23) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.delete_fp_failed));
-                } else if (errCode[3] == 0x24) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.fp_full));
-                } else if (errCode[3] == 0x25) {
-                    showMessage(mFpView.getContext().getResources().getString(R.string.device_busy));
-                }
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG16_LOCKID)) {
-                DeviceKey key = (DeviceKey) intent.getExtras().getSerializable(BleMsg.KEY_SERIALIZABLE);
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
+        Bundle extra = msg.getData();
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_1E:
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            case Message.TYPE_BLE_RECEV_CMD_16:
+                DeviceKey key = (DeviceKey) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_FINGERPRINT)) {
-                    mHandler.removeCallbacks(mRunnable);
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
 
-                final byte[] lockId = intent.getByteArrayExtra(BleMsg.KEY_LOCK_ID);
+                final byte[] lockId = extra.getByteArray(BleMsg.KEY_LOCK_ID);
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 mLockId = String.valueOf(lockId[0]);
                 LogUtil.d(TAG, "lockId = " + mLockId);
@@ -184,49 +171,85 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName(mFpView.getContext().getResources().getString(R.string.me) + mFpView.getContext().getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
+                deviceKey.setKeyName(mCtx.getResources().getString(R.string.me) + mCtx.getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
-                DeviceKeyDao.getInstance(mFpView.getContext()).insert(deviceKey);
+                DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
                 if (mTempUser != null) {
                     mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                    DeviceUserDao.getInstance(mFpView.getContext()).updateDeviceUser(mTempUser);
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
 
                 mFpAdapter.addItem(deviceKey);
                 DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG18_TIMEOUT)) {
-                Log.d(TAG, "STR_RSP_MSG18_TIMEOUT");
-                byte[] seconds = intent.getByteArrayExtra(BleMsg.KEY_TIME_OUT);
-                if (mIsVisibleFragment) {
-                    mCt.reSetTimeOut(seconds[0] * 1000);
-                    Log.d(TAG, "seconds = " + Arrays.toString(seconds));
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                    }
-                    closeDialog((int) seconds[0]);
-                }
-
-            }
-
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
 
         }
-    };
+    }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        mIsVisibleFragment = isVisibleToUser;
-        LogUtil.d(TAG, " fp isVisibleToUser = " + isVisibleToUser);
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_ENTER_OR_MODIFY_FP_FAILED:
+                if (mFpAdapter.positionModify != -1) {
+                    showMessage(mCtx.getResources().getString(R.string.modify_fp_failed));
+                    mFpAdapter.positionModify = -1;
+                } else {
+                    showMessage(mCtx.getResources().getString(R.string.add_fp_failed));
+                }
+                break;
+            case BleMsg.TYPE_MODIFY_FP_SUCCESS:
+                showMessage(mCtx.getResources().getString(R.string.modify_fp_success));
+                break;
+            case BleMsg.TYPE_DELETE_FP_FAILED:
+                showMessage(mCtx.getResources().getString(R.string.delete_fp_failed));
+                break;
+            case BleMsg.TYPE_FP_FULL:
+                showMessage(mCtx.getResources().getString(R.string.fp_full));
+                break;
+            case BleMsg.TYPE_EQUIPMENT_BUSY:
+                showMessage(mCtx.getResources().getString(R.string.device_busy));
+                break;
+            default:
+                break;
+        }
+        DialogUtils.closeDialog(mLoadDialog);
     }
 
     @Override
-    public void onHiddenChanged(boolean hidden) {
-        LogUtil.d(TAG, "hidden = " + hidden);
-        super.onHiddenChanged(hidden);
+    public void reConnectBle(Device device) {
+
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
     }
 
     public class FpManagerAdapter extends RecyclerView.Adapter<FpManagerAdapter.ViewHolder> {
@@ -237,7 +260,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
         public FpManagerAdapter(Context context) {
             mContext = context;
-            mFpList = DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT);
+            mFpList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT);
         }
 
         public void setDataSource(ArrayList<DeviceKey> cardList) {
@@ -282,9 +305,8 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 public void onClick(View v) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    closeDialog(10);
                     positionDelete = position;
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 1, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_FINGERPRINT, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 }
             });
             viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
@@ -292,9 +314,8 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 public void onClick(View v) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    closeDialog(10);
                     positionModify = position;
-                    mCt = mBleManagerHelper.getBleCardService().sendCmd15((byte) 2, (byte) 1, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_FINGERPRINT, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                 }
             });
 
@@ -357,17 +378,13 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         super.onResume();
         Log.d(TAG, "onResume");
 
-        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mFpView.getContext()).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
+        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
         mFpAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(mFpView.getContext()).unregisterReceiver(fpReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
+        mBleManagerHelper.removeUiListener(this);
     }
 }

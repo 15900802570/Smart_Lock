@@ -324,4 +324,6 @@
     <string name="_1970_01_01">1970-01-01</string>
     <string name="complete">Complete</string>
     <string name="input_timeout">Input TimeOut</string>
+    <string name="bt_connected">Connected</string>
+    <string name="plz_set_right_life_cycle">Set the right life cycle</string>
 </resources>

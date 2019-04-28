@@ -1,6 +1,9 @@
 package com.smart.lock.ble.provider;
 
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -41,6 +44,7 @@ import com.smart.lock.ble.parser.BleCmd2EParse;
 import com.smart.lock.ble.parser.BleCmd32Parse;
 import com.smart.lock.ble.parser.BleCmd3EParse;
 import com.smart.lock.ble.parser.BleCommandParse;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -48,6 +52,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -152,11 +157,6 @@ public class BleProvider {
     protected boolean debug = true;
 
     /**
-     * ble 接口
-     */
-    private BleChannel mBleChannel;
-
-    /**
      * Gatt
      */
     private BluetoothGatt mBleGatt;
@@ -184,7 +184,7 @@ public class BleProvider {
     private boolean mCheckTimeOut = false; //是否超时
     private ClientTransaction mCt;
 
-    public BleProvider(boolean debug, BluetoothGatt bleGatt, BleChannel bleChannel) {
+    public BleProvider(boolean debug, BluetoothGatt bleGatt) {
 
         // 初始化队列
         bleCommandQueue = new ArrayBlockingQueue(100);
@@ -210,8 +210,6 @@ public class BleProvider {
         this.debug = debug;
 
         mBleGatt = bleGatt;
-
-        mBleChannel = bleChannel;
 
         mRspLength = 0;
 
@@ -294,7 +292,7 @@ public class BleProvider {
     /**
      * 回调、唤醒等待，响应的命令
      *
-     * @param command AT指令
+     * @param command 蓝牙指令
      */
     public synchronized void onReceiveBle(byte[] command) {
 
@@ -348,11 +346,9 @@ public class BleProvider {
         BleCreator creator = bleCreatorMap.get(msg.getType(), null);
 
         if (creator == null) {
-            // AT指令创建器为空， 回收消息
             msg.recycle();
         } else {
             try {
-                // 创建AT指令
                 byte[] cmd = creator.create(msg);
 
                 byte[] mRspBuf = new byte[20];
@@ -363,7 +359,7 @@ public class BleProvider {
                 if (cmd != null) {
 
                     if (msg.isOta()) {
-                        // 调用异步接口发送AT指令
+                        // 调用异步接口发送指令
                         if (cmd.length > 20) {
 
                             bufLen = cmd.length / 20;
@@ -380,12 +376,12 @@ public class BleProvider {
                                     mRspBuf[i] = cmd[mRspRead + i];
                                 }
 
-                                if (mBleChannel.sendOta(mRspBuf, msg.getType())) {
+                                if (sendOta(mRspBuf, msg.getType())) {
                                     Arrays.fill(mRspBuf, 0, 20, (byte) 0);
                                 }
                             }
                         } else {
-                            mBleChannel.sendOta(cmd, msg.getType());
+                            sendOta(cmd, msg.getType());
                         }
                         msg.recycle();
                     } else {
@@ -406,11 +402,10 @@ public class BleProvider {
                                     mRspBuf[i] = cmd[mRspRead + i];
                                 }
 
-                                if (mBleChannel.sendPacket(mRspBuf)) {
+                                if (sendPacket(mRspBuf)) {
                                     Arrays.fill(mRspBuf, 0, 20, (byte) 0);
-
                                 } else {
-                                    Log.i(TAG, "send AT : " + cmd + " failure");
+                                    Log.i(TAG, "send : " + cmd + " failure");
                                     // 设置发送失败状态
                                     msg.setException(Message.EXCEPTION_SEND_FAIL);
                                     // 分发命令
@@ -419,8 +414,8 @@ public class BleProvider {
                             }
 
                         } else {
-                            if (!mBleChannel.sendPacket(cmd))
-                                Log.i(TAG, "send AT : " + cmd + " failure");
+                            if (!sendPacket(cmd))
+                                Log.i(TAG, "send : " + cmd + " failure");
                             // 设置发送失败状态
                             msg.setException(Message.EXCEPTION_SEND_FAIL);
                             // 分发命令
@@ -457,7 +452,7 @@ public class BleProvider {
     /**
      * 解析指令
      *
-     * @param command        AT指令
+     * @param command        指令
      * @param bleMsgListener 回调监听器
      * @see BleCommand
      * @see BleMessageListener
@@ -500,21 +495,20 @@ public class BleProvider {
             if (parse != null) {
                 // 解析成消息
                 Message m = parse.parse(cmdBuf);
-                Log.d(TAG, "parse m : " + m.toString());
 
                 if (m != null) {
-                    LogUtil.d(TAG, "m.getKey() = " + m.getKey());
+                    Log.d(TAG, "parse m : " + m.toString());
                     if (m.getKey() != null) {
                         // 获取事务监听器
                         ClientTransaction ct = (ClientTransaction) removeBleMsgListener(m.getKey());
                         if (ct != null) {
+                            Log.i(TAG, "ct : " + ct.getMessage().toString());
                             Serializable serializable = ct.getMessage().getData().getSerializable(BleMsg.KEY_SERIALIZABLE);
+                            // 停止定时器
+                            ct.halt();
                             if (serializable != null) {
                                 LogUtil.d(TAG, "serializable = " + serializable.toString());
                                 m.getData().putSerializable(BleMsg.KEY_SERIALIZABLE, serializable);
-                                Log.i(TAG, "bleMsgListener halt : " + ct.getListenerKey());
-                                // 停止定时器
-                                ct.halt();
                             } else {
                                 Log.i(TAG,
                                         "bleMsgListener  : "
@@ -771,6 +765,91 @@ public class BleProvider {
 
     public synchronized boolean containsKey(String key) {
         return transactionBleMsgListenerMap.containsKey(key);
+    }
+
+    /**
+     * Enable Notification on TX characteristic
+     *
+     * @return
+     */
+    public void enableTXNotification() {
+        LogUtil.i(TAG, "enableTXNotification!");
+        BluetoothGattService RxService = mBleGatt.getService(Device.RX_SERVICE_UUID);
+        if (RxService == null) {
+            LogUtil.e("Rx service not found!");
+            return;
+        }
+        BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(Device.TX_CHAR_UUID);
+        if (TxChar == null) {
+            LogUtil.e("Tx charateristic not found!");
+            return;
+        }
+        mBleGatt.setCharacteristicNotification(TxChar, true);
+
+        BluetoothGattDescriptor descriptor = TxChar.getDescriptor(Device.CCCD);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        mBleGatt.writeDescriptor(descriptor);
+    }
+
+    public boolean sendPacket(byte[] value) {
+        final UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+        final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+
+        BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
+
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException ex) {
+        }
+
+        if (RxService == null) {
+            LogUtil.e(TAG, "RxService is null!");
+            return false;
+        }
+
+        BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(RX_CHAR_UUID);
+        if (RxChar == null) {
+            LogUtil.e(TAG, "RxChar is null!");
+            return false;
+        }
+
+        RxChar.setValue(value);
+        boolean result = mBleGatt.writeCharacteristic(RxChar);
+        LogUtil.e(TAG,"result : " + result);
+        return result;
+    }
+
+    public boolean sendOta(byte[] value, int type) {
+        final UUID RX_SERVICE_UUID = UUID.fromString("0000ffa0-0000-1000-8000-00805f9b34fb");
+        final UUID RX_CMD_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb");
+        final UUID RX_DATA_UUID = UUID.fromString("0000ffa2-0000-1000-8000-00805f9b34fb");
+
+        try {
+            Thread.sleep(20);
+        } catch (InterruptedException ex) {
+        }
+
+        BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
+
+        Log.d(TAG, "RxService = " + (RxService == null));
+        if (RxService == null) {
+            return false;
+        }
+        BluetoothGattCharacteristic RxChar = null;
+        if (type == com.smart.lock.ble.message.Message.TYPE_BLE_SEND_OTA_CMD) {
+            RxChar = RxService.getCharacteristic(RX_CMD_UUID);
+        } else if (type == com.smart.lock.ble.message.Message.TYPE_BLE_SEND_OTA_DATA) {
+            RxChar = RxService.getCharacteristic(RX_DATA_UUID);
+        }
+
+        if (RxChar == null) {
+            return false;
+        }
+
+        Log.d(TAG, "value = " + Arrays.toString(value));
+        RxChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+        RxChar.setValue(value);
+        return mBleGatt.writeCharacteristic(RxChar);
     }
 
 }

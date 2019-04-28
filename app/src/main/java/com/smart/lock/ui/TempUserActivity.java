@@ -26,10 +26,13 @@ import android.widget.Toast;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -41,7 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TempUserActivity extends BaseActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class TempUserActivity extends BaseActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, UiListener {
     private final static String TAG = TempUserActivity.class.getSimpleName();
 
     private Toolbar mUsetSetTb;
@@ -63,20 +66,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
      * 蓝牙
      */
     private BleManagerHelper mBleManagerHelper;
-
-    /**
-     * 超时提示框启动器
-     */
-    private Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
-                DialogUtils.closeDialog(mLoadDialog);
-
-                Toast.makeText(TempUserActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-            }
-        }
-    };
+    private Device mDevice;  //当前连接设备信息
 
     private DeviceInfo mDefaultDevice; //默认设备
 
@@ -88,7 +78,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         initData();
         initActionBar();
         initEvent();
-        LocalBroadcastManager.getInstance(this).registerReceiver(tempUserReciver, intentFilter());
     }
 
     @SuppressLint("WrongViewCast")
@@ -105,6 +94,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper.addUiListener(this);
+        mDevice = mBleManagerHelper.getBleCardService().getDevice();
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
 
@@ -154,12 +145,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         datePickerDialog.show();
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_MSG2E_ERRCODE);
-        return intentFilter;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Bundle bundle = new Bundle();
@@ -181,31 +166,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         return true;
     }
 
-    /**
-     * 广播接收
-     */
-    private final BroadcastReceiver tempUserReciver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(BleMsg.STR_RSP_MSG2E_ERRCODE)) {
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-                if (errCode[3] == 0x02) {
-                    showMessage(getString(R.string.no_authority));
-                } else if (errCode[3] == 0x03) {
-                    mTempUser.setLcBegin(mStartDate.getText().toString());
-                    mTempUser.setLcEnd(mEndDate.getText().toString());
-                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                    DeviceUserDao.getInstance(TempUserActivity.this).updateDeviceUser(mTempUser);
-                    showMessage(getString(R.string.set_life_cycle_success));
-                }
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
-            }
-        }
-    };
 
     /**
      * 吐司提示
@@ -230,15 +190,18 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                     showMessage("备注名不能为空！");
                     return;
                 }
+                if (mStartDate.getText().toString().equals(getString(R.string._1970_01_01)) || mEndDate.getText().toString().equals(getString(R.string._1970_01_01))) {
+                    showMessage(getString(R.string.plz_set_right_life_cycle));
+                    return;
+                }
 
                 if (DateTimeUtil.isDateOneBigger(mStartDate.getText().toString(), mEndDate.getText().toString())) {
-                    if (mBleManagerHelper.getServiceConnection()) {
+                    if (mDevice.getState() == Device.BLE_CONNECTED) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        closeDialog(15);
                         mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifyCycle(mStartDate.getText().toString(), mEndDate.getText().toString()));
                     } else {
-                        showMessage("连接中断，请重试！");
+                        showMessage(getString(R.string.disconnect_ble));
                     }
 
                 } else {
@@ -261,8 +224,9 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             Date beginDate = currentTime.parse(BeginStr);
             Date EndDate = currentTime.parse(endStr);
 
-            int beginTime = (int) (beginDate.getTime() / 1000);
-            int endTime = (int) (EndDate.getTime() / 1000);
+            int beginTime = Long.valueOf((beginDate.getTime() / 1000)).intValue();
+            int endTime = Long.valueOf((EndDate.getTime() / 1000)).intValue();
+
             LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
             byte[] timeBuf = new byte[4];
             StringUtil.int2Bytes(beginTime, timeBuf);
@@ -292,24 +256,83 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     }
 
-
-    /**
-     * 超时提醒
-     *
-     * @param seconds
-     */
-    protected void closeDialog(final int seconds) {
-        mHandler.removeCallbacks(mRunnable);
-        mHandler.postDelayed(mRunnable, seconds * 1000);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(tempUserReciver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+        mBleManagerHelper.removeUiListener(this);
+    }
+
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        mDevice = device;
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback!");
+        mDevice = device;
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_2E:
+                final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
         }
+
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+        mDevice = device;
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_NO_AUTHORITY:
+                showMessage(getString(R.string.no_authority));
+                break;
+            case BleMsg.TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS:
+                mTempUser.setLcBegin(mStartDate.getText().toString());
+                mTempUser.setLcEnd(mEndDate.getText().toString());
+                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                DeviceUserDao.getInstance(TempUserActivity.this).updateDeviceUser(mTempUser);
+                showMessage(getString(R.string.set_life_cycle_success));
+                break;
+            default:
+                break;
+        }
+        DialogUtils.closeDialog(mLoadDialog);
     }
 }

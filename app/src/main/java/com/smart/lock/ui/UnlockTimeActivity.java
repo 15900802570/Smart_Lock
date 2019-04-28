@@ -456,8 +456,8 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 Date firstBeginDate = currentTime.parse(firstBeginStr);
                 Date firstEndDate = currentTime.parse(firstEndDateStr);
 
-                int firstBeginTime = (int) (firstBeginDate.getTime() / 1000);
-                int firstEndTime = (int) (firstEndDate.getTime() / 1000);
+                int firstBeginTime = Long.valueOf((firstBeginDate.getTime() / 1000)).intValue();
+                int firstEndTime = Long.valueOf((firstEndDate.getTime() / 1000)).intValue();
                 LogUtil.d(TAG, "firstBeginTime = " + firstBeginTime + " ;firstEndTime = " + firstEndTime);
                 byte[] firstTimeBuf = new byte[4];
                 StringUtil.int2Bytes(firstBeginTime, firstTimeBuf);

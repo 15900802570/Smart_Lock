@@ -17,7 +17,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.utils.LogUtil;
 
 
-public class BaseApplication extends Application implements BleManagerHelper.IBindServiceCallback {
+public class BaseApplication extends Application {
     private final static String TAG = "BaseApplication";
     private static Context mContext;
     private DeviceInfo mDefaultDevice; //默认设备
@@ -37,15 +37,15 @@ public class BaseApplication extends Application implements BleManagerHelper.IBi
             return;
         }
 
-        mIsConnected = mBleManagerHelper.getServiceConnection();
-        if (!mIsConnected) {
-            LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
-            MessageCreator.setSk(mDefaultDevice);
-            Bundle bundle = new Bundle();
-            bundle.putShort(BleMsg.KEY_USER_ID, mDefaultDevice.getUserId());
-            bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-            mBleManagerHelper.connectBle((byte) 1, bundle,this);
-        }
+//        mIsConnected = mBleManagerHelper.getServiceConnection();
+//        if (!mIsConnected) {
+//            LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
+//            MessageCreator.setSk(mDefaultDevice);
+//            Bundle bundle = new Bundle();
+//            bundle.putShort(BleMsg.KEY_USER_ID, mDefaultDevice.getUserId());
+//            bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+//            mBleManagerHelper.connectBle((byte) 1, bundle,this);
+//        }
 
     }
 
@@ -53,27 +53,4 @@ public class BaseApplication extends Application implements BleManagerHelper.IBi
         return mBleManagerHelper;
     }
 
-    @Override
-    public void onBindSuccess() {
-        mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        if (mDefaultDevice == null) {
-            return;
-        }
-
-        mIsConnected = mBleManagerHelper.getServiceConnection();
-        if (!mIsConnected) {
-            LogUtil.d(TAG, "ble get Service connection() : " + mIsConnected);
-            MessageCreator.setSk(mDefaultDevice);
-            Bundle bundle = new Bundle();
-            bundle.putShort(BleMsg.KEY_USER_ID, mDefaultDevice.getUserId());
-            bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-            mBleManagerHelper.connectBle((byte) 1, bundle,this);
-        }
-        LogUtil.d(TAG,"onBindSuccess!");
-    }
-
-    @Override
-    public void onBindFailure() {
-        LogUtil.d(TAG,"onBindFailure!");
-    }
 }

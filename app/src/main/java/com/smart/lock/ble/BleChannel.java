@@ -15,6 +15,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.smart.lock.ble.provider.BleProvider;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -76,9 +77,9 @@ public class BleChannel implements Runnable {
                     Log.d(TAG, "send packet = " + Arrays.toString(packet));
 
                     if (read_length > 0) {
-                        if (!sendPacket(packet)) {
-                            changeChannelState(STATUS_CHANNEL_WAIT);
-                        }
+//                        if (!sendPacket(packet)) {
+//                            changeChannelState(STATUS_CHANNEL_WAIT);
+//                        }
                     }
                 } else if (msg.what == BleMsg.ID_EVENT_RECV_DATA) {
                     byte[] buf = new byte[512];
@@ -260,76 +261,7 @@ public class BleChannel implements Runnable {
         return crc;
     }
 
-    public boolean sendPacket(byte[] value) {
-        final UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-        final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
 
-        BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
-
-        while (mChannelStatus != STATUS_CHANNEL_WAIT) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-            }
-        }
-
-        if (RxService == null) {
-            notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return false;
-        }
-
-        BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(RX_CHAR_UUID);
-        if (RxChar == null) {
-            notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return false;
-        }
-
-        changeChannelState(STATUS_CHANNEL_WRITE);
-
-        Log.d(TAG, "value = " + Arrays.toString(value));
-
-        RxChar.setValue(value);
-        return mBleGatt.writeCharacteristic(RxChar);
-//        return mBle.requestWriteCharacteristic(mDeviceAddress,
-//                mCharacteristic, "");
-    }
-
-    public boolean sendOta(byte[] value, int type) {
-        final UUID RX_SERVICE_UUID = UUID.fromString("0000ffa0-0000-1000-8000-00805f9b34fb");
-        final UUID RX_CMD_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb");
-        final UUID RX_DATA_UUID = UUID.fromString("0000ffa2-0000-1000-8000-00805f9b34fb");
-
-        try {
-            Thread.sleep(20);
-        } catch (InterruptedException ex) {
-        }
-
-        BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
-
-        Log.d(TAG, "RxService = " + (RxService == null));
-        if (RxService == null) {
-            notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return false;
-        }
-        BluetoothGattCharacteristic RxChar = null;
-        if (type == com.smart.lock.ble.message.Message.TYPE_BLE_SEND_OTA_CMD) {
-            RxChar = RxService.getCharacteristic(RX_CMD_UUID);
-        } else if (type == com.smart.lock.ble.message.Message.TYPE_BLE_SEND_OTA_DATA) {
-            RxChar = RxService.getCharacteristic(RX_DATA_UUID);
-        }
-
-        if (RxChar == null) {
-            notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return false;
-        }
-
-        changeChannelState(STATUS_CHANNEL_WRITE);
-
-        Log.d(TAG, "value = " + Arrays.toString(value));
-        RxChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
-        RxChar.setValue(value);
-        return mBleGatt.writeCharacteristic(RxChar);
-    }
 
     /**
      * @brief Function for changing hex data to pdu.

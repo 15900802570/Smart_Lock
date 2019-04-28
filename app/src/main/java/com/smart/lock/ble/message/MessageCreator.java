@@ -71,6 +71,7 @@ public class MessageCreator {
         }
     }
 
+
     /**
      * 获取消息Message.TYPE_BLE_RECEV_CMD_02
      *
@@ -81,6 +82,7 @@ public class MessageCreator {
     public static Message getCmd02Message(byte type, byte[] random) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");
         Bundle mBundle = mMessage.getData();
 
         if (random != null && random.length != 0) {
@@ -103,13 +105,8 @@ public class MessageCreator {
     public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
         Bundle mBundle = mMessage.getData();
-        LogUtil.d(TAG, "batPerscent = " + batPerscent);
-        LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
-        LogUtil.d(TAG, "userStatus = " + userStatus);
-        LogUtil.d(TAG, "stStatus = " + stStatus);
-        LogUtil.d(TAG, "unLockTime = " + unLockTime);
-        LogUtil.d(TAG, "userState = " + userState);
 
         mBundle.putByte(BleMsg.KEY_BAT_PERSCENT, batPerscent);
         mBundle.putByte(BleMsg.KEY_USER_STATUS, userStatus);
@@ -230,10 +227,11 @@ public class MessageCreator {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-
-        if (errCode != null && errCode.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
+        if (errCode[3] == 0x00) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_21 + "#" + "single");
         }
+
+        mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
         return mMessage;
     }
 

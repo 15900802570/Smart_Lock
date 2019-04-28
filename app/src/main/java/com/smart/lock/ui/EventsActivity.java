@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
@@ -30,6 +31,8 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
@@ -38,6 +41,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -47,12 +51,10 @@ import com.smart.lock.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class EventsActivity extends BaseListViewActivity implements View.OnClickListener {
+public class EventsActivity extends BaseListViewActivity implements View.OnClickListener, UiListener {
     private static final String TAG = "EventsActivity";
 
     private EventsAdapter mEventAdapter;
-    private int mBaseCount = 10;
-
     private LinearLayoutManager mLinearManager;
     /**
      * 日志集合
@@ -61,18 +63,36 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
     private DeviceUser mDeviceUser; //当前设备用户
     private DeviceLog mDelDeVLog; //删除的日志
+    private Device mDevice;
+    private int count = 0;
+    private Context mCtx;
 
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+
+            switch (msg.what) {
+                case BleMsg.DISPACTH_MSG_3E:
+                    Bundle bundle = msg.getData();
+                    dispatchErrorCode(bundle);
+                    break;
+                case BleMsg.RECEIVER_LOGS:
+                    mCountTv.setText(String.valueOf(count));
+                    break;
+                default:
+                    break;
+            }
+
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mTitle.setText(R.string.title_event);
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(eventReceiver, intentFilter());
-
         initData();
-
         mRefreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
@@ -93,25 +113,24 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
      * 初始化数据
      */
     private void initData() {
+        mCtx = this;
         mBack.setVisibility(View.VISIBLE);
         mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getUserId());
 
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper.addUiListener(this);
 
         DeviceLogDao.getInstance(this).deleteAll();
 
-        mLoadDialog = DialogUtils.createLoadingDialog(EventsActivity.this, EventsActivity.this.getResources().getString(R.string.data_loading));
+        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getString(R.string.data_loading));
         mLoadDialog.show();
-        closeDialog(30);
-
-        LogUtil.i(TAG, "mDeviceUser = " + mDeviceUser.getUserPermission());
 
         if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-            mBleManagerHelper.getBleCardService().sendCmd31((byte) 1, mDefaultDevice.getUserId());
+            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
         } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-            mBleManagerHelper.getBleCardService().sendCmd31((byte) 0, mDefaultDevice.getUserId());
+            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
         }
 
         mLogs = new ArrayList<>();
@@ -150,119 +169,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         return intentFilter;
     }
 
-    int count = 0;
-    private final BroadcastReceiver eventReceiver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(BleMsg.STR_RSP_MSG32_LOG)) {
-                final byte[] log = intent.getByteArrayExtra(BleMsg.KEY_LOG);
-                count++;
-                LogUtil.d(TAG, "receiver " + count + " log!");
-                mCountTv.setText(String.valueOf(count));
-                byte[] userId = new byte[2];
-                byte[] logId = new byte[4];
-                byte[] time = new byte[4];
-                byte[] nodeId = new byte[8];
-                byte[] state = new byte[1];
-                byte[] type = new byte[1];
-                byte[] lockId = new byte[1];
-
-                System.arraycopy(log, 0, userId, 0, 2);
-                System.arraycopy(log, 2, logId, 0, 4);
-                System.arraycopy(log, 6, time, 0, 4);
-                System.arraycopy(log, 10, nodeId, 0, 8);
-                System.arraycopy(log, 18, state, 0, 1);
-                System.arraycopy(log, 19, type, 0, 1);
-                System.arraycopy(log, 20, lockId, 0, 1);
-
-                StringUtil.exchange(nodeId);
-
-                LogUtil.d(TAG, "userId = " + Arrays.toString(userId));
-                LogUtil.d(TAG, "logId = " + Arrays.toString(logId));
-                LogUtil.d(TAG, "time = " + Arrays.toString(time));
-                LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
-                LogUtil.d(TAG, "state = " + Arrays.toString(state));
-                LogUtil.d(TAG, "type = " + Arrays.toString(type));
-                LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
-
-                DeviceLog devLog = new DeviceLog();
-                devLog.setUserId(Short.parseShort(StringUtil.bytesToHexString(userId), 16));
-                devLog.setLogId(Integer.parseInt(StringUtil.bytesToHexString(logId), 16));
-                devLog.setLogTime(Long.parseLong(StringUtil.bytesToHexString(time), 16));
-                devLog.setNodeId(StringUtil.bytesToHexString(nodeId));
-                devLog.setLogState(state[0]);
-                String keyName = "";
-
-                devLog.setLogType(type[0]);
-                if (type[0] == 0) {
-                    keyName = EventsActivity.this.getResources().getString(R.string.password);
-                } else if (type[0] == 1) {
-                    keyName = EventsActivity.this.getResources().getString(R.string.fingerprint);
-                } else if (type[0] == 2) {
-                    keyName = EventsActivity.this.getResources().getString(R.string.card);
-                } else {
-                    keyName = EventsActivity.this.getResources().getString(R.string.remote);
-                }
-
-                devLog.setLockId(String.valueOf(lockId[0]));
-                DeviceKey deviceKey = DeviceKeyDao.getInstance(EventsActivity.this).queryByLockId(StringUtil.bytesToHexString(nodeId), StringUtil.bytesToHexString(userId), String.valueOf(lockId[0]), type[0]);
-                if (deviceKey != null) {
-                    devLog.setKeyName(deviceKey.getKeyName());
-                } else
-                    devLog.setKeyName(keyName + String.valueOf(lockId[0]));
-                LogUtil.d(TAG, "devLog = " + devLog.toString());
-
-                DeviceLogDao.getInstance(EventsActivity.this).insert(devLog);
-            }
-
-            if (action.equals(BleMsg.STR_RSP_MSG3E_ERROR)) {
-
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-
-                if (errCode[3] == 0x00) {
-                    if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
-                    } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getUserId());
-                    }
-                    mEventAdapter.setDataSource(mLogs);
-                    mEventAdapter.notifyDataSetChanged();
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mHandler.removeCallbacks(mRunnable);
-
-                } else if (errCode[3] == 0x01) {
-
-                    mDelDeVLog = (DeviceLog) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                    LogUtil.d(TAG, "mDelDeVLog = " + mDelDeVLog.toString());
-                    if (mDelDeVLog != null) {
-                        DeviceLogDao.getInstance(EventsActivity.this).delete(mDelDeVLog);
-                        int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
-                        mEventAdapter.mLogList.remove(position);
-                        mEventAdapter.notifyItemRemoved(position);
-                        mEventAdapter.mDeleteLogs.remove(mDelDeVLog);
-                    }
-
-                    if (mEventAdapter.mDeleteLogs.size() == 0) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mHandler.removeCallbacks(mRunnable);
-                    }
-
-                } else if (errCode[3] == 0x02) {
-                    showMessage(EventsActivity.this.getString(R.string.del_log_failed));
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mHandler.removeCallbacks(mRunnable);
-                } else if (errCode[3] == 0x03) {
-                    showMessage(EventsActivity.this.getString(R.string.no_authority));
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mHandler.removeCallbacks(mRunnable);
-                }
-
-            }
-        }
-    };
 
     @Override
     public void onClick(View v) {
@@ -282,9 +188,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     mSelectCb.setChecked(false);
 
                     if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryKey("node_id", mNodeId);
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
                     } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                        mLogs = DeviceLogDao.getInstance(EventsActivity.this).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
                     }
 
                     mEventAdapter.setDataSource(mLogs);
@@ -299,9 +205,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
                         int logId = devLog.getLogId();
                         LogUtil.d(TAG, "logId = " + logId);
-                        mCt = mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
-                    closeDialog(10);
                 } else {
                     showMessage(getString(R.string.plz_choise_del_log));
                 }
@@ -329,16 +234,116 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         }
     }
 
-    /**
-     * 超时提醒
-     *
-     * @param seconds
-     */
-    private void closeDialog(final int seconds) {
+    @Override
+    public void deviceStateChange(Device device, int state) {
 
-        mHandler.removeCallbacks(mRunnable);
+    }
 
-        mHandler.postDelayed(mRunnable, seconds * 1000);
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback!");
+        mDevice = device;
+        Bundle bundle = msg.getData();
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_3E:
+                final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null) {
+                    android.os.Message message = new android.os.Message();
+                    message.what = BleMsg.DISPACTH_MSG_3E;
+                    bundle.putByte(BleMsg.KEY_ERROR_CODE, errCode[3]);
+                    message.setData(bundle);
+                    mHandler.sendMessage(message);
+                }
+                break;
+            case Message.TYPE_BLE_RECEV_CMD_32:
+                count++;
+                LogUtil.d(TAG, "receiver " + count + " log!");
+                android.os.Message message = new android.os.Message();
+                message.what = type;
+                mHandler.sendMessage(message);
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
+
+        }
+    }
+
+    //分发MSG 3E
+    private void dispatchErrorCode(Bundle bundle) {
+        byte errCode = bundle.getByte(BleMsg.KEY_ERROR_CODE);
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_RECEIVER_LOGS_OVER:
+                if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                    mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
+                } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+                    mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+                }
+                mEventAdapter.setDataSource(mLogs);
+                mEventAdapter.notifyDataSetChanged();
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_DELETE_LOG_SUCCESS:
+                mDelDeVLog = (DeviceLog) bundle.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                LogUtil.d(TAG, "mDelDeVLog = " + mDelDeVLog.toString());
+                if (mDelDeVLog != null) {
+                    DeviceLogDao.getInstance(mCtx).delete(mDelDeVLog);
+                    int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
+                    mEventAdapter.mLogList.remove(position);
+                    mEventAdapter.notifyItemRemoved(position);
+                    mEventAdapter.mDeleteLogs.remove(mDelDeVLog);
+                }
+
+                if (mEventAdapter.mDeleteLogs.size() == 0) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
+                break;
+            case BleMsg.TYPE_DELETE_LOG_FAILED:
+                showMessage(mCtx.getString(R.string.del_log_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_NO_AUTHORITY_3E:
+                showMessage(mCtx.getString(R.string.no_authority));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    @Override
+    public void scanDevFialed() {
+
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+
     }
 
     /**
@@ -532,12 +537,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(eventReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
+        mBleManagerHelper.removeUiListener(this);
     }
 
     @Override

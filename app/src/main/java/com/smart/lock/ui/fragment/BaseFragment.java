@@ -64,22 +64,6 @@ public abstract class BaseFragment extends Fragment {
     private Context mCtx;
 
     /**
-     * 超时提示框启动器
-     */
-    protected Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-                DialogUtils.closeDialog(mLoadDialog);
-                if(mBleManagerHelper.getServiceConnection()) {
-                    showMessage(mCtx.getResources().getString(R.string.plz_reconnect));
-                }else
-                    showMessage(mCtx.getResources().getString(R.string.input_timeout));
-            }
-
-        }
-    };
-
-    /**
      * 蓝牙
      */
     protected BleManagerHelper mBleManagerHelper;
@@ -255,18 +239,6 @@ public abstract class BaseFragment extends Fragment {
         }
 
         return path;
-    }
-
-    /**
-     * 超时提醒
-     *
-     * @param seconds
-     */
-    protected void closeDialog(final int seconds) {
-
-        mHandler.removeCallbacks(mRunnable);
-
-        mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 
     /**

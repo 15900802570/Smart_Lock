@@ -62,7 +62,7 @@ public class BleMessageListenerImpl implements BleMessageListener {
                 case Message.TYPE_BLE_RECEV_CMD_02:
                     final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
                     if (random != null && random.length != 0) {
-                        mService.sendCmd03(random);
+                        mService.sendCmd03(random, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
 //                    notifyData(BleMsg.EXTRA_DATA_MSG_02, extra);
                     break;

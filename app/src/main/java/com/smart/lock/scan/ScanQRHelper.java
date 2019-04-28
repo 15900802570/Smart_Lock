@@ -175,7 +175,7 @@ public class ScanQRHelper {
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
-            BleManagerHelper.getInstance(mActivity, false).connectBle((byte) 1, bundle,mActivity);
+            BleManagerHelper.getInstance(mActivity, false).connectBle((byte) 1, bundle, mActivity);
         }
     }
 
@@ -199,7 +199,7 @@ public class ScanQRHelper {
                 createDeviceUser(Short.parseShort(mUserId, 16));
                 mStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
                 unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
-                LogUtil.d(TAG,"unLockTime = " + unLockTime);
+                LogUtil.d(TAG, "unLockTime = " + unLockTime);
                 if (unLockTime != 0) {
                     createDevice();
                     createDeviceStatus();

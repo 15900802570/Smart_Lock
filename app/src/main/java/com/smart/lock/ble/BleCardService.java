@@ -1,7 +1,6 @@
 
 package com.smart.lock.ble;
 
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -12,26 +11,26 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 
 import com.smart.lock.ble.listener.BleMessageListenerImpl;
 import com.smart.lock.ble.listener.ClientTransaction;
+import com.smart.lock.ble.listener.DeviceStateCallback;
+import com.smart.lock.ble.listener.MainEngine;
+import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.BleReceiver;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.SystemUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -45,7 +44,6 @@ public class BleCardService {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private BleChannel mBleChannel;
     private int mConnectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
@@ -54,14 +52,6 @@ public class BleCardService {
 
     private static boolean sIsWriting = false;
 
-    public static final UUID CCCD = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb");
-    public static final UUID FIRMWARE_REVISON_UUID = UUID
-            .fromString("00002a26-0000-1000-8000-00805f9b34fb");
-    public static final UUID DIS_UUID = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
-    public static final UUID RX_SERVICE_UUID = UUID
-            .fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-    public static final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-    public static final UUID TX_CHAR_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
 
     /**
      * 蓝牙提供者
@@ -86,14 +76,9 @@ public class BleCardService {
     public static String mKeyResult = "result";
 
     /**
-     * 要删除的LockId
-     */
-    public ArrayList<String> mDeleteLockIds;
-
-    /**
      * 蓝牙消息分发器
      */
-    private BleMessageListenerImpl mBleMessageListenerImpl;
+    private MainEngine mEngine;
 
     private boolean mActiveDisConnect = false;
 
@@ -104,10 +89,14 @@ public class BleCardService {
     private long mStartTime2 = 0, mEndTime2 = 0;
     private Context mCtx;
     private static BleCardService mInstance;
+    private DeviceStateCallback mDevStateCallback;
 
     public BleCardService(Context context) {
         mCtx = context;
+        mEngine = new MainEngine(mCtx, this);
     }
+
+    private static ArrayList<UiListener> mUiListeners = new ArrayList<>();
 
     /**
      * 构造方法
@@ -116,6 +105,10 @@ public class BleCardService {
      * @return
      */
     public static BleCardService getInstance(Context context) {
+        if (context instanceof UiListener) {
+            mUiListeners.add((UiListener) context);
+            LogUtil.i(TAG, "UiListener size : " + mUiListeners.size());
+        }
         synchronized (BleCardService.class) {
             if (mInstance == null) {
                 mInstance = new BleCardService(context);
@@ -124,8 +117,11 @@ public class BleCardService {
         return mInstance;
     }
 
-    // Implements callback methods for GATT events that the app cares about. For
-    // example,
+    public void registerDevStateCb(DeviceStateCallback devStateCallback) {
+        mDevStateCallback = devStateCallback;
+    }
+
+    // Implements callback methods for GATT events that the app cares about. For example,
     // connection change and services discovered.
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
@@ -138,25 +134,28 @@ public class BleCardService {
                 Log.i(TAG, "Connected to GATT server.");
                 // Attempts to discover services after successful connection.
                 Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
-                mBleChannel.notifyData(BleMsg.ACTION_GATT_CONNECTED);
+//                mBleChannel.notifyData(BleMsg.ACTION_GATT_CONNECTED);
+                mDevStateCallback.onConnected(); //成功回调
+
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.i(TAG, "refresh ble :" + refreshDeviceCache());
                 mConnectionState = STATE_DISCONNECTED;
-                mBleChannel.changeChannelState(mBleChannel.STATUS_CHANNEL_WAIT);
                 Log.i(TAG, "Disconnected from GATT server.");
-                mBleChannel.notifyData(BleMsg.ACTION_GATT_DISCONNECTED);
+//                mBleChannel.notifyData(BleMsg.ACTION_GATT_DISCONNECTED);
+                mDevStateCallback.onDisconnected();
             }
         }
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                Log.w(TAG, "mBluetoothGatt = " + mBluetoothGatt);
                 mEndTime = System.currentTimeMillis();
-                LogUtil.d(TAG, "connect to disconnect : " + (mEndTime - mStartTime));
-                mBleChannel.notifyData(BleMsg.ACTION_GATT_SERVICES_DISCOVERED);
+                LogUtil.d(TAG, "connect to onServices : " + (mEndTime - mStartTime));
+                mDevStateCallback.onServicesDiscovered(status);
+                if (mBleProvider != null) {
+                    mBleProvider.enableTXNotification();
+                }
 
-                LogUtil.d(TAG, "mBluetoothGatt = " + gatt.hashCode() + "gatt service size is " + gatt.getServices().size());
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -167,7 +166,7 @@ public class BleCardService {
             Log.w(TAG, "onCharacteristicRead() status = " + status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
+                if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
                     Log.d(TAG, "onCharacteristicRead() " + characteristic.getValue());
                 }
             }
@@ -177,7 +176,7 @@ public class BleCardService {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             Log.w(TAG, "onCharacteristicChanged()");
 
-            if (TX_CHAR_UUID.equals(characteristic.getUuid())) {
+            if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
                 LogUtil.d(TAG, "characteristic.getValue() length : " + characteristic.getValue().length);
                 mBleProvider.onReceiveBle(characteristic.getValue());
             }
@@ -188,8 +187,8 @@ public class BleCardService {
             Log.d(TAG, "onCharacteristicWrite() status = " + status);
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                mBleChannel.changeChannelState(BleChannel.STATUS_CHANNEL_WAIT);
-                mBleChannel.notifyData(BleMsg.ACTION_CHARACTERISTIC_WRITE);
+//                mBleChannel.changeChannelState(BleChannel.STATUS_CHANNEL_WAIT);
+//                mBleChannel.notifyData(BleMsg.ACTION_CHARACTERISTIC_WRITE);
             } else {
                 Log.e(TAG, "onCharacteristicWrite() status = " + status);
             }
@@ -248,20 +247,19 @@ public class BleCardService {
     /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
      *
-     * @param address The device address of the destination device.
      * @return Return true if the connection is initiated successfully. The
      * connection result is reported asynchronously through the
      * {@code BluetoothGattCallback#onConnectionStateChange(android.bluetooth.BluetoothGatt, int, int)}
      * callback.
      */
-    public boolean connect(final String address) {
+    public boolean connect(Device device, String address) {
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
 
         // Previously connected device. Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
+        if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
@@ -271,8 +269,8 @@ public class BleCardService {
             }
         }
 
-        final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-        Log.d(TAG, "deivce : " + device.getAddress() + " hashcode : " + device.hashCode());
+        final BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(address);
+        Log.d(TAG, "remoteDevice : " + remoteDevice.getAddress() + " hashcode : " + remoteDevice.hashCode());
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -281,26 +279,18 @@ public class BleCardService {
         // autoConnect
         // parameter to false.
         mStartTime2 = System.currentTimeMillis();
+
+        mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
         Log.d(TAG, "mBluetoothGatt is : " + ((mBluetoothGatt == null) ? true : mBluetoothGatt.hashCode()));
-        mBluetoothGatt = device.connectGatt(mCtx, false, mGattCallback);
 
         if (null != mBluetoothGatt) {
-            mBleChannel = new BleChannel(mCtx, mBluetoothGatt);
-
-            mBleProvider = new BleProvider(true, mBluetoothGatt, mBleChannel);
-
-            mBleMessageListenerImpl = new BleMessageListenerImpl(mCtx, this);
-
-            mBleProvider.registerMessageCallBack(mBleMessageListenerImpl);
+            mEngine.registerDevice(device);
+            mBleProvider = new BleProvider(true, mBluetoothGatt);
+            mBleProvider.registerMessageCallBack(mEngine);
 
             mBleReceiver = new BleReceiver(mBleProvider);
-
             mBleReceiver.registerReceiver(mCtx, mKeyResult, mBleActions);
-
             mBleProvider.start();
-
-            mDeleteLockIds = new ArrayList<>();
-
             Log.d(TAG, "Trying to create a new connection.");
         }
 
@@ -323,12 +313,14 @@ public class BleCardService {
         LogUtil.d(TAG, "service disconnect!");
         mActiveDisConnect = true;
         mBluetoothGatt.disconnect();
-        mBleChannel.Close();
     }
 
-    //判断是主动断开
-    public boolean isActiveDisConnect() {
-        return mActiveDisConnect;
+    public MainEngine getMainEngine() {
+        return mEngine;
+    }
+
+    public Device getDevice(){
+        return mEngine.getDevice();
     }
 
     /**
@@ -350,92 +342,44 @@ public class BleCardService {
         mBleProvider.halt();
     }
 
-    /**
-     * Request a read on a given {@code BluetoothGattCharacteristic}. The read
-     * result is reported asynchronously through the
-     * {@code BluetoothGattCallback#onCharacteristicRead(android.bluetooth.BluetoothGatt, android.bluetooth.BluetoothGattCharacteristic, int)}
-     * callback.
-     *
-     * @param characteristic The characteristic to read from.
-     */
-    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
-            Log.w(TAG, "BluetoothAdapter not initialized");
-            return;
-        }
-        mBluetoothGatt.readCharacteristic(characteristic);
-    }
-
-    /**
-     * Enable Notification on TX characteristic
-     *
-     * @return
-     */
-    public void enableTXNotification() {
-        BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
-        if (RxService == null) {
-            showMessage("Rx service not found!");
-            mBleChannel.notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return;
-        }
-        BluetoothGattCharacteristic TxChar = RxService.getCharacteristic(TX_CHAR_UUID);
-        if (TxChar == null) {
-            showMessage("Tx charateristic not found!");
-            mBleChannel.notifyData(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
-            return;
-        }
-        mBluetoothGatt.setCharacteristicNotification(TxChar, true);
-
-        BluetoothGattDescriptor descriptor = TxChar.getDescriptor(CCCD);
-        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-        mBluetoothGatt.writeDescriptor(descriptor);
-
-    }
 
     private void showMessage(String msg) {
         Log.e(TAG, msg);
     }
 
-    /**
-     * Retrieves a list of supported GATT services on the connected device. This
-     * should be invoked only after {@code BluetoothGatt#discoverServices()}
-     * completes successfully.
-     *
-     * @return A {@code List} of supported services.
-     */
-    public List<BluetoothGattService> getSupportedGattServices() {
-        if (mBluetoothGatt == null)
-            return null;
-
-        return mBluetoothGatt.getServices();
-    }
 
     /**
      * MSG 01
      */
-    public boolean sendCmd01(byte cmdType, short userId) {
+    public boolean sendCmd01(byte cmdType, short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_01);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");
+        msg.setTimeout(timeOut);
         Bundle mBundle = msg.getData();
         mBundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
         mBundle.putShort(BleMsg.KEY_USER_ID, userId);
-        return mBleProvider.send(msg);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
      * MSG 03
      */
-    public boolean sendCmd03(byte[] random) {
+    public boolean sendCmd03(byte[] random, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_03);
-
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
+        msg.setTimeout(timeOut);
         Bundle bundle = msg.getData();
 
         if (random != null && random.length != 0) {
             bundle.putByteArray(BleMsg.KEY_RANDOM, random);
         }
 
-        return mBleProvider.send(msg);
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
@@ -456,7 +400,7 @@ public class BleCardService {
     /**
      * MSG 11
      */
-    public ClientTransaction sendCmd11(final byte cmdType, final short userId, int timeOut) {
+    public boolean sendCmd11(final byte cmdType, final short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_11);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
@@ -470,14 +414,12 @@ public class BleCardService {
         user.setUserId(userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, user);
 
-        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
-        ct.request();
-        return ct;
-
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
-     * MSG 17
+     * MSG 13
      */
     public boolean sendCmd13(final byte cmdType) {
         Message msg = Message.obtain();
@@ -499,7 +441,7 @@ public class BleCardService {
      * @param pwd     录入密码
      * @return
      */
-    public ClientTransaction sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, String pwd, int timeOut) {
+    public boolean sendCmd15(byte cmdType, byte keyType, short userId, byte lockId, String pwd, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_15);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
@@ -518,9 +460,8 @@ public class BleCardService {
         deviceKey.setLockId(String.valueOf(lockId));
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
-        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
-        ct.request();
-        return ct;
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
@@ -617,16 +558,19 @@ public class BleCardService {
      * @param nodeId 设备编号
      * @return 是否发送成功
      */
-    public boolean sendCmd21(final byte[] nodeId) {
+    public boolean sendCmd21(final byte[] nodeId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_21);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_21 + "#" + "single");
+        msg.setTimeout(timeOut);
 
         Bundle bundle = msg.getData();
         if (nodeId != null && nodeId.length != 0) {
             bundle.putByteArray(BleMsg.KEY_NODE_ID, nodeId);
         }
 
-        return mBleProvider.send(msg);
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
@@ -635,7 +579,7 @@ public class BleCardService {
      * @param userId 用户编号
      * @return 是否发送成功
      */
-    public ClientTransaction sendCmd25(final short userId, int timeOut) {
+    public boolean sendCmd25(final short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_25);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
@@ -645,9 +589,8 @@ public class BleCardService {
         bundle.putShort(BleMsg.KEY_USER_ID, userId);
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, userId);
 
-        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
-        ct.request();
-        return ct;
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
@@ -714,7 +657,7 @@ public class BleCardService {
      * @param logId   日志编号
      * @return 是否发送成功
      */
-    public ClientTransaction sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog, int timeOut) {
+    public boolean sendCmd33(final byte cmdType, final short userId, int logId, DeviceLog delLog, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_33);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
@@ -728,9 +671,8 @@ public class BleCardService {
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
 
-        ClientTransaction ct = new ClientTransaction(msg, new BleMessageListenerImpl(mCtx, this), mBleProvider);
-        ct.request();
-        return ct;
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
 }

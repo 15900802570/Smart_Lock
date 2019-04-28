@@ -60,8 +60,6 @@ public class BleCmd01Creator implements BleCreator {
         Arrays.fill(msgBuf, 7, 16, (byte) 0x09);
 
         LogUtil.d(TAG, "msgBuf = " + Arrays.toString(msgBuf));
-        LogUtil.d(TAG, "m256SK = " + Arrays.toString(MessageCreator.m256SK));
-        LogUtil.d(TAG, "m128SK = " + Arrays.toString(MessageCreator.m128SK));
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(msgBuf, buf, MessageCreator.m128SK);
@@ -77,7 +75,6 @@ public class BleCmd01Creator implements BleCreator {
             MessageCreator.pwdRandom[i] = (byte) new Random().nextInt(10);
         }
 
-        LogUtil.d(TAG, "MessageCreator.pwdRandom = " + Arrays.toString(MessageCreator.pwdRandom));
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(MessageCreator.pwdRandom, buf, MessageCreator.m128SK);
