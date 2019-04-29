@@ -121,16 +121,14 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         final String secPwd = mSecondPwdEt.getText().toString().trim();
         final String userName = mUserNameEt.getText().toString().trim();
 
-        if (TextUtils.isEmpty(firstPwd) || firstPwd.length() != 6 || TextUtils.isEmpty(secPwd) || secPwd.length() != 6) {
-            try {
-                controller.alertDialog(getResources().getString(R.string.valid_password));
-            } catch (Exception e2) {
-                e2.printStackTrace();
-            }
+        if (TextUtils.isEmpty(firstPwd) || firstPwd.length() != 6) {
+            mFirstPwdEt.setError(getString(R.string.valid_password));
+        } else if (TextUtils.isEmpty(secPwd) || secPwd.length() != 6) {
+            mSecondPwdEt.setError(getString(R.string.valid_password));
         } else if (!firstPwd.equals(secPwd)) {
-            controller.alertDialog(getResources().getString(R.string.pwd_twice_error));
+            mSecondPwdEt.setError(getString(R.string.pwd_twice_error));
         } else if (TextUtils.isEmpty(userName)) {
-            controller.alertDialog(getResources().getString(R.string.plz_input_username));
+            mUserNameEt.setError(getString(R.string.plz_input_username));
         } else {
             if (mCmdType.equals(ConstantUtil.CREATE)) {
                 int count = DeviceKeyDao.getInstance(this).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
@@ -144,7 +142,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                         mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mDefaultDevice.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
 
                 } else {
-                    showMessage(getResources().getString(R.string.add_pwd_tips));
+                    showMessage(getString(R.string.add_pwd_tips));
                 }
             } else {
                 DialogUtils.closeDialog(mLoadDialog);

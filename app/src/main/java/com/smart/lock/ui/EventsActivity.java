@@ -236,7 +236,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
     @Override
     public void deviceStateChange(Device device, int state) {
-
+        mDevice = device;
     }
 
     @Override

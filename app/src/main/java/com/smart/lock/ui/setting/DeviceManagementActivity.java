@@ -221,7 +221,13 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
+                        DeviceUserDao.getInstance(mCtx).deleteByKey(DeviceUserDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
+                        DeviceKeyDao.getInstance(mCtx).deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
+                        DeviceStatusDao.getInstance(mCtx).deleteByKey(DeviceStatusDao.DEVICE_NODEID, deviceInfo.getDeviceNodeId());
+                        DeviceInfoDao.getInstance(mCtx).delete(deviceInfo);
                         DeviceInfo default_nor = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
+
                         if (deviceInfo.getDeviceDefault() & default_nor != null) {
                             ToastUtil.showLong(mCtx, R.string.delete_failed);
                             mDevManagementAdapter.notifyDataSetChanged();
@@ -229,14 +235,6 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                         } else if (deviceInfo.getDeviceDefault()) {
                             BleManagerHelper.getInstance(mCtx, false).getBleCardService().disconnect();
                         }
-                        DeviceUserDao.getInstance(mCtx).
-                                deleteByKey(DeviceUserDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
-                        DeviceKeyDao.getInstance(mCtx).
-                                deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
-                        DeviceStatusDao.getInstance(mCtx).
-                                deleteByKey(DeviceStatusDao.DEVICE_NODEID, deviceInfo.getDeviceNodeId());
-                        DeviceInfoDao.getInstance(mCtx).
-                                delete(deviceInfo);
                         mDevList.remove(position);
                         mDevManagementAdapter.notifyDataSetChanged();
                     }

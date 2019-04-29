@@ -375,6 +375,14 @@ public class BleMsg {
     public static final int GATT_SERVICES_DISCOVERED = 106; //发现服务
 
     /**
+     * msg 13 type
+     */
+    public static final byte TYPE_DELETE_MASTER_USER = 0x00; //管理员，除了自己
+    public static final byte TYPE_DELETE_MUMBER_USER = 0x01; //普通用户
+    public static final byte TYPE_DELETE_TEMP_USER = 0x02; //临时用户
+    public static final byte TYPE_DELETE_ALL_USER = 0x03; //所有用户，除了管理员自己
+
+    /**
      * msg 15 type
      */
     public static final byte TYPE_PASSWORD = 0x00; //密码
@@ -388,6 +396,25 @@ public class BleMsg {
     public static final byte CMD_TYPE_DELETE = 0x01; //删除
     public static final byte CMD_TYPE_MODIFY = 0x02; //修改
     public static final byte CMD_TYPE_CANCEL_CREATE = 0x03; //取消录入
+
+    /**
+     * msg 17 type
+     */
+    public static final byte TYPE_DELETE_USER_PASSWORD = 0x00;//密码
+    public static final byte TYPE_DELETE_USER_FINGERPRINT = 0x01;//指纹
+    public static final byte TYPE_DELETE_USER_CARD = 0x02;// NFC
+    public static final byte TYPE_DELETE_USER_ALL_KEY = 0x03;//所有 该情况此用户也将被删除，故应使用删除用户的消息
+    public static final byte TYPE_DELETE_OTHER_USER_PASSWORD = 0x04;//删除所有其他用户密码
+    public static final byte TYPE_DELETE_OTHER_USER_FINGERPRINT = 0x05;//删除所有其他用户指纹
+    public static final byte TYPE_DELETE_OTHER_USER_CARD = 0x06;//删除所有其他用户NFC
+
+
+    /**
+     * MSG 1B type
+     */
+    public static final byte TYPE_SET_USER_ONE_UNLOCK_TIME = 0X01; //设置一个时间段
+    public static final byte TYPE_SET_USER_TWO_UNLOCK_TIME = 0X02; //设置两个时间段
+    public static final byte TYPE_SET_USER_THREE_UNLOCK_TIME = 0X03; //设置三个时间段
 
     /**
      * MSG 31 type
@@ -409,4 +436,25 @@ public class BleMsg {
     public static final byte TYPE_DELETE_ALL_LOGS = 0X00; //删除所有日志
     public static final byte TYPE_DELETE_USER_LOGS = 0X01; //按USR_ID删除所有日志
     public static final byte TYPE_DELETE_LOG = 0X02; //删除单条日志
+
+    /**
+     * msg 19 type
+     */
+    public static final byte TYPE_DETECTION_LOCK_EQUIPMENT = 0x00;//开锁设备检测，通过MSG1A返回检测结果给APK
+    public static final byte TYPE_ENABLE_COMBINATION_UNLOCK = 0x01;//组合开锁功能启用
+    public static final byte TYPE_UNENABLE_COMBINATION_UNLOCK = 0x02;//组合开锁功能关闭
+    public static final byte TYPE_NORMALLY_OPEN = 0x03;//常开功能启用
+    public static final byte TYPE_NORMALLY_CLOSE = 0x04;//常开功能关闭
+    public static final byte TYPE_VOICE_PROMPT_OPEN = 0x05;//语音提示开启
+    public static final byte TYPE_VOICE_PROMPT_CLOSE = 0x06;//语音提示关闭
+    public static final byte TYPE_CHECK_VERSION = 0x07;//版本信息查询，通过MSG1C返回给APK
+    public static final byte TYPE_RESTORE_FACTORY_SETTINGS = 0x08;//恢复出厂设置 成功后智能锁重启，无回复消息
+    public static final byte TYPE_OTA_UPDATE = 0x09;//OTA升级
+    public static final byte TYPE_POWER_QUERY = 0x0a;//电量查询，通过MSG1A返回检测结果给APK
+    public static final byte TYPE_RESET_SYSTEM = 0x0b;//系统复位，无回复
+    public static final byte TYPE_INTELLIGENT_LOCK_CORE_OPEN= 0x0c;//智能锁芯开启
+    public static final byte TYPE_INTELLIGENT_LOCK_CORE_CLOSE = 0x0d;//智能锁芯关闭
+    public static final byte TYPE_ANTI_PRYING_ALARM_OPEN = 0x0e;//防撬报警开启
+    public static final byte TYPE_ANTI_PRYING_ALARM_CLOSE = 0x0f;//防撬报警关闭
+
 }

@@ -44,26 +44,12 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private ArrayList<BaseFragment> mUsersList;
     private UserPagerAdapter mUserPagerAdapter;
     private int mVpPosition = 0;
-    private Dialog mLoadDialog;
-    private Handler mHandler;
     private DeviceUser mTempUser;
     /**
      * 蓝牙
      */
     private BleManagerHelper mBleManagerHelper;
 
-    /**
-     * 超时提示框启动器
-     */
-    private Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-                DialogUtils.closeDialog(mLoadDialog);
-                Toast.makeText(DeviceKeyActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-            }
-
-        }
-    };
 
     private DeviceInfo mDefaultDevice; //默认设备
 
@@ -116,8 +102,6 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mUserPermissionVp.setOffscreenPageLimit(2);
         mUserPermissionVp.setCurrentItem(currentItem);
         mUserPermissionVp.setNoScroll(true);
-        mHandler = new Handler();
-
     }
 
     private void initEvent() {
@@ -197,18 +181,6 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         public CharSequence getPageTitle(int position) {
             return mTitleList.get(position);
         }
-    }
-
-    /**
-     * 超时提醒
-     *
-     * @param seconds
-     */
-    protected void closeDialog(final int seconds) {
-
-        mHandler.removeCallbacks(mRunnable);
-
-        mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 
     @Override

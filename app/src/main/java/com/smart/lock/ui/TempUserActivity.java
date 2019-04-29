@@ -217,8 +217,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     private byte[] getLifyCycle(String begin, String end) {
         byte[] lifeCycle = new byte[8];
         SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String BeginStr = begin + " " + "00" + ":" + "00" + ":00";
-        String endStr = end + " " + "00" + ":" + "00" + ":00";
+        String BeginStr = begin + " " + "00" + getString(R.string.colon) + "00" + ":00";
+        String endStr = end + " " + "00" + getString(R.string.colon) + "00" + ":00";
 
         try {
             Date beginDate = currentTime.parse(BeginStr);

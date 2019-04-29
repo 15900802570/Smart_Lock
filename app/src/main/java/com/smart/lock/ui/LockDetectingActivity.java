@@ -106,21 +106,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      */
     private byte mConnectType = Device.BLE_CONNECT_TYPE;
 
-    private Runnable mRunnable = new Runnable() {
-        public void run() {
-            DialogUtils.closeDialog(mLoadDialog);
-            Toast.makeText(mCtx, R.string.retry_connect, Toast.LENGTH_LONG).show();
-            if (mScanning) {
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            }
-            mBleManagerHelper.getBleCardService().disconnect();
-
-            mRescanLl.setVisibility(View.VISIBLE);
-            mTipsLl.setVisibility(View.VISIBLE);
-            mScanLockTv.setText(R.string.bt_connect_failed);
-        }
-    };
-
     private Runnable mStopScan = new Runnable() {
         @Override
         public void run() {
@@ -213,6 +198,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private void initDate() {
         mRotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_loading);
         Bundle extras = getIntent().getExtras();
+        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        //扫描连接
         if (extras != null) {
             mConnectType = extras.getByte(BleMsg.KEY_BLE_CONNECT_TYPE);
             if (mConnectType == Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE) {
@@ -227,6 +214,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mBleMac = StringUtil.getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
             mSn = extras.getString(BleMsg.KEY_NODE_SN);
             mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
+            mDevice = mBleManagerHelper.getDevice(mConnectType, extras, this);
         } else {
             mMode = SEARCH_LOCK;
             deviceList = new ArrayList<>();
@@ -256,9 +244,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             return;
         }
         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getString(R.string.add_locking));
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
-        //扫描连接
-        mDevice = mBleManagerHelper.getDevice(mConnectType, extras, this);
+
         mBleManagerHelper.addUiListener(this);
         mRefreshDevLl.setVisibility(View.GONE);
         scanLeDevice(true);
@@ -382,7 +368,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mRescanLl.setVisibility(View.GONE);
             mTipsLl.setVisibility(View.GONE);
             mScanLockTv.setText("安全校验中");
-            String mac = device.getAddress().replace(":", "");
+            String mac = device.getAddress().replace(getString(R.string.colon), "");
             LogUtil.d(TAG, "mac = " + mac);
             byte[] macByte = StringUtil.hexStringToBytes(mac);
 
@@ -394,9 +380,21 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 Arrays.fill(MessageCreator.m256SK, 6, 32, (byte) 0);
             }
 
-            if (mDevice.getState() == Device.BLE_DISCONNECTED)
-                mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
-            else LogUtil.e(TAG, "device state is : " + mDevice.getState());
+            if (mDevice == null || mDevice.getState() == Device.BLE_DISCONNECTED) {
+                if (mMode == SEARCH_LOCK && mDevice == null) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
+                    mLoadDialog.show();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(BleMsg.KEY_BLE_MAC, device.getAddress());
+                    mDevice = mBleManagerHelper.getDevice(Device.BLE_SCAN_QR_CONNECT_TYPE, bundle, this);
+                    mBleManagerHelper.getBleCardService().connect(mDevice, device.getAddress());
+                } else
+                    mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
+            } else {
+                LogUtil.e(TAG, "device state is : " + mDevice.getState());
+                showMessage(getString(R.string.bt_connected));
+            }
         }
 
     }
@@ -490,6 +488,24 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     @Override
     public void sendFailed(Message msg) {
         LogUtil.i(TAG, "sendFialed!");
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                if (msg.getType() == Message.TYPE_BLE_SEND_CMD_01 || msg.getType() == Message.TYPE_BLE_SEND_CMD_03) {
+                    mBleManagerHelper.getBleCardService().disconnect();
+                }
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+
     }
 
     @Override
@@ -586,9 +602,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                             mBluetoothAdapter.stopLeScan(mLeScanCallback);
                         }
                         mBleMac = dev.getAddress();
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
-                        mLoadDialog.show();
                         detectDevice(dev);
                     }
                 });

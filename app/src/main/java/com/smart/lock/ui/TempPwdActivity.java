@@ -73,7 +73,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private void initData() {
         DeviceInfo mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mMac = mDefaultDevice.getBleMac().replace(":", "");
+        mMac = mDefaultDevice.getBleMac().replace(getString(R.string.colon), "");
         String tempSecret = mDefaultDevice.getTempSecret();
         if (StringUtil.checkNotNull(tempSecret)) {
             if (mIs128Code) {

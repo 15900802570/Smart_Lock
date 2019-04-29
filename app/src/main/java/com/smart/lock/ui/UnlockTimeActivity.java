@@ -27,10 +27,13 @@ import android.widget.Toast;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -43,7 +46,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-public class UnlockTimeActivity extends AppCompatActivity implements View.OnClickListener {
+public class UnlockTimeActivity extends AppCompatActivity implements View.OnClickListener, UiListener {
     private final static String TAG = UnlockTimeActivity.class.getSimpleName();
 
     private Toolbar mUsetSetTb;
@@ -76,24 +79,12 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private static final int TEMP_KEY_THIRD_START_TIME = 5;
     private static final int TEMP_KEY_THIRD_END_TIME = 6;
 
+    private Device mDevice;
+
     /**
      * 蓝牙
      */
     private BleManagerHelper mBleManagerHelper;
-
-    /**
-     * 超时提示框启动器
-     */
-    private Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-
-                DialogUtils.closeDialog(mLoadDialog);
-
-                Toast.makeText(UnlockTimeActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-            }
-        }
-    };
 
     private DeviceInfo mDefaultDevice; //默认设备
 
@@ -105,7 +96,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         initData();
         initActionBar();
         initEvent();
-        LocalBroadcastManager.getInstance(this).registerReceiver(userReciver, intentFilter());
     }
 
     @SuppressLint("WrongViewCast")
@@ -131,6 +121,8 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper.addUiListener(this);
+        mDevice = mBleManagerHelper.getBleCardService().getDevice();
         mCalendar = Calendar.getInstance();
         mSecondUnlockTimeLl.setVisibility(View.GONE);
         mThirtUnlockTimeLl.setVisibility(View.GONE);
@@ -201,34 +193,34 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                             hour = String.valueOf(hourOfDay);
                         switch (tag) {
                             case TEMP_KEY_FIRST_START_TIME:
-                                mFirstStartTime.setText(hour + ":" + minute);
+                                mFirstStartTime.setText(hour + getString(R.string.colon) + minute);
                                 break;
                             case TEMP_KEY_FIRST_END_TIME:
-                                if (!timeCompare(mFirstStartTime.getText().toString(), hour + ":" + minute)) {
+                                if (!timeCompare(mFirstStartTime.getText().toString(), hour + getString(R.string.colon) + minute)) {
                                     showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_FIRST_END_TIME);
                                 } else
-                                    mFirstEndTime.setText(hour + ":" + minute);
+                                    mFirstEndTime.setText(hour + getString(R.string.colon) + minute);
                                 break;
                             case TEMP_KEY_SECOND_START_TIME:
-                                mSecondStartTime.setText(hour + ":" + minute);
+                                mSecondStartTime.setText(hour + getString(R.string.colon) + minute);
                                 break;
                             case TEMP_KEY_SECOND_END_TIME:
-                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + ":" + minute)) {
+                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + getString(R.string.colon) + minute)) {
                                     showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_SECOND_END_TIME);
                                 } else
-                                    mSecondEndTime.setText(hour + ":" + minute);
+                                    mSecondEndTime.setText(hour + getString(R.string.colon) + minute);
                                 break;
                             case TEMP_KEY_THIRD_START_TIME:
-                                mThirdStartTime.setText(hour + ":" + minute);
+                                mThirdStartTime.setText(hour + getString(R.string.colon) + minute);
                                 break;
                             case TEMP_KEY_THIRD_END_TIME:
-                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + ":" + minute)) {
+                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + getString(R.string.colon) + minute)) {
                                     showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_THIRD_END_TIME);
                                 } else {
-                                    mThirtEndTime.setText(hour + ":" + minute);
+                                    mThirtEndTime.setText(hour + getString(R.string.colon) + minute);
                                 }
                                 break;
                             default:
@@ -295,12 +287,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         return false;
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
-        return intentFilter;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -325,14 +311,13 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             if (!compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                     mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
                     mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
-                if (mBleManagerHelper.getServiceConnection()) {
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLoadDialog.show();
-                    closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd1B((byte) 3, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                             mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                            mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()));
+                            mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
-                    showMessage("连接中断，请重试！");
+                    showMessage(getString(R.string.disconnect_ble));
                 }
 
             } else {
@@ -342,15 +327,14 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
                     DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
 
-                if (mBleManagerHelper.getServiceConnection()) {
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLoadDialog.show();
-                    closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd1B((byte) 2, mTempUser.getUserId(),
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                     mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                    null, null));
+                                    null, null),BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
-                    showMessage("连接中断，请重试！");
+                    showMessage(getString(R.string.disconnect_ble));
                 }
 
             } else {
@@ -359,53 +343,49 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
 
         } else if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.GONE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
-            if (mBleManagerHelper.getServiceConnection()) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
                 mLoadDialog.show();
-                closeDialog(15);
-                mBleManagerHelper.getBleCardService().sendCmd1B((byte) 1, mTempUser.getUserId(),
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
                         getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                 null, null,
-                                null, null));
+                                null, null),BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
-                showMessage("连接中断，请重试！");
+                showMessage(getString(R.string.disconnect_ble));
             }
 
         } else if (mSecondUnlockTimeLl.getVisibility() == View.VISIBLE && mFirstUnlockTimeLl.getVisibility() == View.GONE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
-            if (mBleManagerHelper.getServiceConnection()) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
                 mLoadDialog.show();
-                closeDialog(15);
-                mBleManagerHelper.getBleCardService().sendCmd1B((byte) 1, mTempUser.getUserId(),
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
                         getUnlockTime(null, null,
                                 mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                null, null));
+                                null, null),BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
-                showMessage("连接中断，请重试！");
+                showMessage(getString(R.string.disconnect_ble));
             }
 
         } else if (mThirtUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.GONE && mFirstUnlockTimeLl.getVisibility() == View.GONE) {
-            if (mBleManagerHelper.getServiceConnection()) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
                 mLoadDialog.show();
-                closeDialog(15);
-                mBleManagerHelper.getBleCardService().sendCmd1B((byte) 1, mTempUser.getUserId(),
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
                         getUnlockTime(null, null,
-                                null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()));
+                                null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
-                showMessage("连接中断，请重试！");
+                showMessage(getString(R.string.disconnect_ble));
             }
         } else if (mSecondUnlockTimeLl.getVisibility() == View.VISIBLE && mThirtUnlockTimeLl.getVisibility() == View.VISIBLE && mFirstUnlockTimeLl.getVisibility() == View.GONE) {
 
             if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
-                if (mBleManagerHelper.getServiceConnection()) {
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLoadDialog.show();
-                    closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd1B((byte) 2, mTempUser.getUserId(),
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(null, null,
                                     mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()));
+                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
-                    showMessage("连接中断，请重试！");
+                    showMessage(getString(R.string.disconnect_ble));
                 }
 
             } else {
@@ -416,21 +396,21 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
-                if (mBleManagerHelper.getServiceConnection()) {
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLoadDialog.show();
-                    closeDialog(15);
-                    mBleManagerHelper.getBleCardService().sendCmd1B((byte) 2, mTempUser.getUserId(),
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                     null, null,
-                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()));
+                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
-                    showMessage("连接中断，请重试！");
+                    showMessage(getString(R.string.disconnect_ble));
                 }
 
             } else {
                 showMessage("时间段重复，请检查！");
             }
-        }
+        }else
+            showMessage("未设置时间段!");
 
     }
 
@@ -521,36 +501,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     }
 
     /**
-     * 广播接收
-     */
-    private final BroadcastReceiver userReciver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-                if (errCode[3] == 0x1f) {
-                    mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
-                    mTempUser.setStTsEnd(mFirstEndTime.getText().toString());
-                    mTempUser.setNdTsBegin(mSecondStartTime.getText().toString());
-                    mTempUser.setNdTsend(mSecondEndTime.getText().toString());
-                    mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
-                    mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
-                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                    DeviceUserDao.getInstance(UnlockTimeActivity.this).updateDeviceUser(mTempUser);
-                    showMessage(getString(R.string.set_unlock_time_success));
-                } else if (errCode[3] == 0x21) {
-                    showMessage(getString(R.string.no_authority));
-                }
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
-            }
-        }
-    };
-
-    /**
      * 吐司提示
      *
      * @param msg 提示信息
@@ -610,27 +560,88 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         }
     }
 
-
-    /**
-     * 超时提醒
-     *
-     * @param seconds
-     */
-    protected void closeDialog(final int seconds) {
-
-        mHandler.removeCallbacks(mRunnable);
-
-        mHandler.postDelayed(mRunnable, seconds * 1000);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(userReciver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+       mBleManagerHelper.removeUiListener(this);
+    }
+
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        mDevice = device;
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback!");
+        mDevice = device;
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_1E:
+                final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
         }
+
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+        mDevice = device;
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS:
+                mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
+                mTempUser.setStTsEnd(mFirstEndTime.getText().toString());
+                mTempUser.setNdTsBegin(mSecondStartTime.getText().toString());
+                mTempUser.setNdTsend(mSecondEndTime.getText().toString());
+                mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
+                mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
+                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                DeviceUserDao.getInstance(UnlockTimeActivity.this).updateDeviceUser(mTempUser);
+                showMessage(getString(R.string.set_unlock_time_success));
+                break;
+            case BleMsg.TYPE_NO_AUTHORITY_1E:
+                showMessage(getString(R.string.no_authority));
+                break;
+            default:
+                break;
+        }
+        DialogUtils.closeDialog(mLoadDialog);
     }
 
 

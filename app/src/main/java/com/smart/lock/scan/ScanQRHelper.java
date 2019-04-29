@@ -22,6 +22,7 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
@@ -52,10 +53,14 @@ public class ScanQRHelper {
     private Dialog mLoadDialog;
     protected Handler mHandler = new Handler();
     private DeviceInfo mNewDevice;
+    private BleManagerHelper mBleManagerHelper;
+    private Device mDevice;
 
     public ScanQRHelper(Activity activity, ScanQRResultInterface scanQRResultInterface) {
         mActivity = activity;
         mScanQRResultInterface = scanQRResultInterface;
+        mBleManagerHelper = BleManagerHelper.getInstance(activity, false);
+        mDevice = mBleManagerHelper.getBleCardService().getDevice();
     }
 
     /**
@@ -160,9 +165,9 @@ public class ScanQRHelper {
         } else if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
             ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
-            if (mActivity.getIntent().getExtras() != null) {
+            if (mActivity.getIntent().getExtras() != null && mDevice != null) {
                 DeviceInfo deviceDev = (DeviceInfo) mActivity.getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-                if (BleManagerHelper.getInstance(mActivity, false).getBleCardService() != null && BleManagerHelper.getInstance(mActivity, false).getServiceConnection()) {
+                if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
                     BleManagerHelper.getInstance(mActivity, false).getBleCardService().disconnect();
                 }
 

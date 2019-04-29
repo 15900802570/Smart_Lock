@@ -276,7 +276,7 @@ public class BleManagerHelper {
      * 设置秘钥
      */
     public static void setSk(String sBleMac, String sDevSecret) {
-        String mac = sBleMac.replace(":", "");
+        String mac = sBleMac.replace(mContext.getString(R.string.colon), "");
 
         byte[] macByte = StringUtil.hexStringToBytes(mac);
 

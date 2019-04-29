@@ -32,7 +32,7 @@
     <string name="bt_setting">设置</string>
     <string name="bt_update_time">更新于:</string>
 
-    <string name="card_manager">门卡管理</string>
+    <string name="card_manager">卡片管理</string>
     <string name="password_manager">密码管理</string>
     <string name="fingerprint_manager">指纹管理</string>
     <string name="device_manager">设备管理</string>
@@ -339,4 +339,5 @@
     <string name="input_timeout">录入超时</string>
     <string name="setting_dev_info">设置设备信息</string>
     <string name="plz_set_right_life_cycle">请设置正确的生命周期</string>
+    <string name="colon">:</string>
 </resources>

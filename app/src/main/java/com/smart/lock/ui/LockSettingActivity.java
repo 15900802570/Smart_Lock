@@ -25,15 +25,23 @@ import android.widget.Toast;
 
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
+import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.TempPwdDao;
+import com.smart.lock.entity.Device;
+import com.smart.lock.ui.fragment.AdminFragment;
+import com.smart.lock.ui.fragment.BaseFragment;
+import com.smart.lock.ui.fragment.MumberFragment;
+import com.smart.lock.ui.fragment.TempFragment;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -45,9 +53,10 @@ import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
-public class LockSettingActivity extends AppCompatActivity {
+public class LockSettingActivity extends AppCompatActivity implements UiListener {
 
     private ToggleSwitchDefineView mIntelligentLockTs;
     private ToggleSwitchDefineView mAntiPrizingAlarmTs;
@@ -73,8 +82,6 @@ public class LockSettingActivity extends AppCompatActivity {
     private TextView mSetRolledBackTime8sTv;
     private TextView mSetRolledBackTime10sTv;
 
-    private boolean mIsConnected = true; //蓝牙连接状态
-
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -82,6 +89,7 @@ public class LockSettingActivity extends AppCompatActivity {
     private int REQUESTCODE = 0;
 
     private boolean mVisibility = true;
+    private Device mDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +139,8 @@ public class LockSettingActivity extends AppCompatActivity {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
             mBleManagerHelper = BleManagerHelper.getInstance(this, false);
-            LocalBroadcastManager.getInstance(this).registerReceiver(lockSettingReceiver, intentFilter());
+            mBleManagerHelper.addUiListener(this);
+            mDevice = mBleManagerHelper.getBleCardService().getDevice();
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -226,129 +235,9 @@ public class LockSettingActivity extends AppCompatActivity {
         mVisibility = false;
     }
 
-    /**
-     * 广播接收
-     */
-    private final BroadcastReceiver lockSettingReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action != null) {
-                // 4.2.3 MSG 1C
-                if (action.equals(BleMsg.STR_RSP_MSG1C_VERSION)) {
-                    if (!mVisibility) {
-                        return;
-                    }
-                    String sn = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_NODE_SN));
-                    String swVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_SW_VER));
-                    String hwVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_HW_VER));
-                    LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
-                            "HW VERSION = " + hwVer + '\n' +
-                            "SN = " + sn);
-                    mDefaultDevice.setDeviceSn(sn);
-                    mDefaultDevice.setDeviceSwVersion(swVer);
-                    mDefaultDevice.setDeviceHwVersion(hwVer);
-                    DeviceInfoDao.getInstance(LockSettingActivity.this).updateDeviceInfo(mDefaultDevice);
-                    Intent mIntent = new Intent(LockSettingActivity.this, VersionInfoActivity.class);
-                    startActivity(mIntent);
-                }
-                if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
-                    final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                    LogUtil.d(TAG, "测试INGING");
-                    LogUtil.d(TAG, "errorCode = " + errCode[3]);
-                    switch (errCode[3]) {
-                        case 0x15: // 组合开锁设置成功
-                            if (mDeviceStatus.isCombinationLock()) {
-                                mCombinationLockTs.setChecked(false);
-                                mDeviceStatus.setCombinationLock(false);
-                            } else {
-                                mCombinationLockTs.setChecked(true);
-                                mDeviceStatus.setCombinationLock(true);
-                            }
-                            break;
-                        case 0x16:  //组合开锁设置失败
-                            break;
-
-                        case 0x17:  //常开功能设置成功
-                            if (mDeviceStatus.isNormallyOpen()) {
-                                mNormallyOpenTs.setChecked(false);
-                                mDeviceStatus.setNormallyOpen(false);
-                            } else {
-                                mNormallyOpenTs.setChecked(true);
-                                mDeviceStatus.setNormallyOpen(true);
-                            }
-                            break;
-                        case 0x18:  //常开功能设置失败
-                            break;
-
-                        case 0x19:  //语言提示设置成功
-                            if (mDeviceStatus.isVoicePrompt()) {
-                                mVoicePromptTs.setChecked(false);
-                                mDeviceStatus.setVoicePrompt(false);
-                            } else {
-                                mVoicePromptTs.setChecked(true);
-                                mDeviceStatus.setVoicePrompt(true);
-                            }
-                            break;
-                        case 0x1a:  //语音提示设置失败
-                            break;
-
-                        case 0x1b:  //智能锁芯设置成功
-                            if (mDeviceStatus.isIntelligentLockCore()) {
-                                mIntelligentLockTs.setChecked(false);
-                                mDeviceStatus.setIntelligentLockCore(false);
-                            } else {
-                                mIntelligentLockTs.setChecked(true);
-                                mDeviceStatus.setIntelligentLockCore(true);
-                            }
-                            break;
-                        case 0x1c:  //智能锁芯设置失败
-                            break;
-
-                        case 0x1d:  //防撬报警设置成功
-                            if (mDeviceStatus.isAntiPrizingAlarm()) {
-                                mAntiPrizingAlarmTs.setChecked(false);
-                                mDeviceStatus.setAntiPrizingAlarm(false);
-                            } else {
-                                mAntiPrizingAlarmTs.setChecked(true);
-                                mDeviceStatus.setAntiPrizingAlarm(true);
-                            }
-                            break;
-                        case 0x1e:  //防撬报警设置失败
-                            break;
-
-                        case 0x20:  //回锁时间设置成功
-                            mDeviceStatus.setRolledBackTime(mSetTime);
-                            mRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + LockSettingActivity.this.getResources().getString(R.string.s));
-                            break;
-                        case 0x22:  //恢复出厂设置成功
-                            if (mRestore) {
-                                ToastUtil.show(
-                                        LockSettingActivity.this,
-                                        R.string.restore_the_factory_settings_success,
-                                        Toast.LENGTH_LONG);
-                                mBleManagerHelper.getBleCardService().disconnect();
-                                finish();
-                            } else {
-                                finish();
-                            }
-                            LogUtil.d(TAG, "恢复出厂设置成功");
-                            break;
-                    }
-                    DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
-                }
-                if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
-                    mIsConnected = false;
-                }
-                if (action.equals(BleMsg.ACTION_GATT_CONNECTED)) {
-                    mIsConnected = true;
-                }
-            }
-        }
-    };
 
     public void onClick(View view) {
-        if (mIsConnected) {
+        if (mDevice.getState() == Device.BLE_CONNECTED) {
             switch (view.getId()) {
                 case R.id.iv_back:
                     finish();
@@ -404,7 +293,7 @@ public class LockSettingActivity extends AppCompatActivity {
                             startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                             return;
                         }
-                        if (mDefaultDevice != null && mBleManagerHelper.getServiceConnection()) {
+                        if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                             Intent intent = new Intent(this, OtaUpdateActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
@@ -422,50 +311,50 @@ public class LockSettingActivity extends AppCompatActivity {
                     break;
             }
         } else {
-            ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
+            ToastUtil.show(this, getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
             setStatus();
         }
     }
 
     private void doClick(int value) {
-        if (mIsConnected) {
+        if (mDevice.getState() == Device.BLE_CONNECTED) {
             switch (value) {
                 case R.string.intelligent_lock: //智能锁芯
                     if (mDeviceStatus.isIntelligentLockCore()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 13);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_CLOSE);
                     } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 12);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_OPEN);
                     }
                     break;
 
                 case R.string.anti_prizing_alarm:   //防撬报警
                     if (mDeviceStatus.isAntiPrizingAlarm()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 15);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ANTI_PRYING_ALARM_CLOSE);
                     } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 14);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ANTI_PRYING_ALARM_OPEN);
                     }
                     break;
 
                 case R.string.combination_lock:     //组合开锁
                     if (mDeviceStatus.isCombinationLock()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 2);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_UNENABLE_COMBINATION_UNLOCK);
                     } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 1);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ENABLE_COMBINATION_UNLOCK);
                     }
                     break;
 
                 case R.string.normally_open:    //常开功能
                     if (mDeviceStatus.isNormallyOpen()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 4);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_CLOSE);
                     } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 3);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_OPEN);
                     }
                     break;
                 case R.string.voice_prompt:     //语言提示
                     if (mDeviceStatus.isVoicePrompt()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 6);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_CLOSE);
                     } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 5);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_OPEN);
                     }
                     break;
             }
@@ -570,7 +459,175 @@ public class LockSettingActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(lockSettingReceiver);
         super.onDestroy();
+        mBleManagerHelper.removeUiListener(this);
+    }
+
+
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        mDevice = device;
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback!");
+        mDevice = device;
+        Bundle extra = msg.getData();
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_1E:
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            case Message.TYPE_BLE_RECEV_CMD_1C:
+                if (!mVisibility) {
+                    return;
+                }
+                String sn = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_NODE_SN));
+                String swVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_SW_VER));
+                String hwVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_HW_VER));
+                LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
+                        "HW VERSION = " + hwVer + '\n' +
+                        "SN = " + sn);
+                mDefaultDevice.setDeviceSn(sn);
+                mDefaultDevice.setDeviceSwVersion(swVer);
+                mDefaultDevice.setDeviceHwVersion(hwVer);
+                DeviceInfoDao.getInstance(LockSettingActivity.this).updateDeviceInfo(mDefaultDevice);
+                Intent mIntent = new Intent(LockSettingActivity.this, VersionInfoActivity.class);
+                startActivity(mIntent);
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
+        }
+
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+        mDevice = device;
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case 0x15: // 组合开锁设置成功
+                if (mDeviceStatus.isCombinationLock()) {
+                    mCombinationLockTs.setChecked(false);
+                    mDeviceStatus.setCombinationLock(false);
+                } else {
+                    mCombinationLockTs.setChecked(true);
+                    mDeviceStatus.setCombinationLock(true);
+                }
+                break;
+            case 0x16:  //组合开锁设置失败
+                break;
+
+            case 0x17:  //常开功能设置成功
+                if (mDeviceStatus.isNormallyOpen()) {
+                    mNormallyOpenTs.setChecked(false);
+                    mDeviceStatus.setNormallyOpen(false);
+                } else {
+                    mNormallyOpenTs.setChecked(true);
+                    mDeviceStatus.setNormallyOpen(true);
+                }
+                break;
+            case 0x18:  //常开功能设置失败
+                break;
+
+            case 0x19:  //语言提示设置成功
+                if (mDeviceStatus.isVoicePrompt()) {
+                    mVoicePromptTs.setChecked(false);
+                    mDeviceStatus.setVoicePrompt(false);
+                } else {
+                    mVoicePromptTs.setChecked(true);
+                    mDeviceStatus.setVoicePrompt(true);
+                }
+                break;
+            case 0x1a:  //语音提示设置失败
+                break;
+
+            case 0x1b:  //智能锁芯设置成功
+                if (mDeviceStatus.isIntelligentLockCore()) {
+                    mIntelligentLockTs.setChecked(false);
+                    mDeviceStatus.setIntelligentLockCore(false);
+                } else {
+                    mIntelligentLockTs.setChecked(true);
+                    mDeviceStatus.setIntelligentLockCore(true);
+                }
+                break;
+            case 0x1c:  //智能锁芯设置失败
+                break;
+
+            case 0x1d:  //防撬报警设置成功
+                if (mDeviceStatus.isAntiPrizingAlarm()) {
+                    mAntiPrizingAlarmTs.setChecked(false);
+                    mDeviceStatus.setAntiPrizingAlarm(false);
+                } else {
+                    mAntiPrizingAlarmTs.setChecked(true);
+                    mDeviceStatus.setAntiPrizingAlarm(true);
+                }
+                break;
+            case 0x1e:  //防撬报警设置失败
+                break;
+
+            case 0x20:  //回锁时间设置成功
+                mDeviceStatus.setRolledBackTime(mSetTime);
+                mRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + LockSettingActivity.this.getResources().getString(R.string.s));
+                break;
+            case 0x22:  //恢复出厂设置成功
+                if (mRestore) {
+                    ToastUtil.show(
+                            LockSettingActivity.this,
+                            R.string.restore_the_factory_settings_success,
+                            Toast.LENGTH_LONG);
+                    mBleManagerHelper.getBleCardService().disconnect();
+                    finish();
+                } else {
+                    finish();
+                }
+                LogUtil.d(TAG, "恢复出厂设置成功");
+                break;
+
+            default:
+                break;
+        }
+        DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
+    }
+
+    /**
+     * 吐司提示
+     *
+     * @param msg 提示信息
+     */
+    protected void showMessage(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }

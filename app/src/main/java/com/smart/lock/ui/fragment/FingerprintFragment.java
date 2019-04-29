@@ -125,16 +125,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         mAddTv.setOnClickListener(this);
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SERVER_DATA);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG16_LOCKID);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1A_STATUS);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG18_TIMEOUT);
-        return intentFilter;
-    }
-
     @Override
     public void onHiddenChanged(boolean hidden) {
         LogUtil.d(TAG, "hidden = " + hidden);

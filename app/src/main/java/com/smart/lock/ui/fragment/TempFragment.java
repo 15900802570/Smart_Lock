@@ -197,9 +197,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
         mAddUserTv.setText(R.string.create_user);
         mSelectDeleteRl.setVisibility(View.GONE);
-
         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getResources().getString(R.string.data_loading));
-
         initEvent();
     }
 
@@ -541,9 +539,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        }else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 
@@ -552,9 +550,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        }else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 

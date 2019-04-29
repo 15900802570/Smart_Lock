@@ -15,16 +15,16 @@ public interface BleMessageListener {
 	 * @param message Ble消息
 	 * @see Message
 	 */
-	public void onReceive(Message message, TimerProvider timer);
+	 void onReceive(Message message, TimerProvider timer);
 	
 	/**
 	 * 获取监听关键字
 	 * @return 监听关键字
 	 */
-	public String getListenerKey();
+	 String getListenerKey();
 
 	/**
 	 * 关闭监听器
 	 */
-	public void halt();
+	 void halt();
 }

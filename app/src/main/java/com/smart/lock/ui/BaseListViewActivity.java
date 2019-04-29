@@ -49,21 +49,6 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
 
     protected String mNodeId;
     protected DeviceInfo mDefaultDevice; //默认设备
-    /**
-     * 超时提示框启动器
-     */
-    protected Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-                DialogUtils.closeDialog(mLoadDialog);
-                if(mBleManagerHelper.getServiceConnection()){
-                    showMessage("");
-                }
-                Toast.makeText(BaseListViewActivity.this, BaseListViewActivity.this.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-            }
-
-        }
-    };
 
     protected ClientTransaction mCt;
 

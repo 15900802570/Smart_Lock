@@ -37,7 +37,6 @@ import com.smart.lock.adapter.ViewPagerAdapter;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.MainEngine;
-import com.smart.lock.ble.listener.MsgExceptionListener;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
@@ -101,7 +100,7 @@ public class HomeFragment extends BaseFragment implements
 
     public static final int BIND_DEVICE = 0; //用户已添加设备
     public static final int UNBIND_DEVICE = 1;//未添加设备
-    public static final int DEVICE_CONNECTING = 2;//未添加设备
+    public static final int DEVICE_CONNECTING = 2;//添加设备中
     public static final int OPEN_LOCK_SUCESS = 3;//打开门锁成功
 
 
@@ -179,7 +178,7 @@ public class HomeFragment extends BaseFragment implements
 
                 @Override
                 public void run() {
-                    if (mDefaultDevice != null && !mBleManagerHelper.getServiceConnection()) {
+                    if (mDefaultDevice != null && mDevice.getState() != Device.BLE_CONNECTED) {
                         MessageCreator.setSk(mDefaultDevice);
                         Bundle bundle = new Bundle();
                         bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
@@ -467,36 +466,45 @@ public class HomeFragment extends BaseFragment implements
     public void onClick(View v) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-        if (mDevice.getState() == Device.BLE_DISCONNECTED && v.getId() != R.id.ll_status) {
-            showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
-            return;
-        } else if (mDevice.getState() == Device.BLE_CONNECTION) {
-            showMessage(mHomeView.getContext().getString(R.string.bt_connecting));
-            return;
-        } else if (mDevice.getState() == Device.BLE_DISCONNECTED && v.getId() == R.id.ll_status) {
-            showMessage(mHomeView.getContext().getString(R.string.bt_connected));
-            return;
-        }
 
         switch (v.getId()) {
             case R.id.ll_status:
-                refreshView(DEVICE_CONNECTING);
-                MessageCreator.setSk(mDefaultDevice);
-                Bundle dev = new Bundle();
-                dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                mBleManagerHelper.connectBle((byte) 1, dev, mHomeView.getContext());
+                if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                    refreshView(DEVICE_CONNECTING);
+                    MessageCreator.setSk(mDefaultDevice);
+                    Bundle dev = new Bundle();
+                    dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                    dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                    mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mHomeView.getContext());
+                } else if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    showMessage(mHomeView.getContext().getString(R.string.bt_connected));
+                } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+                    showMessage(mHomeView.getContext().getString(R.string.bt_connecting));
+                }
+
                 break;
             case R.id.ll_setting:
-                startIntent(LockSettingActivity.class, bundle);
+                if (mDevice.getState() == Device.BLE_CONNECTED)
+                    startIntent(LockSettingActivity.class, bundle);
+                else if (mDevice.getState() == Device.BLE_CONNECTION)
+                    showMessage(mHomeView.getContext().getString(R.string.bt_connecting));
+                else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                    showMessage(mHomeView.getContext().getString(R.string.bt_unconnected));
+                }
                 break;
             case R.id.one_click_unlock_ib:
-                if (mNodeId.getBytes().length == 15)
-                    mNodeId = "0" + mNodeId;
-                byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mNodeId.getBytes().length == 15)
+                        mNodeId = "0" + mNodeId;
+                    byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
 
-                StringUtil.exchange(nodeId);
-                mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
+                    StringUtil.exchange(nodeId);
+                    mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
+                } else if (mDevice.getState() == Device.BLE_CONNECTION)
+                    showMessage(mHomeView.getContext().getString(R.string.bt_connecting));
+                else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                    showMessage(mHomeView.getContext().getString(R.string.bt_unconnected));
+                }
             default:
                 break;
         }
@@ -601,11 +609,19 @@ public class HomeFragment extends BaseFragment implements
     public void deviceStateChange(Device device, int state) {
         LogUtil.i(TAG, "deviceStateChange : state is " + state);
         mDevice = device;
+        mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
-                android.os.Message msg = new android.os.Message();
-                msg.what = BIND_DEVICE;
-                mHandler.sendMessage(msg);
+                if (mDefaultDevice == null) {
+                    android.os.Message msg = new android.os.Message();
+                    msg.what = UNBIND_DEVICE;
+                    mHandler.sendMessage(msg);
+                } else {
+                    android.os.Message msg = new android.os.Message();
+                    msg.what = BIND_DEVICE;
+                    mHandler.sendMessage(msg);
+                }
+
                 break;
             case BleMsg.STATE_CONNECTED:
 

@@ -6,15 +6,12 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.smart.lock.ble.listener.BleMessageListenerImpl;
 import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.listener.DeviceStateCallback;
 import com.smart.lock.ble.listener.MainEngine;
@@ -30,8 +27,6 @@ import com.smart.lock.utils.LogUtil;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * Service for managing connection and data communication with a GATT server
@@ -319,7 +314,7 @@ public class BleCardService {
         return mEngine;
     }
 
-    public Device getDevice(){
+    public Device getDevice() {
         return mEngine.getDevice();
     }
 
@@ -421,14 +416,17 @@ public class BleCardService {
     /**
      * MSG 13
      */
-    public boolean sendCmd13(final byte cmdType) {
+    public boolean sendCmd13(final byte cmdType, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_13);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_13 + "#" + "single");
+        msg.setTimeout(timeOut);
 
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
 
-        return mBleProvider.send(msg);
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
@@ -467,23 +465,28 @@ public class BleCardService {
     /**
      * MSG 17
      */
-    public boolean sendCmd17(final byte cmdType, final short userId) {
+    public boolean sendCmd17(final byte cmdType, final short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_17);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
+        msg.setTimeout(timeOut);
 
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
         bundle.putShort(BleMsg.KEY_USER_ID, userId);
 
-        return mBleProvider.send(msg);
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**
      * MSG 1B
      */
-    public boolean sendCmd1B(final byte cmdType, final short userId, byte[] unlockTime) {
+    public boolean sendCmd1B(final byte cmdType, final short userId, byte[] unlockTime, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_1B);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_1B + "#" + "single");
+        msg.setTimeout(timeOut);
 
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
@@ -492,8 +495,8 @@ public class BleCardService {
         if (unlockTime != null && unlockTime.length != 0) {
             bundle.putByteArray(BleMsg.KEY_UNLOCK_IMEI, unlockTime);
         }
-
-        return mBleProvider.send(msg);
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
     }
 
     /**

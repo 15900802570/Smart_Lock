@@ -41,10 +41,6 @@ public class BleCmd03Creator implements BleCreator {
         StringUtil.short2Bytes(cmdLen, buf);
         System.arraycopy(buf, 0, cmd, 1, 2);
 
-        LogUtil.d(TAG, "respRandom = " + Arrays.toString(respRandom));
-
-        LogUtil.d(TAG, "m128AK = " + Arrays.toString(MessageCreator.m128AK));
-        LogUtil.d(TAG, "m256AK = " + Arrays.toString(MessageCreator.m256AK));
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(respRandom, buf, MessageCreator.m128AK);

@@ -199,6 +199,11 @@ public class MessageCreator {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
+        if (errCode == null) {
+            LogUtil.e(TAG, "errCode is null!");
+            mMessage.setException(Message.EXCEPTION_RETURN_ERROR);
+            return mMessage;
+        }
         if (errCode[3] == 0x2 || errCode[3] == 0x3 || errCode[3] == 0x4
                 || errCode[3] == 0x00 || errCode[3] == 0x1 || errCode[3] == 0x6
                 || errCode[3] == 0x05 || errCode[3] == 0x7) {
@@ -208,11 +213,18 @@ public class MessageCreator {
                 || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10
                 || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+        } else if (errCode[3] == BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS ||
+                errCode[3] == BleMsg.TYPE_NO_AUTHORITY_1E) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_1B + "#" + "single");
+        } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_SUCCESS ||
+                errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_FAILED) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_13 + "#" + "single");
+        } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS ||
+                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
         }
 
-        if (errCode != null && errCode.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
-        }
+        mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
         return mMessage;
     }
 

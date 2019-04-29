@@ -8,7 +8,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
-import com.smart.lock.ble.BleChannel;
 import com.smart.lock.ble.BleCommand;
 import com.smart.lock.ble.creator.BleCmd05Creator;
 import com.smart.lock.ble.listener.BleMessageListener;

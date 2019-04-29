@@ -39,7 +39,6 @@ public class BleCmd04Parse implements BleCommandParse {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LogUtil.d(TAG, "buf=" + buf.length + Arrays.toString(buf));
         byte[] batPerscent = new byte[1];
         byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];
@@ -57,13 +56,11 @@ public class BleCmd04Parse implements BleCommandParse {
             userState = new byte[100];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 64);
             System.arraycopy(buf, 84, userState, 0, 100);
-            LogUtil.d(TAG, "userState 1=" + userState.length + Arrays.toString(userState));
         } else {
             tmpPwdSk = new byte[32 * 4];
             userState = new byte[100];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
             System.arraycopy(buf, 148, userState, 0, 100);
-            LogUtil.d(TAG, "userState 2=" + userState.length + Arrays.toString(userState));
         }
         return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState);
     }
@@ -71,37 +68,6 @@ public class BleCmd04Parse implements BleCommandParse {
     @Override
     public byte getParseKey() {
         return Message.TYPE_BLE_RECEV_CMD_04;
-    }
-
-    /**
-     * 比较两个byte数组数据是否相同,相同返回 true
-     *
-     * @param data1
-     * @param data2
-     * @param len
-     * @return
-     */
-    public static boolean memcmp(byte[] data1, byte[] data2, int len) {
-        if (data1 == null && data2 == null) {
-            return true;
-        }
-        if (data1 == null || data2 == null) {
-            return false;
-        }
-        if (data1 == data2) {
-            return true;
-        }
-
-        boolean bEquals = true;
-        int i;
-        for (i = 0; i < data1.length && i < data2.length && i < len; i++) {
-            if (data1[i] != data2[i]) {
-                bEquals = false;
-                break;
-            }
-        }
-
-        return bEquals;
     }
 
 }

@@ -26,21 +26,26 @@ import android.widget.Toast;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.AdminFragment;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.MumberFragment;
 import com.smart.lock.ui.fragment.TempFragment;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 
-public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
 
     private TabLayout mUserPermissionTl;
@@ -60,20 +65,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
      * 蓝牙
      */
     private BleManagerHelper mBleManagerHelper;
-
-    /**
-     * 超时提示框启动器
-     */
-    private Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
-                DialogUtils.closeDialog(mLoadDialog);
-
-                Toast.makeText(UserManagerActivity.this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-            }
-
-        }
-    };
+    private Device mDevice;
 
     private DeviceInfo mDefaultDevice; //默认设备
 
@@ -85,7 +77,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         initData();
         initActionBar();
         initEvent();
-        LocalBroadcastManager.getInstance(this).registerReceiver(userReciver, intentFilter());
     }
 
     @SuppressLint("WrongViewCast")
@@ -114,6 +105,9 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mBleManagerHelper.addUiListener(this);
+
         mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
 
@@ -142,12 +136,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         return true;
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
-        return intentFilter;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -168,86 +156,36 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
             case R.id.del_all_pwd:
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
-                closeDialog(15);
-                if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 4, mDefaultDevice.getUserId());
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_PASSWORD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_fp:
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
-                closeDialog(15);
-                if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 5, mDefaultDevice.getUserId());
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FINGERPRINT, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_card:
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
-                closeDialog(15);
-                if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd17((byte) 6, mDefaultDevice.getUserId());
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_user:
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
-                closeDialog(15);
-                if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd13((byte) 3);
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    mBleManagerHelper.getBleCardService().sendCmd13(BleMsg.TYPE_DELETE_ALL_USER, BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             default:
                 break;
         }
         return true;
     }
-
-    /**
-     * 广播接收
-     */
-    private final BroadcastReceiver userReciver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-
-            if (action.equals(BleMsg.STR_RSP_MSG1E_ERRCODE)) {
-                final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-                if (errCode[3] == 0x13) {
-                    showMessage(getString(R.string.delete_key_success));
-                } else if (errCode[3] == 0x14) {
-                    showMessage(getString(R.string.delete_key_failed));
-                } else if (errCode[3] == 0x11) {
-                    ArrayList<DeviceUser> users = DeviceUserDao.getInstance(UserManagerActivity.this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-                    for (DeviceUser user : users) {
-                        if (!(user.getUserId() == mDefaultDevice.getUserId())) {
-                            DeviceUserDao.getInstance(UserManagerActivity.this).delete(user);
-                        }
-                    }
-
-                    for (int i = 0; i < mTitleList.size(); i++) {
-                        BaseFragment framentView = mUserPagerAdapter.getItem(i);
-                        if (framentView instanceof AdminFragment) {
-                            AdminFragment adminFragment = (AdminFragment) framentView;
-                            adminFragment.refreshView();
-                        } else if (framentView instanceof MumberFragment) {
-                            MumberFragment mumberFragment = (MumberFragment) framentView;
-                            mumberFragment.refreshView();
-                        } else if (framentView instanceof TempFragment) {
-                            TempFragment tempFragment = (TempFragment) framentView;
-                            tempFragment.refreshView();
-                        }
-                    }
-                    showMessage(getString(R.string.delete_users_success));
-                } else if (errCode[3] == 0x12) {
-                    showMessage(getString(R.string.delete_users_failed));
-                }
-                mHandler.removeCallbacks(mRunnable);
-                DialogUtils.closeDialog(mLoadDialog);
-            }
-        }
-    };
 
     /**
      * 吐司提示
@@ -339,25 +277,111 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    /**
-     * 超时提醒
-     *
-     * @param seconds
-     */
-    protected void closeDialog(final int seconds) {
-
-        mHandler.removeCallbacks(mRunnable);
-
-        mHandler.postDelayed(mRunnable, seconds * 1000);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(userReciver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
+        mBleManagerHelper.removeUiListener(this);
+    }
+
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        mDevice = device;
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback!");
+        mDevice = device;
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEV_CMD_1E:
+                final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+                break;
+            default:
+                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
+                break;
         }
+
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+        mDevice = device;
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS:
+                showMessage(getString(R.string.delete_key_success));
+                break;
+            case BleMsg.TYPE_GROUP_DELETE_KEY_FAILED:
+                showMessage(getString(R.string.delete_key_failed));
+                break;
+            case BleMsg.TYPE_DELETE_FP_SUCCESS:
+                showMessage(getString(R.string.delete_fp_success));
+                break;
+            case BleMsg.TYPE_DELETE_FP_FAILED:
+                showMessage(getString(R.string.delete_fp_failed));
+                break;
+            case BleMsg.TYPE_GROUP_DELETE_USER_SUCCESS:
+                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(UserManagerActivity.this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+                for (DeviceUser user : users) {
+                    if (!(user.getUserId() == mDefaultDevice.getUserId())) {
+                        DeviceUserDao.getInstance(UserManagerActivity.this).delete(user);
+                    }
+                }
+
+                for (int i = 0; i < mTitleList.size(); i++) {
+                    BaseFragment framentView = mUserPagerAdapter.getItem(i);
+                    if (framentView instanceof AdminFragment) {
+                        AdminFragment adminFragment = (AdminFragment) framentView;
+                        adminFragment.refreshView();
+                    } else if (framentView instanceof MumberFragment) {
+                        MumberFragment mumberFragment = (MumberFragment) framentView;
+                        mumberFragment.refreshView();
+                    } else if (framentView instanceof TempFragment) {
+                        TempFragment tempFragment = (TempFragment) framentView;
+                        tempFragment.refreshView();
+                    }
+                }
+                showMessage(getString(R.string.delete_users_success));
+                break;
+            case BleMsg.TYPE_GROUP_DELETE_USER_FAILED:
+                showMessage(getString(R.string.delete_users_failed));
+                break;
+            default:
+                break;
+        }
+        DialogUtils.closeDialog(mLoadDialog);
     }
 }

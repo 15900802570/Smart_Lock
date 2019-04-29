@@ -484,9 +484,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        if (mBleManagerHelper.getServiceConnection()) {
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 
@@ -495,9 +495,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     public void onClick(View v) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        if (mBleManagerHelper.getServiceConnection()) {
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }
+                        }else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 

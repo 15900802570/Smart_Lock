@@ -51,9 +51,6 @@ public class BleCmd02Parse implements BleCommandParse {
         }
 
         byte[] respRandom = new byte[16];
-        LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
-        LogUtil.d(TAG, "random = " + Arrays.toString(random));
-        LogUtil.d(TAG, "pwdRandom = " + Arrays.toString(MessageCreator.pwdRandom));
         if (memcmp(random, MessageCreator.pwdRandom, 16)) {
 
             System.arraycopy(buf, 16, respRandom, 0, 16);

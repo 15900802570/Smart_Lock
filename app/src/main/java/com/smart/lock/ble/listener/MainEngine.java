@@ -123,33 +123,52 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public void onDisconnected() {
         LogUtil.i(TAG, "onDisconnected : change dev state from : " + mDevice.getState() + " to: " + Device.BLE_DISCONNECTED);
         mDevice.setState(Device.BLE_DISCONNECTED);
-
-        for (UiListener uiListener : mUiListeners) {
-            uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
-        }
         MessageCreator.m128AK = null;
         MessageCreator.m256AK = null;
+        mService.disconnect();
+        mService.close();
+
         switch (mDevice.getConnectType()) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
-
+                for (UiListener uiListener : mUiListeners) {
+                    uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
+                }
                 break;
             case Device.BLE_OTHER_CONNECT_TYPE:
+
                 DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
                 if (defaultDevice == null) {
                     LogUtil.e(TAG, "defaultDevice is null");
                     halt();
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
+                    }
                     return;
+                } else if (!defaultDevice.getBleMac().equals(mDevInfo.getBleMac())) {
+                    LogUtil.e(TAG, "change default dev to connect!");
+                    halt();
+                    mDevice = Device.getInstance(mCtx);
+                    mDevice.setConnectType(Device.BLE_OTHER_CONNECT_TYPE);
+                    mDevice.setDevInfo(defaultDevice);
+                    mDevice.setState(Device.BLE_DISCONNECTED);
+                }
+                for (UiListener uiListener : mUiListeners) {
+                    uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
                 }
                 android.os.Message msg = new android.os.Message();
                 msg.what = MSG_RECONNCT_BLE;
                 mHandler.sendMessageDelayed(msg, 5000);
                 break;
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
+                for (UiListener uiListener : mUiListeners) {
+                    uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
+                }
                 halt();
                 break;
             default:
                 break;
         }
+
     }
 
     @Override
@@ -288,19 +307,22 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      */
     public boolean otherRegister() {
         LogUtil.i(TAG, "other register ble!");
-        if (mDevInfo == null) return false;
-        return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+        if (mDevInfo != null) {
+            return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+        } else
+            return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
+
     }
 
     /**
-     * 普通连接方式注册
+     * 设置设备信息注册
      *
      * @return 发送结果
      */
     public boolean setInfoRegister() {
         LogUtil.i(TAG, "set devinfo register ble!");
         if (mDevInfo == null) return false;
-        String bleMac = mDevInfo.getBleMac().replace(":", "");
+        String bleMac = mDevInfo.getBleMac().replace(mCtx.getString(R.string.colon), "");
         String nodeId = mDevInfo.getDeviceNodeId();
         String sn = mDevInfo.getDeviceSn();
         return mService.sendCmd05(bleMac, nodeId, sn);
@@ -492,12 +514,17 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case MSG_RECONNCT_BLE:
                 LogUtil.i(TAG, "reconnect device!");
+                if (mService == null) {
+                    LogUtil.e(TAG, "the service is null!");
+                    break;
+                }
                 if (mDevice.getState() != Device.BLE_DISCONNECTED) break; //设备状态不是非连接，不需要自动连接
                 mDevice.setState(Device.BLE_CONNECTION);
                 for (UiListener uiListener : mUiListeners) {
                     uiListener.reConnectBle(mDevice);
                 }
-                mService.connect(mDevice, mDevInfo.getBleMac());
+                boolean result = mService.connect(mDevice, mDevInfo.getBleMac());
+                LogUtil.d(TAG, "result : " + result);
                 break;
             case MSG_ADD_USER_SUCCESS:
                 for (UiListener uiListener : mUiListeners) {
@@ -610,9 +637,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mHandler.sendMessageDelayed(msg, 2000);//断开设备2s,后通知UI进行更新
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_1A:
-                    break;
                 case Message.TYPE_BLE_RECEV_CMD_1C:
-                    break;
                 case Message.TYPE_BLE_RECEV_CMD_1E:
                 case Message.TYPE_BLE_RECEV_CMD_16:
                     for (UiListener uiListener : mUiListeners) {
