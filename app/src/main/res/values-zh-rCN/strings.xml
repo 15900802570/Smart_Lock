@@ -347,4 +347,6 @@
     <string name="retry_later">秒后重试</string>
     <string name="the_user_delete_by_admin">该账户已被管理员删除，请联系管理员.</string>
     <string name="lock_reset">恢复出厂设置...</string>
+    <string name="remote_unlock">远程开锁</string>
+    <string name="latest_version">最新版本:</string>
 </resources>

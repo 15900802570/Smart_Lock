@@ -91,10 +91,21 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener 
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
 
+                if (mActivity instanceof MumberFragment.OnFragmentInteractionListener) {
+                    ((MumberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                }
+
                 break;
             default:
                 break;
         }
+    }
+
+    /**
+     * 调用UserManagerActivity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void changeVisible();
     }
 
     public void selectDelete(boolean choise) {

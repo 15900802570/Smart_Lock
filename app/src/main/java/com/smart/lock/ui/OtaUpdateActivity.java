@@ -149,6 +149,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
      */
     private TextView mVersionName;
 
+    private TextView mLatestVersionName;
+
     /**
      * scanning for 10 seconds
      */
@@ -318,6 +320,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         mDeviceSnTv = findViewById(R.id.dev_mac);
         mUpdateMsg = findViewById(R.id.update_content);
         mVersionName = findViewById(R.id.version_name);
+        mLatestVersionName = findViewById(R.id.latest_version_name);
     }
 
     private void initEvent() {
@@ -388,14 +391,17 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                 mUpdateMsg.setText(version.msg);
                 mDownloadUrl = ConstantUtil.BASE_URL + version.path;
                 Log.d(TAG, "mDownloadUrl = " + mDownloadUrl);
-                mVersionName.setText(version.versionName);
+                mVersionName.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
+                mLatestVersionName.setText(version.versionName);
                 mFileName = getString(R.string.app_name) + version.versionName;
                 getPath(version.versionCode);
+                LogUtil.d(TAG, "versionName = " + version.versionName +
+                        "versionCode = " + version.versionCode);
                 int len = version.versionName.length();
                 int swLen = mDefaultDev.getDeviceSwVersion().length();
                 int code = 0;
                 if (len >= 5 && swLen >= 5)
-                    code = StringUtil.compareVersion(version.versionName, mDefaultDev.getDeviceHwVersion().split("_")[1]);
+                    code = StringUtil.compareVersion(version.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
                 if (0 == code) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
@@ -612,7 +618,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            if (action == null) {
+                return;
+            }
             if (action.equals(BleMsg.STR_RSP_MSG1C_VERSION)) {
                 String sn = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_NODE_SN));
                 String swVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_SW_VER));

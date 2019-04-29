@@ -562,6 +562,7 @@ public class HomeFragment extends BaseFragment implements
                 break;
             case R.id.ll_setting:
                 if (mIsConnected) {
+                    bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
                     startIntent(LockSettingActivity.class, bundle);
                 } else {
                     showMessage(mHomeView.getContext().getString(R.string.unconnected_device));

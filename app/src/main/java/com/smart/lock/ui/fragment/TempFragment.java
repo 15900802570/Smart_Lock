@@ -101,7 +101,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                 mLoadDialog.show();
                 closeDialog(15);
                 if (mBleManagerHelper.getServiceConnection()) {
-                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 3, (short) 0,BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd11((byte) 3, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                 }
                 break;
 //            case R.id.btn_select_all:
@@ -137,17 +137,26 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
-                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     closeDialog(10);
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
-
+                if (mActivity instanceof MumberFragment.OnFragmentInteractionListener) {
+                    ((MumberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                }
                 break;
             default:
                 break;
         }
+    }
+
+    /**
+     * 调用UserManagerActivity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void changeVisible();
     }
 
     public void selectDelete(boolean choise) {
@@ -503,7 +512,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 5, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });
@@ -515,7 +524,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener {
                         mLoadDialog.show();
                         closeDialog(15);
                         if (mBleManagerHelper.getServiceConnection()) {
-                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId(),BleMsg.INT_DEFAULT_TIMEOUT);
+                            mBleManagerHelper.getBleCardService().sendCmd11((byte) 6, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     }
                 });

@@ -79,7 +79,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
 
     @Override
     public void onFingerprintCancel() {
-        onStartFPListening();
+        onStopFPListening();
     }
 
     @Override
@@ -145,6 +145,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
     private void lockKeyBoard(int lockTime) {
         mKeyNkRl.setVisibility(View.GONE);
         mErrorRl.setVisibility(View.VISIBLE);
+        onStopFPListening();
         new CountDownTimer(1000 * lockTime, 1000) {              //确认按键倒计时
             @SuppressLint("SetTextI18n")
             @Override
@@ -180,6 +181,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
         if (mIsFP == 4 && isFPRequired && !isReturn) {
             mInfoTv.setText("指纹 / 输入密码");
             initFP();
+            onStartFPListening();
         } else {
             mInfoTv.setText(getString(R.string.please_input_pwd));
         }

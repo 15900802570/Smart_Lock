@@ -335,4 +335,6 @@
     <string name="retry_later">seconds</string>
     <string name="the_user_delete_by_admin">This account has been deleted by the administrator. Please contact the administrator.</string>
     <string name="lock_reset">Restoring factory settings...</string>
+    <string name="remote_unlock">Remote unlock</string>
+    <string name="latest_version">Latest Version:</string>
 </resources>

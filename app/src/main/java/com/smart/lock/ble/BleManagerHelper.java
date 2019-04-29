@@ -107,7 +107,7 @@ public class BleManagerHelper {
     private DeviceStatus mDefaultStatus; //用户状态
     private IBindServiceCallback mBindServiceCallback; //注册成功回调
     private Dialog mLoadDialog;
-    private String mDefaultMac = "D8:87:D5:00:C4:AA";
+    private String mDefaultMac = "01:01:01:01:00:00";
 
     private Runnable mRunnable = new Runnable() {
         public void run() {

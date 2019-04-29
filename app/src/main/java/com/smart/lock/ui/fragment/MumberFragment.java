@@ -102,11 +102,20 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
-
+                if (mActivity instanceof OnFragmentInteractionListener) {
+                    ((OnFragmentInteractionListener) mActivity).changeVisible();
+                }
                 break;
             default:
                 break;
         }
+    }
+
+    /**
+     * 调用UserManagerActivity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void changeVisible();
     }
 
     public void selectDelete(boolean choose) {
@@ -206,7 +215,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action == null){
+            if (action == null) {
                 return;
             }
             // 4.2.3 MSG 12

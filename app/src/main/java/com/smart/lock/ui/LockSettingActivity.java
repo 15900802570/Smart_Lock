@@ -42,6 +42,8 @@ import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
 
+import static com.smart.lock.ble.BleMsg.KEY_USER_ID;
+
 public class LockSettingActivity extends AppCompatActivity {
 
     private ToggleSwitchDefineView mIntelligentLockTs;
@@ -55,6 +57,7 @@ public class LockSettingActivity extends AppCompatActivity {
     private String TAG = "LockSettingActivity";
 
     private DeviceInfo mDefaultDevice;
+    private short mUserID;
     private DeviceStatus mDeviceStatus;
 
     private BleManagerHelper mBleManagerHelper;
@@ -68,6 +71,7 @@ public class LockSettingActivity extends AppCompatActivity {
     private TextView mSetRolledBackTime5sTv;
     private TextView mSetRolledBackTime8sTv;
     private TextView mSetRolledBackTime10sTv;
+    private NextActivityDefineView mFactoryResetNa;
 
     private boolean mIsConnected = true; //蓝牙连接状态
 
@@ -100,7 +104,7 @@ public class LockSettingActivity extends AppCompatActivity {
         NextActivityDefineView mVersionInfoNa = findViewById(R.id.next_version_info);
         NextActivityDefineView mSelfCheckNa = findViewById(R.id.next_self_check);
         NextActivityDefineView mOtaUpdateNa = findViewById(R.id.next_ota_update);
-        NextActivityDefineView mFactoryResetNa = findViewById(R.id.next_factory_reset);
+        mFactoryResetNa = findViewById(R.id.next_factory_reset);
 
         mIntelligentLockTs.setDes(getResources().getString(R.string.intelligent_lock));
         mAntiPrizingAlarmTs.setDes(getResources().getString(R.string.anti_prizing_alarm));
@@ -125,6 +129,7 @@ public class LockSettingActivity extends AppCompatActivity {
     private void initData() {
         try {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+            mUserID = getIntent().getShortExtra(BleMsg.KEY_USER_ID, (short) 101);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
             mBleManagerHelper = BleManagerHelper.getInstance(this, false);
             LocalBroadcastManager.getInstance(this).registerReceiver(lockSettingReceiver, intentFilter());
@@ -134,6 +139,11 @@ public class LockSettingActivity extends AppCompatActivity {
         // 查询或者创建状态表
         mDeviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         setStatus();
+        if (mUserID > 0 & mUserID < 100) {
+            mFactoryResetNa.setVisibility(View.VISIBLE);
+        }else {
+            mFactoryResetNa.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -503,7 +513,7 @@ public class LockSettingActivity extends AppCompatActivity {
 
                 break;
             case R.id.warning_confirm_btn:
-                mWriting = DialogUtils.createLoadingDialog(this,getResources().getString(R.string.lock_reset));
+                mWriting = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
                 mWriting.show();
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 8);
                 clearAllDataOfApplication();
