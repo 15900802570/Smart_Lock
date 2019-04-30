@@ -15,10 +15,9 @@ import android.text.Editable;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.zip.CRC32;
 
 public class StringUtil {
@@ -454,5 +453,93 @@ public class StringUtil {
             }
         }
         return result.substring(0, 17);
+    }
+
+    /**
+     * 反转byte数组中的某一段
+     *
+     * @param arr
+     * @param begin
+     * @param end
+     * @return
+     */
+    public static byte[] reverse(byte[] arr, int begin, int end) {
+
+        while (begin < end) {
+            byte temp = arr[end];
+            arr[end] = arr[begin];
+            arr[begin] = temp;
+            begin++;
+            end--;
+        }
+
+        return arr;
+    }
+    /**
+     * byte数组转成十六进制字符串
+     *
+     * @param array     原数组
+     * @param separator 分隔符
+     * @return
+     */
+    public static String bytesToHexString(byte[] array, String separator) {
+        if (array == null || array.length == 0)
+            return "";
+
+        StringBuilder sb = new StringBuilder();
+
+        Formatter formatter = new Formatter(sb);
+        formatter.format("%02X", array[0]);
+
+        for (int i = 1; i < array.length; i++) {
+
+            if (!Strings.isEmpty(separator))
+                sb.append(separator);
+
+            formatter.format("%02X", array[i]);
+        }
+
+        formatter.flush();
+        formatter.close();
+
+        return sb.toString();
+    }
+}
+ final class Strings {
+
+    private Strings() {
+    }
+
+    public static byte[] stringToBytes(String str, int length) {
+
+        byte[] srcBytes;
+
+        if (length <= 0) {
+            return str.getBytes(Charset.defaultCharset());
+        }
+
+        byte[] result = new byte[length];
+
+        srcBytes = str.getBytes(Charset.defaultCharset());
+
+        if (srcBytes.length <= length) {
+            System.arraycopy(srcBytes, 0, result, 0, srcBytes.length);
+        } else {
+            System.arraycopy(srcBytes, 0, result, 0, length);
+        }
+
+        return result;
+    }
+
+    public static byte[] stringToBytes(String str) {
+        return stringToBytes(str, 0);
+    }
+
+    public static String bytesToString(byte[] data) {
+        return data == null || data.length <= 0 ? null : new String(data, Charset.defaultCharset()).trim();
+    }
+
+    public static boolean isEmpty(String str) {
+        return str == null || str.trim().isEmpty();
     }
 }
