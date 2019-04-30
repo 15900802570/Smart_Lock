@@ -456,6 +456,21 @@ public class StringUtil {
     }
 
     /**
+     * 删除指定字符
+     * @param str
+     * @param delChar
+     * @return
+     */
+    public static String deleteString(String str, char delChar){
+        String delStr = "";
+        for (int i = 0; i < str.length(); i++) {
+            if(str.charAt(i) != delChar){
+                delStr += str.charAt(i);
+            }
+        }
+        return delStr;
+    }
+    /**
      * 反转byte数组中的某一段
      *
      * @param arr

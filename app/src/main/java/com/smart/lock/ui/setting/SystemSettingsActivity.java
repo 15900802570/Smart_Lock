@@ -32,6 +32,7 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.OtaUpdateActivity;
+import com.smart.lock.ui.setting.SetLocalInfo;
 
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
@@ -420,7 +421,13 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
                             " sn = " + mSn + "\n" +
                             "mNodeId = " + mNodeId);
-                    BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle, this);
+
+
+//                    BleManagerHelper.getInstance(this, false).connectBle((byte) 2, bundle, this);
+                    Intent intent = new Intent();
+                    intent.setClass(SystemSettingsActivity.this, SetLocalInfo.class);
+                    intent.putExtras(bundle);
+                    startActivity(intent);
                 } else {
                     ToastUtil.show(this, getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
                 }

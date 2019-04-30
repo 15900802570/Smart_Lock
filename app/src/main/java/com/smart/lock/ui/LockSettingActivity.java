@@ -530,7 +530,7 @@ public class LockSettingActivity extends AppCompatActivity {
                 DeviceKeyDao.getInstance(this).delete(DeviceKeyDao.getInstance(this).queryFirstData(DeviceKeyDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId())) != -1 &&
                         DeviceStatusDao.getInstance(this).delete(mDeviceStatus) != -1 &&
                         DeviceUserDao.getInstance(this).delete(DeviceUserDao.getInstance(this).queryFirstData(DeviceUserDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId())) != -1 &&
-                        TempPwdDao.getInstance(this).deleteAllByNodeId(mDefaultDevice.getDeviceId()) != -1 &&
+                        TempPwdDao.getInstance(this).deleteAllByNodeId(mDefaultDevice.getDeviceNodeId()) != -1 &&
                         DeviceInfoDao.getInstance(this).delete(mDefaultDevice) != -1) {
             mRestore = true;
             mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);

@@ -107,7 +107,7 @@ public class BleManagerHelper {
     private DeviceStatus mDefaultStatus; //用户状态
     private IBindServiceCallback mBindServiceCallback; //注册成功回调
     private Dialog mLoadDialog;
-    private String mDefaultMac = "01:01:01:01:00:00";
+    private String mOldMac = "D8:87:D5:00:C4:AA";
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
@@ -175,8 +175,10 @@ public class BleManagerHelper {
             DialogUtils.closeDialog(mLoadDialog);
             mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.tv_scan_lock));
             mLoadDialog.show();
+            mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
             mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
+            mOldMac = bundle.getString(BleMsg.KEY_OLD_MAC);
         } else
             mUserId = bundle.getShort(BleMsg.KEY_USER_ID);
 
@@ -228,12 +230,12 @@ public class BleManagerHelper {
             LogUtil.d(TAG, "ADD MAC = " + device.getAddress());
             if (mConnectType == 2) {
                 if (device.getName() != null) {
-                    if (device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME) && device.getAddress().equals(mDefaultMac)) {
+                    if (device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME) && device.getAddress().equals(mOldMac)) {
                         LogUtil.d(TAG, "dev rssi = " + rssi);
                         mBtAdapter.stopLeScan(mLeScanCallback);
                         LogUtil.d(TAG, "mIsConnected = " + mIsConnected);
                         if (!mIsConnected && mService != null) {
-                            LogUtil.d(TAG, "ADD = " + device.getAddress());
+                            LogUtil.d(TAG, "ADD FUCK= " + device.getAddress());
                             boolean result = mService.connect(device.getAddress());
                             LogUtil.d(TAG, "result = " + result);
                         }
@@ -360,7 +362,8 @@ public class BleManagerHelper {
             if (action == null) {
                 return;
             }
-            LogUtil.d(TAG, "ACTION = " + action);
+            LogUtil.d(TAG, "ACTION = " + action + "\n" +
+                    "Type = " + mConnectType);
             if (action.equals(BleMsg.ACTION_GATT_CONNECTED)) {
                 Log.d(TAG, "UART_CONNECT_MSG");
                 mBleModel.setState(BleConnectModel.BLE_CONNECTED);
@@ -419,6 +422,7 @@ public class BleManagerHelper {
                                     mConnectType = 0;
                                 }
                                 if (mConnectType == 2) {
+                                    LogUtil.d(TAG,"mBLEMAC = " + mBleMac);
                                     mService.sendCmd05(mBleMac, mNodeId, mSn);
                                 } else
                                     mService.sendCmd01(mConnectType, mUserId);

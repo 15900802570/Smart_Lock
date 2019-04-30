@@ -191,6 +191,11 @@ public class BleMsg {
     public static final String KEY_BLE_MAC = "bleMac";
 
     /**
+     * 设备老地址
+     */
+    public static final String KEY_OLD_MAC = "oldMAC";
+
+    /**
      * 设备SN号
      */
     public static final String KEY_NODE_SN = "nodeSn";
