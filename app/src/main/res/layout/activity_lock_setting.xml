@@ -112,7 +112,8 @@
                 android:id="@+id/next_factory_reset"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="onClick"/>
+                android:onClick="onClick"
+                android:visibility="gone"/>
         </LinearLayout>
 
 

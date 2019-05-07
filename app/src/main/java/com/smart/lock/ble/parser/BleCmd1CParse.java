@@ -4,7 +4,6 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
 
@@ -48,7 +47,7 @@ public class BleCmd1CParse implements BleCommandParse {
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEV_CMD_1C;
+        return Message.TYPE_BLE_RECEIVER_CMD_1C;
     }
 
     @Override

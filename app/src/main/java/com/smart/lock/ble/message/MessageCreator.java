@@ -73,7 +73,7 @@ public class MessageCreator {
 
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_02
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_02
      *
      * @param type   消息类型
      * @param random 设备回复的随机数
@@ -92,7 +92,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_04
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_04
      *
      * @param type        消息类型
      * @param batPerscent 电池电量
@@ -127,7 +127,23 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_12
+     *  MSG 0E 连接错误消息
+     * @param type 消息类型
+     * @param errorCode 错误码
+     * @return Message
+     */
+    public static Message getCmd0EMessage(byte type, byte[] errorCode) {
+        Message message = Message.obtain();
+        message.setType(type);
+        Bundle mBundle = message.getData();
+        if (errorCode != null && errorCode.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errorCode);
+        }
+        return message;
+    }
+
+    /**
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_12
      *
      * @param type     消息类型
      * @param userId   用户编号
@@ -163,7 +179,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息 MESSAGE.TYPE_BLE_RECEV_CMD_1C
+     * 获取消息 MESSAGE.TYPE_BLE_RECEIVER_CMD_1C
      *
      * @param type   消息类型
      * @param sn     设备序列号
@@ -189,7 +205,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_1E
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_1E
      *
      * @param type    消息类型
      * @param errCode 设备回复的错误编码
@@ -229,7 +245,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_2E
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_2E
      *
      * @param type    消息类型
      * @param errCode 设备回复的错误编码
@@ -248,7 +264,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_16
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_16
      *
      * @param type   消息类型
      * @param lockId 锁体密钥编号
@@ -267,7 +283,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_1A
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_1A
      *
      * @param type   消息类型
      * @param status 智能锁本地密钥状态字
@@ -286,7 +302,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_18
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_18
      *
      * @param type    消息类型
      * @param timeOut 智能锁密钥录入超时时间
@@ -309,7 +325,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_16
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_16
      *
      * @param type 消息类型
      * @param msg  信息
@@ -328,7 +344,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_18
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_18
      *
      * @param type 消息类型
      * @param log  日志信息
@@ -350,7 +366,7 @@ public class MessageCreator {
     }
 
     /**
-     * 获取消息Message.TYPE_BLE_RECEV_CMD_3E
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_3E
      *
      * @param type    消息类型
      * @param errCode 设备回复的错误编码

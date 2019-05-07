@@ -1,5 +1,6 @@
 package com.smart.lock.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -115,6 +116,7 @@ public class DialogUtils {
         TextView tipTextView = (TextView) v.findViewById(R.id.warning_tip_tv);          // 提示文字
         final Button confirm = v.findViewById(R.id.warning_confirm_btn);
         new CountDownTimer(5000, 1000) {              //确认按键倒计时
+            @SuppressLint("SetTextI18n")
             @Override
             public void onTick(long millisUntilFinished) {
                 confirm.setText(context.getResources().getString(R.string.confirm) + "(" +

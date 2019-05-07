@@ -36,6 +36,7 @@ import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ScanQRHelper {
     private final String TAG = ScanQRHelper.class.getSimpleName();
@@ -130,7 +131,7 @@ public class ScanQRHelper {
         mUserId = StringUtil.bytesToHexString(copyNumBytes);
         StringUtil.exchange(ImeiBytes);
         mNodeId = StringUtil.bytesToHexString(ImeiBytes);
-        mBleMac = StringUtil.bytesToHexString(bleMACBytes).toUpperCase();
+        mBleMac = Objects.requireNonNull(StringUtil.bytesToHexString(bleMACBytes)).toUpperCase();
         mRandCode = StringUtil.bytesToHexString(randCodeBytes);
         mTime = StringUtil.byte2Int(timeBytes);
 

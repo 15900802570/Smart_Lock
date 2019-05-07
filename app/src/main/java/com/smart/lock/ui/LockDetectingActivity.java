@@ -27,7 +27,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -48,7 +47,6 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.login.LockScreenActivity;
-import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -281,7 +279,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mLine.setVisibility(View.GONE);
                     mScanLockTv.setVisibility(View.GONE);
                     mRefreshDevLl.setVisibility(View.VISIBLE);
-                    mBleAdapter.mBluetoothDevlist.clear();
+                    mBleAdapter.mBluetoothDevList.clear();
                     mBleAdapter.notifyDataSetChanged();
                     mScanDev.setVisibility(View.GONE);
                     mScanEmpty.setVisibility(View.GONE);
@@ -358,7 +356,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     /**
      * 搜索结果处理
      *
-     * @param device
+     * @param device 设备信息
      */
     private void detectDevice(BluetoothDevice device) {
 
@@ -367,8 +365,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             scanLeDevice(false);
             mRescanLl.setVisibility(View.GONE);
             mTipsLl.setVisibility(View.GONE);
-            mScanLockTv.setText("安全校验中");
             String mac = device.getAddress().replace(getString(R.string.colon), "");
+            mScanLockTv.setText(getString(R.string.checking_security));
+            String mac = device.getAddress().replace(":", "");
             LogUtil.d(TAG, "mac = " + mac);
             byte[] macByte = StringUtil.hexStringToBytes(mac);
 
@@ -589,7 +588,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
-            final BluetoothDevice dev = mBluetoothDevlist.get(position);
+            final BluetoothDevice dev = mBluetoothDevList.get(position);
             if (dev != null) {
                 viewHolder.mDevName.setText(dev.getName());
                 viewHolder.mDevMac.setText(dev.getAddress());
@@ -611,7 +610,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public int getItemCount() {
-            return mBluetoothDevlist.size();
+            return mBluetoothDevList.size();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {

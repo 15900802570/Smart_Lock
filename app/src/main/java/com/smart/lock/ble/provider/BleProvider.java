@@ -32,6 +32,7 @@ import com.smart.lock.ble.creator.BleCreator;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.parser.BleCmd02Parse;
 import com.smart.lock.ble.parser.BleCmd04Parse;
+import com.smart.lock.ble.parser.BleCmd0EParse;
 import com.smart.lock.ble.parser.BleCmd12Parse;
 import com.smart.lock.ble.parser.BleCmd16Parse;
 import com.smart.lock.ble.parser.BleCmd18Parse;
@@ -584,32 +585,34 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_DATA, new BleCmdOtaDataCreator());
 
         // 填充ble指令监听器映射表
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_02, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_04, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_1A, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_1C, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_1E, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_12, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_16, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_18, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_2E, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_26, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_32, mBleMessageListener);
-        messageListenerMap.put(Message.TYPE_BLE_RECEV_CMD_3E, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_02, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_04, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_0E, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1A, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1C, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1E, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_12, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_16, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_18, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_2E, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_26, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_32, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_3E, mBleMessageListener);
 
         //填充ble指令接收器映射表
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_1A, new BleCmd1AParse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_1C, new BleCmd1CParse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_1E, new BleCmd1EParse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_02, new BleCmd02Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_04, new BleCmd04Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_12, new BleCmd12Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_16, new BleCmd16Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_18, new BleCmd18Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_26, new BleCmd26Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_2E, new BleCmd2EParse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_32, new BleCmd32Parse());
-        bleCommandParseMap.put(Message.TYPE_BLE_RECEV_CMD_3E, new BleCmd3EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_0E, new BleCmd0EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_1A, new BleCmd1AParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_1C, new BleCmd1CParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_1E, new BleCmd1EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_02, new BleCmd02Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_04, new BleCmd04Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_12, new BleCmd12Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_16, new BleCmd16Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_18, new BleCmd18Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_26, new BleCmd26Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_2E, new BleCmd2EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_32, new BleCmd32Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_3E, new BleCmd3EParse());
     }
 
     /**

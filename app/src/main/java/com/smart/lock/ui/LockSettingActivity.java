@@ -18,7 +18,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,12 +27,10 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
-import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.TempPwdDao;
@@ -55,6 +52,7 @@ import com.smart.lock.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import static com.smart.lock.ble.BleMsg.KEY_USER_ID;
 
 public class LockSettingActivity extends AppCompatActivity implements UiListener {
 
@@ -69,18 +67,21 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private String TAG = "LockSettingActivity";
 
     private DeviceInfo mDefaultDevice;
+    private short mUserID;
     private DeviceStatus mDeviceStatus;
 
     private BleManagerHelper mBleManagerHelper;
 
     private BottomSheetDialog mBottomSheetDialog; //时间设置弹框
     private Dialog mWarningDialog;
+    private Dialog mWriting;
     private int mSetTime;
     private boolean mRestore = false;
 
     private TextView mSetRolledBackTime5sTv;
     private TextView mSetRolledBackTime8sTv;
     private TextView mSetRolledBackTime10sTv;
+    private NextActivityDefineView mFactoryResetNa;
 
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -112,7 +113,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         NextActivityDefineView mVersionInfoNa = findViewById(R.id.next_version_info);
         NextActivityDefineView mSelfCheckNa = findViewById(R.id.next_self_check);
         NextActivityDefineView mOtaUpdateNa = findViewById(R.id.next_ota_update);
-        NextActivityDefineView mFactoryResetNa = findViewById(R.id.next_factory_reset);
+        mFactoryResetNa = findViewById(R.id.next_factory_reset);
 
         mIntelligentLockTs.setDes(getResources().getString(R.string.intelligent_lock));
         mAntiPrizingAlarmTs.setDes(getResources().getString(R.string.anti_prizing_alarm));
@@ -125,7 +126,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mVersionInfoNa.setDes(getResources().getString(R.string.version_info));
         mSelfCheckNa.setDes(getResources().getString(R.string.self_check));
         mOtaUpdateNa.setDes(getResources().getString(R.string.ota_update));
-        mOtaUpdateNa.setVisibility(View.GONE);
+        mOtaUpdateNa.setVisibility(View.VISIBLE);
         mFactoryResetNa.setDes(getResources().getString(R.string.restore_the_factory_settings));
 
         mBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
@@ -137,6 +138,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private void initData() {
         try {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+            mUserID = getIntent().getShortExtra(BleMsg.KEY_USER_ID, (short) 101);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
             mBleManagerHelper = BleManagerHelper.getInstance(this, false);
             mBleManagerHelper.addUiListener(this);
@@ -147,6 +149,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         // 查询或者创建状态表
         mDeviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         setStatus();
+        if (mUserID > 0 & mUserID < 100) {
+            mFactoryResetNa.setVisibility(View.VISIBLE);
+        }else {
+            mFactoryResetNa.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -393,6 +400,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
                 break;
             case R.id.warning_confirm_btn:
+                mWriting = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
+                mWriting.show();
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 8);
                 clearAllDataOfApplication();
                 break;

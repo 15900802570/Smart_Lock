@@ -106,7 +106,7 @@
     <string name="checking_security">Safety Check</string>
     <string name="add_locking">In the generating device...</string>
     <string name="retry_connect">Connection timeout, please re-operate ...</string>
-    <string name="plz_set_lock_name">Please set the name of the door lock:</string>
+    <string name="plz_set_lock_name">Please set the name of the door lock (max length:6):</string>
     <string name="lock_default_name">Intelligent door lock</string>
     <string name="battery_unknow">Unknown</string>
     <string name="device_sync">synchronization</string>
@@ -247,7 +247,7 @@
     <string name="web_site">Web Site</string>
     <string name="customer_service">Customer Service</string>
     <string name="check_version">check version...</string>
-    <string name="company">da tang semi</string>
+    <string name="company">Da Tang Semi</string>
     <string name="isnew_version">is new version,can\'t update!</string>
     <string name="ota_updating">Upgrading</string>
     <string name="http_version_latest">" It's the latest version, no need to upgrade"</string>
@@ -320,6 +320,12 @@
     <string name="enter_pwd_again">Enter your password again</string>
     <string name="card">Card</string>
     <string name="set_user_validity_period">Setting User Validity Period</string>
+    <string name="_2019_03_15">2019-03-15</string>
+    <string name="_2019_03_14">2019-03-14</string>
+    <string name="fp_verification_failed">Fingerprint verification failed，Try again</string>
+    <string name="upper_limit_of_fp_verification_times">Upper limit of fingerprint verification times</string>
+    <string name="fp_verification_succeeded">Fingerprint verification succeeded</string>
+    <string name="skip">Skip</string>
     <string name="to">" To "</string>
     <string name="_1970_01_01">1970-01-01</string>
     <string name="complete">Complete</string>
@@ -327,4 +333,11 @@
     <string name="bt_connected">Connected</string>
     <string name="plz_set_right_life_cycle">Set the right life cycle</string>
     <string name="colon">:</string>
+    <string name="software_is_locked">The software is locked</string>
+    <string name="please_retry">Please try again in</string>
+    <string name="retry_later">seconds</string>
+    <string name="the_user_delete_by_admin">This account has been deleted by the administrator. Please contact the administrator.</string>
+    <string name="lock_reset">Restoring factory settings...</string>
+    <string name="remote_unlock">Remote unlock</string>
+    <string name="latest_version">Latest Version:</string>
 </resources>

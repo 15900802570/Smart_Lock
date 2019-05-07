@@ -101,6 +101,7 @@
                         android:ellipsize="end"
                         android:gravity="top"
                         android:singleLine="true"
+                        android:text="@string/remote_unlock"
                         android:textColor="@color/color_text"
                         android:textSize="@dimen/d14sp" />
 

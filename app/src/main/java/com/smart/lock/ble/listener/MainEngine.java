@@ -1,8 +1,5 @@
 package com.smart.lock.ble.listener;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -578,71 +575,22 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
             switch (type) {
                 case Message.TYPE_BLE_RECEV_CMD_02:
-                    LogUtil.i(TAG, "receiver msg 02,send msg 03!");
                     final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
                     if (random != null && random.length != 0) {
                         mService.sendCmd03(random, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_04:
-                    registerCallBack(extra);
-                    mDevice.setState(Device.BLE_CONNECTED);
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
-                    }
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_12:
-                   /* int size = DeviceUserDao.getInstance(mCtx).queryUsers(mDevInfo.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER).size();
-                    if (size >= 5) { //管理员用户超过5个，断开连接
-                        for (UiListener uiListener : mUiListeners) {
-                            uiListener.addUserFailed(mDevice, 0); //本地用户已超过5个管理员
-                        }
-                        if (mDevice.getState() != Device.BLE_DISCONNECTED) {
-                            mService.disconnect();
-                        }
-                        return;
-                    } */ //暂时不支持已存在设备扫描管理员的情况下，再次扫描添加管理员
-                    DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-                    if (addUser == null || addUser.getUserPermission() != BleMsg.TYPE_SCAN_QR_ADD_MASTER) {
-                        for (UiListener uiListener : mUiListeners) {
-                            uiListener.dispatchUiCallback(message, mDevice, -1);
-                        }
-                        return;
-                    }
-                    String addUserId = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_USER_ID));
-                    byte[] nodeIdBuf = extra.getByteArray(BleMsg.KEY_NODE_ID);
-                    StringUtil.exchange(nodeIdBuf);
-                    String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
-                    String time = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_LOCK_TIME));
-                    String randCode = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_RAND_CODE));
-                    DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
-
-                    mDevInfo.setActivitedTime(Long.parseLong(time, 16));
-                    mDevInfo.setConnectType(false);
-                    mDevInfo.setUserId(Short.parseShort(addUserId, 16));
-                    mDevInfo.setDeviceNodeId(nodeId);
-                    mDevInfo.setNodeType(ConstantUtil.SMART_LOCK);
-                    mDevInfo.setDeviceDate(System.currentTimeMillis() / 1000);
-                    if (defaultDevice != null) mDevInfo.setDeviceDefault(false);
-                    else mDevInfo.setDeviceDefault(true);
-                    mDevInfo.setDeviceName(mCtx.getString(R.string.lock_default_name));
-                    mDevInfo.setDeviceSecret(randCode);
-                    mDeviceInfoDao.insert(mDevInfo);
-
-                    Short sUserId = Short.parseShort(addUserId, 16);
-                    createDeviceUser(sUserId, null);
-
-                    android.os.Message msg = new android.os.Message();
-                    msg.what = MSG_ADD_USER_SUCCESS;
-                    mHandler.sendMessageDelayed(msg, 2000);//断开设备2s,后通知UI进行更新
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_1A:
+                    break;
                 case Message.TYPE_BLE_RECEV_CMD_1C:
+                    break;
                 case Message.TYPE_BLE_RECEV_CMD_1E:
+                    break;
                 case Message.TYPE_BLE_RECEV_CMD_16:
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, -1);
-                    }
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_18:
                     byte[] seconds = extra.getByteArray(BleMsg.KEY_TIME_OUT);
@@ -654,45 +602,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     }
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_2E:
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, -1);
-                    }
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_26:
-                    LogUtil.i(TAG, "receiver msg 26,check device key!");
-                    short userId = (short) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-                    if (userId == mDevInfo.getUserId()) {
-                        byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
-                        mDefaultUser.setUserStatus(userInfo[0]);
-                        mDeviceUserDao.updateDeviceUser(mDefaultUser);
-
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
-
-                        mDevInfo.setMixUnlock(userInfo[8]);
-                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
-                        mEndTime = System.currentTimeMillis();
-                        LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
-                    }
-
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_32:
-                    LogUtil.i(TAG, "receiver 32!");
-                    receiverLog(extra);
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.RECEIVER_LOGS);
-                    }
                     break;
                 case Message.TYPE_BLE_RECEV_CMD_3E:
-                    LogUtil.i(TAG, "receiver 3e!");
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, -1);
-                    }
                     break;
                 default:
                     Log.w(TAG, "Message type : " + type + " can not be handler");

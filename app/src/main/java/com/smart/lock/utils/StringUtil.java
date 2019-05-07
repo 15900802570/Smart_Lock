@@ -58,6 +58,21 @@ public class StringUtil {
             return true;
         }
     }
+    /**
+     * 检验MAC地址是否合规
+     *
+     * @param str MAC地址
+     * @return boolean
+     */
+    public static String checkBleMac(String str) {
+        if(str.length() == 12){
+            return StringUtil.getMacAdr(str.toUpperCase());
+        }else if(str.length() == 17){
+            return str;
+        }else {
+            return "";
+        }
+    }
 
     public static boolean checkIsNull(String str) {
         if (null == str || str.trim().equals("") || str.length() == 0

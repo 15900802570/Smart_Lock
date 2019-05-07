@@ -30,6 +30,7 @@ import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -178,17 +179,15 @@ public class MainActivity extends AppCompatActivity implements
                     mScanQRHelper.ScanDoCode(data);
                     break;
                 case ConstantUtil.SETTING_PWD_REQUEST_CODE:
-                    if (data.getExtras().getInt(ConstantUtil.CONFIRM) == 1) {
+                    if (Objects.requireNonNull(data.getExtras()).getInt(ConstantUtil.CONFIRM) == 1) {
                         SharedPreferenceUtil.getInstance(this).
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                         ToastUtil.showLong(this,
                                 getResources().getString(R.string.pwd_setting_successfully));
-                        finish();
 
                     } else {
                         ToastUtil.showLong(this,
                                 getResources().getString(R.string.pwd_setting_failed));
-                        finish();
                     }
                     break;
             }
@@ -233,11 +232,5 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onScanQrCode() {
         mScanQRHelper.scanQr();
-    }
-
-    public void dialogEditOnClick(View view){
-        if(view.getId() == R.id.dialog_confirm_btn){
-
-        }
     }
 }

@@ -24,6 +24,8 @@ import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.SystemUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -248,6 +250,7 @@ public class BleCardService {
      * callback.
      */
     public boolean connect(Device device, String address) {
+        address = StringUtil.checkBleMac(address);
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;

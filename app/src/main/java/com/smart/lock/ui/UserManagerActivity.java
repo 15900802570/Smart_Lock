@@ -41,16 +41,19 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.widget.NoScrollViewPager;
-import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 
 public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener {
+public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener,
+        MumberFragment.OnFragmentInteractionListener,
+        AdminFragment.OnFragmentInteractionListener,
+        TempFragment.OnFragmentInteractionListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
 
     private TabLayout mUserPermissionTl;
     private NoScrollViewPager mUserPermissionVp;
-    private Toolbar mUsetSetTb;
+    private Toolbar mUserSetTb;
     private TextView mTitleTv;
     private MenuItem mDeleteItem;
     private boolean mDeleteMode = false;
@@ -83,7 +86,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     private void initView() {
         mUserPermissionTl = findViewById(R.id.tl_user_manager);
         mUserPermissionVp = findViewById(R.id.vp_user_manager);
-        mUsetSetTb = findViewById(R.id.tb_user_set);
+        mUserSetTb = findViewById(R.id.tb_user_set);
         mTitleTv = findViewById(R.id.tv_title);
     }
 
@@ -118,14 +121,14 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     private void initActionBar() {
         mTitleTv.setText(R.string.permission_manager);
 
-        mUsetSetTb.setNavigationIcon(R.mipmap.btn_back);
-        mUsetSetTb.setNavigationOnClickListener(new View.OnClickListener() {
+        mUserSetTb.setNavigationIcon(R.mipmap.btn_back);
+        mUserSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
-        setSupportActionBar(mUsetSetTb);
+        setSupportActionBar(mUserSetTb);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
@@ -145,13 +148,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.item_edit:
                 changeVisible();
-                if (mDeleteMode) {
-                    mDeleteItem.setIcon(R.mipmap.b_log_recents_delete);
-                    mDeleteMode = false;
-                } else {
-                    mDeleteItem.setIcon(R.mipmap.b_log_recents_delete_reture);
-                    mDeleteMode = true;
-                }
                 break;
             case R.id.del_all_pwd:
                 DialogUtils.closeDialog(mLoadDialog);

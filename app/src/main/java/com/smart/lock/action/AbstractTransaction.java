@@ -19,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Timer;
@@ -357,21 +358,21 @@ public abstract class AbstractTransaction {
      * @param inputStream
      */
     public String readInputStream(InputStream inputStream) {
-        String str = "";
+        StringBuilder str = new StringBuilder();
         BufferedReader bufferedReader;
         String line = null;
         try {
             bufferedReader = new BufferedReader(new InputStreamReader(
-                    inputStream, ENCODE_UTF8));
+                    inputStream, StandardCharsets.UTF_8));
             while ((line = bufferedReader.readLine()) != null) {
-                str += line;
+                str.append(line);
             }
             bufferedReader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         LogUtil.i(TAG, "response xml=" + str);
-        return str;
+        return str.toString();
     }
 
     /***

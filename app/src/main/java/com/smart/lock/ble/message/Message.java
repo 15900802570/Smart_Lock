@@ -83,7 +83,7 @@ public class Message implements Serializable {
     /**
      * APK通知智能锁进行锁体密钥录入的消息
      */
-    public static final byte TYPE_BLE_RECEV_CMD_02 = 0x02;
+    public static final byte TYPE_BLE_RECEIVER_CMD_02 = 0x02;
 
     /**
      * MSG 03是建立安全连接的最后一个数据包
@@ -93,15 +93,20 @@ public class Message implements Serializable {
     /**
      * MSG 04是智能锁对在安全连接后主动发给APK的消息，带有电池电量、用户同步字和用户状态字信息
      */
-    public static final byte TYPE_BLE_RECEV_CMD_04 = 0x04;
+    public static final byte TYPE_BLE_RECEIVER_CMD_04 = 0x04;
 
     //MSG 05是没有安全连接直接设置SN/MAC/IMEI的消息，调试使用
     public static final byte TYPE_BLE_SEND_CMD_05 = 0x05;
 
     /**
+     * MSG 0E APK与智能锁连接失败后的错误消息， 明文传输
+     */
+    public static final byte TYPE_BLE_RECEIVER_CMD_0E = 0x0E;
+
+    /**
      * MSG 12是智能锁回复给APK的带有授权码的信息，对于通过扫描绑定新增的用户默认状态就是启用，其他通过管理员创建的用户默认状态都是非启用，只有该新建用户和智能锁连接过后状态才是启用。
      */
-    public static final byte TYPE_BLE_RECEV_CMD_12 = 0x12;
+    public static final byte TYPE_BLE_RECEIVER_CMD_12 = 0x12;
 
     /**
      * MSG 11是APK发给智能锁的激活消息
@@ -121,12 +126,12 @@ public class Message implements Serializable {
     /**
      * MSG 16是智能锁将录入的锁体密钥上报给APK。
      */
-    public static final byte TYPE_BLE_RECEV_CMD_16 = 0x16;
+    public static final byte TYPE_BLE_RECEIVER_CMD_16 = 0x16;
 
     /**
      * MSG 16是智能锁录入前提供给APK的超时时间。
      */
-    public static final byte TYPE_BLE_RECEV_CMD_18 = 0x18;
+    public static final byte TYPE_BLE_RECEIVER_CMD_18 = 0x18;
 
     /**
      * MSG 17是APK用来删除锁体密钥信息的消息
@@ -149,12 +154,12 @@ public class Message implements Serializable {
     /**
      * MSG 1E 是智能锁在配置基本信息过程中给服务器上报的消息
      */
-    public static final byte TYPE_BLE_RECEV_CMD_1E = 0x1E;
+    public static final byte TYPE_BLE_RECEIVER_CMD_1E = 0x1E;
 
     /**
      * MSG 1A 是APK收到该状态字后和APK自身存储的状态字比较
      */
-    public static final byte TYPE_BLE_RECEV_CMD_1A = 0x1A;
+    public static final byte TYPE_BLE_RECEIVER_CMD_1A = 0x1A;
 
 //    /**
 //     * OTA升级
@@ -164,7 +169,7 @@ public class Message implements Serializable {
     /**
      * 设备版本信息
      */
-    public static final byte TYPE_BLE_RECEV_CMD_1C = 0x1C;
+    public static final byte TYPE_BLE_RECEIVER_CMD_1C = 0x1C;
     /**
      * 远程开锁
      */
@@ -178,7 +183,7 @@ public class Message implements Serializable {
     /**
      * MSG 26是智能锁回复给APK的用户相关信息，其中密钥及临时用户有效时间段如果没有全部设置，则默认为0。
      */
-    public static final byte TYPE_BLE_RECEV_CMD_26 = 0x26;
+    public static final byte TYPE_BLE_RECEIVER_CMD_26 = 0x26;
 
     /**
      * APK配置智能锁临时用户的生命周期，不配置则生命周期一直存在，同普通用户，通过MSG2E返回结果
@@ -193,12 +198,12 @@ public class Message implements Serializable {
     /**
      * MSG 2E 是智能锁在远程开锁命令后的回应。
      */
-    public static final byte TYPE_BLE_RECEV_CMD_2E = 0x2E;
+    public static final byte TYPE_BLE_RECEIVER_CMD_2E = 0x2E;
 
     /**
      * 智能锁使用MSG 32推送日志给APK，每次只推送一条
      */
-    public static final byte TYPE_BLE_RECEV_CMD_32 = 0x32;
+    public static final byte TYPE_BLE_RECEIVER_CMD_32 = 0x32;
 
     /**
      * MSG 33是APK从智能锁查删除日志，通过MSG3E回复结果
@@ -208,7 +213,7 @@ public class Message implements Serializable {
     /**
      * MSG 3E是智能锁在log传输过程中上报的消息
      */
-    public static final byte TYPE_BLE_RECEV_CMD_3E = 0x3E;
+    public static final byte TYPE_BLE_RECEIVER_CMD_3E = 0x3E;
 
     /**
      * OTA升级命令

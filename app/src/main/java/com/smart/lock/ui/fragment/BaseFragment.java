@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +44,7 @@ import com.smart.lock.widget.CustomDialog;
 
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Objects;
 
 public abstract class BaseFragment extends Fragment {
     public Activity mActivity;
@@ -76,7 +80,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Nullable
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return initView();
     }
 
@@ -100,7 +104,7 @@ public abstract class BaseFragment extends Fragment {
             intent.putExtras(bundle);
         }
 
-        intent.setClass(getView().getContext(), cls);
+        intent.setClass(Objects.requireNonNull(getView()).getContext(), cls);
         startActivity(intent);
     }
 
@@ -134,7 +138,7 @@ public abstract class BaseFragment extends Fragment {
     /**
      * 创建二维码
      *
-     * @param authBuf
+     * @param authBuf 授权码
      */
     protected String createQRcodeImage(byte[] authBuf) {
 

@@ -336,7 +336,7 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:hint="@string/lock_default_name"
-            android:maxLength="20"
+            android:maxLength="6"
             android:maxLines="1"
             android:paddingStart="@dimen/x10dp"
             android:singleLine="true"

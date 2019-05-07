@@ -1,15 +1,19 @@
 package com.smart.lock.ui.login;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,10 +21,14 @@ import com.smart.lock.MainActivity;
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.R;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
+import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
+
+import java.sql.Time;
 
 
 public class LockScreenActivity extends BaseFPActivity implements View.OnClickListener {
@@ -29,6 +37,10 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
 
     private TextView mDeleteTv;
     private TextView mInfoTv; //提示信息
+
+    private RelativeLayout mKeyNkRl;
+    private RelativeLayout mErrorRl;
+    private TextView mErrorTv;
 
 
     private NumericKeyboard mNumKeyNk; // 数字键盘布局
@@ -40,6 +52,8 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
     private StringBuffer fBuffer = new StringBuffer();
 
     private boolean isFPRequired = false;
+
+    private int mNumCounter = 0;
 
 
     @Override
@@ -65,7 +79,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
 
     @Override
     public void onFingerprintCancel() {
-        onStartFPListening();
+        onStopFPListening();
     }
 
     @Override
@@ -99,6 +113,9 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
         num_pwd4 = findViewById(R.id.num_pwd4);
         mInfoTv = findViewById(R.id.info_tv);//提示信息
         mDeleteTv = findViewById(R.id.tv_delete);
+        mKeyNkRl = findViewById(R.id.lock_rl);
+        mErrorRl = findViewById(R.id.lock_rl_error);
+        mErrorTv = findViewById(R.id.lock_error_tv);
 
         switch (type) {
             case ConstantUtil.SETTING_PASSWORD:
@@ -109,24 +126,64 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 break;
             case ConstantUtil.LOGIN_PASSWORD:
                 //初始化指纹
-                try {
-                    isFPRequired = SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK);
-                    LogUtil.e(TAG, "isFPRequired = " + isFPRequired);
-
-                } catch (NullPointerException e) {
-                    isFPRequired = false;
-                    LogUtil.e(TAG, "获取是否开启指纹验证信息失败");
-                }
-                if (mIsFP == 4 && isFPRequired && !isReturn) {
-                    mInfoTv.setText("指纹 / 输入密码");
-                    initFP();
+                long lockTime = SharedPreferenceUtil.getInstance(this).readLong(ConstantUtil.ERROR_TIME) - System.currentTimeMillis() / 1000 + 120;
+                if (lockTime > 0) {
+                    lockKeyBoard((int) lockTime);
                 } else {
-                    mInfoTv.setText(getString(R.string.please_input_pwd));
+                    startAuthenticated();
                 }
                 break;
         }
         if (notCancel) {
             DialogUtils.createTipsDialogWithConfirm(LockScreenActivity.this, getString(R.string.setting_password_for_security)).show();
+        }
+    }
+
+    /**
+     * 输入错误后锁定
+     */
+    private void lockKeyBoard(int lockTime) {
+        mKeyNkRl.setVisibility(View.GONE);
+        mErrorRl.setVisibility(View.VISIBLE);
+        onStopFPListening();
+        new CountDownTimer(1000 * lockTime, 1000) {              //确认按键倒计时
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onTick(long millisUntilFinished) {
+                mErrorTv.setText(getResources().getString(R.string.please_retry) + " " +
+                        String.valueOf(millisUntilFinished / 1000 + 1) + " " +
+                        getResources().getString(R.string.retry_later));
+            }
+
+            @Override
+            public void onFinish() {
+                SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeInt(ConstantUtil.NUM_COUNTER, 0);
+                startAuthenticated();
+            }
+        }.start();
+    }
+
+    /**
+     * 开启验证
+     */
+    private void startAuthenticated() {
+        mErrorRl.setVisibility(View.GONE);
+        mKeyNkRl.setVisibility(View.VISIBLE);
+        mNumCounter = SharedPreferenceUtil.getInstance(this).readInt(ConstantUtil.NUM_COUNTER);
+        try {
+            isFPRequired = SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK);
+            LogUtil.e(TAG, "isFPRequired = " + isFPRequired);
+
+        } catch (NullPointerException e) {
+            isFPRequired = false;
+            LogUtil.e(TAG, "获取是否开启指纹验证信息失败");
+        }
+        if (mIsFP == 4 && isFPRequired && !isReturn) {
+            mInfoTv.setText("指纹 / 输入密码");
+            initFP();
+            onStartFPListening();
+        } else {
+            mInfoTv.setText(getString(R.string.please_input_pwd));
         }
     }
 
@@ -194,11 +251,19 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 startTimer();
                 break;
             case ConstantUtil.LOGIN_PASSWORD: //登录
-                LogUtil.d("登录123456566");
                 if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
+                    if (mNumCounter < 3) {
+                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeInt(ConstantUtil.NUM_COUNTER, ++mNumCounter);
+                    } else {
+                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeLong(ConstantUtil.ERROR_TIME, System.currentTimeMillis() / 1000);
+                        SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeInt(ConstantUtil.NUM_COUNTER, 0);
+                        lockKeyBoard(120);
+                    }
                     shakes();
                     startTimer();
                 } else {
+                    SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeInt(ConstantUtil.NUM_COUNTER, 0);
+                    mNumCounter = 0;
                     onAuthenticatedSucceeded();
                 }
                 break;

@@ -18,7 +18,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -93,10 +92,21 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
 
+                if (mActivity instanceof MumberFragment.OnFragmentInteractionListener) {
+                    ((MumberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                }
+
                 break;
             default:
                 break;
         }
+    }
+
+    /**
+     * 调用UserManagerActivity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void changeVisible();
     }
 
     public void selectDelete(boolean choise) {
@@ -136,7 +146,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         mBleManagerHelper.addUiListener(this);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
         mAdminAdapter = new AdminAdapter(mAdminView.getContext());
-        mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
         mUsersRv.setItemAnimator(new DefaultItemAnimator());
         mUsersRv.setAdapter(mAdminAdapter);
@@ -437,7 +447,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
         @SuppressLint("SetTextI18n")
         @Override
-        public void onBindViewHolder(@NonNull final AdminViewHoler holder, final int position) {
+        public void onBindViewHolder(@NonNull final AdminViewHolder holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
@@ -551,7 +561,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         }
 
         @Override
-        public void onViewAttachedToWindow(@NonNull AdminViewHoler holder) {
+        public void onViewAttachedToWindow(@NonNull AdminViewHolder holder) {
             super.onViewAttachedToWindow(holder);
             holder.mNameTv.setEnabled(false);
             holder.mNameTv.setEnabled(true);
@@ -562,7 +572,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             return mUserList.size();
         }
 
-        public class AdminViewHoler extends RecyclerView.ViewHolder {
+        class AdminViewHolder extends RecyclerView.ViewHolder {
             RelativeLayout mDeleteRl;
             TextView mUserStateTv;
             ImageButton mEditIbtn;
@@ -574,7 +584,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             CheckBox mDeleteCb;
             LinearLayout mUserContent;
 
-            public AdminViewHoler(View itemView) {
+            AdminViewHolder(View itemView) {
                 super(itemView);
                 mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);

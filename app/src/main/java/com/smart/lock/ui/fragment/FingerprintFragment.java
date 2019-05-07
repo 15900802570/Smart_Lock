@@ -1,14 +1,16 @@
 package com.smart.lock.ui.fragment;
 
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -46,6 +48,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class FingerprintFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = FingerprintFragment.class.getSimpleName();
@@ -155,7 +158,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
                 final byte[] lockId = extra.getByteArray(BleMsg.KEY_LOCK_ID);
                 LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
-                mLockId = String.valueOf(lockId[0]);
+                String mLockId = String.valueOf(lockId[0]);
                 LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
@@ -273,8 +276,9 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
         }
 
+        @NonNull
         @Override
-        public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler, parent, false);
             SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_recycler);
             swipeLayout.setClickToClose(true);
@@ -283,7 +287,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
+        public void onBindViewHolder(@NonNull final ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final DeviceKey fpInfo = mFpList.get(position);
             LogUtil.d(TAG, "fpInfo = " + fpInfo.toString());
             viewHolder.mNameTv.setText(fpInfo.getKeyName());

@@ -174,7 +174,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
-                    android:layout_weight="1"
+                    android:layout_weight="0.9"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -193,8 +193,9 @@
                         android:paddingLeft="5dp"
                         android:layout_weight="0.3"
                         android:text="门锁名称"
+                        android:maxLines="2"
                         android:textColor="#3D3D3D"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/d17sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -223,7 +224,7 @@
                         android:gravity="left"
                         android:layout_weight="0.3"
                         android:text="@string/bt_reconnect"
-                        android:textSize="16sp"
+                        android:textSize="@dimen/d17sp"
                         android:textColor="#3D3D3D" />
                 </LinearLayout>
 
@@ -252,7 +253,7 @@
                         android:layout_weight="0.3"
                         android:text="@string/bt_setting"
                         android:textColor="#3D3D3D"
-                        android:textSize="16sp" />
+                        android:textSize="@dimen/d17sp" />
                 </LinearLayout>
 
             </LinearLayout>

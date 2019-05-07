@@ -66,6 +66,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
         mHandler = new Handler();
 
         Bundle bundle = getIntent().getExtras();
+        assert bundle != null;
         mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
         mListView.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y16dp)));
     }
@@ -94,7 +95,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     /**
      * 超时提醒
      *
-     * @param seconds
+     * @param seconds 秒
      */
     protected void closeDialog(final int seconds, Handler handler, Runnable runnable) {
 

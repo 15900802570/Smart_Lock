@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * MSG 1E是智能锁在配置基本信息过程中给服务器上报的消息。
  */
-public class BleCmd1EParse implements BleCommandParse {
+public class BleCmd0EParse implements BleCommandParse {
 
     @Override
     public String getTag() {
@@ -30,24 +30,24 @@ public class BleCmd1EParse implements BleCommandParse {
 //            notifyData(BleMsg.STR_RSP_IK_ERR);
 //        }
 
-        byte[] buf = new byte[16];
-        try {
-            if (MessageCreator.mIs128Code)
-                AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
-            else
-                AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        byte[] buf = new byte[16];
+//        try {
+//            if (MessageCreator.mIs128Code)
+//                AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
+//            else
+//                AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
-        byte[] errCode = Arrays.copyOfRange(buf, 0, 4);
+        byte[] errCode = Arrays.copyOfRange(pdu, 0, 4);
 
-        return MessageCreator.getCmd1EMessage(getParseKey(), errCode);
+        return MessageCreator.getCmd0EMessage(getParseKey(), errCode);
     }
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEIVER_CMD_1E;
+        return Message.TYPE_BLE_RECEIVER_CMD_0E;
     }
 
 }

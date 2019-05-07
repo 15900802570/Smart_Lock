@@ -17,11 +17,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -34,7 +32,6 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
@@ -52,10 +49,9 @@ import java.util.Arrays;
 public class MumberFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = MumberFragment.class.getSimpleName();
 
-    private View mMumberView;
+    private View mMemberView;
     private RecyclerView mUsersRv;
-    private MumberAdapter mMumberAdapter;
-    private LinearLayoutManager mLinerLayoutManager;
+    private MemberAdapter mMemberAdapter;
     private TextView mAddUserTv;
     private RelativeLayout mSelectDeleteRl;
     private CheckBox mSelectCb;
@@ -72,8 +68,10 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
+                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mMemberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
                 if (users.size() >= 90) {
+                    showMessage(mMemberView.getContext().getResources().getString(R.string.members) + mMemberView.getContext().getResources().getString(R.string.add_user_tips));
                     showMessage(mCtx.getResources().getString(R.string.members) + mCtx.getResources().getString(R.string.add_user_tips));
                     return;
                 }
