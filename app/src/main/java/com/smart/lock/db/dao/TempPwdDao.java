@@ -3,8 +3,10 @@ package com.smart.lock.db.dao;
 import android.content.Context;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.smart.lock.db.bean.TempPwd;
 import com.smart.lock.db.helper.DtDatabaseHelper;
+import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,11 +69,15 @@ public class TempPwdDao {
     public int deleteAllByNodeId(Object object) {
         int num = -1;
         try {
-            dao.deleteBuilder().where().eq(DEVICE_NODE_ID, object);
+            ArrayList<TempPwd> list = (ArrayList<TempPwd>) dao.queryBuilder().where().eq(DEVICE_NODE_ID, object).query();
+            for (TempPwd i : list) {
+                dao.delete(i);
+            }
             num = 1;
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        LogUtil.d("num = " + num);
         return num;
     }
 

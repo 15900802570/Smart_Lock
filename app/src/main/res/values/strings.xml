@@ -340,4 +340,10 @@
     <string name="lock_reset">Restoring factory settings...</string>
     <string name="remote_unlock">Remote unlock</string>
     <string name="latest_version">Latest Version:</string>
+    <string name="support_types_of_card">Supported Card Types</string>
+    <string name="safety_card">Safety card</string>
+    <string name="ordinary_card">Ordinary card</string>
+    <string name="power_saving_time_period">Setting Power Saving Time Period</string>
+    <string name="close">Close</string>
+    <string name="qr_code_error">QR Code ERROR</string>
 </resources>

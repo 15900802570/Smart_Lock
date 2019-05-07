@@ -99,7 +99,7 @@ public class ScanQRHelper implements UiListener {
                 ToastUtil.show(mActivity, mActivity.getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
             }
         } else {
-            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, content);
+            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.plz_scan_correct_qr));
             alterDialog.show();
             return;
         }

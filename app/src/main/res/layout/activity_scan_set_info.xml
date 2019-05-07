@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/rl_title"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y81dp"
+        android:background="#ffffffff">
+
+        <ImageView
+            android:id="@+id/iv_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:background="@color/transparent"
+            android:padding="@dimen/x31dp"
+            android:src="@mipmap/btn_back" />
+
+        <TextView
+            android:id="@+id/tv_message_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="10.0dip"
+            android:text="@string/search_lock"
+            android:textColor="#ff000000"
+            android:textSize="@dimen/d18sp" />
+    </RelativeLayout>
+    <LinearLayout
+        android:id="@+id/refresh_dev_ll"
+        android:layout_below="@id/rl_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/y5dp"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_hint"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/x10dp"
+                android:text="@string/searched_dev"
+                android:textSize="@dimen/d14sp" />
+
+            <ProgressBar
+                android:id="@+id/pb_scan_ble_dev"
+                android:layout_width="@dimen/x30dp"
+                android:layout_height="@dimen/y30dp"
+                android:layout_gravity="center_vertical"
+                android:indeterminateBehavior="repeat"
+                android:indeterminateDrawable="@mipmap/dialog_loading_img"
+                android:indeterminateOnly="true" />
+
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/dev_list_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/list_view_bg_grey"
+            android:divider="@null"
+            android:scrollbarSize="10dp"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical" />
+        <LinearLayout
+            android:id="@+id/ll_tips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/x40dp"
+            android:paddingTop="@dimen/y40dp"
+            android:paddingRight="@dimen/x40dp"
+            android:paddingBottom="@dimen/y40dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/please_check"
+                android:textColor="#99000000"
+                android:textSize="@dimen/d14sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/y4dp"
+                android:text="@string/please_check1"
+                android:textColor="#99000000"
+                android:textSize="@dimen/d14sp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/y4dp"
+                android:text="@string/please_check2"
+                android:textColor="#99000000"
+                android:textSize="@dimen/d14sp" />
+
+            <TextView
+                android:id="@+id/find_nodevices_check3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/y4dp"
+                android:text="@string/please_check3"
+                android:textColor="#99000000"
+                android:textSize="@dimen/d14sp" />
+
+            <TextView
+                android:id="@+id/find_nodevices_last"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/y4dp"
+                android:text="@string/please_check_end"
+                android:textColor="#99000000"
+                android:textSize="@dimen/d14sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_rescanning"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y80dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <Button
+            android:id="@+id/btn_rescanning"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y50dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="@dimen/x16dp"
+            android:layout_marginEnd="@dimen/x8dp"
+            android:layout_marginBottom="@dimen/y5dp"
+            android:background="@drawable/selector_add_device_scan_btn_new"
+            android:text="@string/rescanning"
+            android:textColor="@color/blue2"
+            android:textSize="@dimen/d13sp" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,11 +1,9 @@
 package com.smart.lock.utils;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
@@ -26,9 +24,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.db.bean.DeviceKey;
@@ -36,7 +34,6 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.widget.CustomDialog;
-import com.yzq.zxinglibrary.common.Constant;
 
 public class DialogUtils {
     private static final String TAG = "DialogUtils";
@@ -226,7 +223,7 @@ public class DialogUtils {
 
     public static Dialog createTipsDialogWithCancel(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.dialog_tips_with_cancel, null);// 得到加载view
+        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.dialog_tips_with_cancel, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_cancel_ll);  // 加载布局
         TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
         Button cancelButton = v.findViewById(R.id.dialog_cancel_btn);
@@ -262,7 +259,7 @@ public class DialogUtils {
 
     public static Dialog createTipsDialogWithConfirm(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.dialog_tips_with_confirm, null);// 得到加载view
+        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.dialog_tips_with_confirm, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_ll);  // 加载布局
         TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
         Button confirmButton = v.findViewById(R.id.dialog_confirm_btn);
@@ -309,7 +306,7 @@ public class DialogUtils {
 
     public static Dialog createTipsDialogWithConfirmAndCancel(Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View v = inflater.inflate(R.layout.dialog_tips_with_confirm_cancel, null);// 得到加载view
+        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.dialog_tips_with_confirm_cancel, null);// 得到加载view
         LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_tips_with_confirm_cancel_ll);  // 加载布局
         TextView tipTextView = (TextView) v.findViewById(R.id.tips_tv);          // 提示文字
 
@@ -341,40 +338,116 @@ public class DialogUtils {
         return tipsDialog;
     }
 
-    public static Dialog createTempPwdDialog(final Context context, final String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getResources().getString(R.string.temp_pwd))
-                .setMessage(msg)
-                .setNeutralButton(R.string.click_to_copy, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        try {
-                            ClipboardManager clipboardManager = (ClipboardManager) context.
-                                    getSystemService(Context.CLIPBOARD_SERVICE);
-
-                            ClipData clipData = ClipData.newPlainText(context.getResources().getString(R.string.temp_pwd), msg);
-                            clipboardManager.setPrimaryClip(clipData);
-                            Toast.makeText(context, context.getResources().getString(R.string.replicating_success), Toast.LENGTH_SHORT).show();
-
-                        } catch (NullPointerException e) {
-                            e.printStackTrace();
-                        }
-                        dialog.dismiss();
-                    }
-                });
-        Dialog mTempPwdDialog = builder.create();
-
-        Window window = mTempPwdDialog.getWindow();
-        WindowManager.LayoutParams lp = window.getAttributes();
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-        window.setGravity(Gravity.CENTER);
-        window.setAttributes(lp);
-        window.setWindowAnimations(R.style.PopWindowAnimStyle);
-
-        mTempPwdDialog.show();
-        return mTempPwdDialog;
-    }
+//    public static Dialog createTimePickerDialog(final Context context,
+//                                                final int startHour, final int startMin,
+//                                                int endHour, int endMin) {
+//        LayoutInflater inflater = LayoutInflater.from(context);
+//        @SuppressLint("InflateParams") final View v = inflater.inflate(R.layout.dialog_set_time_period, null);// 得到加载view
+//        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_time_picker_ll);  // 加载布局
+//        final NumberPicker startHourNP = v.findViewById(R.id.start_hour_np);
+//        final NumberPicker startMinuteNP = v.findViewById(R.id.start_minute_np);
+//        final NumberPicker endHourNP = v.findViewById(R.id.end_hour_np);
+//        final NumberPicker endMinuteNP = v.findViewById(R.id.end_minute_np);
+//        String[] Hour = {
+//                "00", "01", "02", "03", "04", "05", "06", "07", "08", "09",
+//                "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+//                "20", "21", "22", "23"
+//        };
+//        String[] Minute = {
+//                "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10",
+//                "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+//                "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+//                "31", "32", "33", "34", "35", "36", "37", "38", "39", "40",
+//                "41", "42", "43", "44", "45", "46", "47", "48", "49", "50",
+//                "51", "52", "53", "54", "55", "56", "57", "58", "59"
+//        };
+//        startHourNP.setDisplayedValues(Hour);
+//        startMinuteNP.setDisplayedValues(Minute);
+//        endHourNP.setDisplayedValues(Hour);
+//        endMinuteNP.setDisplayedValues(Minute);
+//
+//        startHourNP.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+//        startMinuteNP.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+//        endHourNP.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+//        endMinuteNP.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+//
+//        startHourNP.setMinValue(1);
+//        startMinuteNP.setMinValue(1);
+//        endHourNP.setMinValue(1);
+//        endMinuteNP.setMinValue(1);
+//
+//        startHourNP.setMaxValue(Hour.length);
+//        startMinuteNP.setMaxValue(Minute.length);
+//        endHourNP.setMaxValue(Hour.length);
+//        endMinuteNP.setMaxValue(Minute.length);
+//
+//        startHourNP.setValue(startHour);
+//        startMinuteNP.setValue(startMin);
+//        endHourNP.setValue(endHour);
+//        endMinuteNP.setValue(endMin);
+//        final int[] value = {0, 1, 2, 3};
+//
+//        startHourNP.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//            @Override
+//            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+//                value[0] = startHourNP.getValue();
+//            }
+//        });
+//
+//        startMinuteNP.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//
+//            @Override
+//            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+//                value[1] = startMinuteNP.getValue();
+//            }
+//        });
+//
+//        endHourNP.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//            @Override
+//            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+//                value[2] = endHourNP.getValue();
+//            }
+//        });
+//
+//        endMinuteNP.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//
+//            @Override
+//            public void onValueChange(NumberPicker numberPicker, int oldValue, int newValue) {
+//                value[3] = endMinuteNP.getValue();
+//            }
+//        });
+//
+//
+////        tipTextView.setText(msg);// 设置加载信息
+//
+//        final Dialog timePickerDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+//        timePickerDialog.setCancelable(true); // 是否可以按“返回键”消失
+//        timePickerDialog.setCanceledOnTouchOutside(true); // 点击加载框以外的区域
+//        timePickerDialog.setContentView(layout, new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT));// 设置布局
+//
+//        Window window = timePickerDialog.getWindow();
+//        WindowManager.LayoutParams lp = window.getAttributes();
+//        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+//        lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+//        window.setGravity(Gravity.CENTER);
+//        window.setAttributes(lp);
+//        window.setWindowAnimations(R.style.PopWindowAnimStyle);
+//
+//        timePickerDialog.findViewById(R.id.dialog_cancel_btn).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                LogUtil.d(TAG, "LOG = " + value[0]+"\n"+
+//                        value[1]+"\n"+
+//                        value[2]+"\n"+
+//                        value[3]);
+//                timePickerDialog.dismiss();
+//            }
+//        });
+//
+//        return timePickerDialog;
+//    }
 
     public static CustomDialog showQRDialog(final Context context, final Bitmap bitmap) {
 

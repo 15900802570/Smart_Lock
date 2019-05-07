@@ -19,24 +19,24 @@
         android:textColor="#ff000000"
         android:textSize="@dimen/d17sp" />
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/ll_btn_setting_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:gravity="center"
         android:orientation="vertical"
         android:paddingEnd="@dimen/x30dp">
 
         <TextView
             android:id="@+id/btn_setting_des"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:layout_alignParentEnd="true"
+            android:gravity="center_vertical"
             android:text="@string/unbind"
             android:textColor="@color/lite_blue"
             android:textSize="@dimen/d17sp" />
-    </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

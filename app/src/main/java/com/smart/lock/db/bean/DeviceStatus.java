@@ -28,8 +28,18 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(columnName = "voice_prompt", defaultValue = "1")
     private boolean voicePrompt;
 
+    @DatabaseField(columnName = "support_m1", defaultValue = "0")
+    private boolean m1Support;
+
     @DatabaseField(columnName = "rolled_back_time",defaultValue = "5" )
     private int rolledBackTime;
+
+    @DatabaseField(columnName = "power_saving_start_time",defaultValue = "23" )
+    private int powerSavingStartTime;
+
+    @DatabaseField(columnName = "power_saving_end_time",defaultValue = "7" )
+    private int powerSavingEndTime;
+
 
     public String getDevNodeId() {
         return devNodeId;
@@ -93,5 +103,29 @@ public class DeviceStatus implements Serializable{
 
     public void setRolledBackTime(int rolledBackTime) {
         this.rolledBackTime = rolledBackTime;
+    }
+
+    public boolean isM1Support() {
+        return m1Support;
+    }
+
+    public void setM1Support(boolean m1Support) {
+        this.m1Support = m1Support;
+    }
+
+    public int getPowerSavingEndTime() {
+        return powerSavingEndTime;
+    }
+
+    public void setPowerSavingEndTime(int powerSavingEndTime) {
+        this.powerSavingEndTime = powerSavingEndTime;
+    }
+
+    public int getPowerSavingStartTime() {
+        return powerSavingStartTime;
+    }
+
+    public void setPowerSavingStartTime(int powerSavingStartTime) {
+        this.powerSavingStartTime = powerSavingStartTime;
     }
 }

@@ -63,7 +63,6 @@ public abstract class BaseFragment extends Fragment {
     protected DeviceInfo mDefaultDevice; //默认设备
     protected DeviceUser mDefaultUser;//当前用户
     protected DeviceUser mTempUser;
-    protected ImageView mInstructionBtn; //一键开锁
     protected ClientTransaction mCt;
     private Context mCtx;
 
@@ -98,6 +97,7 @@ public abstract class BaseFragment extends Fragment {
      * @param cls    新Activity
      * @param bundle 数据包
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     protected void startIntent(Class<?> cls, Bundle bundle) {
         Intent intent = new Intent();
         if (bundle != null) {
@@ -111,7 +111,7 @@ public abstract class BaseFragment extends Fragment {
     /**
      * 创建用户
      *
-     * @param userId
+     * @param userId 用户ID
      */
     protected synchronized DeviceUser createDeviceUser(short userId, String path, int permission) {
         DeviceUser user = new DeviceUser();
