@@ -106,7 +106,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     };
     private int REQUESTCODE = 0;
     private static final int REQUEST_CODE_SCAN = 1;
-    private BleManagerHelper mBleManagerHelper;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -201,7 +200,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
         mCtx = this;
         mDialog = DialogFactory.getInstance(this);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
     }
 
     public void initEvent() {

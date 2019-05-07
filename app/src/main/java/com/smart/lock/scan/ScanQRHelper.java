@@ -15,6 +15,8 @@ import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
@@ -38,7 +40,7 @@ import com.yzq.zxinglibrary.common.Constant;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ScanQRHelper {
+public class ScanQRHelper implements UiListener {
     private final String TAG = ScanQRHelper.class.getSimpleName();
 
     private Activity mActivity;
@@ -169,56 +171,20 @@ public class ScanQRHelper {
             if (mActivity.getIntent().getExtras() != null && mDevice != null) {
                 DeviceInfo deviceDev = (DeviceInfo) mActivity.getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
                 if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
-                    BleManagerHelper.getInstance(mActivity, false).getBleCardService().disconnect();
+                    mBleManagerHelper.getBleCardService().disconnect();
                 }
 
             }
-            LocalBroadcastManager.getInstance(mActivity).registerReceiver(devCheckReceiver, intentFilter());
             mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
             mLoadDialog.show();
-//            closeDialog(10);
+            mBleManagerHelper.addUiListener(this);
             BleManagerHelper.setSk(mBleMac, mRandCode);
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
-            BleManagerHelper.getInstance(mActivity, false).connectBle((byte) 1, bundle, mActivity);
+            mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, bundle, mActivity);
         }
     }
-
-    protected static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
-        intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
-        return intentFilter;
-    }
-
-    /**
-     * 广播接受
-     */
-    private final BroadcastReceiver devCheckReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            //4.2.3 MSG 04
-            if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
-                LogUtil.d(TAG, "array = " + Arrays.toString(intent.getByteArrayExtra(BleMsg.KEY_STATUS)));
-                createDeviceUser(Short.parseShort(mUserId, 16));
-                mStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
-                unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
-                LogUtil.d(TAG, "unLockTime = " + unLockTime);
-                if (unLockTime != 0) {
-                    createDevice();
-                    createDeviceStatus();
-                    mHandler.removeCallbacks(mRunnable);
-                    DialogUtils.closeDialog(mLoadDialog);
-                    onAuthenticationSuccess();
-                }
-            }
-            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
-                onAuthenticationFailed();
-            }
-        }
-    };
 
     private void onAuthenticationSuccess() {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_success));
@@ -227,14 +193,13 @@ public class ScanQRHelper {
             Intent intent = new Intent(mActivity, LockScreenActivity.class);
             intent.putExtra(ConstantUtil.IS_RETURN, true);
             intent.putExtra(ConstantUtil.NOT_CANCEL, true);
-            mActivity.startActivityForResult(intent.
-                    putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), ConstantUtil.SETTING_PWD_REQUEST_CODE);
+            mActivity.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), ConstantUtil.SETTING_PWD_REQUEST_CODE);
         }
     }
 
     private void onAuthenticationFailed() {
-        if (BleManagerHelper.getInstance(mActivity, false).getBleCardService() != null && BleManagerHelper.getInstance(mActivity, false).getServiceConnection()) {
-            BleManagerHelper.getInstance(mActivity, false).getBleCardService().close();
+        if (mBleManagerHelper.getBleCardService() != null && mBleManagerHelper.getServiceConnection()) {
+            mBleManagerHelper.getBleCardService().close();
         }
         DialogUtils.closeDialog(mLoadDialog);
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));
@@ -370,34 +335,76 @@ public class ScanQRHelper {
         return result.substring(0, 17);
     }
 
-    /**
-     * 超时提醒
-     *
-     * @param seconds 时间
-     */
-    private void closeDialog(final int seconds) {
 
-        mHandler.removeCallbacks(mRunnable);
+    @Override
+    public void deviceStateChange(Device device, int state) {
 
-        mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 
-    /**
-     * 超时提示框启动器
-     */
-    protected Runnable mRunnable = new Runnable() {
-        public void run() {
-            if (mLoadDialog != null && mLoadDialog.isShowing()) {
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
+        mDevice = device;
+        Bundle bundle = msg.getData();
+        switch (msg.getType()) {
 
-                DialogUtils.closeDialog(mLoadDialog);
-
-//                mBleManagerHelper = BleManagerHelper.getInstance(BaseListViewActivity.mActivity, mDefaultDevice.getBleMac(), false);
-//                mBleManagerHelper.getBleCardService().sendCmd19(mBleManagerHelper.getAK());
-
-                Toast.makeText(mActivity, mActivity.getResources().getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
-                onAuthenticationFailed();
-            }
+            case Message.TYPE_BLE_RECEIVER_CMD_04:
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                LogUtil.d(TAG, "array = " + Arrays.toString(bundle.getByteArray(BleMsg.KEY_STATUS)));
+                createDeviceUser(Short.parseShort(mUserId, 16));
+                mStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
+                unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
+                LogUtil.d(TAG, "unLockTime = " + unLockTime);
+                if (unLockTime != 0) {
+                    createDevice();
+                    createDeviceStatus();
+                    DialogUtils.closeDialog(mLoadDialog);
+                    onAuthenticationSuccess();
+                }
+                break;
+            default:
+                break;
 
         }
-    };
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        LogUtil.e(TAG, "msg exception : " + msg.toString());
+        onAuthenticationFailed();
+        mBleManagerHelper.removeUiListener(this);
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+        LogUtil.e(TAG, "scanDevFialed");
+        DialogUtils.closeDialog(mLoadDialog);
+        mBleManagerHelper.removeUiListener(this);
+    }
+
+    public void halt() {
+        mBleManagerHelper.removeUiListener(this);
+        mNewDevice = null;
+    }
 }

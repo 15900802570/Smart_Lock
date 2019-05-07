@@ -124,7 +124,21 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
 
     @Override
     public void deviceStateChange(Device device, int state) {
+        LogUtil.i(TAG, "deviceStateChange : state is " + state);
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(mCtx.getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
 
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -132,7 +146,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);

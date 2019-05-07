@@ -203,6 +203,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         onResume();
         mHomeFragment.onAuthenticationSuccess();
+        mScanQRHelper.halt();
     }
 
     /**

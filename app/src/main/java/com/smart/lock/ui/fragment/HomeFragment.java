@@ -185,7 +185,7 @@ public class HomeFragment extends BaseFragment implements
                         Bundle bundle = new Bundle();
                         bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
                         bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                        mBleManagerHelper.connectBle((byte) 1, bundle, mHomeView.getContext());
+                        mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, bundle, mHomeView.getContext());
                     } else
                         mBleManagerHelper.getBleCardService().disconnect();
                 }
@@ -623,7 +623,6 @@ public class HomeFragment extends BaseFragment implements
                     msg.what = BIND_DEVICE;
                     mHandler.sendMessage(msg);
                 }
-
                 break;
             case BleMsg.STATE_CONNECTED:
 
@@ -665,13 +664,13 @@ public class HomeFragment extends BaseFragment implements
         mDevice = device;
         switch (msg.getType()) {
 
-            case Message.TYPE_BLE_RECEV_CMD_2E:
+            case Message.TYPE_BLE_RECEIVER_CMD_2E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
                 break;
-            case Message.TYPE_BLE_RECEV_CMD_04:
-            case Message.TYPE_BLE_RECEV_CMD_26:
+            case Message.TYPE_BLE_RECEIVER_CMD_04:
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
                 mBattery = mDevice.getBattery(); //获取电池电量
                 android.os.Message message = new android.os.Message();

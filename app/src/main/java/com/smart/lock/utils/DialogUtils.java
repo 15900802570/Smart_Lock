@@ -112,8 +112,8 @@ public class DialogUtils {
     public static Dialog createWarningDialog(final Context context, String msg) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_warning, null);// 得到加载view
-        LinearLayout layout = (LinearLayout) v.findViewById(R.id.dialog_warning_view);  // 加载布局
-        TextView tipTextView = (TextView) v.findViewById(R.id.warning_tip_tv);          // 提示文字
+        LinearLayout layout = v.findViewById(R.id.dialog_warning_view);  // 加载布局
+        TextView tipTextView =  v.findViewById(R.id.warning_tip_tv);          // 提示文字
         final Button confirm = v.findViewById(R.id.warning_confirm_btn);
         new CountDownTimer(5000, 1000) {              //确认按键倒计时
             @SuppressLint("SetTextI18n")

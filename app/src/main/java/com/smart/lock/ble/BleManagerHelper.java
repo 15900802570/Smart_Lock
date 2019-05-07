@@ -256,6 +256,7 @@ public class BleManagerHelper {
                     }
                 }
             } else {
+                LogUtil.d(TAG,"mBleMac :" + mBleMac);
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mHandler.removeCallbacks(mRunnable);
@@ -420,28 +421,6 @@ public class BleManagerHelper {
 
     }
 
-    //同步用户数据
-    private void checkUserId(ArrayList<Short> userIds) {
-        ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mContext).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-        if (!userIds.isEmpty()) {
-            for (DeviceUser user : users) {
-                if (userIds.contains(user.getUserId())) {
-                    DeviceUserDao.getInstance(mContext).delete(user);
-                    userIds.remove((Short) user.getUserId());
-                }
-            }
-            for (Short userId : userIds) {
-                if (userId > 0 && userId <= 100) { //管理员
-                    createDeviceUser(userId, null, ConstantUtil.DEVICE_MASTER);
-                } else if (userId > 200 && userId <= 300) {
-                    createDeviceUser(userId, null, ConstantUtil.DEVICE_TEMP);
-                } else {
-                    createDeviceUser(userId, null, ConstantUtil.DEVICE_MEMBER);
-                }
-
-            }
-        }
-    }
 
     /**
      * 创建用户

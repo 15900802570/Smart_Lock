@@ -237,6 +237,20 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(mCtx.getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -268,7 +282,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mDevice = device;
         Bundle bundle = msg.getData();
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_3E:
+            case Message.TYPE_BLE_RECEIVER_CMD_3E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null) {
                     android.os.Message message = new android.os.Message();
@@ -278,7 +292,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     mHandler.sendMessage(message);
                 }
                 break;
-            case Message.TYPE_BLE_RECEV_CMD_32:
+            case Message.TYPE_BLE_RECEIVER_CMD_32:
                 count++;
                 LogUtil.d(TAG, "receiver " + count + " log!");
                 android.os.Message message = new android.os.Message();

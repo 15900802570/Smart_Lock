@@ -219,17 +219,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     }
 
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION);
-        intentFilter.addAction(BleMsg.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1E_ERRCODE);
-        intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
-        intentFilter.addAction(BleMsg.STR_RSP_OPEN_TEST);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1C_VERSION);
-        return intentFilter;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -290,7 +279,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mBottomSheetDialog.show();      //显示弹窗
                     break;
                 case R.id.next_version_info:        //查看版本信息
-                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
+                    mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
                     break;
                 case R.id.next_ota_update:
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -313,7 +302,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     }//ota命令
                     break;
                 case R.id.next_factory_reset:
-                    mWarningDialog = DialogUtils.createWarningDialog(this, getResources().getString(R.string.restore_warning));
+                    mWarningDialog = DialogUtils.createWarningDialog(this, getString(R.string.restore_warning));
                     mWarningDialog.show();
                     break;
             }
@@ -402,7 +391,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case R.id.warning_confirm_btn:
                 mWriting = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
                 mWriting.show();
-                mBleManagerHelper.getBleCardService().sendCmd19((byte) 8);
+                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
                 clearAllDataOfApplication();
                 break;
         }
@@ -484,12 +473,12 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mDevice = device;
         Bundle extra = msg.getData();
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
                 break;
-            case Message.TYPE_BLE_RECEV_CMD_1C:
+            case Message.TYPE_BLE_RECEIVER_CMD_1C:
                 if (!mVisibility) {
                     return;
                 }

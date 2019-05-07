@@ -367,7 +367,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mTipsLl.setVisibility(View.GONE);
             String mac = device.getAddress().replace(getString(R.string.colon), "");
             mScanLockTv.setText(getString(R.string.checking_security));
-            String mac = device.getAddress().replace(":", "");
             LogUtil.d(TAG, "mac = " + mac);
             byte[] macByte = StringUtil.hexStringToBytes(mac);
 
@@ -512,12 +511,12 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         LogUtil.i(TAG, "onChange!");
         mDevice = device;
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
                 break;
-            case Message.TYPE_BLE_RECEV_CMD_04:
+            case Message.TYPE_BLE_RECEIVER_CMD_04:
                 mDevice = device;
                 mDetectingDevice = device.getDevInfo();
                 android.os.Message message = new android.os.Message();
@@ -557,22 +556,22 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
         private Context mContext;
-        public ArrayList<BluetoothDevice> mBluetoothDevlist;
+        public ArrayList<BluetoothDevice> mBluetoothDevList;
 
         public BleAdapter(Context context, ArrayList<BluetoothDevice> devList) {
             mContext = context;
-            mBluetoothDevlist = devList;
+            mBluetoothDevList = devList;
         }
 
         public void setDataSource(ArrayList<BluetoothDevice> devList) {
-            mBluetoothDevlist = devList;
+            mBluetoothDevList = devList;
         }
 
         public void addItem(BluetoothDevice bleDev) {
-            int index = mBluetoothDevlist.indexOf(bleDev);
+            int index = mBluetoothDevList.indexOf(bleDev);
             if (index == -1) {
-                mBluetoothDevlist.add(mBluetoothDevlist.size(), bleDev);
-                notifyItemInserted(mBluetoothDevlist.size());
+                mBluetoothDevList.add(mBluetoothDevList.size(), bleDev);
+                notifyItemInserted(mBluetoothDevList.size());
             }
 
         }

@@ -36,6 +36,7 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
@@ -115,6 +116,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         } else {
             mSelectDeleteRl.setVisibility(View.GONE);
         }
+        mSelectCb.setChecked(false);
         mAdminAdapter.chioseALLDelete(false);
         mAdminAdapter.chioseItemDelete(choise);
         mAdminAdapter.notifyDataSetChanged();
@@ -194,7 +196,21 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        mDevice = device;
+        LogUtil.i(TAG, "deviceStateChange : state is " + state);
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(mAdminView.getContext().getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -203,7 +219,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         mDevice = device;
         Bundle extra = msg.getData();
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (user != null) {
                     DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
@@ -216,7 +232,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], user);
                 break;
-            case Message.TYPE_BLE_RECEV_CMD_12:
+            case Message.TYPE_BLE_RECEIVER_CMD_12:
                 DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -278,6 +294,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
                 DeviceUser deleteUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
                 Log.d(TAG, "deleteUser : " + deleteUser.toString());
+                DeviceKeyDao.getInstance(mAdminView.getContext()).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
+
                 mAdminAdapter.removeItem(deleteUser);
                 if (mAdminAdapter.mDeleteUsers.size() == 0) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -346,7 +364,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
     }
 
-    private class AdminAdapter extends RecyclerView.Adapter<AdminAdapter.AdminViewHoler> {
+    private class AdminAdapter extends RecyclerView.Adapter<AdminAdapter.AdminViewHolder> {
         private Context mContext;
         private ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
@@ -370,12 +388,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
         @NonNull
         @Override
-        public AdminViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public AdminViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
             mSwipelayout = inflate.findViewById(R.id.item_ll_user);
             mSwipelayout.setClickToClose(true);
             mSwipelayout.setRightSwipeEnabled(true);
-            return new AdminViewHoler(inflate);
+            return new AdminViewHolder(inflate);
         }
 
         public void setDataSource() {
@@ -507,7 +525,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                         mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }else showMessage(getString(R.string.disconnect_ble));
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 

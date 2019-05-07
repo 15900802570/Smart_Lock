@@ -31,6 +31,7 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.AdminFragment;
@@ -44,9 +45,7 @@ import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
 
-public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener {
-public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener,
-        MumberFragment.OnFragmentInteractionListener,
+public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MumberFragment.OnFragmentInteractionListener,
         AdminFragment.OnFragmentInteractionListener,
         TempFragment.OnFragmentInteractionListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
@@ -192,17 +191,24 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    private void changeVisible() {
+    public void changeVisible() {
+        if(mDeleteMode){
+            mDeleteItem.setTitle(getString(R.string.edit));
+            mDeleteMode = false;
+        }else {
+            mDeleteItem.setTitle(getString(R.string.edit_back));
+            mDeleteMode = true;
+        }
         BaseFragment framentView = mUserPagerAdapter.getItem(mVpPosition);
         if (framentView instanceof AdminFragment) {
             AdminFragment adminFragment = (AdminFragment) framentView;
-            adminFragment.selectDelete(!mDeleteMode);
+            adminFragment.selectDelete(mDeleteMode);
         } else if (framentView instanceof MumberFragment) {
             MumberFragment mumberFragment = (MumberFragment) framentView;
-            mumberFragment.selectDelete(!mDeleteMode);
+            mumberFragment.selectDelete(mDeleteMode);
         } else if (framentView instanceof TempFragment) {
             TempFragment tempFragment = (TempFragment) framentView;
-            tempFragment.selectDelete(!mDeleteMode);
+            tempFragment.selectDelete(mDeleteMode);
         }
     }
 
@@ -229,7 +235,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onPageSelected(int position) {
         mVpPosition = position;
-        mDeleteItem.setIcon(R.mipmap.b_log_recents_delete);
+        mDeleteItem.setTitle(getString(R.string.edit));
         mDeleteMode = false;
         for (int i = 0; i < mTitleList.size(); i++) {
             BaseFragment framentView = mUserPagerAdapter.getItem(i);
@@ -282,6 +288,20 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -289,7 +309,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
@@ -354,6 +374,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 for (DeviceUser user : users) {
                     if (!(user.getUserId() == mDefaultDevice.getUserId())) {
                         DeviceUserDao.getInstance(UserManagerActivity.this).delete(user);
+                        DeviceKeyDao.getInstance(UserManagerActivity.this).deleteUserKey(user.getUserId(), user.getDevNodeId()); //删除开锁信息
                     }
                 }
 

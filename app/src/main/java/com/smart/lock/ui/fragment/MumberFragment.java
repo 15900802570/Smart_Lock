@@ -34,6 +34,7 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
@@ -68,10 +69,8 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mMemberView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
                 if (users.size() >= 90) {
-                    showMessage(mMemberView.getContext().getResources().getString(R.string.members) + mMemberView.getContext().getResources().getString(R.string.add_user_tips));
                     showMessage(mCtx.getResources().getString(R.string.members) + mCtx.getResources().getString(R.string.add_user_tips));
                     return;
                 }
@@ -89,18 +88,18 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 //                    mSelectBtn.setText(R.string.cancel);
 //                    mSelectBtn.setTag(R.string.cancel);
 //                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
-//                    mMumberAdapter.mDeleteUsers.clear();
+//                    mMemberAdapter.mDeleteUsers.clear();
 //                    mSelectBtn.setText(R.string.all_election);
-//                    mMumberAdapter.chioseALLDelete(false);
+//                    mMemberAdapter.chioseALLDelete(false);
 //                    mSelectBtn.setTag(R.string.all_election);
 //                }
-//                mMumberAdapter.notifyDataSetChanged();
+//                mMemberAdapter.notifyDataSetChanged();
 //                break;
             case R.id.del_tv:
-                if (mMumberAdapter.mDeleteUsers.size() != 0) {
+                if (mMemberAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    for (DeviceUser devUser : mMumberAdapter.mDeleteUsers) {
+                    for (DeviceUser devUser : mMemberAdapter.mDeleteUsers) {
                         LogUtil.d(TAG, "devUser = " + devUser.getUserId());
                         mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
@@ -114,48 +113,56 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         }
     }
 
+    /**
+     * 调用UserManagerActivity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void changeVisible();
+    }
+
     public void selectDelete(boolean choise) {
         if (choise) {
             mSelectDeleteRl.setVisibility(View.VISIBLE);
         } else {
             mSelectDeleteRl.setVisibility(View.GONE);
         }
-        mMumberAdapter.chioseALLDelete(false);
-        mMumberAdapter.chioseItemDelete(choise);
-        mMumberAdapter.notifyDataSetChanged();
+        mSelectCb.setChecked(false);
+        mMemberAdapter.chioseALLDelete(false);
+        mMemberAdapter.chioseItemDelete(choise);
+        mMemberAdapter.notifyDataSetChanged();
     }
 
 
     public void refreshView() {
-        mMumberAdapter.setDataSource();
-        mMumberAdapter.notifyDataSetChanged();
+        mMemberAdapter.setDataSource();
+        mMemberAdapter.notifyDataSetChanged();
     }
 
     @Override
     public View initView() {
-        mMumberView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
-        mUsersRv = mMumberView.findViewById(R.id.rv_users);
-        mAddUserTv = mMumberView.findViewById(R.id.tv_add);
-        mSelectDeleteRl = mMumberView.findViewById(R.id.rl_select_delete);
-        mSelectCb = mMumberView.findViewById(R.id.cb_selete_user);
-        mDeleteTv = mMumberView.findViewById(R.id.del_tv);
-        mTipTv = mMumberView.findViewById(R.id.tv_tips);
-        return mMumberView;
+        mMemberView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
+        mUsersRv = mMemberView.findViewById(R.id.rv_users);
+        mAddUserTv = mMemberView.findViewById(R.id.tv_add);
+        mSelectDeleteRl = mMemberView.findViewById(R.id.rl_select_delete);
+        mSelectCb = mMemberView.findViewById(R.id.cb_selete_user);
+        mDeleteTv = mMemberView.findViewById(R.id.del_tv);
+        mTipTv = mMemberView.findViewById(R.id.tv_tips);
+        return mMemberView;
     }
 
     public void initDate() {
-        mCtx = mMumberView.getContext();
+        mCtx = mMemberView.getContext();
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
         mBleManagerHelper.addUiListener(this);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
-        mMumberAdapter = new MumberAdapter(mCtx);
-        mLinerLayoutManager = new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false);
-        mUsersRv.setLayoutManager(mLinerLayoutManager);
+        mMemberAdapter = new MemberAdapter(mCtx);
+        LinearLayoutManager linerLayoutManager = new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false);
+        mUsersRv.setLayoutManager(linerLayoutManager);
         mUsersRv.setItemAnimator(new DefaultItemAnimator());
-        mUsersRv.setAdapter(mMumberAdapter);
+        mUsersRv.setAdapter(mMemberAdapter);
         mUsersRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
 
         mAddUserTv.setText(R.string.create_user);
@@ -174,7 +181,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
-                mMumberAdapter.mDeleteUsers.clear();
+                mMemberAdapter.mDeleteUsers.clear();
                 if (isChecked) {
                     mTipTv.setText(R.string.cancel);
                     int index = -1;
@@ -186,13 +193,13 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     if (index != -1) {
                         deleteUsers.remove(index);
                     }
-                    mMumberAdapter.mDeleteUsers.addAll(deleteUsers);
-                    mMumberAdapter.chioseALLDelete(true);
+                    mMemberAdapter.mDeleteUsers.addAll(deleteUsers);
+                    mMemberAdapter.chioseALLDelete(true);
                 } else {
                     mTipTv.setText(R.string.all_election);
-                    mMumberAdapter.chioseALLDelete(false);
+                    mMemberAdapter.chioseALLDelete(false);
                 }
-                mMumberAdapter.notifyDataSetChanged();
+                mMemberAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -200,6 +207,21 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        LogUtil.i(TAG, "deviceStateChange : state is " + state);
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(mCtx.getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -208,7 +230,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         mDevice = device;
         Bundle extra = msg.getData();
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (user != null) {
                     DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
@@ -221,7 +243,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], user);
                 break;
-            case Message.TYPE_BLE_RECEV_CMD_12:
+            case Message.TYPE_BLE_RECEIVER_CMD_12:
                 DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -258,7 +280,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                     deviceUser = createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_MEMBER);
 
                     if (deviceUser != null) {
-                        mMumberAdapter.addItem(deviceUser);
+                        mMemberAdapter.addItem(deviceUser);
                         DialogUtils.closeDialog(mLoadDialog);
                     }
                 }
@@ -286,8 +308,9 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 showMessage(mCtx.getString(R.string.delete_user_success));
                 DeviceUser deleteUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                 Log.d(TAG, "deleteUser : " + deleteUser.toString());
-                mMumberAdapter.removeItem(deleteUser);
-                if (mMumberAdapter.mDeleteUsers.size() == 0) {
+                DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
+                mMemberAdapter.removeItem(deleteUser);
+                if (mMemberAdapter.mDeleteUsers.size() == 0) {
                     DialogUtils.closeDialog(mLoadDialog);
                 } else return;
                 break;
@@ -299,7 +322,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 DeviceUser pauseUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                 pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
-                mMumberAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                mMemberAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
                 break;
             case BleMsg.TYPE_PAUSE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.pause_user_failed));
@@ -310,7 +333,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                 DeviceUser recoveryUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                 recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(recoveryUser);
-                mMumberAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
+                mMemberAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mCtx.getString(R.string.recovery_user_failed));
@@ -354,7 +377,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
 
     }
 
-    private class MumberAdapter extends RecyclerView.Adapter<MumberAdapter.MumberViewHoler> {
+    private class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MumberViewHoler> {
         private Context mContext;
         private ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
@@ -362,7 +385,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
         public boolean mAllDelete = false;
         private SwipeLayout mSwipelayout;
 
-        public MumberAdapter(Context context) {
+        public MemberAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
             int index = -1;
@@ -503,7 +526,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                         mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }else showMessage(getString(R.string.disconnect_ble));
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 
@@ -514,7 +537,7 @@ public class MumberFragment extends BaseFragment implements View.OnClickListener
                         mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }else showMessage(getString(R.string.disconnect_ble));
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 

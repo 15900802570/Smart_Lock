@@ -569,6 +569,20 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -576,7 +590,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         switch (msg.getType()) {
-            case Message.TYPE_BLE_RECEV_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);

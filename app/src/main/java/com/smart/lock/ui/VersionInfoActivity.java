@@ -39,15 +39,15 @@ public class VersionInfoActivity extends AppCompatActivity {
         TextView mSoftVersionTv = findViewById(R.id.tv_software_version);
         TextView mHardVersionTv = findViewById(R.id.tv_hardware_version);
 
-        if (mDefaultDevice.getDeviceSn() != null){
+        if (mDefaultDevice.getDeviceSn() != null) {
             mSerialNumTv.setText(mDefaultDevice.getDeviceSn());
         }
 
-        if (mDefaultDevice.getDeviceNodeId() != null){
+        if (mDefaultDevice.getDeviceNodeId() != null) {
             mImeiTv.setText(mDefaultDevice.getDeviceNodeId());
         }
 
-        if (mDefaultDevice.getBleMac() != null){
+        if (mDefaultDevice.getBleMac() != null) {
             mBTMacTv.setText(mDefaultDevice.getBleMac());
         }
 
@@ -59,7 +59,8 @@ public class VersionInfoActivity extends AppCompatActivity {
         }
 
     }
-    private void initEvent(){
+
+    private void initEvent() {
         ImageView imageView = findViewById(R.id.iv_version_info_back);
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override

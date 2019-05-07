@@ -59,7 +59,6 @@ public class BleCmd01Creator implements BleCreator {
         System.arraycopy(buf, 0, msgBuf, 3, 4);
         Arrays.fill(msgBuf, 7, 16, (byte) 0x09);
 
-        LogUtil.d(TAG, "msgBuf = " + Arrays.toString(msgBuf));
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(msgBuf, buf, MessageCreator.m128SK);
