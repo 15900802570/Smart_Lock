@@ -5,6 +5,7 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
 
@@ -39,6 +40,7 @@ public class BleCmd04Parse implements BleCommandParse {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        LogUtil.d(TAG,"buf = " + StringUtil.getBytes(buf));
         byte[] batPerscent = new byte[1];
         byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];

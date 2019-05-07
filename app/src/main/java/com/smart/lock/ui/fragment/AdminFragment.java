@@ -2,15 +2,12 @@ package com.smart.lock.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +27,6 @@ import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
@@ -93,8 +89,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
 
-                if (mActivity instanceof MumberFragment.OnFragmentInteractionListener) {
-                    ((MumberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
+                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
 
                 break;
@@ -261,7 +257,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     e.printStackTrace();
                 }
 
-                String path = createQRcodeImage(buf);
+                String path = createQRcodeImage(buf,ConstantUtil.DEVICE_MASTER);
                 Log.d(TAG, "path = " + path);
                 DeviceUser deviceUser;
                 if (path != null) {

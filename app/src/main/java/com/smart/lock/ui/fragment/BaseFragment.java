@@ -140,7 +140,7 @@ public abstract class BaseFragment extends Fragment {
      *
      * @param authBuf 授权码
      */
-    protected String createQRcodeImage(byte[] authBuf) {
+    protected String createQRcodeImage(byte[] authBuf, byte type) {
 
         int w = (int) mActivity.getResources().getDimension(R.dimen.qr_width);
         int h = (int) mActivity.getResources().getDimension(R.dimen.qr_height);
@@ -178,6 +178,9 @@ public abstract class BaseFragment extends Fragment {
             CustomDialog dialog = DialogUtils.showQRDialog(mActivity, bitmap);
             ImageView qrIv = dialog.getCustomView().findViewById(R.id.iv_qr);
             qrIv.setImageBitmap(bitmap);
+            if (type != ConstantUtil.DEVICE_TEMP) {
+                dialog.show();
+            }
 
             return path.getPath();
 
@@ -235,7 +238,7 @@ public abstract class BaseFragment extends Fragment {
             e.printStackTrace();
         }
 
-        String path = createQRcodeImage(buf);
+        String path = createQRcodeImage(buf, ConstantUtil.DEVICE_MASTER);
         Log.d(TAG, "path = " + path);
         if (path != null) {
             user.setQrPath(path);

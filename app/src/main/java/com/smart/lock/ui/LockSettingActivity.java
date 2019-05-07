@@ -2,11 +2,8 @@ package com.smart.lock.ui;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -14,7 +11,6 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,17 +24,12 @@ import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
-import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.TempPwdDao;
 import com.smart.lock.entity.Device;
-import com.smart.lock.ui.fragment.AdminFragment;
-import com.smart.lock.ui.fragment.BaseFragment;
-import com.smart.lock.ui.fragment.MumberFragment;
-import com.smart.lock.ui.fragment.TempFragment;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -49,10 +40,6 @@ import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import static com.smart.lock.ble.BleMsg.KEY_USER_ID;
 
 public class LockSettingActivity extends AppCompatActivity implements UiListener {
 

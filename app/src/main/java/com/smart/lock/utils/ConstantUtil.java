@@ -131,17 +131,17 @@ public class ConstantUtil {
     /**
      * 设备管理员
      */
-    public static final int DEVICE_MASTER = 0x01;
+    public static final byte DEVICE_MASTER = 0x01;
 
     /**
      * 设备成员
      */
-    public static final int DEVICE_MEMBER = 0x02;
+    public static final byte DEVICE_MEMBER = 0x02;
 
     /**
      * 临时成员
      */
-    public static final int DEVICE_TEMP = 0x03;
+    public static final byte DEVICE_TEMP = 0x03;
 
 
     /**

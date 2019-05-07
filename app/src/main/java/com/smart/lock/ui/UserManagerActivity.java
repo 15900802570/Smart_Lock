@@ -2,21 +2,15 @@ package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,16 +30,15 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.AdminFragment;
 import com.smart.lock.ui.fragment.BaseFragment;
-import com.smart.lock.ui.fragment.MumberFragment;
+import com.smart.lock.ui.fragment.MemberFragment;
 import com.smart.lock.ui.fragment.TempFragment;
-import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
 
-public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MumberFragment.OnFragmentInteractionListener,
+public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
         AdminFragment.OnFragmentInteractionListener,
         TempFragment.OnFragmentInteractionListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
@@ -97,7 +90,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
         mUsersList = new ArrayList<>();
         mUsersList.add(new AdminFragment());
-        mUsersList.add(new MumberFragment());
+        mUsersList.add(new MemberFragment());
         mUsersList.add(new TempFragment());
         mUserPagerAdapter = new UserPagerAdapter(getSupportFragmentManager());
         mUserPermissionVp.setAdapter(mUserPagerAdapter);
@@ -203,8 +196,8 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         if (framentView instanceof AdminFragment) {
             AdminFragment adminFragment = (AdminFragment) framentView;
             adminFragment.selectDelete(mDeleteMode);
-        } else if (framentView instanceof MumberFragment) {
-            MumberFragment mumberFragment = (MumberFragment) framentView;
+        } else if (framentView instanceof MemberFragment) {
+            MemberFragment mumberFragment = (MemberFragment) framentView;
             mumberFragment.selectDelete(mDeleteMode);
         } else if (framentView instanceof TempFragment) {
             TempFragment tempFragment = (TempFragment) framentView;
@@ -242,8 +235,8 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
             if (framentView instanceof AdminFragment) {
                 AdminFragment adminFragment = (AdminFragment) framentView;
                 adminFragment.selectDelete(false);
-            } else if (framentView instanceof MumberFragment) {
-                MumberFragment mumberFragment = (MumberFragment) framentView;
+            } else if (framentView instanceof MemberFragment) {
+                MemberFragment mumberFragment = (MemberFragment) framentView;
                 mumberFragment.selectDelete(false);
             } else if (framentView instanceof TempFragment) {
                 TempFragment tempFragment = (TempFragment) framentView;
@@ -383,8 +376,8 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                     if (framentView instanceof AdminFragment) {
                         AdminFragment adminFragment = (AdminFragment) framentView;
                         adminFragment.refreshView();
-                    } else if (framentView instanceof MumberFragment) {
-                        MumberFragment mumberFragment = (MumberFragment) framentView;
+                    } else if (framentView instanceof MemberFragment) {
+                        MemberFragment mumberFragment = (MemberFragment) framentView;
                         mumberFragment.refreshView();
                     } else if (framentView instanceof TempFragment) {
                         TempFragment tempFragment = (TempFragment) framentView;

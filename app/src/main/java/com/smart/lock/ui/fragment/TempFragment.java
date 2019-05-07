@@ -2,16 +2,11 @@ package com.smart.lock.ui.fragment;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,7 +14,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -34,6 +28,8 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
+
+import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
@@ -77,7 +73,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @SuppressLint("HandlerLeak")
     Handler mHandler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case 0:
                     refreshView();
@@ -107,34 +103,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CONNECT_ADD_TEMP, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                 else showMessage(getString(R.string.disconnect_ble));
                 break;
-//            case R.id.btn_select_all:
-//                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
-//
-//                if ((int) mSelectBtn.getTag() == R.string.all_election) {
-//                    ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
-//                    mTempAdapter.mDeleteUsers.clear();
-//                    int index = -1;
-//                    for (DeviceUser user : deleteUsers) {
-//                        if (user.getUserId() == mDefaultUser.getUserId()) {
-//                            index = deleteUsers.indexOf(user);
-//                        }
-//                    }
-//                    if (index != -1) {
-//                        deleteUsers.remove(index);
-//                    }
-//                    mTempAdapter.mDeleteUsers.addAll(deleteUsers);
-//                    mTempAdapter.chioseALLDelete(true);
-//                    mSelectBtn.setText(R.string.cancel);
-//                    mSelectBtn.setTag(R.string.cancel);
-//                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
-//                    mTempAdapter.mDeleteUsers.clear();
-//                    mSelectBtn.setText(R.string.all_election);
-//                    mTempAdapter.chioseALLDelete(false);
-//                    mSelectBtn.setTag(R.string.all_election);
-//                }
-//                mChoiseMumTv.setText(String.valueOf(mTempAdapter.mDeleteUsers.size()));
-//                mTempAdapter.notifyDataSetChanged();
-//                break;
             case R.id.del_tv:
                 if (mTempAdapter.mDeleteUsers.size() != 0) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -145,8 +113,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
-                if (mActivity instanceof MumberFragment.OnFragmentInteractionListener) {
-                    ((MumberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
+                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
                 break;
             default:
@@ -266,16 +234,16 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     @Override
-    public void dispatchUiCallback(com.smart.lock.ble.message.Message msg, Device device, int type) {
+    public void dispatchUiCallback(Message msg, Device device, int type) {
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         mDevice = device;
         switch (msg.getType()) {
-            case com.smart.lock.ble.message.Message.TYPE_BLE_RECEIVER_CMD_1E:
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (user != null) {
                     DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
+                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
                         DialogUtils.closeDialog(mLoadDialog);
                         return;
                     }
@@ -284,7 +252,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], user);
                 break;
-            case com.smart.lock.ble.message.Message.TYPE_BLE_RECEIVER_CMD_12:
+            case Message.TYPE_BLE_RECEIVER_CMD_12:
                 DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -314,7 +282,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
                 LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
 
-                String path = createQRcodeImage(buf);
+                String path = createQRcodeImage(buf, ConstantUtil.DEVICE_TEMP);
                 Log.d(TAG, "path = " + path);
                 DeviceUser deviceUser;
                 if (path != null) {
@@ -391,14 +359,14 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     @Override
-    public void sendFailed(com.smart.lock.ble.message.Message msg) {
+    public void sendFailed(Message msg) {
         int exception = msg.getException();
         switch (exception) {
-            case com.smart.lock.ble.message.Message.EXCEPTION_TIMEOUT:
+            case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
                 showMessage(msg.getType() + " can't receiver msg!");
                 break;
-            case com.smart.lock.ble.message.Message.EXCEPTION_SEND_FAIL:
+            case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
                 showMessage(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());

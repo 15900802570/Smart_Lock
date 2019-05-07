@@ -47,8 +47,9 @@ public class DeviceUserDao {
         }
         return instance;
     }
+
     public DeviceUser queryFirstData(String key, Object value) {
-        DeviceUser  deviceUser = null;
+        DeviceUser deviceUser = null;
         try {
             deviceUser = dao.queryBuilder().where().eq(key, value).queryForFirst();
             if (deviceUser != null) {
@@ -118,7 +119,7 @@ public class DeviceUserDao {
             }
 
 
-            return  dao.delete(info);
+            return dao.delete(info);
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
@@ -310,12 +311,12 @@ public class DeviceUserDao {
                 } else if (id > 100 && id <= 190) { //普通用户
                     index = id - 96;
                 } else if (id > 200 && id <= 205) { //临时用户
-                    index = id - 106;
+                    index = id - 196;
                 }
 
                 LogUtil.d(TAG, "status[index] = " + status[index] +
-                        "\n"+
-                        "index = "+ index);
+                        "\n" +
+                        "index = " + index);
                 if (status[index] != user.getUserStatus()) {
                     user.setUserStatus(status[index]);
                     updateDeviceUser(user);

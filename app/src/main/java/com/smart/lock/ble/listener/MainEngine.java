@@ -536,7 +536,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             switch (type) {
                 case Message.TYPE_BLE_RECEIVER_CMD_0E:
 
-
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_02:
                     LogUtil.i(TAG, "receiver msg 02,send msg 03!");
