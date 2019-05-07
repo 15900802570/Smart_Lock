@@ -133,6 +133,7 @@ public class HomeFragment extends BaseFragment implements
     private int mImageIdsNor[];
     private boolean mIsConnected = false; //服务连接标志
     private BleConnectModel mBleModel;
+    private int mCounter = 0;
 
     public void onAuthenticationSuccess() {
         refreshView(BIND_DEVICE);
@@ -322,6 +323,7 @@ public class HomeFragment extends BaseFragment implements
             case UNBIND_DEVICE:
                 mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
                 mAddLockLl.setVisibility(View.VISIBLE);
+                mInstructionBtn.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.GONE);
                 mAdapter.setImageIds(mImageIds);
                 mAdapter.notifyDataSetChanged();
@@ -402,8 +404,9 @@ public class HomeFragment extends BaseFragment implements
 
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action == null)
+            if (action == null || mDefaultDevice == null)
                 return;
+            LogUtil.d(TAG, "action = " + action);
             // 4.2.3 MSG 04
             if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION)) {
                 BleConnectModel mBleModel = BleConnectModel.getInstance(mHomeView.getContext());
@@ -440,7 +443,7 @@ public class HomeFragment extends BaseFragment implements
 
             if (action.equals(BleMsg.STR_RSP_MSG2E_ERRCODE)) {
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
+                Log.d(TAG, "MSG 2E errCode[3] = " + errCode[3]);
                 if (errCode[3] == 0x00) {
                     showMessage(getString(R.string.remote_unlock_success));
                 }
@@ -448,13 +451,15 @@ public class HomeFragment extends BaseFragment implements
                 DialogUtils.closeDialog(mLoadDialog);
             }
 
-            if (action.equals(BleMsg.STR_RSP_MSG0E_ERRCODE)){
+            if (action.equals(BleMsg.STR_RSP_MSG0E_ERRCODE)) {
                 final byte[] errCode = intent.getByteArrayExtra(BleMsg.KEY_ERROR_CODE);
-                Log.d(TAG, "errCode[3] = " + errCode[3]);
-                if( errCode[3] == 2){
-                    DialogUtils.createTipsDialogWithCancel(mActivity,getString(R.string.the_user_delete_by_admin)).show();
+                Log.d(TAG, "MSG 0E errCode[3] = " + errCode[3] + "\n Counter = " + mCounter);
+                mBleManagerHelper.getBleCardService().disconnect();
+                if (errCode[3] == 0x02 && mCounter++ == 1) { // 检测是否已经删除用户，检测2遍！！！
+                    LogUtil.d(TAG, "用户已删除");
+                    DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
                     // 删除相关数据
-                    if( mDefaultDevice != null){
+                    if (mDefaultDevice != null) {
                         DeviceUserDao.getInstance(mActivity).
                                 deleteByKey(DeviceUserDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId());
                         DeviceKeyDao.getInstance(mActivity).
@@ -464,6 +469,8 @@ public class HomeFragment extends BaseFragment implements
                         DeviceInfoDao.getInstance(mActivity).
                                 delete(mDefaultDevice);
                         mDefaultDevice = null;
+                        mDefaultUser = null;
+                        mCounter = 0;
                     }
                     // 刷新界面
                     refreshView(UNBIND_DEVICE);

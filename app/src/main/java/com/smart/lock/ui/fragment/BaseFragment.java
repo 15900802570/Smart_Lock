@@ -73,7 +73,7 @@ public abstract class BaseFragment extends Fragment {
         public void run() {
             if (mLoadDialog != null && mLoadDialog.isShowing()) {
                 DialogUtils.closeDialog(mLoadDialog);
-                if(mBleManagerHelper.getServiceConnection()) {
+                if(!mBleManagerHelper.getServiceConnection()) {
                     showMessage(mCtx.getResources().getString(R.string.plz_reconnect));
                 }else
                     showMessage(mCtx.getResources().getString(R.string.input_timeout));

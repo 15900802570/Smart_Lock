@@ -307,13 +307,15 @@ public class DeviceUserDao {
                 short id = user.getUserId();
                 if (id > 0 && id <= 5) { //管理员编号
                     index = id - 1;
-                } else if (id > 100 && id <= 200) { //普通用户
-                    index = id - 91;
-                } else if (id > 200 && id <= 300) { //临时用户
-                    index = id - 196;
+                } else if (id > 100 && id <= 190) { //普通用户
+                    index = id - 96;
+                } else if (id > 200 && id <= 205) { //临时用户
+                    index = id - 106;
                 }
 
-                LogUtil.d(TAG, "status[index] = " + status[index]);
+                LogUtil.d(TAG, "status[index] = " + status[index] +
+                        "\n"+
+                        "index = "+ index);
                 if (status[index] != user.getUserStatus()) {
                     user.setUserStatus(status[index]);
                     updateDeviceUser(user);

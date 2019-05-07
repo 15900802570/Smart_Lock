@@ -15,7 +15,7 @@
         android:gravity="center"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
-        android:text="@string/rolled_back_time"
+        android:text="@string/support_types_of_card"
         android:textColor="@color/black_de"
         android:textSize="18sp" />
 
@@ -25,7 +25,7 @@
         android:background="@color/line" />
 
     <TextView
-        android:id="@+id/set_time_5s"
+        android:id="@+id/set_support_ordinary_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selector_button_radius_10"
@@ -33,7 +33,7 @@
         android:onClick="setOnClick"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
-        android:text="@string/s_5" />
+        android:text="@string/ordinary_card" />
 
     <View
         android:layout_width="match_parent"
@@ -43,7 +43,7 @@
         android:paddingRight="25dp" />
 
     <TextView
-        android:id="@+id/set_time_8s"
+        android:id="@+id/set_support_safety_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/selector_button_radius_10"
@@ -51,25 +51,7 @@
         android:onClick="setOnClick"
         android:paddingTop="15dp"
         android:paddingBottom="15dp"
-        android:text="@string/s_8" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.2dip"
-        android:background="@color/line"
-        android:paddingLeft="25dp"
-        android:paddingRight="25dp" />
-
-    <TextView
-        android:id="@+id/set_time_10s"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/selector_button_radius_10"
-        android:gravity="center"
-        android:onClick="setOnClick"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:text="@string/s_10" />
+        android:text="@string/safety_card" />
 
     <View
         android:layout_width="match_parent"

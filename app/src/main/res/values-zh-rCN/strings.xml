@@ -349,4 +349,10 @@
     <string name="lock_reset">恢复出厂设置...</string>
     <string name="remote_unlock">远程开锁</string>
     <string name="latest_version">最新版本:</string>
+    <string name="support_types_of_card">支持的卡片类型</string>
+    <string name="safety_card">安全卡片</string>
+    <string name="ordinary_card">普通卡片</string>
+    <string name="power_saving_time_period">设置省电时间段</string>
+    <string name="close">关闭</string>
+    <string name="qr_code_error">二维码错误</string>
 </resources>

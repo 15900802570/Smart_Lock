@@ -346,7 +346,6 @@ public class BleManagerHelper {
         intentFilter.addAction(BleMsg.ACTION_DOES_NOT_SUPPORT_UART);
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_02);
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_04);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG0E_ERRCODE);
         intentFilter.addAction(BleMsg.EXTRA_DATA_MSG_12);
         intentFilter.addAction(BleMsg.STR_RSP_MSG26_USERINFO);
         return intentFilter;
@@ -355,222 +354,223 @@ public class BleManagerHelper {
     /**
      * 广播接收
      */
-    private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver UARTStatusChangeReceiver;
 
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-            LogUtil.d(TAG, "ACTION = " + action + "\n" +
-                    "Type = " + mConnectType);
-            if (action.equals(BleMsg.ACTION_GATT_CONNECTED)) {
-                Log.d(TAG, "UART_CONNECT_MSG");
-                mBleModel.setState(BleConnectModel.BLE_CONNECTED);
-            }
+    {
+        UARTStatusChangeReceiver = new BroadcastReceiver() {
 
-            if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
-                DialogUtils.closeDialog(mLoadDialog);
-                mHandler.removeCallbacks(mRunnable);
-
-                Log.d(TAG, "UART_DISCONNECT_MSG");
-                MessageCreator.m128AK = null;
-                MessageCreator.m256AK = null;
-                mService.disconnect();
-                mService.close();
-                mBleModel.setState(BleConnectModel.BLE_DISCONNECTED);
-                mIsConnected = false;
-                mMode = mTempMode ? 1 : 0;
-                mUserId = 0;
-                if (mMode == 1) {
-                    startScanDevice();
-                }
-                mDefaultDevice = null;
-                mDefaultUser = null;
-                mDefaultStatus = null;
-                if (mConnectType == 2) {
-                    mConnectType = 0;
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (action == null) {
                     return;
                 }
-
-                LogUtil.d(TAG, "active ble : " + mService.isActiveDisConnect());
-                if (StringUtil.checkNotNull(mBleMac) && mBleModel.getState() == BleConnectModel.BLE_DISCONNECTED) {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            mService.connect(mBleMac);
-                        }
-                    }, 5000);
+                LogUtil.d(TAG, "ACTION = " + action + "\n" +
+                        "Type = " + mConnectType);
+                if (action.equals(BleMsg.ACTION_GATT_CONNECTED)) {
+                    Log.d(TAG, "UART_CONNECT_MSG");
+                    mBleModel.setState(BleConnectModel.BLE_CONNECTED);
                 }
-            }
 
-            if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
-                if (mConnectType == 2) {
-                    mHandler.removeCallbacks(mRunnable);
+                if (action.equals(BleMsg.ACTION_GATT_DISCONNECTED)) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.setting_dev_info));
-                    mLoadDialog.show();
-                }
-                if (mService != null) {
-                    if (mMode == 0) {
-                        mService.enableTXNotification();
+                    mHandler.removeCallbacks(mRunnable);
+
+                    Log.d(TAG, "UART_DISCONNECT_MSG");
+                    MessageCreator.m128AK = null;
+                    MessageCreator.m256AK = null;
+                    mService.disconnect();
+                    mService.close();
+                    mBleModel.setState(BleConnectModel.BLE_DISCONNECTED);
+                    mIsConnected = false;
+                    mMode = mTempMode ? 1 : 0;
+                    mUserId = 0;
+                    if (mMode == 1) {
+                        startScanDevice();
+                    }
+                    mDefaultDevice = null;
+                    mDefaultUser = null;
+                    mDefaultStatus = null;
+                    if (mConnectType == 2) {
+                        mConnectType = 0;
+                        return;
+                    }
+
+                    LogUtil.d(TAG, "active ble : " + mService.isActiveDisConnect());
+                    if (StringUtil.checkNotNull(mBleMac) && mBleModel.getState() == BleConnectModel.BLE_DISCONNECTED) {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                mDefaultDevice = DeviceInfoDao.getInstance(mContext).queryFirstData("device_default", true);
-                                if (mDefaultDevice == null && mConnectType != 2) {
-                                    mConnectType = 0;
-                                }
-                                if (mConnectType == 2) {
-                                    LogUtil.d(TAG,"mBLEMAC = " + mBleMac);
-                                    mService.sendCmd05(mBleMac, mNodeId, mSn);
-                                } else
-                                    mService.sendCmd01(mConnectType, mUserId);
+                                mService.connect(mBleMac);
                             }
-                        }, 1000);
-                    } else {
-                        Intent result = new Intent();
-                        result.putExtra(BleMsg.KEY_AK, (byte[]) null);
-                        result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION_OTA);
-                        LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
+                        }, 5000);
                     }
                 }
-                mHandler.removeCallbacks(mRunnable);
-            }
 
-            if (action.equals(BleMsg.ACTION_DOES_NOT_SUPPORT_UART)) {
-                Log.d(TAG, "ACTION_DOES_NOT_SUPPORT_UART");
-                showMessage("Device doesn't support UART. Disconnecting");
+                if (action.equals(BleMsg.ACTION_GATT_SERVICES_DISCOVERED)) {
+                    if (mConnectType == 2) {
+                        mHandler.removeCallbacks(mRunnable);
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(mContext, mContext.getString(R.string.setting_dev_info));
+                        mLoadDialog.show();
+                    }
+                    if (mService != null) {
+                        if (mMode == 0) {
+                            mService.enableTXNotification();
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mDefaultDevice = DeviceInfoDao.getInstance(mContext).queryFirstData("device_default", true);
+                                    if (mDefaultDevice == null && mConnectType != 2) {
+                                        mConnectType = 0;
+                                    }
+                                    if (mConnectType == 2) {
+                                        LogUtil.d(TAG, "mBLEMAC = " + mBleMac);
+                                        mService.sendCmd05(mBleMac, mNodeId, mSn);
+                                    } else
+                                        mService.sendCmd01(mConnectType, mUserId);
+                                }
+                            }, 1000);
+                        } else {
+                            Intent result = new Intent();
+                            result.putExtra(BleMsg.KEY_AK, (byte[]) null);
+                            result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION_OTA);
+                            LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
+                        }
+                    }
+                    mHandler.removeCallbacks(mRunnable);
+                }
+
+                if (action.equals(BleMsg.ACTION_DOES_NOT_SUPPORT_UART)) {
+                    Log.d(TAG, "ACTION_DOES_NOT_SUPPORT_UART");
+                    showMessage("Device doesn't support UART. Disconnecting");
 //                mService.disconnect();
 //                mIsConnected = false;
-            }
-            // 4.2.3 MSG 03
-            if (action.equals(BleMsg.EXTRA_DATA_MSG_02)) {
-                final byte[] random = intent.getByteArrayExtra(BleMsg.KEY_RANDOM);
-
-                if (random != null && random.length != 0) {
-                    mService.sendCmd03(random);
-                } else {
-                    showMessage(mContext.getResources().getString(R.string.bt_connect_failed));
                 }
-            }
+                // 4.2.3 MSG 03
+                if (action.equals(BleMsg.EXTRA_DATA_MSG_02)) {
+                    final byte[] random = intent.getByteArrayExtra(BleMsg.KEY_RANDOM);
 
-            // 4.2.3 MSG 04
-            if (action.equals(BleMsg.EXTRA_DATA_MSG_04)) {
-                mIsConnected = true;
-                mHandler.removeCallbacks(mRunnable);
-                Bundle extra = intent.getExtras();
-
-                int battery = intent.getByteExtra(BleMsg.KEY_BAT_PERSCENT, (byte) 0);
-                int userStatus = intent.getByteExtra(BleMsg.KEY_USER_STATUS, (byte) 0);
-                int stStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
-                int unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
-                byte[] syncUsers = intent.getByteArrayExtra(BleMsg.KEY_SYNC_USERS);
-                byte[] userState = intent.getByteArrayExtra(BleMsg.KEY_USERS_STATE);
-                byte[] tempSecret = intent.getByteArrayExtra(BleMsg.KEY_TMP_PWD_SK);
-
-                mBleModel.setBattery(battery);
-                mBleModel.setUserStatus(userStatus);
-                mBleModel.setStStatus(stStatus);
-                mBleModel.setUnLockTime(unLockTime);
-                mBleModel.setSyncUsers(syncUsers);
-                mBleModel.setTempSecret(tempSecret);
-
-                LogUtil.d(TAG, "battery = " + battery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
-                LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
-                LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
-                LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
-
-                byte[] buf = new byte[4];
-                System.arraycopy(syncUsers, 0, buf, 0, 4);
-                long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status1 = " + status1);
-
-                System.arraycopy(syncUsers, 4, buf, 0, 4);
-                long status2 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status2 = " + status2);
-
-                System.arraycopy(syncUsers, 8, buf, 0, 4);
-                long status3 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status3 = " + status3);
-
-                System.arraycopy(syncUsers, 12, buf, 0, 4);
-                long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
-                LogUtil.d(TAG, "status4 = " + status4);
-                mDefaultDevice = DeviceInfoDao.getInstance(mContext).queryFirstData("device_default", true);
-
-                if (mDefaultDevice != null) {
-                    checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status1, mDefaultDevice.getDeviceNodeId(), 1)); //第一字节状态字
-                    checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status2, mDefaultDevice.getDeviceNodeId(), 2));//第二字节状态字
-                    checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status3, mDefaultDevice.getDeviceNodeId(), 3));//第三字节状态字
-                    checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status4, mDefaultDevice.getDeviceNodeId(), 4));//第四字节状态字
-                    DeviceUserDao.getInstance(mContext).checkUserState(mDefaultDevice.getDeviceNodeId(), userState); //开锁信息状态字
-
-                    mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
-                    DeviceInfoDao.getInstance(mContext).updateDeviceInfo(mDefaultDevice);
-
-                    mService.sendCmd25(mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-
-                    mDefaultUser = DeviceUserDao.getInstance(mContext).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-                    mDefaultStatus = DeviceStatusDao.getInstance(mContext).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-                }
-                if (mDefaultStatus != null) {
-                    switch (stStatus) {
-                        case 0:
-                            mDefaultStatus.setVoicePrompt(false);
-                            mDefaultStatus.setNormallyOpen(false);
-                            break;
-                        case 1:
-                            mDefaultStatus.setVoicePrompt(false);
-                            mDefaultStatus.setNormallyOpen(true);
-                            break;
-                        case 2:
-                            mDefaultStatus.setVoicePrompt(true);
-                            mDefaultStatus.setNormallyOpen(false);
-                            break;
-                        case 3:
-                            mDefaultStatus.setVoicePrompt(true);
-                            mDefaultStatus.setNormallyOpen(true);
-                            break;
-                        default:
-                            break;
+                    if (random != null && random.length != 0) {
+                        mService.sendCmd03(random);
+                    } else {
+                        showMessage(mContext.getResources().getString(R.string.bt_connect_failed));
                     }
-                    mDefaultStatus.setRolledBackTime(unLockTime);
-                    DeviceStatusDao.getInstance(mContext).updateDeviceStatus(mDefaultStatus);
                 }
 
-                Intent result = new Intent();
-                assert extra != null;
-                result.putExtras(extra);
-                result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION);
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
-            }
+                // 4.2.3 MSG 04
+                if (action.equals(BleMsg.EXTRA_DATA_MSG_04)) {
+                    mIsConnected = true;
+                    mHandler.removeCallbacks(mRunnable);
+                    Bundle extra = intent.getExtras();
 
-            if (action.equals(BleMsg.STR_RSP_MSG26_USERINFO)) {
-                short userId = (short) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
-                if (userId == mDefaultDevice.getUserId()) {
-                    byte[] userInfo = intent.getByteArrayExtra(BleMsg.KEY_USER_MSG);
-                    LogUtil.d(TAG, "userInfo = " + Arrays.toString(userInfo));
-                    mDefaultUser.setUserStatus(userInfo[0]);
-                    DeviceUserDao.getInstance(mContext).updateDeviceUser(mDefaultUser);
+                    int battery = intent.getByteExtra(BleMsg.KEY_BAT_PERSCENT, (byte) 0);
+                    int userStatus = intent.getByteExtra(BleMsg.KEY_USER_STATUS, (byte) 0);
+                    int stStatus = intent.getByteExtra(BleMsg.KEY_SETTING_STATUS, (byte) 0);
+                    int unLockTime = intent.getByteExtra(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
+                    byte[] syncUsers = intent.getByteArrayExtra(BleMsg.KEY_SYNC_USERS);
+                    byte[] userState = intent.getByteArrayExtra(BleMsg.KEY_USERS_STATE);
+                    byte[] tempSecret = intent.getByteArrayExtra(BleMsg.KEY_TMP_PWD_SK);
 
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
-                    DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
+                    mBleModel.setBattery(battery);
+                    mBleModel.setUserStatus(userStatus);
+                    mBleModel.setStStatus(stStatus);
+                    mBleModel.setUnLockTime(unLockTime);
+                    mBleModel.setSyncUsers(syncUsers);
+                    mBleModel.setTempSecret(tempSecret);
 
-                    mDefaultDevice.setMixUnlock(userInfo[8]);
-                    DeviceInfoDao.getInstance(mContext).updateDeviceInfo(mDefaultDevice);
-                    mEndTime = System.currentTimeMillis();
-                    LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
+                    LogUtil.d(TAG, "battery = " + battery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
+                    LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+                    LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
+                    LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
+
+                    byte[] buf = new byte[4];
+                    System.arraycopy(syncUsers, 0, buf, 0, 4);
+                    long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
+                    LogUtil.d(TAG, "status1 = " + status1);
+
+                    System.arraycopy(syncUsers, 4, buf, 0, 4);
+                    long status2 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
+                    LogUtil.d(TAG, "status2 = " + status2);
+
+                    System.arraycopy(syncUsers, 8, buf, 0, 4);
+                    long status3 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
+                    LogUtil.d(TAG, "status3 = " + status3);
+
+                    System.arraycopy(syncUsers, 12, buf, 0, 4);
+                    long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
+                    LogUtil.d(TAG, "status4 = " + status4);
+                    mDefaultDevice = DeviceInfoDao.getInstance(mContext).queryFirstData("device_default", true);
+
+                    if (mDefaultDevice != null) {
+                        checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status1, mDefaultDevice.getDeviceNodeId(), 1)); //第一字节状态字
+                        checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status2, mDefaultDevice.getDeviceNodeId(), 2));//第二字节状态字
+                        checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status3, mDefaultDevice.getDeviceNodeId(), 3));//第三字节状态字
+                        checkUserId(DeviceUserDao.getInstance(mContext).checkUserStatus(status4, mDefaultDevice.getDeviceNodeId(), 4));//第四字节状态字
+                        DeviceUserDao.getInstance(mContext).checkUserState(mDefaultDevice.getDeviceNodeId(), userState); //开锁信息状态字
+
+                        mDefaultDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret));
+                        DeviceInfoDao.getInstance(mContext).updateDeviceInfo(mDefaultDevice);
+
+                        mService.sendCmd25(mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+
+                        mDefaultUser = DeviceUserDao.getInstance(mContext).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+                        mDefaultStatus = DeviceStatusDao.getInstance(mContext).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+                    }
+                    if (mDefaultStatus != null) {
+                        if ((stStatus & 1) ==1) {
+                            mDefaultStatus.setNormallyOpen(true);
+                        }
+                        if ((stStatus & 2) ==2) {
+                            mDefaultStatus.setVoicePrompt(true);
+                        }
+                        if ((stStatus & 4) ==4) {
+                            mDefaultStatus.setIntelligentLockCore(true);
+                        }
+                        if ((stStatus & 8) ==8) {
+                            mDefaultStatus.setAntiPrizingAlarm(true);
+                        }
+                        if ((stStatus & 16) ==16) {
+                            mDefaultStatus.setCombinationLock(true);
+                        }
+                        if ((stStatus & 32) ==32) {
+                            mDefaultStatus.setM1Support(true);
+                        }
+                        mDefaultStatus.setRolledBackTime(unLockTime);
+                        DeviceStatusDao.getInstance(mContext).updateDeviceStatus(mDefaultStatus);
+                    }
+
+                    Intent result = new Intent();
+                    assert extra != null;
+                    result.putExtras(extra);
+                    result.setAction(BleMsg.STR_RSP_SECURE_CONNECTION);
+                    LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
                 }
+                if (action.equals(BleMsg.STR_RSP_MSG26_USERINFO)) {
+                    short userId = (short) intent.getSerializableExtra(BleMsg.KEY_SERIALIZABLE);
+                    if (userId == mDefaultDevice.getUserId()) {
+                        byte[] userInfo = intent.getByteArrayExtra(BleMsg.KEY_USER_MSG);
+                        LogUtil.d(TAG, "userInfo = " + Arrays.toString(userInfo));
+                        mDefaultUser.setUserStatus(userInfo[0]);
+                        DeviceUserDao.getInstance(mContext).updateDeviceUser(mDefaultUser);
 
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
+                        DeviceKeyDao.getInstance(mContext).checkDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
+
+                        mDefaultDevice.setMixUnlock(userInfo[8]);
+                        DeviceInfoDao.getInstance(mContext).updateDeviceInfo(mDefaultDevice);
+                        mEndTime = System.currentTimeMillis();
+                        LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
+                    }
+
+                }
             }
-        }
-    };
+        };
+    }
 
     public BleCardService getBleCardService() {
         return mService;

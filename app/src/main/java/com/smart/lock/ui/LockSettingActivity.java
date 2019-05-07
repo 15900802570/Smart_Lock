@@ -1,6 +1,7 @@
 package com.smart.lock.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,7 +16,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -31,20 +31,20 @@ import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.TempPwdDao;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.TimePickerDefineDialog;
 import com.smart.lock.widget.ToggleSwitchDefineView;
 import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
 
-import static com.smart.lock.ble.BleMsg.KEY_USER_ID;
-
-public class LockSettingActivity extends AppCompatActivity {
+public class LockSettingActivity extends AppCompatActivity implements TimePickerDefineDialog.onTimePickerListener {
 
     private ToggleSwitchDefineView mIntelligentLockTs;
     private ToggleSwitchDefineView mAntiPrizingAlarmTs;
@@ -52,7 +52,9 @@ public class LockSettingActivity extends AppCompatActivity {
     private ToggleSwitchDefineView mNormallyOpenTs;
     private ToggleSwitchDefineView mVoicePromptTs;
 
-    private BtnSettingDefineView mRolledBackTimeBs;
+    private BtnSettingDefineView mSetRolledBackTimeBs;
+    private BtnSettingDefineView mSetSupportCardTypeBs;
+    private BtnSettingDefineView mSetPowerSavingTimeBs;
 
     private String TAG = "LockSettingActivity";
 
@@ -62,9 +64,12 @@ public class LockSettingActivity extends AppCompatActivity {
 
     private BleManagerHelper mBleManagerHelper;
 
-    private BottomSheetDialog mBottomSheetDialog; //时间设置弹框
+    private BottomSheetDialog mSetTimesBottomSheetDialog; //时间设置弹框
+    private BottomSheetDialog mSetSupportCardBottomDialog;
+    private boolean mSetSupportCards = false;
     private Dialog mWarningDialog;
     private Dialog mWriting;
+
     private int mSetTime;
     private boolean mRestore = false;
 
@@ -73,15 +78,20 @@ public class LockSettingActivity extends AppCompatActivity {
     private TextView mSetRolledBackTime10sTv;
     private NextActivityDefineView mFactoryResetNa;
 
+    private TextView mSetSafetyCardTv;
+    private TextView mSetOrdinaryCardTv;
+
     private boolean mIsConnected = true; //蓝牙连接状态
 
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
-    private int REQUESTCODE = 0;
+    private int REQUEST_CODE = 0;
 
     private boolean mVisibility = true;
+    private int[] mTimePickerValue = {12, 12, 12, 12};
+    private int TIME_PICKER_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +109,10 @@ public class LockSettingActivity extends AppCompatActivity {
         mNormallyOpenTs = findViewById(R.id.ts_normally_open);
         mVoicePromptTs = findViewById(R.id.ts_voice_prompt);
 
-        mRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
+        mSetRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
+        mSetSupportCardTypeBs = findViewById(R.id.bs_support_card_type);
+        mSetPowerSavingTimeBs = findViewById(R.id.bs_set_power_saving_time);
+
 
         NextActivityDefineView mVersionInfoNa = findViewById(R.id.next_version_info);
         NextActivityDefineView mSelfCheckNa = findViewById(R.id.next_self_check);
@@ -112,7 +125,9 @@ public class LockSettingActivity extends AppCompatActivity {
         mNormallyOpenTs.setDes(getResources().getString(R.string.normally_open));
         mVoicePromptTs.setDes(getResources().getString(R.string.voice_prompt));
 
-        mRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
+        mSetRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
+        mSetSupportCardTypeBs.setDes(getString(R.string.support_types_of_card));
+        mSetPowerSavingTimeBs.setDes(getString(R.string.power_saving_time_period));
 
         mVersionInfoNa.setDes(getResources().getString(R.string.version_info));
         mSelfCheckNa.setDes(getResources().getString(R.string.self_check));
@@ -120,10 +135,17 @@ public class LockSettingActivity extends AppCompatActivity {
         mOtaUpdateNa.setVisibility(View.VISIBLE);
         mFactoryResetNa.setDes(getResources().getString(R.string.restore_the_factory_settings));
 
-        mBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
-        mSetRolledBackTime5sTv = mBottomSheetDialog.findViewById(R.id.set_time_5s);
-        mSetRolledBackTime8sTv = mBottomSheetDialog.findViewById(R.id.set_time_8s);
-        mSetRolledBackTime10sTv = mBottomSheetDialog.findViewById(R.id.set_time_10s);
+        mSetTimesBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
+        mSetRolledBackTime5sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_5s);
+        mSetRolledBackTime8sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_8s);
+        mSetRolledBackTime10sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_10s);
+
+        mSetSupportCardBottomDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_support_card, R.id.design_bottom_sheet);
+        mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
+        mSetOrdinaryCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_ordinary_card);
+
+        mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
+
     }
 
     private void initData() {
@@ -141,8 +163,10 @@ public class LockSettingActivity extends AppCompatActivity {
         setStatus();
         if (mUserID > 0 & mUserID < 100) {
             mFactoryResetNa.setVisibility(View.VISIBLE);
-        }else {
+            mSetSupportCardTypeBs.setVisibility(View.VISIBLE);
+        } else {
             mFactoryResetNa.setVisibility(View.GONE);
+            mSetSupportCardTypeBs.setVisibility(View.GONE);
         }
     }
 
@@ -158,7 +182,10 @@ public class LockSettingActivity extends AppCompatActivity {
             mVoicePromptTs.setChecked(mDeviceStatus.isVoicePrompt());
 
             mSetTime = mDeviceStatus.getRolledBackTime();
-            mRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + getResources().getString(R.string.s));
+            mSetRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + getResources().getString(R.string.s));
+
+            mSetSupportCards = mDeviceStatus.isM1Support();
+            mSetSupportCardTypeBs.setBtnDes(mSetSupportCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
         }
     }
 
@@ -206,6 +233,13 @@ public class LockSettingActivity extends AppCompatActivity {
                 doClick(R.string.voice_prompt);
             }
         });
+
+//        mTimePickerDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                LogUtil.d(TAG, "Dialog = ");
+//            }
+//        });
 
     }
 
@@ -325,7 +359,7 @@ public class LockSettingActivity extends AppCompatActivity {
 
                         case 0x20:  //回锁时间设置成功
                             mDeviceStatus.setRolledBackTime(mSetTime);
-                            mRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + LockSettingActivity.this.getResources().getString(R.string.s));
+                            mSetRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + LockSettingActivity.this.getResources().getString(R.string.s));
                             break;
                         case 0x22:  //恢复出厂设置成功
                             if (mRestore) {
@@ -343,6 +377,13 @@ public class LockSettingActivity extends AppCompatActivity {
                             }
                             LogUtil.d(TAG, "恢复出厂设置成功");
                             break;
+                        case 0x26:  //设置安全卡片成功
+                            mDeviceStatus.setM1Support(mSetSupportCards);
+                            mSetSupportCardTypeBs.setBtnDes(mSetSupportCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
+                            break;
+                        case 0x27:  //设置安全卡片失败
+                            break;
+
                     }
                     DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
                 }
@@ -400,7 +441,22 @@ public class LockSettingActivity extends AppCompatActivity {
                             mSetRolledBackTime10sTv.setTextColor(getResources().getColor(R.color.lite_blue));
                             break;
                     }
-                    mBottomSheetDialog.show();      //显示弹窗
+                    mSetTimesBottomSheetDialog.show();      //显示弹窗
+                    break;
+                case R.id.bs_support_card_type:
+                    if (mSetSupportCards) {
+                        mSetSafetyCardTv.setTextColor(getResources().getColor(R.color.gray1));
+                        mSetOrdinaryCardTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                    } else {
+                        mSetSafetyCardTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                        mSetOrdinaryCardTv.setTextColor(getResources().getColor(R.color.gray1));
+                    }
+                    mSetSupportCardBottomDialog.show();
+                    break;
+                case R.id.bs_set_power_saving_time:
+                    //    private Dialog mTimePickerDialog;
+                    TimePickerDefineDialog mTimePickerDefineDialog = new TimePickerDefineDialog(mTimePickerValue, true, TIME_PICKER_CODE);
+                    mTimePickerDefineDialog.show(getSupportFragmentManager(), "TimePicker");
                     break;
                 case R.id.next_version_info:        //查看版本信息
                     mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
@@ -422,7 +478,7 @@ public class LockSettingActivity extends AppCompatActivity {
                         } else
                             Toast.makeText(this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
                     } else {
-                        ActivityCompat.requestPermissions(this, mPermission, REQUESTCODE);
+                        ActivityCompat.requestPermissions(this, mPermission, REQUEST_CODE);
                     }//ota命令
                     break;
                 case R.id.next_factory_reset:
@@ -501,10 +557,21 @@ public class LockSettingActivity extends AppCompatActivity {
                 mSetTime = 10;
                 mBleManagerHelper.getBleCardService().sendCmd1D((byte) 10);
                 break;
+            case R.id.set_support_ordinary_card:
+                LogUtil.d(TAG, "set_ordinary_card");
+                mSetSupportCards = true;
+                mBleManagerHelper.getBleCardService().sendCmd19((byte) 16);
+                break;
+            case R.id.set_support_safety_card:
+                LogUtil.d(TAG, "set_safety_card");
+                mSetSupportCards = false;
+                mBleManagerHelper.getBleCardService().sendCmd19((byte) 17);
+                break;
             default:
                 break;
         }
-        mBottomSheetDialog.cancel();
+        mSetTimesBottomSheetDialog.cancel();
+        mSetSupportCardBottomDialog.cancel();
     }
 
     public void warningOnClick(View view) {
@@ -547,7 +614,7 @@ public class LockSettingActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUESTCODE) {
+        if (requestCode == REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -579,9 +646,37 @@ public class LockSettingActivity extends AppCompatActivity {
         builder.create().show();
     }
 
+
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(lockSettingReceiver);
         super.onDestroy();
+    }
+
+
+    /**
+     * 自定义TimePickerDialog回调函数
+     * @param value int[] 选择参数
+     * @param requestCode int 请求参数
+     */
+    @Override
+    public void onTimePickerClickConfirm(int[] value, int requestCode) {
+
+        LogUtil.d(TAG, "requestCode = " + requestCode);
+        if (requestCode == TIME_PICKER_CODE) {
+            if (value != null) {
+                LogUtil.d(TAG, "value = " +
+                        value[0] + "\n" +
+                        value[1] + '\n' +
+                        value[2] + "\n" +
+                        value[3]);
+                mTimePickerValue = value;
+                String startTime = ConstantUtil.HOUR[value[0] - 1] + ":" + ConstantUtil.MINUTE[value[1] - 1];
+                String endTime = ConstantUtil.HOUR[value[2] - 1] + ":" + ConstantUtil.MINUTE[value[3] - 1];
+                mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
+            } else {
+                mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
+            }
+        }
     }
 }

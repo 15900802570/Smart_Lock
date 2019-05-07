@@ -28,6 +28,7 @@ public class BleMessageListenerImpl implements BleMessageListener {
     public BleMessageListenerImpl(Context context, BleCardService service) {
         mContext = context;
         mService = service;
+//        mExceptionListener = new BleRegisterAgent();
     }
 
     public void registerExceptionListener(MsgExceptionListener msgExceptionListener) {
@@ -46,10 +47,10 @@ public class BleMessageListenerImpl implements BleMessageListener {
             LogUtil.e(TAG, "msg exception : " + message.toString());
             switch (exception) {
                 case Message.EXCEPTION_TIMEOUT:
-                    mExceptionListener.msgSendTimeOut(message);
+//                    mExceptionListener.msgSendTimeOut(message);
                     break;
                 case Message.EXCEPTION_SEND_FAIL:
-                    mExceptionListener.msgSendFail(message);
+//                    mExceptionListener.msgSendFail(message);
                     break;
                 default:
                     break;
