@@ -237,35 +237,6 @@ public class ScanQRHelper implements UiListener {
 //    }
 
     /**
-     * 创建用户
-     *
-     * @param userId 用户ID
-     */
-    private void createDeviceUser(short userId) {
-        LogUtil.d(TAG, " userId : " + userId);
-        DeviceUser user = new DeviceUser();
-        int userIdInt = Integer.valueOf(userId);
-        user.setDevNodeId(mNodeId);
-        user.setCreateTime(System.currentTimeMillis() / 1000);
-        user.setUserId(userId);
-        user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-        if (userIdInt < 101) {
-            user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-            user.setUserName(mActivity.getString(R.string.administrator) + userId);
-        } else if (userIdInt < 201) {
-            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(mActivity.getString(R.string.members) + userId);
-        } else {
-            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(mActivity.getString(R.string.members) + userId);
-        }
-
-        user.setUserStatus(ConstantUtil.USER_UNENABLE);
-
-        DeviceUserDao.getInstance(mActivity).insert(user);
-    }
-
-    /**
      * 创建设备
      */
     private void createDevice() {

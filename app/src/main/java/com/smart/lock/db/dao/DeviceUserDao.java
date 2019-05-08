@@ -61,10 +61,12 @@ public class DeviceUserDao {
         return null;
     }
 
-    public void insert(DeviceUser DeviceUser) {
+    public void insert(DeviceUser deviceUser) {
+        LogUtil.d(TAG, "DeviceUser : " + deviceUser.toString());
+        LogUtil.d(TAG, "queryDeviceUsers(deviceUser.getDevNodeId()); : " + queryDeviceUsers(deviceUser.getDevNodeId()).toString());
 
         try {
-            dao.create(DeviceUser);
+            dao.create(deviceUser);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -303,6 +305,7 @@ public class DeviceUserDao {
     public void checkUserState(String nodeId, byte[] status) {
         int index = 0;
         ArrayList<DeviceUser> users = queryDeviceUsers(nodeId);
+
         if (users != null && !users.isEmpty()) {
             for (DeviceUser user : users) {
                 short id = user.getUserId();

@@ -373,6 +373,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
             int index = -1;
             for (DeviceUser user : mUserList) {
+                LogUtil.d(TAG,"user : " + user.getUserId());
                 if (user.getUserId() == mDefaultUser.getUserId()) {
                     index = mUserList.indexOf(user);
                 }
@@ -468,6 +469,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setText(mContext.getString(R.string.normal));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
@@ -482,6 +484,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     mSwipelayout.setRightSwipeEnabled(true);
                 } else {
                     holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.invalid));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.dark_gray));
                     mSwipelayout.setRightSwipeEnabled(false);
                 }
                 holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));

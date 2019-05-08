@@ -476,7 +476,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         }
 
         user.setQrPath(path);
-        Log.d(TAG, "user = " + user.toString());
         DeviceUserDao.getInstance(mCtx).insert(user);
         return user;
     }
@@ -491,7 +490,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case MSG_POLLING_BLE:
                 LogUtil.i(TAG, "Ble polling!");
-                if (mService == null || mDevice == null) {
+                if (mService == null || mDevice == null || mDevInfo == null) {
                     LogUtil.e(TAG, "the service or dev is null!");
                     break;
                 }
@@ -510,7 +509,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case MSG_RECONNCT_BLE:
                 LogUtil.i(TAG, "reconnect device");
-                if (mService == null || mDevice == null) {
+                if (mService == null || mDevice == null || mDevInfo == null) {
                     LogUtil.e(TAG, "the service or dev is null!");
                     break;
                 }

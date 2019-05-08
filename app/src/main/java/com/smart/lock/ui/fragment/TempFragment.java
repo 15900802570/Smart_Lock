@@ -508,6 +508,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     mSwipelayout.setRightSwipeEnabled(true);
                 } else {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.invalid));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.dark_gray));
                     mSwipelayout.setRightSwipeEnabled(false);
                 }
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));

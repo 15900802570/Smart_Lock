@@ -817,7 +817,6 @@ public class BleProvider {
 
         RxChar.setValue(value);
         boolean result = mBleGatt.writeCharacteristic(RxChar);
-        LogUtil.e(TAG,"result : " + result);
         return result;
     }
 

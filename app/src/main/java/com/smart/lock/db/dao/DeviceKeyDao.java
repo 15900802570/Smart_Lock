@@ -284,7 +284,7 @@ public class DeviceKeyDao {
     }
 
 
-    public ArrayList<DeviceKey> queryKeyByImei(String key, String valus, String imei) {
+    public ArrayList<DeviceKey> queryKeyByImei(String key, Object valus, Object imei) {
         ArrayList<DeviceKey> list = new ArrayList<DeviceKey>();
         try {
             ArrayList<DeviceKey> allList = (ArrayList<DeviceKey>) dao

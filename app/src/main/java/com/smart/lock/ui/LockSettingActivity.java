@@ -23,7 +23,9 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
+import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
@@ -309,9 +311,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     //    private Dialog mTimePickerDialog;
                     TimePickerDefineDialog mTimePickerDefineDialog = new TimePickerDefineDialog(mTimePickerValue,
                             true,
-                            this.getString(R.string.setting_power_saving_time_period) ,
+                            this.getString(R.string.setting_power_saving_time_period),
                             TIME_PICKER_CODE);
-                    mTimePickerDefineDialog.show(this.getSupportFragmentManager(),"timePicker");
+                    mTimePickerDefineDialog.show(this.getSupportFragmentManager(), "timePicker");
                     break;
                 case R.id.next_version_info:        //查看版本信息
                     mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
@@ -463,6 +465,18 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         } else {
             ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
         }
+
+        if (DeviceInfoDao.getInstance(this).delete(mDefaultDevice) != -1) {
+            for (DeviceUser user : DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId())) {
+                DeviceUserDao.getInstance(this).delete(user);
+                for (DeviceKey key : DeviceKeyDao.getInstance(this).queryKeyByImei("user_id", user.getUserId(), user.getDevNodeId())) {
+                    DeviceKeyDao.getInstance(this).delete(key);
+                }
+
+
+            }
+        }
+
 
     }
 

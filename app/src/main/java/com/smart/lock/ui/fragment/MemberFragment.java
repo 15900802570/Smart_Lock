@@ -294,22 +294,25 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         switch (errCode) {
             case BleMsg.TYPE_ADD_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.add_user_success));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_ADD_USER_FAILED:
                 showMessage(mCtx.getString(R.string.add_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
-                showMessage(mCtx.getString(R.string.delete_user_success));
                 DeviceUser deleteUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                 Log.d(TAG, "deleteUser : " + deleteUser.toString());
                 DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
                 mMemberAdapter.removeItem(deleteUser);
                 if (mMemberAdapter.mDeleteUsers.size() == 0) {
+                    showMessage(mCtx.getString(R.string.delete_user_success));
                     DialogUtils.closeDialog(mLoadDialog);
                 } else return;
                 break;
             case BleMsg.TYPE_DELETE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.delete_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_PAUSE_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.pause_user_success));
@@ -317,9 +320,11 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
                 mMemberAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_PAUSE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.pause_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.recovery_user_success));
@@ -328,14 +333,16 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(recoveryUser);
                 mMemberAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mCtx.getString(R.string.recovery_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
                 break;
         }
-        DialogUtils.closeDialog(mLoadDialog);
+
     }
 
     @Override
@@ -472,28 +479,34 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final MemberViewHoler holder, final int position) {
+        public void onBindViewHolder(final MemberViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
+            LogUtil.d(TAG, "userinfo : " + userInfo.toString());
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
-                    mSwipelayout.setClickToClose(false);
+                    mSwipelayout.setRightSwipeEnabled(false);
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
+                    mSwipelayout.setRightSwipeEnabled(true);
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.normal));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
-                    mSwipelayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.pause));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
-                } else
+                } else {
+                    mSwipelayout.setRightSwipeEnabled(false);
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.invalid));
-                mSwipelayout.setRightSwipeEnabled(false);
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.dark_gray));
+                }
+
+
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
                 final AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);

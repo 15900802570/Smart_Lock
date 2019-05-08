@@ -232,7 +232,7 @@ public class BleManagerHelper {
         return mDevice;
     }
 
-    public void stopScan(){
+    public void stopScan() {
         mHandler.removeCallbacks(mRunnable);
         mBtAdapter.stopLeScan(mLeScanCallback);
     }
@@ -421,33 +421,6 @@ public class BleManagerHelper {
             instance = null;
         }
 
-    }
-
-
-    /**
-     * 创建用户
-     *
-     * @param userId
-     */
-    private synchronized DeviceUser createDeviceUser(short userId, String path, byte permission) {
-        DeviceUser user = new DeviceUser();
-        user.setDevNodeId(mDefaultDevice.getDeviceNodeId());
-        user.setCreateTime(System.currentTimeMillis() / 1000);
-        user.setUserId(userId);
-        user.setUserPermission(permission);
-        user.setUserStatus(ConstantUtil.USER_UNENABLE);
-        if (permission == ConstantUtil.DEVICE_MASTER) {
-            user.setUserName(mContext.getString(R.string.administrator) + userId);
-        } else if (permission == ConstantUtil.DEVICE_MEMBER) {
-            user.setUserName(mContext.getString(R.string.members) + userId);
-        } else {
-            user.setUserName(mContext.getString(R.string.tmp_user) + userId);
-        }
-
-        user.setQrPath(path);
-        Log.d(TAG, "user = " + user.toString());
-        DeviceUserDao.getInstance(mContext).insert(user);
-        return user;
     }
 
     /**
