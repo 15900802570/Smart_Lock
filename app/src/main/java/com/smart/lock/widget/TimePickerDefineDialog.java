@@ -2,12 +2,16 @@ package com.smart.lock.widget;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +20,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import com.smart.lock.R;
 import com.smart.lock.utils.ConstantUtil;
@@ -26,6 +31,7 @@ import java.util.Objects;
 public class TimePickerDefineDialog extends DialogFragment {
 
     private int[] value = {0, 1, 2, 3};
+    private TextView mDialogTitleTv;
     private NumberPicker mStartHourNP;
     private NumberPicker mStartMinuteNP;
     private NumberPicker mEndHourNP;
@@ -37,17 +43,25 @@ public class TimePickerDefineDialog extends DialogFragment {
     private View mView;
     private boolean isWithClose;
     private int requestCode;
+    private String mTitleStr;
 
+    /**
+     * 初始化
+     * @param value int[] 初始化时间
+     * @param isWithClose boolean 是否需要关闭btn
+     * @param title String dialog title
+     * @param requestCode int Dialog请求参数
+     */
     @SuppressLint("ValidFragment")
-    public TimePickerDefineDialog(int[] value, boolean isWithClose, int requestCode) {
-        if (value.length != 4) {
-            return;
+    public TimePickerDefineDialog(int[] value, boolean isWithClose, String title, int requestCode) {
+        if (value.length >= 4) {
+            this.value[0] = value[0];
+            this.value[1] = value[1];
+            this.value[2] = value[2];
+            this.value[3] = value[3];
         }
-        this.value[0] = value[0];
-        this.value[1] = value[1];
-        this.value[2] = value[2];
-        this.value[3] = value[3];
         this.isWithClose = isWithClose;
+        this.mTitleStr = title;
         this.requestCode = requestCode;
     }
 
@@ -72,6 +86,7 @@ public class TimePickerDefineDialog extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setStyle(android.app.DialogFragment.STYLE_NO_TITLE, R.style.Theme_AppCompat_Light_Dialog_Alert);
     }
 
     @Nullable
@@ -86,6 +101,7 @@ public class TimePickerDefineDialog extends DialogFragment {
 
     private View initView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container) {
         mView = inflater.inflate(R.layout.dialog_set_time_period, container, false);
+        mDialogTitleTv = mView.findViewById(R.id.time_picker_dialog_title_tv);
         mStartHourNP = mView.findViewById(R.id.start_hour_np);
         mStartMinuteNP = mView.findViewById(R.id.start_minute_np);
         mEndHourNP = mView.findViewById(R.id.end_hour_np);
@@ -114,7 +130,8 @@ public class TimePickerDefineDialog extends DialogFragment {
         mEndHourNP.setMaxValue(ConstantUtil.HOUR.length);
         mEndMinuteNP.setMaxValue(ConstantUtil.MINUTE.length);
 
-        setCloseBtnVisible(isWithClose);
+        setCloseBtnVisible(isWithClose); //设置是否需要关闭Btn
+        setDialogTitleTv(mTitleStr);    //设置Title
         return mView;
     }
 
@@ -163,11 +180,11 @@ public class TimePickerDefineDialog extends DialogFragment {
         value[3] = mEndMinuteNP.getValue();
     }
 
-    public int[] getLastValue() {
+    private int[] getLastValue() {
         return value;
     }
 
-    public void setCloseBtnVisible(boolean value) {
+    private void setCloseBtnVisible(boolean value) {
         if (value) {
             mCloseBtn.setVisibility(View.VISIBLE);
         } else {
@@ -175,6 +192,13 @@ public class TimePickerDefineDialog extends DialogFragment {
         }
     }
 
+    private void setDialogTitleTv(String titleTv) {
+        mDialogTitleTv.setText(titleTv);
+    }
+
+    /**
+     * 回调函数，用于获取设置的时间段，用请求参数区分不同的Dialog
+     */
     public interface onTimePickerListener {
         void onTimePickerClickConfirm(int[] value, int requestCode);
     }

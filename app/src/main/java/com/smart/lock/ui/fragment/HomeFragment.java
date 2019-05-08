@@ -486,11 +486,12 @@ public class HomeFragment extends BaseFragment implements
 
                 break;
             case R.id.ll_setting:
-                if (mDevice.getState() == Device.BLE_CONNECTED)
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
                     startIntent(LockSettingActivity.class, bundle);
-                else if (mDevice.getState() == Device.BLE_CONNECTION)
+                } else if (mDevice.getState() == Device.BLE_CONNECTION) {
                     showMessage(mHomeView.getContext().getString(R.string.bt_connecting));
-                else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                } else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
                     showMessage(mHomeView.getContext().getString(R.string.bt_unconnected));
                 }
                 break;
@@ -518,6 +519,7 @@ public class HomeFragment extends BaseFragment implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+        LogUtil.d(TAG, "mSecretList = " + mDefaultDevice.getTempSecret());
         if (mDevice.getState() == Device.BLE_DISCONNECTED && (Integer) view.getTag() != R.mipmap.icon_temporarypassword) {
             showMessage(mHomeView.getContext().getString(R.string.unconnected_device));
             return;
@@ -673,6 +675,7 @@ public class HomeFragment extends BaseFragment implements
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
                 mBattery = mDevice.getBattery(); //获取电池电量
+                mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
                 android.os.Message message = new android.os.Message();
                 message.what = BIND_DEVICE;
                 mHandler.sendMessage(message); //刷新UI

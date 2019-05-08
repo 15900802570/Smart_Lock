@@ -379,6 +379,29 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
         }
 
+        if (mDefaultStatus != null) {
+            if ((stStatus & 1) == 1) {
+                mDefaultStatus.setNormallyOpen(true);
+            }
+            if ((stStatus & 2) == 2) {
+                mDefaultStatus.setVoicePrompt(true);
+            }
+            if ((stStatus & 4) == 4) {
+                mDefaultStatus.setIntelligentLockCore(true);
+            }
+            if ((stStatus & 8) == 8) {
+                mDefaultStatus.setAntiPrizingAlarm(true);
+            }
+            if ((stStatus & 16) == 16) {
+                mDefaultStatus.setCombinationLock(true);
+            }
+            if ((stStatus & 32) == 32) {
+                mDefaultStatus.setM1Support(true);
+            }
+            mDefaultStatus.setRolledBackTime(unLockTime);
+            DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
+        }
+
     }
 
     /**

@@ -303,21 +303,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         startActivityForResult(newIntent, REQUEST_CODE_SCAN);
     }
 
-    public void tipsOnClick(View view) {
-        switch (view.getId()) {
-            case R.id.dialog_cancel_btn:
-                mNumPwdSwitchLightTBtn.setChecked(false);
-                break;
-            case R.id.dialog_confirm_btn:
-                Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
-                intent.putExtra(ConstantUtil.IS_RETURN, true);
-                SystemSettingsActivity.this.startActivityForResult(intent.
-                        putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), REQUEST_CODE_PASSWORD);
-                break;
-        }
-        mPromptDialog.cancel();
-    }
-
     private void doOnClick(@IdRes int idRes) {
         switch (idRes) {
             case R.id.system_set_switch_password:
@@ -327,6 +312,23 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     if (!mPromptDialog.isShowing()) {
                         mPromptDialog.show();
                     }
+                    mPromptDialog.findViewById(R.id.dialog_cancel_btn).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mNumPwdSwitchLightTBtn.setChecked(false);
+                            mPromptDialog.cancel();
+                        }
+                    });
+                    mPromptDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
+                            intent.putExtra(ConstantUtil.IS_RETURN, true);
+                            SystemSettingsActivity.this.startActivityForResult(intent.
+                                    putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), REQUEST_CODE_PASSWORD);
+                            mPromptDialog.cancel();
+                        }
+                    });
                 } else {
                     Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                     intent.putExtra(ConstantUtil.IS_RETURN, true);
