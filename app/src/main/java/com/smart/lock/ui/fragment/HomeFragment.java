@@ -47,6 +47,7 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
@@ -125,6 +126,7 @@ public class HomeFragment extends BaseFragment implements
 
     private int mBattery = 0;
     private int REQUESTCODE = 0;
+    private int mCounter = 0;
     private String[] mExternalPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -436,6 +438,7 @@ public class HomeFragment extends BaseFragment implements
         super.onResume();
         mDefaultDevice = DeviceInfoDao.getInstance(mHomeView.getContext()).queryFirstData("device_default", true);
         if (mDefaultDevice == null) {
+            mDevice = null;
             refreshView(UNBIND_DEVICE);
             return;
         }
@@ -610,9 +613,21 @@ public class HomeFragment extends BaseFragment implements
                 showMessage(getString(R.string.random_error));
                 break;
             case BleMsg.TYPE_USER_NOT_EXIST:
-                showMessage(getString(R.string.user_not_exist));
                 mDevice.setState(Device.BLE_DISCONNECTED);
-                refreshView(BIND_DEVICE);
+                mBleManagerHelper.getBleCardService().disconnect();
+                if (mCounter++ == 1) { // 检测是否已经删除用户，检测2遍！！！
+                    LogUtil.d(TAG, "用户已删除");
+                    DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
+                    // 删除相关数据
+                    if (mDefaultDevice != null) {
+                        DtComFunHelper.RestoreFactorySettings(mActivity, mDefaultDevice);
+                        mDefaultDevice = null;
+                        mDefaultUser = null;
+                        mCounter = 0;
+                    }
+                    mDevice.halt();
+                    refreshView(UNBIND_DEVICE);
+                }
                 break;
             default:
                 break;
@@ -676,6 +691,7 @@ public class HomeFragment extends BaseFragment implements
         mDevice = device;
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
+
             case Message.TYPE_BLE_RECEIVER_CMD_2E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)

@@ -81,6 +81,20 @@ public class TempPwdDao {
         return num;
     }
 
+    public void deleteByKey(String key, String values) {
+        ArrayList<TempPwd> list = null;
+        try {
+            list = (ArrayList<TempPwd>) dao.queryForEq(key, values);
+            if (list != null) {
+                for (TempPwd bean : list) {
+                    dao.delete(bean);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ArrayList<TempPwd> queryId(int id) {
         ArrayList<TempPwd> list = null;
         try {

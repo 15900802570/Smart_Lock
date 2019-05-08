@@ -621,6 +621,22 @@ public class BleCardService {
     }
 
     /**
+     * MSG 2D 设置省电时间段
+     * @param powerSaveTime Byte[] 省电时间段
+     * @return bool
+     */
+    public boolean sendCmd2D(final byte[] powerSaveTime){
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_2D);
+        Bundle bundle = msg.getData();
+        if (powerSaveTime != null && powerSaveTime.length != 0) {
+            bundle.putByteArray(BleMsg.KEY_POWER_SAVE, powerSaveTime);
+        }
+
+        return mBleProvider.send(msg);
+    }
+
+    /**
      * APK智能锁。APK给智能锁更新版本
      *
      * @return 是否发送成功

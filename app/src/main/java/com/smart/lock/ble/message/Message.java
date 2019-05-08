@@ -191,6 +191,11 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_29 = 0x29;
 
     /**
+     * APK配置智能锁省电时间段
+     */
+    public static final byte TYPE_BLE_SEND_CMD_2D = 0x2D;
+
+    /**
      * 日志查询
      */
     public static final byte TYPE_BLE_SEND_CMD_31 = 0x31;

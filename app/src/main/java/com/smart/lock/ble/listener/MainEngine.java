@@ -1,22 +1,13 @@
 package com.smart.lock.ble.listener;
 
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattService;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleCardService;
-import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.TimerListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.ble.provider.TimerProvider;
@@ -31,15 +22,10 @@ import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
-import com.smart.lock.transfer.HttpsClient;
-import com.smart.lock.ui.EventsActivity;
-import com.smart.lock.ui.fragment.HomeFragment;
 import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
