@@ -176,9 +176,9 @@ public class ConstantUtil {
     public static final byte USER_NFC = 0x02;
 
     /**
-     * 用户卡片
+     * 远程开锁
      */
-    public static final byte USER_REMOTE = 0x02;
+    public static final byte USER_REMOTE = 0x07;
 
     public static final String APPLICATION = "apk";
     public static final String BIN_EXTENSION = "bin";

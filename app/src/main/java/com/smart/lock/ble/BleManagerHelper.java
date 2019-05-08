@@ -84,11 +84,6 @@ public class BleManagerHelper {
     private boolean mTempMode = false;
 
     /**
-     * 等待提示框
-     */
-//    private Dialog mLoadDialog;
-
-    /**
      * 连接方式 0-扫描二维码 1-普通安全连接,2-设置设备信息
      */
     private byte mConnectType = 0;
@@ -133,12 +128,8 @@ public class BleManagerHelper {
         mHandler = new Handler();
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
-//        serviceInit();
         mService = BleCardService.getInstance(mContext);
         mService.initialize();
-//        LocalBroadcastManager.getInstance(mContext).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
-        // Use this check to determine whether BLE is supported on the device.  Then you can
-        // selectively disable BLE-related features.
         if (!mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(mContext, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
         }
@@ -177,6 +168,7 @@ public class BleManagerHelper {
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
         } else
             mUserId = bundle.getShort(BleMsg.KEY_USER_ID);
+        LogUtil.d(TAG, "mUserId = " + mUserId);
 
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -199,7 +191,10 @@ public class BleManagerHelper {
             return null;
         }
         mDevice = Device.getInstance(ctx);
-        DeviceInfo devInfo = new DeviceInfo();
+        DeviceInfo devInfo = DeviceInfoDao.getInstance(ctx).queryFirstData("device_default", true);
+        if (devInfo == null) {
+            devInfo = new DeviceInfo();
+        }
         String mac = bundle.getString(BleMsg.KEY_BLE_MAC);
         if (StringUtil.checkNotNull(mac) && mac.length() == 12) {
             devInfo.setBleMac(StringUtil.getMacAdr(mac));
@@ -214,7 +209,11 @@ public class BleManagerHelper {
                 mDevice.setConnectType(type);
                 break;
             case Device.BLE_OTHER_CONNECT_TYPE:
-                devInfo = DeviceInfoDao.getInstance(ctx).queryFirstData("device_default", true);
+
+                if (bundle.getShort(BleMsg.KEY_USER_ID) != 0 && StringUtil.checkNotNull(bundle.getString(BleMsg.KEY_NODE_ID))) {
+                    devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
+                    devInfo.setDeviceNodeId(bundle.getString(BleMsg.KEY_NODE_ID));
+                }
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
@@ -233,6 +232,10 @@ public class BleManagerHelper {
         return mDevice;
     }
 
+    public void stopScan(){
+        mHandler.removeCallbacks(mRunnable);
+        mBtAdapter.stopLeScan(mLeScanCallback);
+    }
 
     /**
      * 蓝牙搜索结果回调
@@ -256,7 +259,7 @@ public class BleManagerHelper {
                     }
                 }
             } else {
-                LogUtil.d(TAG,"mBleMac :" + mBleMac);
+                LogUtil.d(TAG, "mBleMac :" + mBleMac);
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mHandler.removeCallbacks(mRunnable);
@@ -334,7 +337,6 @@ public class BleManagerHelper {
         }
 
     }
-
 
 
     public BleCardService getBleCardService() {
@@ -427,7 +429,7 @@ public class BleManagerHelper {
      *
      * @param userId
      */
-    private synchronized DeviceUser createDeviceUser(short userId, String path, int permission) {
+    private synchronized DeviceUser createDeviceUser(short userId, String path, byte permission) {
         DeviceUser user = new DeviceUser();
         user.setDevNodeId(mDefaultDevice.getDeviceNodeId());
         user.setCreateTime(System.currentTimeMillis() / 1000);

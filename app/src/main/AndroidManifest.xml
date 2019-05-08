@@ -128,9 +128,6 @@
         <service
             android:name=".ble.BleCardService"
             android:enabled="true" />
-        <service
-            android:name=".ble.sdk.BleService"
-            android:enabled="true" />
     </application>
 
 </manifest>

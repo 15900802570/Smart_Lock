@@ -48,6 +48,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     private Dialog mAddNewDevDialog;
     private ScanQRHelper mScanQRHelper;
     private Context mCtx;
+    private BleManagerHelper mBleManagerHelper;
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -95,6 +96,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         mDevManagementRv.setAdapter(mDevManagementAdapter);
         mScanQRHelper = new ScanQRHelper(this, this);
         mCtx = this;
+        mBleManagerHelper = new BleManagerHelper(this, false);
     }
 
     private void initEvent() {
@@ -233,7 +235,8 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                             mDevManagementAdapter.notifyDataSetChanged();
                             return;
                         } else if (deviceInfo.getDeviceDefault()) {
-                            BleManagerHelper.getInstance(mCtx, false).getBleCardService().disconnect();
+                            mBleManagerHelper.stopScan();
+                            mBleManagerHelper.getBleCardService().disconnect();
                         }
                         mDevList.remove(position);
                         mDevManagementAdapter.notifyDataSetChanged();

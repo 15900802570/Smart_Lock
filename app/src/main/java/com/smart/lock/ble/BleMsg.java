@@ -225,6 +225,11 @@ public class BleMsg {
     public static final String KEY_USERS_STATE = "userState";
 
     /**
+     * 省电模式
+     */
+    public static final String KEY_POWER_SAVE = "powerSave";
+
+    /**
      * 设备用户状态,1字节，0-未启用，1-启用，2-暂停，用户创建后默认未启用，创建开锁信息后才是启用状态
      */
     public static final String KEY_USER_STATUS = "userStatus";
@@ -376,6 +381,8 @@ public class BleMsg {
     public static final byte TYPE_FP_FULL = 0x24; //指纹已满
     public static final byte TYPE_EQUIPMENT_BUSY = 0x25; //设备忙
 
+    public static final byte TYPE_FINGERPRINT_EXIST = 0x2A; //指纹已存在
+
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断
     public static final int REGISTER_SUCCESS = 102; //注册成功
@@ -467,4 +474,9 @@ public class BleMsg {
     public static final byte TYPE_ANTI_PRYING_ALARM_OPEN = 0x0e;//防撬报警开启
     public static final byte TYPE_ANTI_PRYING_ALARM_CLOSE = 0x0f;//防撬报警关闭
 
+    /**
+     * msg 03 type
+     */
+    public static final byte TYPE_RAND_ERROR = 0X01; //随机数校验失败
+    public static final byte TYPE_USER_NOT_EXIST = 0X02; //用户不存在
 }

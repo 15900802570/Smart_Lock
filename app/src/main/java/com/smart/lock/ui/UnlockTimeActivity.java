@@ -177,15 +177,18 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, AlertDialog.THEME_HOLO_LIGHT,
                 new TimePickerDialog.OnTimeSetListener() {
-                    boolean flag = false;
+//                    boolean flag = false;
 
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+//                        LogUtil.d(TAG, "flag = " + flag);
+//                        if (!flag) {
+//                            flag = true;
+//                            return;
+//                        }
 
-                        if (!flag) {
-                            flag = true;
-                            return;
-                        }
+                        String minuteStr = String.valueOf(minute).length() > 1 ? String.valueOf(minute) : "0" + minute;
+                        LogUtil.d(TAG, "minuteStr : " + minuteStr);
                         String hour = "0";
                         if (hourOfDay < 10) {
                             hour = "0" + hourOfDay;
@@ -193,34 +196,34 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                             hour = String.valueOf(hourOfDay);
                         switch (tag) {
                             case TEMP_KEY_FIRST_START_TIME:
-                                mFirstStartTime.setText(hour + getString(R.string.colon) + minute);
+                                mFirstStartTime.setText(hour + getString(R.string.colon) + minuteStr);
                                 break;
                             case TEMP_KEY_FIRST_END_TIME:
-                                if (!timeCompare(mFirstStartTime.getText().toString(), hour + getString(R.string.colon) + minute)) {
+                                if (!timeCompare(mFirstStartTime.getText().toString(), hour + getString(R.string.colon) + minuteStr)) {
                                     showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_FIRST_END_TIME);
                                 } else
-                                    mFirstEndTime.setText(hour + getString(R.string.colon) + minute);
+                                    mFirstEndTime.setText(hour + getString(R.string.colon) + minuteStr);
                                 break;
                             case TEMP_KEY_SECOND_START_TIME:
-                                mSecondStartTime.setText(hour + getString(R.string.colon) + minute);
+                                mSecondStartTime.setText(hour + getString(R.string.colon) + minuteStr);
                                 break;
                             case TEMP_KEY_SECOND_END_TIME:
-                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + getString(R.string.colon) + minute)) {
+                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + getString(R.string.colon) + minuteStr)) {
                                     showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_SECOND_END_TIME);
                                 } else
-                                    mSecondEndTime.setText(hour + getString(R.string.colon) + minute);
+                                    mSecondEndTime.setText(hour + getString(R.string.colon) + minuteStr);
                                 break;
                             case TEMP_KEY_THIRD_START_TIME:
-                                mThirdStartTime.setText(hour + getString(R.string.colon) + minute);
+                                mThirdStartTime.setText(hour + getString(R.string.colon) + minuteStr);
                                 break;
                             case TEMP_KEY_THIRD_END_TIME:
-                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + getString(R.string.colon) + minute)) {
+                                if (!timeCompare(mSecondStartTime.getText().toString(), hour + getString(R.string.colon) + minuteStr)) {
                                     showMessage("开始时间大于或等于结束时间");
                                     showTimePickerDialog(TEMP_KEY_THIRD_END_TIME);
                                 } else {
-                                    mThirtEndTime.setText(hour + getString(R.string.colon) + minute);
+                                    mThirtEndTime.setText(hour + getString(R.string.colon) + minuteStr);
                                 }
                                 break;
                             default:
@@ -315,7 +318,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                             mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                            mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
+                            mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
@@ -332,7 +335,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                     mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                    null, null),BleMsg.INT_DEFAULT_TIMEOUT);
+                                    null, null), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
@@ -348,7 +351,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
                         getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                 null, null,
-                                null, null),BleMsg.INT_DEFAULT_TIMEOUT);
+                                null, null), BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
                 showMessage(getString(R.string.disconnect_ble));
             }
@@ -359,7 +362,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
                         getUnlockTime(null, null,
                                 mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                null, null),BleMsg.INT_DEFAULT_TIMEOUT);
+                                null, null), BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
                 showMessage(getString(R.string.disconnect_ble));
             }
@@ -369,7 +372,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 mLoadDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
                         getUnlockTime(null, null,
-                                null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
+                                null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
                 showMessage(getString(R.string.disconnect_ble));
             }
@@ -383,7 +386,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(null, null,
                                     mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
+                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
@@ -401,7 +404,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                     null, null,
-                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()),BleMsg.INT_DEFAULT_TIMEOUT);
+                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
@@ -409,7 +412,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             } else {
                 showMessage("时间段重复，请检查！");
             }
-        }else
+        } else
             showMessage("未设置时间段!");
 
     }
@@ -563,7 +566,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       mBleManagerHelper.removeUiListener(this);
+        mBleManagerHelper.removeUiListener(this);
     }
 
     @Override

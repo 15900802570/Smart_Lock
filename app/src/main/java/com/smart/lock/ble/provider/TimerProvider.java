@@ -87,7 +87,6 @@ class InnerTimerST extends java.util.TimerTask {
 
     public InnerTimerST(long timeout, TimerProvider listener) {
         this.listener = listener;
-        Log.d("ClientTransaction", "InnerTimerST");
         single_timer.schedule(this, timeout);
     }
 

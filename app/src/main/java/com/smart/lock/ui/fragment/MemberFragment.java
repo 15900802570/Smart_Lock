@@ -98,7 +98,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     mLoadDialog.show();
                     for (DeviceUser devUser : mMemberAdapter.mDeleteUsers) {
                         LogUtil.d(TAG, "devUser = " + devUser.getUserId());
-                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
@@ -253,7 +253,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 10);
-
                 byte[] timeBuf = new byte[4];
                 StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
                 System.arraycopy(timeBuf, 0, authBuf, 27, 4);
@@ -261,16 +260,14 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 Arrays.fill(authBuf, 31, 32, (byte) 0x01);
 
                 String userId = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_USER_ID));
-
+                LogUtil.d(TAG, "userId = " + userId);
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
-                LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
-
-                String path = createQRcodeImage(buf,ConstantUtil.DEVICE_MEMBER);
+                String path = createQRcodeImage(buf, ConstantUtil.DEVICE_MEMBER);
                 Log.d(TAG, "path = " + path);
                 DeviceUser deviceUser;
                 if (path != null) {
@@ -374,7 +371,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
     }
 
-    private class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MumberViewHoler> {
+    private class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberViewHoler> {
         private Context mContext;
         private ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
@@ -398,12 +395,12 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
         @NonNull
         @Override
-        public MumberViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public MemberViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
             mSwipelayout = inflate.findViewById(R.id.item_ll_user);
             mSwipelayout.setClickToClose(true);
             mSwipelayout.setRightSwipeEnabled(true);
-            return new MumberViewHoler(inflate);
+            return new MemberViewHoler(inflate);
         }
 
         public void setDataSource() {
@@ -475,7 +472,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final MumberViewHoler holder, final int position) {
+        public void onBindViewHolder(@NonNull final MemberViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
@@ -592,7 +589,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             return mUserList.size();
         }
 
-        public class MumberViewHoler extends RecyclerView.ViewHolder {
+        public class MemberViewHoler extends RecyclerView.ViewHolder {
             RelativeLayout mDeleteRl;
             TextView mUserStateTv;
             ImageButton mEditIbtn;
@@ -604,7 +601,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             CheckBox mDeleteCb;
             LinearLayout mUserContent;
 
-            public MumberViewHoler(View itemView) {
+            public MemberViewHoler(View itemView) {
                 super(itemView);
                 mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);

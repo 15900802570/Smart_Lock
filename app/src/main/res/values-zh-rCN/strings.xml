@@ -49,7 +49,8 @@
     <string name="scan_dev">搜一搜</string>
     <string name="check_fingerprint">请验证已有指纹</string>
     <string name="searched_dev">搜索到的门锁</string>
-
+    <string name="random_error">随机数校验失败</string>
+    <string name="user_not_exist">用户不存在</string>
     <string name="add_lock">添加门锁</string>
     <string name="choose_add_way">选择以下一种方式添加</string>
     <string name="input_code_of_tag_or_scan_qr">扫描设备标签上的二维码</string>
@@ -115,6 +116,7 @@
     <string name="modify_fp_success">修改指纹成功</string>
     <string name="delete_fp_success">删除指纹成功</string>
     <string name="fp_full">指纹已满</string>
+    <string name="fp_exist">指纹已存在</string>
     <string name="device_busy">设备忙</string>
     <string name="delete_fp_failed">删除指纹失败</string>
     <string name="long_term">长期</string>
@@ -274,8 +276,8 @@
 
     <string name="recovery_user_success">恢复用户成功</string>
     <string name="recovery_user_failed">恢复用户失败</string>
-    <string name="delete_key_success">删除用户信息成功</string>
-    <string name="delete_key_failed">群删用户信息失败</string>
+    <string name="delete_key_success">删除开锁信息成功</string>
+    <string name="delete_key_failed">群删开锁信息失败</string>
     <string name="delete_users_success">群删用户成功</string>
     <string name="delete_users_failed">群删用户失败</string>
 
@@ -358,4 +360,5 @@
     <string name="power_saving_time_period">设置省电时间段</string>
     <string name="close">关闭</string>
     <string name="qr_code_error">二维码错误</string>
+    <string name="complete">完成</string>
 </resources>

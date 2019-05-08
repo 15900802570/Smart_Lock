@@ -207,15 +207,26 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 } else {
                     showMessage(mCtx.getResources().getString(R.string.add_fp_failed));
                 }
+                mFpAdapter.notifyDataSetChanged();
                 break;
             case BleMsg.TYPE_MODIFY_FP_SUCCESS:
                 showMessage(mCtx.getResources().getString(R.string.modify_fp_success));
+                mFpAdapter.notifyDataSetChanged();
+                break;
+            case BleMsg.TYPE_DELETE_FP_SUCCESS:
+                showMessage(getString(R.string.delete_fp_success));
+                mFpAdapter.removeItem(mFpAdapter.positionDelete);
                 break;
             case BleMsg.TYPE_DELETE_FP_FAILED:
                 showMessage(mCtx.getResources().getString(R.string.delete_fp_failed));
+                mFpAdapter.notifyDataSetChanged();
                 break;
             case BleMsg.TYPE_FP_FULL:
                 showMessage(mCtx.getResources().getString(R.string.fp_full));
+                break;
+            case BleMsg.TYPE_FINGERPRINT_EXIST:
+                showMessage(mCtx.getResources().getString(R.string.fp_exist));
+                mFpAdapter.notifyDataSetChanged();
                 break;
             case BleMsg.TYPE_EQUIPMENT_BUSY:
                 showMessage(mCtx.getResources().getString(R.string.device_busy));
@@ -223,6 +234,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             default:
                 break;
         }
+
         DialogUtils.closeDialog(mLoadDialog);
     }
 

@@ -308,9 +308,9 @@ public class DeviceUserDao {
                 short id = user.getUserId();
                 if (id > 0 && id <= 5) { //管理员编号
                     index = id - 1;
-                } else if (id > 100 && id <= 190) { //普通用户
-                    index = id - 96;
-                } else if (id > 200 && id <= 205) { //临时用户
+                } else if (id > 100 && id <= 200) { //普通用户
+                    index = id - 91;
+                } else if (id > 200 && id <= 300) { //临时用户
                     index = id - 196;
                 }
 

@@ -19,7 +19,7 @@ public class DeviceUser implements Serializable {
     private short userId;
 
     @DatabaseField(columnName = "user_permission")
-    private int userPermission;
+    private byte userPermission;
 
     @DatabaseField(columnName = "user_status")
     private int userStatus;
@@ -153,11 +153,11 @@ public class DeviceUser implements Serializable {
         this.userId = userId;
     }
 
-    public int getUserPermission() {
+    public byte getUserPermission() {
         return userPermission;
     }
 
-    public void setUserPermission(int userPermission) {
+    public void setUserPermission(byte userPermission) {
         this.userPermission = userPermission;
     }
 

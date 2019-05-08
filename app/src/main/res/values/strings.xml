@@ -346,4 +346,7 @@
     <string name="power_saving_time_period">Setting Power Saving Time Period</string>
     <string name="close">Close</string>
     <string name="qr_code_error">QR Code ERROR</string>
+    <string name="random_error">Random Error</string>
+    <string name="user_not_exist">User not exist</string>
+    <string name="fp_exist">Fingerprint exist</string>
 </resources>

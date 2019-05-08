@@ -113,7 +113,7 @@ public abstract class BaseFragment extends Fragment {
      *
      * @param userId 用户ID
      */
-    protected synchronized DeviceUser createDeviceUser(short userId, String path, int permission) {
+    protected synchronized DeviceUser createDeviceUser(short userId, String path, byte permission) {
         DeviceUser user = new DeviceUser();
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
@@ -201,7 +201,7 @@ public abstract class BaseFragment extends Fragment {
             Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
             CustomDialog dialog = DialogUtils.showQRDialog(mActivity, bitmap);
             ImageView qrIv = dialog.getCustomView().findViewById(R.id.iv_qr);
-
+            dialog.show();
             qrIv.setImageBitmap(bitmap);
             return true;
         } else {
@@ -211,16 +211,19 @@ public abstract class BaseFragment extends Fragment {
 
     protected String createQr(DeviceUser user) {
         byte[] nodeId = StringUtil.hexStringToBytes(user.getDevNodeId());
-        byte[] userId = StringUtil.hexStringToBytes(StringUtil.stringToAsciiString(String.valueOf(user.getUserId()), 4));
+        byte[] userId = new byte[2];
+        StringUtil.short2Bytes(user.getUserId(), userId);
         DeviceInfo info = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", user.getDevNodeId());
-        byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac());
+        byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac().replace(":", ""));
         byte[] randCode = StringUtil.hexStringToBytes(info.getDeviceSecret());
-
+        LogUtil.d(TAG, "userId  : " + Arrays.toString(userId));
         LogUtil.d(TAG, "randCode  : " + randCode.length);
 
         byte[] buf = new byte[64];
         byte[] authBuf = new byte[64];
-        authBuf[0] = 0x01;
+
+        authBuf[0] = user.getUserPermission();
+
         System.arraycopy(userId, 0, authBuf, 1, 2);
         System.arraycopy(nodeId, 0, authBuf, 3, 8);
         System.arraycopy(bleMac, 0, authBuf, 11, 6);

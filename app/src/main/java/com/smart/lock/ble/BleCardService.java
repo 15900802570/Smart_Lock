@@ -9,7 +9,9 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.smart.lock.ble.listener.ClientTransaction;
@@ -47,9 +49,6 @@ public class BleCardService {
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
-    private static boolean sIsWriting = false;
-
-
     /**
      * 蓝牙提供者
      */
@@ -77,7 +76,6 @@ public class BleCardService {
      */
     private MainEngine mEngine;
 
-    private boolean mActiveDisConnect = false;
 
     public static final int ATT_MTU_MAX = 517;
     public static final int ATT_MTU_MIN = 23;
@@ -250,12 +248,19 @@ public class BleCardService {
      * callback.
      */
     public boolean connect(Device device, String address) {
-        address = StringUtil.checkBleMac(address);
+
+
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
         }
-
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            mCtx.startActivity(enableIntent);
+            return false;
+        }
+        address = StringUtil.checkBleMac(address);
         // Previously connected device. Try to reconnect.
         if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
@@ -309,7 +314,6 @@ public class BleCardService {
             return;
         }
         LogUtil.d(TAG, "service disconnect!");
-        mActiveDisConnect = true;
         mBluetoothGatt.disconnect();
     }
 

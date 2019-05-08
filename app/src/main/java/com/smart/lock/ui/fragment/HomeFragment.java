@@ -62,6 +62,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.MyGridView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -347,7 +348,6 @@ public class HomeFragment extends BaseFragment implements
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mHomeView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                 }
-                LogUtil.d(TAG, "Default = " + mDefaultDevice + "\n" + "Default user = " + mDefaultUser);
                 if (mDefaultDevice != null && mDefaultUser != null) {
                     mNodeId = mDefaultDevice.getDeviceNodeId();
                     mLockAdapter = new LockManagerAdapter(mHomeView.getContext(), mMyGridView, mDefaultUser.getUserPermission());
@@ -449,6 +449,8 @@ public class HomeFragment extends BaseFragment implements
             bundle.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
             mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, bundle, mHomeView.getContext());
             mDefaultStatus = DeviceStatusDao.getInstance(mHomeView.getContext()).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+        } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+            refreshView(DEVICE_CONNECTING);
         } else
             refreshView(BIND_DEVICE);
     }
@@ -602,6 +604,14 @@ public class HomeFragment extends BaseFragment implements
                 msg.what = OPEN_LOCK_SUCESS;
                 mHandler.sendMessage(msg);
                 break;
+            case BleMsg.TYPE_RAND_ERROR:
+                showMessage(getString(R.string.random_error));
+                break;
+            case BleMsg.TYPE_USER_NOT_EXIST:
+                showMessage(getString(R.string.user_not_exist));
+                mDevice.setState(Device.BLE_DISCONNECTED);
+                refreshView(BIND_DEVICE);
+                break;
             default:
                 break;
         }
@@ -663,7 +673,7 @@ public class HomeFragment extends BaseFragment implements
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         mDevice = device;
         switch (msg.getType()) {
-
+            case Message.TYPE_BLE_RECEIVER_CMD_0E:
             case Message.TYPE_BLE_RECEIVER_CMD_2E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)

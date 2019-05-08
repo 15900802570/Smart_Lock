@@ -104,11 +104,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
     }
 
-    private void setFooterView(RecyclerView view) {
-        View footer = LayoutInflater.from(this).inflate(R.layout.footer_item, view, false);
-        mEventAdapter.setFooterView(footer);
-    }
-
     /**
      * 初始化数据
      */
@@ -126,7 +121,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getString(R.string.data_loading));
         mLoadDialog.show();
-
         if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
             mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
         } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
@@ -159,14 +153,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             }
         });
 
-    }
-
-    private static IntentFilter intentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SERVER_DATA);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG3E_ERROR);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG32_LOG);
-        return intentFilter;
     }
 
 
@@ -204,8 +190,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     mLoadDialog.show();
                     for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
                         int logId = devLog.getLogId();
-                        LogUtil.d(TAG, "logId = " + logId);
-                        mBleManagerHelper.getBleCardService().sendCmd33((byte) 2, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_LOG, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 } else {
                     showMessage(getString(R.string.plz_choise_del_log));
@@ -285,11 +270,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             case Message.TYPE_BLE_RECEIVER_CMD_3E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null) {
-                    android.os.Message message = new android.os.Message();
-                    message.what = BleMsg.DISPACTH_MSG_3E;
                     bundle.putByte(BleMsg.KEY_ERROR_CODE, errCode[3]);
-                    message.setData(bundle);
-                    mHandler.sendMessage(message);
+                    dispatchErrorCode(bundle);
                 }
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_32:
@@ -323,7 +305,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 break;
             case BleMsg.TYPE_DELETE_LOG_SUCCESS:
                 mDelDeVLog = (DeviceLog) bundle.getSerializable(BleMsg.KEY_SERIALIZABLE);
-                LogUtil.d(TAG, "mDelDeVLog = " + mDelDeVLog.toString());
+                LogUtil.d(TAG, "mDelDeVLog = " + mDelDeVLog.toString() + mEventAdapter.mDeleteLogs.size());
                 if (mDelDeVLog != null) {
                     DeviceLogDao.getInstance(mCtx).delete(mDelDeVLog);
                     int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
@@ -333,7 +315,22 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 }
 
                 if (mEventAdapter.mDeleteLogs.size() == 0) {
+
+                    changeVisible(false);
+                    mEventAdapter.mDeleteLogs.clear();
+                    mEventAdapter.chioseALLDelete(false);
+                    mSelectCb.setChecked(false);
+
+                    if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
+                    } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+                    }
+
+                    mEventAdapter.setDataSource(mLogs);
+                    mEventAdapter.notifyDataSetChanged();
                     DialogUtils.closeDialog(mLoadDialog);
+
                 }
                 break;
             case BleMsg.TYPE_DELETE_LOG_FAILED:
@@ -448,7 +445,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     LogUtil.d(TAG, "user : " + user.toString());
                     logUser = user.getUserName();
                 } else {
-                    if (logInfo.getUserId() < 99) { //管理员编号
+                    if (logInfo.getUserId() == 0) {
+                        logUser = mContext.getString(R.string.administrator);
+                    } else if (logInfo.getUserId() < 99) { //管理员编号
                         logUser = mContext.getString(R.string.administrator) + logInfo.getUserId();
                     } else if (logInfo.getUserId() >= 100 && logInfo.getUserId() < 200) { //普通用户
                         logUser = mContext.getString(R.string.members) + logInfo.getUserId();

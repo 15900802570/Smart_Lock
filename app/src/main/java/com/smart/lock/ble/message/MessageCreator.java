@@ -102,39 +102,45 @@ public class MessageCreator {
      * @param unLockTime  回锁时间
      * @return
      */
-    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState) {
-        Message mMessage = Message.obtain();
-        mMessage.setType(type);
-        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
-        Bundle mBundle = mMessage.getData();
+    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState, byte[] powerSave) {
+        Message message = Message.obtain();
+        message.setType(type);
+        message.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
+        Bundle bundle = message.getData();
 
-        mBundle.putByte(BleMsg.KEY_BAT_PERSCENT, batPerscent);
-        mBundle.putByte(BleMsg.KEY_USER_STATUS, userStatus);
-        mBundle.putByte(BleMsg.KEY_SETTING_STATUS, stStatus);
-        mBundle.putByte(BleMsg.KEY_UNLOCK_TIME, unLockTime);
+        bundle.putByte(BleMsg.KEY_BAT_PERSCENT, batPerscent);
+        bundle.putByte(BleMsg.KEY_USER_STATUS, userStatus);
+        bundle.putByte(BleMsg.KEY_SETTING_STATUS, stStatus);
+        bundle.putByte(BleMsg.KEY_UNLOCK_TIME, unLockTime);
         if (tmpPwdSk != null && tmpPwdSk.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_TMP_PWD_SK, tmpPwdSk);
+            bundle.putByteArray(BleMsg.KEY_TMP_PWD_SK, tmpPwdSk);
         }
         if (syncUsers != null && syncUsers.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_SYNC_USERS, syncUsers);
+            bundle.putByteArray(BleMsg.KEY_SYNC_USERS, syncUsers);
         }
 
         if (userState != null && userState.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_USERS_STATE, userState);
+            bundle.putByteArray(BleMsg.KEY_USERS_STATE, userState);
         }
 
-        return mMessage;
+        if (powerSave != null && powerSave.length != 0) {
+            bundle.putByteArray(BleMsg.KEY_POWER_SAVE, powerSave);
+        }
+
+        return message;
     }
 
     /**
-     *  MSG 0E 连接错误消息
-     * @param type 消息类型
+     * MSG 0E 连接错误消息
+     *
+     * @param type      消息类型
      * @param errorCode 错误码
      * @return Message
      */
     public static Message getCmd0EMessage(byte type, byte[] errorCode) {
         Message message = Message.obtain();
         message.setType(type);
+        message.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
         Bundle mBundle = message.getData();
         if (errorCode != null && errorCode.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errorCode);
@@ -227,7 +233,8 @@ public class MessageCreator {
         } else if (errCode[3] == 0x8 || errCode[3] == 0x09 || errCode[3] == 0x0a
                 || errCode[3] == 0x0b || errCode[3] == 0x0c || errCode[3] == 0x0d
                 || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10
-                || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25) {
+                || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25
+                || errCode[3] == 0x2A) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS ||
                 errCode[3] == BleMsg.TYPE_NO_AUTHORITY_1E) {
@@ -236,7 +243,8 @@ public class MessageCreator {
                 errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_13 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS ||
-                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED) {
+                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED
+        ) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
         }
 

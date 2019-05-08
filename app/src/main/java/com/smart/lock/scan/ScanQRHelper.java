@@ -130,6 +130,7 @@ public class ScanQRHelper implements UiListener {
         System.arraycopy(devInfo, 17, randCodeBytes, 0, 10);
         System.arraycopy(devInfo, 27, timeBytes, 0, 4);
         String mUserType = StringUtil.bytesToHexString(typeBytes);
+        LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(copyNumBytes));
         mUserId = StringUtil.bytesToHexString(copyNumBytes);
         StringUtil.exchange(ImeiBytes);
         mNodeId = StringUtil.bytesToHexString(ImeiBytes);
@@ -182,6 +183,7 @@ public class ScanQRHelper implements UiListener {
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
+            bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
             mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, bundle, mActivity);
         }
     }
@@ -240,6 +242,7 @@ public class ScanQRHelper implements UiListener {
      * @param userId 用户ID
      */
     private void createDeviceUser(short userId) {
+        LogUtil.d(TAG, " userId : " + userId);
         DeviceUser user = new DeviceUser();
         int userIdInt = Integer.valueOf(userId);
         user.setDevNodeId(mNodeId);
@@ -275,6 +278,7 @@ public class ScanQRHelper implements UiListener {
             mNewDevice.setBleMac(getMacAdr(mBleMac));
             mNewDevice.setConnectType(false);
             mNewDevice.setUserId(Short.parseShort(mUserId, 16));
+            LogUtil.d(TAG, "mNewDevice userId : " + mNewDevice.getUserId());
             mNewDevice.setDeviceNodeId(mNodeId);
             mNewDevice.setNodeType(ConstantUtil.SMART_LOCK);
             mNewDevice.setDeviceDate(System.currentTimeMillis() / 1000);
@@ -338,7 +342,7 @@ public class ScanQRHelper implements UiListener {
 
     @Override
     public void deviceStateChange(Device device, int state) {
-
+        mDevice = device;
     }
 
     @Override
@@ -347,11 +351,12 @@ public class ScanQRHelper implements UiListener {
         mDevice = device;
         Bundle bundle = msg.getData();
         switch (msg.getType()) {
-
+            case Message.TYPE_BLE_RECEIVER_CMD_0E:
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.d(TAG, "array = " + Arrays.toString(bundle.getByteArray(BleMsg.KEY_STATUS)));
-                createDeviceUser(Short.parseShort(mUserId, 16));
                 mStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
                 unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
                 LogUtil.d(TAG, "unLockTime = " + unLockTime);
