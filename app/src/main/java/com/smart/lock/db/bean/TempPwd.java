@@ -23,6 +23,9 @@ public class TempPwd implements Serializable {
     @DatabaseField(columnName = "pwd_create_time")
     private  long pwdCreateTime;
 
+    @DatabaseField(columnName = "pwd_random_num")
+    private int randomNum;
+
     public void setId(int id) {
         this.id = id;
     }
@@ -61,6 +64,14 @@ public class TempPwd implements Serializable {
 
     public void setDeviceNodeId(String deviceNodeId) {
         this.deviceNodeId = deviceNodeId;
+    }
+
+    public int getRandomNum() {
+        return randomNum;
+    }
+
+    public void setRandomNum(int randomNum) {
+        this.randomNum = randomNum;
     }
     
     @Override

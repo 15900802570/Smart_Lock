@@ -33,6 +33,8 @@ public class MessageCreator {
 
     public static boolean mIs128Code = true; //false 256
 
+    public static boolean mIsOnceForTempPwd = false; //零时密码验证次数
+
     public static byte m256AK[] = new byte[32];//256会话秘钥
 
     public static byte m128AK[] = new byte[16]; //128会话秘钥

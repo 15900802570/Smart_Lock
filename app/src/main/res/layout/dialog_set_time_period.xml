@@ -17,6 +17,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/time_picker_dialog_title_tv"
             android:layout_width="match_parent"
             android:layout_height="@dimen/x78dp"
             android:background="@drawable/box_corners_dialog_title_radius_13"

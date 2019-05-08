@@ -35,8 +35,10 @@ import com.smart.lock.utils.ToastUtil;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -45,6 +47,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import static com.smart.lock.ble.message.MessageCreator.mIs128Code;
+import static com.smart.lock.ble.message.MessageCreator.mIsOnceForTempPwd;
+import static com.smart.lock.utils.ConstantUtil.NUMBER_100;
 
 public class TempPwdActivity extends Activity implements View.OnClickListener {
 
@@ -53,10 +57,12 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private TempPwdAdapter mTempPwdAdapter;
     private String mNodeId;
     private String mMac;
-    private long mSecret;
+    private String mSecret;
     private List<String> mSecretList = new ArrayList<>();
 
     private RecyclerView mTempPwdListViewRv;
+    private Set<Integer> mExistNum = new HashSet<>();
+    private int mRandomNum = 101; // 零时密码随机数，有效值0-99,101为无效值
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,8 +126,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      * @return bool 是否创建成功
      */
     private boolean createTempPwd() {
-        TempPwd tempPwd = TempPwdDao.getInstance(this).queryMaxCreateTime();
-        if (tempPwd != null && System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime()) <= 0) {
+        if (mExistNum.size() > 30) {
             ToastUtil.showShort(this, R.string.not_regenerate_temp_pwd);
             return false;
         } else {
@@ -131,14 +136,23 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             LogUtil.d(TAG, "NodeId=" + mNodeId + '\\' +
                     "                        mMac=" + mMac);
             LogUtil.d(TAG, "CurrentTimeHEX=" + intToHex(mCurTime));
+            Long tempSecret;
             if (mIs128Code) {
-                mSecret = StringUtil.getCRC32(AES128Encode(intToHex(mCurTime) + "000000000000000000000000",
-                        StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
+                tempSecret = StringUtil.getCRC32(AES128Encode(intToHex(mCurTime) + "000000000000000000000000",
+                        StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret() : mSecretList.get(new Random().nextInt(4)))));
             } else {
-                mSecret = StringUtil.getCRC32(AES256Encode(intToHex(mCurTime) + "000000000000000000000000",
-                        StringUtil.hexStringToBytes(mSecretList.get(new Random().nextInt(4)))));
+                tempSecret = StringUtil.getCRC32(AES256Encode(intToHex(mCurTime) + "000000000000000000000000",
+                        StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret() : mSecretList.get(new Random().nextInt(4)))));
             }
-
+            if (mIsOnceForTempPwd) {
+                if (mRandomNum < 10) {
+                    mSecret = "0" + mRandomNum + String.valueOf(tempSecret);
+                } else {
+                    mSecret = mRandomNum + String.valueOf(tempSecret);
+                }
+            } else {
+                mSecret = String.valueOf(tempSecret);
+            }
             showPwdDialog(String.valueOf(mSecret));
             LogUtil.d(TAG, "mSecret=" + mSecret);
             return true;
@@ -149,8 +163,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      * 存储临时密码
      */
     private void saveTempPwd() {
+        mExistNum.add(mRandomNum);
         TempPwd lTempPwd = new TempPwd();
         lTempPwd.setDeviceNodeId(mNodeId);
+        lTempPwd.setRandomNum(mRandomNum);
         lTempPwd.setPwdCreateTime(System.currentTimeMillis() / 1000);
         lTempPwd.setTempPwdUser(getResources().getString(R.string.temp_pwd_username));
         lTempPwd.setTempPwd(String.valueOf(mSecret));
@@ -287,6 +303,30 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         dialog.show();
     }
 
+    /**
+     * 获取随机Secret
+     *
+     * @return String
+     */
+    private String getRandomSecret() {
+        String tempStr = mSecretList.get(new Random().nextInt(4));
+        String mRandomStr = createRandomNum();
+        LogUtil.d(TAG, "tempStr = " + tempStr + "\n" +
+                "mRandomStr = " + mRandomStr + "  :  " + mRandomStr.length());
+        return (tempStr.substring(0, tempStr.length() - 2)) + mRandomStr;
+    }
+
+    /**
+     * 获取随机字符
+     *
+     * @return String 00 -- 99
+     */
+    private String createRandomNum() {
+        do {
+            mRandomNum = new Random().nextInt(100);
+        } while (mExistNum.contains(mRandomNum));
+        return NUMBER_100[mRandomNum];
+    }
 
     public class TempPwdAdapter extends RecyclerView.Adapter<TempPwdAdapter.MyViewHolder> {
 
@@ -318,13 +358,20 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             return new MyViewHolder(inflate);
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onBindViewHolder(@NonNull MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final TempPwd tempPwdInfo = mTempPwdList.get(position);
             long failureTime;
+            String tempPwd;
             if (tempPwdInfo != null) {
+                tempPwd = tempPwdInfo.getTempPwd();
                 failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime());
-                viewHolder.mTempPwdTv.setText(getResources().getString(R.string.temp_password));
+                viewHolder.mTempPwdTv.setText(
+                        tempPwd.substring(0, 3) +
+                                getResources().getString(R.string.temp_password) +
+                                tempPwd.substring(tempPwd.length() - 2)
+                );
                 viewHolder.mTempPwdFailureTimeTv.setText(DateTimeUtil.timeStamp2Date(
                         String.valueOf(failureTime),
                         "yyyy-MM-dd HH:mm"));
@@ -340,6 +387,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_valid);
                     viewHolder.mDelete.setVisibility(View.GONE);
                     viewHolder.mShare.setVisibility(View.VISIBLE);
+                    mExistNum.add(tempPwdInfo.getRandomNum());
                 }
                 viewHolder.mTempPwdLl.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override

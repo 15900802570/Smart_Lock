@@ -361,4 +361,7 @@
     <string name="close">关闭</string>
     <string name="qr_code_error">二维码错误</string>
     <string name="complete">完成</string>
+    <string name="title_activity_version_info">版本信息</string>
+    <string name="setting_power_saving_time_period">设置省电时间段</string>
+    <string name="complete">完成</string>
 </resources>
