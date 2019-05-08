@@ -463,18 +463,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
         }
 
-        if (DeviceInfoDao.getInstance(this).delete(mDefaultDevice) != -1) {
-            for (DeviceUser user : DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId())) {
-                DeviceUserDao.getInstance(this).delete(user);
-                for (DeviceKey key : DeviceKeyDao.getInstance(this).queryKeyByImei("user_id", user.getUserId(), user.getDevNodeId())) {
-                    DeviceKeyDao.getInstance(this).delete(key);
-                }
-
-
-            }
-        }
-
-
     }
 
     @Override
