@@ -24,6 +24,7 @@ import android.widget.TextView;
 
 import com.smart.lock.R;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.Objects;
 
@@ -47,9 +48,10 @@ public class TimePickerDefineDialog extends DialogFragment {
 
     /**
      * 初始化
-     * @param value int[] 初始化时间
+     *
+     * @param value       int[] 初始化时间
      * @param isWithClose boolean 是否需要关闭btn
-     * @param title String dialog title
+     * @param title       String dialog title
      * @param requestCode int Dialog请求参数
      */
     @SuppressLint("ValidFragment")
@@ -155,10 +157,14 @@ public class TimePickerDefineDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 setValue();
-                if (getActivity() instanceof onTimePickerListener) {
-                    ((onTimePickerListener) getActivity()).onTimePickerClickConfirm(getLastValue(), requestCode);
+                if (value[0] == value[2] && value[1] == value[3]) {
+                    ToastUtil.showShort(getActivity(), Objects.requireNonNull(getActivity()).getString(R.string.set_time_error));
+                } else {
+                    if (getActivity() instanceof onTimePickerListener) {
+                        ((onTimePickerListener) getActivity()).onTimePickerClickConfirm(getLastValue(), requestCode);
+                    }
+                    dismiss();
                 }
-                dismiss();
             }
         });
 

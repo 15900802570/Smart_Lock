@@ -10,6 +10,7 @@ import android.util.SparseIntArray;
 
 import com.smart.lock.ble.BleCommand;
 import com.smart.lock.ble.creator.BleCmd05Creator;
+import com.smart.lock.ble.creator.BleCmd2DCreator;
 import com.smart.lock.ble.listener.BleMessageListener;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
@@ -579,6 +580,7 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_21, new BleCmd21Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_25, new BleCmd25Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_29, new BleCmd29Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_2D, new BleCmd2DCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_31, new BleCmd31Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_33, new BleCmd33Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_CMD, new BleCmdOtaDataCreator());

@@ -40,7 +40,7 @@ public class BleCmd04Parse implements BleCommandParse {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LogUtil.d(TAG,"buf = " + StringUtil.getBytes(buf));
+        LogUtil.d(TAG, "buf = " + StringUtil.getBytes(buf));
         byte[] batPerscent = new byte[1];
         byte[] syncUsers = new byte[16];
         byte[] userStatus = new byte[1];
@@ -67,7 +67,7 @@ public class BleCmd04Parse implements BleCommandParse {
             System.arraycopy(buf, 148, userState, 0, 100);
             System.arraycopy(buf, 248, powerSave, 0, 8);
         }
-        return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState,powerSave);
+        return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState, powerSave);
     }
 
     @Override

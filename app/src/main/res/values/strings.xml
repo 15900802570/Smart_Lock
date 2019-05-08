@@ -350,4 +350,5 @@
     <string name="user_not_exist">User not exist</string>
     <string name="fp_exist">Fingerprint exist</string>
     <string name="setting_power_saving_time_period">Setting Power Saving Time Period</string>
+    <string name="set_time_error">The start and end times cannot be the same.</string>
 </resources>

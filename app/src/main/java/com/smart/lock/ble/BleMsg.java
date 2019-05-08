@@ -429,9 +429,9 @@ public class BleMsg {
     /**
      * MSG 1B type
      */
-    public static final byte TYPE_SET_USER_ONE_UNLOCK_TIME = 0X01; //设置一个时间段
-    public static final byte TYPE_SET_USER_TWO_UNLOCK_TIME = 0X02; //设置两个时间段
-    public static final byte TYPE_SET_USER_THREE_UNLOCK_TIME = 0X03; //设置三个时间段
+    public static final byte TYPE_SET_USER_ONE_UNLOCK_TIME = 0x01; //设置一个时间段
+    public static final byte TYPE_SET_USER_TWO_UNLOCK_TIME = 0x02; //设置两个时间段
+    public static final byte TYPE_SET_USER_THREE_UNLOCK_TIME = 0x03; //设置三个时间段
 
     /**
      * MSG 31 type
@@ -450,9 +450,9 @@ public class BleMsg {
     /**
      * MSG 33 type
      */
-    public static final byte TYPE_DELETE_ALL_LOGS = 0X00; //删除所有日志
-    public static final byte TYPE_DELETE_USER_LOGS = 0X01; //按USR_ID删除所有日志
-    public static final byte TYPE_DELETE_LOG = 0X02; //删除单条日志
+    public static final byte TYPE_DELETE_ALL_LOGS = 0x00; //删除所有日志
+    public static final byte TYPE_DELETE_USER_LOGS = 0x01; //按USR_ID删除所有日志
+    public static final byte TYPE_DELETE_LOG = 0x02; //删除单条日志
 
     /**
      * msg 19 type
@@ -475,8 +475,8 @@ public class BleMsg {
     public static final byte TYPE_ANTI_PRYING_ALARM_CLOSE = 0x0f;//防撬报警关闭
 
     /**
-     * msg 03 type
+     * msg 0E type
      */
-    public static final byte TYPE_RAND_ERROR = 0X01; //随机数校验失败
-    public static final byte TYPE_USER_NOT_EXIST = 0X02; //用户不存在
+    public static final byte TYPE_RAND_ERROR = 0x01; //随机数校验失败
+    public static final byte TYPE_USER_NOT_EXIST = 0x02; //用户不存在
 }

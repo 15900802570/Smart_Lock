@@ -29,6 +29,7 @@ import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.dao.TempPwdDao;
+import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -67,6 +68,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private BottomSheetDialog mSetSupportCardBottomDialog;
     private boolean mSetSupportCards = false;
     private Dialog mWarningDialog;
+    private Dialog mWitingDialog;
 
     private int mSetTime;
     private boolean mRestore = false;
@@ -435,8 +437,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
                 break;
             case R.id.warning_confirm_btn:
-                Dialog mWriting = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
-                mWriting.show();
+                mWitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
+                mWitingDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
                 clearAllDataOfApplication();
                 break;
@@ -448,12 +450,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
      * 清除应用所有的数据
      */
     public void clearAllDataOfApplication() {
-        if (
-                DeviceKeyDao.getInstance(this).delete(DeviceKeyDao.getInstance(this).queryFirstData(DeviceKeyDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId())) != -1 &&
-                        DeviceStatusDao.getInstance(this).delete(mDeviceStatus) != -1 &&
-                        DeviceUserDao.getInstance(this).delete(DeviceUserDao.getInstance(this).queryFirstData(DeviceUserDao.DEVICE_NODE_ID, mDefaultDevice.getDeviceNodeId())) != -1 &&
-                        TempPwdDao.getInstance(this).deleteAllByNodeId(mDefaultDevice.getDeviceNodeId()) != -1 &&
-                        DeviceInfoDao.getInstance(this).delete(mDefaultDevice) != -1) {
+        if (DtComFunHelper.RestoreFactorySettings(this,mDefaultDevice)) {
             mRestore = true;
             mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
             if (mDefaultDevice != null) {
@@ -679,10 +676,12 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             R.string.restore_the_factory_settings_success,
                             Toast.LENGTH_LONG);
                     mBleManagerHelper.getBleCardService().disconnect();
+
                     finish();
                 } else {
                     finish();
                 }
+                mWitingDialog.cancel();
                 LogUtil.d(TAG, "恢复出厂设置成功");
                 break;
 
