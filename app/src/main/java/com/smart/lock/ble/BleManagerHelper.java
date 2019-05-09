@@ -411,21 +411,12 @@ public class BleManagerHelper {
             mBleMac = null;
             mConnectType = 0;
             mUserId = 0;
-            mDevice.halt();
-//                mContext.unbindService(mServiceConnection);
-//                LogUtil.d(TAG, "mServiceConnection = " + (mServiceConnection.hashCode()));
+            if (mDevice != null) {
+                mDevice.halt();
+            }
+
             instance = null;
         }
-
-    }
-
-    /**
-     * 吐司提示
-     *
-     * @param msg 提示信息
-     */
-    private void showMessage(String msg) {
-        Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
     }
 
     /**
