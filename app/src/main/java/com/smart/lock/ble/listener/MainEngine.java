@@ -23,11 +23,13 @@ import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class MainEngine implements BleMessageListener, DeviceStateCallback, Handler.Callback {
 
@@ -329,7 +331,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         byte[] syncUsers = bundle.getByteArray(BleMsg.KEY_SYNC_USERS);
         byte[] userState = bundle.getByteArray(BleMsg.KEY_USERS_STATE);
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
-        byte[] powerSave = bundle.getByteArray(BleMsg.KEY_POWER_SAVE);
+        byte[] powerSave = StringUtil.bytesReverse(Objects.requireNonNull(bundle.getByteArray(BleMsg.KEY_POWER_SAVE))); // 字节翻转，结束时间在前
 
         mDevice.setBattery(battery);
         mDevice.setUserStatus(userStatus);
@@ -396,6 +398,24 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mDefaultStatus.setM1Support(true);
             }
             mDefaultStatus.setRolledBackTime(unLockTime);
+            // 获取省电时间段
+            if (powerSave[0] == 0 && powerSave[1] == 0 &&
+                    powerSave[2] == 0 && powerSave[3] == 0) {
+                mDefaultStatus.setPowerSavingStartTime(2500); //2500 表示关闭
+                mDefaultStatus.setPowerSavingEndTime(2500); //2500 表示关闭
+            } else {
+                byte[] startPowerSave = new byte[4];
+                byte[] endPowerSave = new byte[4];
+                System.arraycopy(powerSave, 4, startPowerSave, 0, 4);
+                System.arraycopy(powerSave, 0, endPowerSave, 0, 4);
+                String startTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(startPowerSave) + "000");
+                String endTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(endPowerSave) + "000");
+                LogUtil.d(TAG, "powerSave = " + '\n' +
+                        "startStamp = " + startTimeStr + "\n" +
+                        "endStamp = " + endTimeStr);
+                mDefaultStatus.setPowerSavingStartTime(Integer.valueOf(startTimeStr.substring(11, 13)) * 100 + Integer.valueOf(startTimeStr.substring(14, 16)));
+                mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
+            }
             DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
         }
 

@@ -23,17 +23,13 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceStatus;
-import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
-import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.db.dao.TempPwdDao;
 import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -45,6 +41,9 @@ import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.BtnSettingDefineView;
 
 import com.smart.lock.R;
+
+import java.text.ParseException;
+import java.util.Arrays;
 
 public class LockSettingActivity extends AppCompatActivity implements UiListener, TimePickerDefineDialog.onTimePickerListener {
 
@@ -70,7 +69,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private BottomSheetDialog mSetSupportCardBottomDialog;
     private boolean mSetSupportCards = false;
     private Dialog mWarningDialog;
-    private Dialog mWitingDialog;
+    private Dialog mWaitingDialog;
 
     private int mSetTime;
     private boolean mRestore = false;
@@ -92,6 +91,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     private boolean mVisibility = true;
     private int[] mTimePickerValue = {12, 12, 12, 12};
+    private int[] mTempTimePickerValue = {1, 1, 1, 1};
     private int TIME_PICKER_CODE = 1;
 
     private Device mDevice;
@@ -190,7 +190,22 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
             mSetSupportCards = mDeviceStatus.isM1Support();
             mSetSupportCardTypeBs.setBtnDes(mSetSupportCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
+
+            int startTimeInt = mDeviceStatus.getPowerSavingStartTime();
+            int endTimeInt = mDeviceStatus.getPowerSavingEndTime();
+            if (startTimeInt == 2500 || endTimeInt == 2500) {
+                mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
+            } else {
+                mTimePickerValue[0] = startTimeInt / 100 + 1;
+                mTimePickerValue[1] = startTimeInt % 100 + 1;
+                mTimePickerValue[2] = endTimeInt / 100 + 1;
+                mTimePickerValue[3] = endTimeInt % 100 + 1;
+                String startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
+                String endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
+                mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
+            }
         }
+
     }
 
     /**
@@ -419,11 +434,13 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case R.id.set_support_ordinary_card:
                 LogUtil.d(TAG, "set_ordinary_card");
                 mSetSupportCards = true;
+                mSetSupportCardTypeBs.setBtnDes(getString(R.string.ordinary_card));
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 16);
                 break;
             case R.id.set_support_safety_card:
                 LogUtil.d(TAG, "set_safety_card");
                 mSetSupportCards = false;
+                mSetSupportCardTypeBs.setBtnDes(getString(R.string.safety_card));
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 17);
                 break;
             default:
@@ -439,8 +456,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
                 break;
             case R.id.warning_confirm_btn:
-                mWitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
-                mWitingDialog.show();
+                mWaitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
+                mWaitingDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
                 clearAllDataOfApplication();
                 break;
@@ -452,7 +469,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
      * 清除应用所有的数据
      */
     public void clearAllDataOfApplication() {
-        if (DtComFunHelper.RestoreFactorySettings(this,mDefaultDevice)) {
+        if (DtComFunHelper.RestoreFactorySettings(this, mDefaultDevice)) {
             mRestore = true;
             mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
             if (mDefaultDevice != null) {
@@ -523,14 +540,48 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         value[1] + '\n' +
                         value[2] + "\n" +
                         value[3]);
-                mTimePickerValue = value;
-                String startTime = ConstantUtil.HOUR[value[0] - 1] + ":" + ConstantUtil.MINUTE[value[1] - 1];
-                String endTime = ConstantUtil.HOUR[value[2] - 1] + ":" + ConstantUtil.MINUTE[value[3] - 1];
-                mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
+                mTempTimePickerValue = value;
+                mBleManagerHelper.getBleCardService().sendCmd2D(getPowerSavingTime(value));
             } else {
-                mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
+                mBleManagerHelper.getBleCardService().sendCmd2D(new byte[]{0, 0, 0, 0, 0, 0, 0, 0});
+                Arrays.fill(mTempTimePickerValue, 0, 4, (byte) 12);
             }
         }
+    }
+
+    private byte[] getPowerSavingTime(int[] time) {
+        StringBuilder nowTime = new StringBuilder(DateTimeUtil.stampToDate(String.valueOf(System.currentTimeMillis())));
+        String startTime = nowTime.replace(
+                11,
+                16,
+                ConstantUtil.HOUR[time[0] - 1] + ":" + ConstantUtil.HOUR[time[1] - 1]).toString();
+        String endTime = nowTime.replace(
+                11,
+                16,
+                ConstantUtil.HOUR[time[2] - 1] + ":" + ConstantUtil.HOUR[time[3] - 1]).toString();
+        // 获取时间戳 s
+        try {
+            long startStamp = DateTimeUtil.dateToStamp(startTime) / 1000;
+            long endStamp = DateTimeUtil.dateToStamp(endTime) / 1000;
+            if (startStamp > endStamp) {
+                endStamp += 86400;
+            }
+            byte[] startTimeBytes = new byte[4];
+            byte[] endTimeBytes = new byte[4];
+            byte[] TimeBytes = new byte[8];
+            StringUtil.int2Bytes((int) startStamp, startTimeBytes);
+            StringUtil.int2Bytes((int) endStamp, endTimeBytes);
+            System.arraycopy(startTimeBytes, 0, TimeBytes, 0, 4);
+            System.arraycopy(endTimeBytes, 0, TimeBytes, 4, 4);
+            LogUtil.d(TAG, "startStamp = " + (int) startStamp + '\n' +
+                    "endStamp = " + (int) endStamp + '\n' +
+                    "TimeBytes = " + Arrays.toString(TimeBytes));
+            return TimeBytes;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     @Override
@@ -565,6 +616,29 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 DeviceInfoDao.getInstance(LockSettingActivity.this).updateDeviceInfo(mDefaultDevice);
                 Intent mIntent = new Intent(LockSettingActivity.this, VersionInfoActivity.class);
                 startActivity(mIntent);
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_2E:
+                final byte[] errCode2E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode2E != null) {
+                    String startTime;
+                    String endTime;
+                    int[] closeByte = {12, 12, 12, 12};
+                    switch (errCode2E[3]) {
+                        case BleMsg.TYPE_SET_POWER_SAVE_SUCCESS:
+                            mTimePickerValue = mTempTimePickerValue;
+                        case BleMsg.TYPE_SET_POWER_SAVE_FAILED:
+                            if (Arrays.equals(mTimePickerValue, closeByte)) {
+                                mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
+                            } else {
+                                startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
+                                endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
+                                mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
@@ -683,7 +757,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 } else {
                     finish();
                 }
-                mWitingDialog.cancel();
+                mWaitingDialog.cancel();
                 LogUtil.d(TAG, "恢复出厂设置成功");
                 break;
 

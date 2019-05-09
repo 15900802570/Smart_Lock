@@ -41,6 +41,29 @@ public class DateTimeUtil {
         return String.valueOf(System.nanoTime());
     }
 
+    /**
+     * 将时间戳转换为时间
+     */
+    public static String stampToDate(String s){
+        String res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long lt = new Long(s);
+        Date date = new Date(lt);
+        res = simpleDateFormat.format(date);
+        return res;
+    }
+
+    /**
+     * 将时间转换为时间戳 ms
+     */
+    public static long dateToStamp(String s) throws ParseException{
+        long res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = simpleDateFormat.parse(s);
+        res = date.getTime();
+        return res;
+    }
+
     /***
      * 返回当前年，如：2015
      * @return

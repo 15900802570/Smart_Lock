@@ -629,10 +629,11 @@ public class BleCardService {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_2D);
         Bundle bundle = msg.getData();
-        if (powerSaveTime != null && powerSaveTime.length != 0) {
+        if (powerSaveTime != null && powerSaveTime.length == 8) {
             bundle.putByteArray(BleMsg.KEY_POWER_SAVE, powerSaveTime);
+        }else {
+            return false;
         }
-
         return mBleProvider.send(msg);
     }
 

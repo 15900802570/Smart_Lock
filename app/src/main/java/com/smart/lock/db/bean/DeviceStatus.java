@@ -34,10 +34,10 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(columnName = "rolled_back_time",defaultValue = "5" )
     private int rolledBackTime;
 
-    @DatabaseField(columnName = "power_saving_start_time",defaultValue = "23" )
+    @DatabaseField(columnName = "power_saving_start_time",defaultValue = "2300" )
     private int powerSavingStartTime;
 
-    @DatabaseField(columnName = "power_saving_end_time",defaultValue = "7" )
+    @DatabaseField(columnName = "power_saving_end_time",defaultValue = "700" )
     private int powerSavingEndTime;
 
 

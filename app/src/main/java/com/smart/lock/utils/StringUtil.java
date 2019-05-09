@@ -57,6 +57,7 @@ public class StringUtil {
             return true;
         }
     }
+
     /**
      * 检验MAC地址是否合规
      *
@@ -64,11 +65,11 @@ public class StringUtil {
      * @return boolean
      */
     public static String checkBleMac(String str) {
-        if(str.length() == 12){
+        if (str.length() == 12) {
             return StringUtil.getMacAdr(str.toUpperCase());
-        }else if(str.length() == 17){
+        } else if (str.length() == 17) {
             return str;
-        }else {
+        } else {
             return "";
         }
     }
@@ -251,6 +252,18 @@ public class StringUtil {
         int b3 = bytes[3] & 0xFF;
         int result = (b0 << 24) | (b1 << 16) | (b2 << 8) | b3;
         return String.format("%04d", result);
+    }
+
+    /**
+     * byteReverse.
+     */
+    public static byte[] bytesReverse(byte[] bytes) {
+        int l = bytes.length;
+        byte[] res = new byte[l];
+        for (int i = 0; i < l; i++) {
+            res[i] = bytes[l - i - 1];
+        }
+        return res;
     }
 
     /**
@@ -457,19 +470,21 @@ public class StringUtil {
 
     /**
      * 删除指定字符
+     *
      * @param str
      * @param delChar
      * @return
      */
-    public static String deleteString(String str, char delChar){
+    public static String deleteString(String str, char delChar) {
         String delStr = "";
         for (int i = 0; i < str.length(); i++) {
-            if(str.charAt(i) != delChar){
+            if (str.charAt(i) != delChar) {
                 delStr += str.charAt(i);
             }
         }
         return delStr;
     }
+
     /**
      * 反转byte数组中的某一段
      *
@@ -490,6 +505,7 @@ public class StringUtil {
 
         return arr;
     }
+
     /**
      * byte数组转成十六进制字符串
      *
@@ -520,7 +536,8 @@ public class StringUtil {
         return sb.toString();
     }
 }
- final class Strings {
+
+final class Strings {
 
     private Strings() {
     }
