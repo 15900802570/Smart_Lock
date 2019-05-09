@@ -82,6 +82,12 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"/>
 
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/ts_log_enable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"/>
+
             <com.smart.lock.widget.BtnSettingDefineView
                 android:id="@+id/bs_rolled_back_time"
                 android:layout_width="match_parent"
@@ -126,6 +132,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="onClick"
                 android:visibility="gone"/>
+
         </LinearLayout>
 
 

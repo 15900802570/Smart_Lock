@@ -166,7 +166,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         mSelectDeleteRl.setVisibility(View.GONE);
         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getResources().getString(R.string.data_loading));
         initEvent();
-
     }
 
     private void initEvent() {

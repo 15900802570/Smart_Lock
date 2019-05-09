@@ -212,6 +212,7 @@
     <string name="ota_update">OTA升级</string>
     <string name="voice_prompt">语音提示</string>
     <string name="set_up_time">设置时间</string>
+    <string name="lock_log">门锁日志</string>
     <string name="restore_the_factory_settings">恢复出厂设置</string>
     <string name="serial_number">序列号</string>
     <string name="imei">IMEI</string>
@@ -364,4 +365,6 @@
     <string name="setting_power_saving_time_period">设置省电时间段</string>
     <string name="complete">完成</string>
     <string name="set_time_error">起始时间和结束时间不能相同</string>
+    <string name="lock_log_set_success">log打印设置成功</string>
+    <string name="lock_log_set_failed">log打印设置失败</string>
 </resources>

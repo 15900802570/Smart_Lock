@@ -53,6 +53,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private ToggleSwitchDefineView mCombinationLockTs;
     private ToggleSwitchDefineView mNormallyOpenTs;
     private ToggleSwitchDefineView mVoicePromptTs;
+    private ToggleSwitchDefineView mLogEnableTs;
 
     private BtnSettingDefineView mSetRolledBackTimeBs;
     private BtnSettingDefineView mSetSupportCardTypeBs;
@@ -111,11 +112,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mCombinationLockTs = findViewById(R.id.ts_combination_lock);
         mNormallyOpenTs = findViewById(R.id.ts_normally_open);
         mVoicePromptTs = findViewById(R.id.ts_voice_prompt);
+        mLogEnableTs = findViewById(R.id.ts_log_enable);
 
         mSetRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
         mSetSupportCardTypeBs = findViewById(R.id.bs_support_card_type);
         mSetPowerSavingTimeBs = findViewById(R.id.bs_set_power_saving_time);
-
 
         NextActivityDefineView mVersionInfoNa = findViewById(R.id.next_version_info);
         NextActivityDefineView mSelfCheckNa = findViewById(R.id.next_self_check);
@@ -127,6 +128,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mCombinationLockTs.setDes(getResources().getString(R.string.combination_lock));
         mNormallyOpenTs.setDes(getResources().getString(R.string.normally_open));
         mVoicePromptTs.setDes(getResources().getString(R.string.voice_prompt));
+        mLogEnableTs.setDes(getString(R.string.lock_log));
 
         mSetRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
         mSetSupportCardTypeBs.setDes(getString(R.string.support_types_of_card));
@@ -235,6 +237,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             @Override
             public void onClick(View v) {
                 doClick(R.string.voice_prompt);
+            }
+        });
+
+        //门锁日志
+        mLogEnableTs.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doClick(R.string.lock_log);
             }
         });
 
@@ -392,6 +402,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_OPEN);
                     }
                     break;
+
+                case R.string.lock_log: //门锁日志
+                    if (mLogEnableTs.isChecked()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_ENABLE);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_UNENABLE);
+                    }
+                    break;
             }
         } else {
             ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
@@ -452,7 +470,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
      * 清除应用所有的数据
      */
     public void clearAllDataOfApplication() {
-        if (DtComFunHelper.RestoreFactorySettings(this,mDefaultDevice)) {
+        if (DtComFunHelper.RestoreFactorySettings(this, mDefaultDevice)) {
             mRestore = true;
             mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
             if (mDefaultDevice != null) {
@@ -686,7 +704,12 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 mWitingDialog.cancel();
                 LogUtil.d(TAG, "恢复出厂设置成功");
                 break;
-
+            case 0x28:  //log打印设置成功
+                showMessage(getString(R.string.lock_log_set_success));
+                break;
+            case 0x29:  //log打印设置失败
+                showMessage(getString(R.string.lock_log_set_failed));
+                break;
             default:
                 break;
         }
