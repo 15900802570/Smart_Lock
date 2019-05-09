@@ -391,7 +391,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 } else
                     mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
             } else {
-                LogUtil.e(TAG, "device state is : " + mDevice.getState());
+                LogUtil.e(TAG, "device state is : " + connDev.getState());
                 showMessage(getString(R.string.bt_connected));
             }
         }
