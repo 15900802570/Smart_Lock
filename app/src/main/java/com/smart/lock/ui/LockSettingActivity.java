@@ -68,7 +68,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     private BottomSheetDialog mSetTimesBottomSheetDialog; //时间设置弹框
     private BottomSheetDialog mSetSupportCardBottomDialog;
-    private boolean mSetSupportCards = false;
+    private boolean mSetSupportOrdinaryCards = false;
+    private boolean mTempSetSupportCards = false;
     private Dialog mWarningDialog;
     private Dialog mWaitingDialog;
 
@@ -149,8 +150,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
         mSetOrdinaryCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_ordinary_card);
 
-        mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
-
     }
 
     private void initData() {
@@ -190,14 +189,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mSetTime = mDeviceStatus.getRolledBackTime();
             mSetRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + getResources().getString(R.string.s));
 
-            mSetSupportCards = mDeviceStatus.isM1Support();
-            mSetSupportCardTypeBs.setBtnDes(mSetSupportCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
+            mSetSupportOrdinaryCards = mDeviceStatus.isM1Support();
+            mSetSupportCardTypeBs.setBtnDes(mSetSupportOrdinaryCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
 
             int startTimeInt = mDeviceStatus.getPowerSavingStartTime();
             int endTimeInt = mDeviceStatus.getPowerSavingEndTime();
-            if (startTimeInt == 2500 || endTimeInt == 2500) {
+            if (startTimeInt == ConstantUtil.INVALID_POWER_SAVE_TIME || endTimeInt == ConstantUtil.INVALID_POWER_SAVE_TIME) {
                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
-            } else {
+            } else if (startTimeInt > 0 && endTimeInt < 2400) {
                 mTimePickerValue[0] = startTimeInt / 100 + 1;
                 mTimePickerValue[1] = startTimeInt % 100 + 1;
                 mTimePickerValue[2] = endTimeInt / 100 + 1;
@@ -205,6 +204,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 String startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
                 String endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
                 mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
+            }else {
+                mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
             }
         }
 
@@ -325,7 +326,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mSetTimesBottomSheetDialog.show();      //显示弹窗
                     break;
                 case R.id.bs_support_card_type:
-                    if (mSetSupportCards) {
+                    if (mSetSupportOrdinaryCards) {
                         mSetSafetyCardTv.setTextColor(getResources().getColor(R.color.gray1));
                         mSetOrdinaryCardTv.setTextColor(getResources().getColor(R.color.lite_blue));
                     } else {
@@ -451,21 +452,23 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 break;
             case R.id.set_support_ordinary_card:
                 LogUtil.d(TAG, "set_ordinary_card");
-                mSetSupportCards = true;
-                mSetSupportCardTypeBs.setBtnDes(getString(R.string.ordinary_card));
+                mTempSetSupportCards = true;
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 16);
                 break;
             case R.id.set_support_safety_card:
                 LogUtil.d(TAG, "set_safety_card");
-                mSetSupportCards = false;
-                mSetSupportCardTypeBs.setBtnDes(getString(R.string.safety_card));
+                mTempSetSupportCards = false;
                 mBleManagerHelper.getBleCardService().sendCmd19((byte) 17);
                 break;
             default:
                 break;
         }
-        mSetTimesBottomSheetDialog.cancel();
-        mSetSupportCardBottomDialog.cancel();
+        if (mSetSupportCardBottomDialog.isShowing()) {
+            mSetSupportCardBottomDialog.cancel();
+        }
+        if (mSetTimesBottomSheetDialog.isShowing()) {
+            mSetTimesBottomSheetDialog.cancel();
+        }
     }
 
     public void warningOnClick(View view) {
@@ -572,11 +575,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         String startTime = nowTime.replace(
                 11,
                 16,
-                ConstantUtil.HOUR[time[0] - 1] + ":" + ConstantUtil.HOUR[time[1] - 1]).toString();
+                ConstantUtil.HOUR[time[0] - 1] + ":" + ConstantUtil.MINUTE[time[1] - 1]).toString();
         String endTime = nowTime.replace(
                 11,
                 16,
-                ConstantUtil.HOUR[time[2] - 1] + ":" + ConstantUtil.HOUR[time[3] - 1]).toString();
+                ConstantUtil.HOUR[time[2] - 1] + ":" + ConstantUtil.MINUTE[time[3] - 1]).toString();
         // 获取时间戳 s
         try {
             long startStamp = DateTimeUtil.dateToStamp(startTime) / 1000;
@@ -646,8 +649,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             mTimePickerValue = mTempTimePickerValue;
                         case BleMsg.TYPE_SET_POWER_SAVE_FAILED:
                             if (Arrays.equals(mTimePickerValue, closeByte)) {
-                                mDeviceStatus.setPowerSavingStartTime(2500);
-                                mDeviceStatus.setPowerSavingEndTime(2500);
+                                mDeviceStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME);
+                                mDeviceStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME);
                                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
                             } else {
                                 startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
@@ -775,13 +778,22 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             R.string.restore_the_factory_settings_success,
                             Toast.LENGTH_LONG);
                     mBleManagerHelper.getBleCardService().disconnect();
-
                     finish();
                 } else {
                     finish();
                 }
                 mWaitingDialog.cancel();
                 LogUtil.d(TAG, "恢复出厂设置成功");
+                break;
+            case 0x26: //设置卡片类型成功
+                mSetSupportOrdinaryCards = mTempSetSupportCards;
+            case 0x27: //设置卡片类型失败
+                if (mSetSupportOrdinaryCards) {
+                    mSetSupportCardTypeBs.setBtnDes(getString(R.string.ordinary_card));
+                } else {
+                    mSetSupportCardTypeBs.setBtnDes(getString(R.string.safety_card));
+                }
+                mDeviceStatus.setM1Support(mSetSupportOrdinaryCards);
                 break;
             case 0x28:  //log打印设置成功
                 showMessage(getString(R.string.lock_log_set_success));

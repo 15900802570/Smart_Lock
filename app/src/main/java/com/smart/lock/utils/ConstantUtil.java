@@ -183,6 +183,11 @@ public class ConstantUtil {
      */
     public static final byte USER_REMOTE = 0x07;
 
+    /**
+     *
+     */
+    public static final int INVALID_POWER_SAVE_TIME = Integer.MAX_VALUE;
+
     public static final String APPLICATION = "apk";
     public static final String BIN_EXTENSION = "bin";
 

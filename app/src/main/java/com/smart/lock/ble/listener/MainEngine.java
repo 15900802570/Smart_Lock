@@ -347,7 +347,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.d(TAG, "powerSave = " + Arrays.toString(powerSave));
 
         byte[] buf = new byte[4];
-        System.arraycopy(syncUsers, 0, buf, 0, 4);
+        System.arraycopy(Objects.requireNonNull(syncUsers), 0, buf, 0, 4);
         long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
         LogUtil.d(TAG, "status1 = " + status1);
 
@@ -379,30 +379,42 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         }
 
         if (mDefaultStatus != null) {
-            if ((stStatus & 1) == 1) {
+            if ((stStatus & 1) == 1) {  //常开功能
                 mDefaultStatus.setNormallyOpen(true);
+            } else {
+                mDefaultStatus.setNormallyOpen(false);
             }
-            if ((stStatus & 2) == 2) {
+            if ((stStatus & 2) == 2) {  //语音提示
                 mDefaultStatus.setVoicePrompt(true);
+            } else {
+                mDefaultStatus.setVoicePrompt(false);
             }
-            if ((stStatus & 4) == 4) {
+            if ((stStatus & 4) == 4) {  //智能锁芯
                 mDefaultStatus.setIntelligentLockCore(true);
+            } else {
+                mDefaultStatus.setIntelligentLockCore(false);
             }
-            if ((stStatus & 8) == 8) {
+            if ((stStatus & 8) == 8) {  //防撬开关
                 mDefaultStatus.setAntiPrizingAlarm(true);
+            } else {
+                mDefaultStatus.setAntiPrizingAlarm(false);
             }
-            if ((stStatus & 16) == 16) {
+            if ((stStatus & 16) == 16) {    //组合开锁
                 mDefaultStatus.setCombinationLock(true);
+            } else {
+                mDefaultStatus.setCombinationLock(false);
             }
-            if ((stStatus & 32) == 32) {
+            if ((stStatus & 32) == 32) {    //支持M1卡
                 mDefaultStatus.setM1Support(true);
+            } else {
+                mDefaultStatus.setM1Support(false);
             }
             mDefaultStatus.setRolledBackTime(unLockTime);
             // 获取省电时间段
             if (powerSave[0] == 0 && powerSave[1] == 0 &&
                     powerSave[2] == 0 && powerSave[3] == 0) {
-                mDefaultStatus.setPowerSavingStartTime(2500); //2500 表示关闭
-                mDefaultStatus.setPowerSavingEndTime(2500); //2500 表示关闭
+                mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
+                mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
             } else {
                 byte[] startPowerSave = new byte[4];
                 byte[] endPowerSave = new byte[4];
