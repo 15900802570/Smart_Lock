@@ -646,12 +646,17 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             mTimePickerValue = mTempTimePickerValue;
                         case BleMsg.TYPE_SET_POWER_SAVE_FAILED:
                             if (Arrays.equals(mTimePickerValue, closeByte)) {
+                                mDeviceStatus.setPowerSavingStartTime(2500);
+                                mDeviceStatus.setPowerSavingEndTime(2500);
                                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
                             } else {
                                 startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
                                 endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
                                 mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
+                                mDeviceStatus.setPowerSavingStartTime((mTimePickerValue[0] - 1) * 100 + mTimePickerValue[1] - 1);
+                                mDeviceStatus.setPowerSavingEndTime((mTimePickerValue[2] - 1) * 100 + mTimePickerValue[3] - 1);
                             }
+                            DeviceStatusDao.getInstance(this).updateDeviceStatus(mDeviceStatus);
                             break;
                         default:
                             break;

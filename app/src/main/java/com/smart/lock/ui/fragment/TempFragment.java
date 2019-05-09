@@ -309,9 +309,11 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         switch (errCode) {
             case BleMsg.TYPE_ADD_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.add_user_success));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_ADD_USER_FAILED:
                 showMessage(mCtx.getString(R.string.add_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.delete_user_success));
@@ -325,6 +327,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 break;
             case BleMsg.TYPE_DELETE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.delete_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_PAUSE_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.pause_user_success));
@@ -332,9 +335,11 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
                 mTempAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_PAUSE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.pause_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.recovery_user_success));
@@ -343,14 +348,16 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(recoveryUser);
                 mTempAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mCtx.getString(R.string.recovery_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
                 break;
         }
-        DialogUtils.closeDialog(mLoadDialog);
+
     }
 
     @Override
