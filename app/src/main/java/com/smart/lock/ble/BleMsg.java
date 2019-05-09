@@ -325,6 +325,9 @@ public class BleMsg {
     public static final byte TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS = 0x03; //无权限
     public static final byte TYPE_SET_BROADCAST_NAME_SUCCESS = 0x04; //配置广播名成功
     public static final byte TYPE_SET_BROADCAST_NAME_FAILED = 0x05; //配置广播名失败
+    public static final byte TYPE_SET_POWER_SAVE_SUCCESS = 0x06; //配置省电时段成功
+    public static final byte TYPE_SET_POWER_SAVE_FAILED = 0x07; //配置省电时段失败
+
 
     /**
      * MSG 11 TYPE
