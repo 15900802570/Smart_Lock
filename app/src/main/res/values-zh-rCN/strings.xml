@@ -101,7 +101,7 @@
     <string name="pause_user_success">暂停用户成功</string>
     <string name="pause_user_failed">暂停用户失败</string>
     <string name="add_user_success">新增用户成功</string>
-    <string name="add_user_failed">用户已满，新增用户失败</string>
+    <string name="add_user_failed">新增用户失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
     <string name="add_nfc_failed">录入卡片失败</string>

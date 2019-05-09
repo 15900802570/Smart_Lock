@@ -92,6 +92,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     private final int DETECTING_LOCK = 0x1;
     private final int SEARCH_LOCK = 0x2;
+    private final int SET_DEV_INFO = 0x3;
     private int mMode = DETECTING_LOCK;
     private int REQUEST_ENABLE_BT = 100;
     private Device mDevice;
@@ -201,7 +202,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         if (extras != null) {
             mConnectType = extras.getByte(BleMsg.KEY_BLE_CONNECT_TYPE);
             if (mConnectType == Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE) {
-                mMode = SEARCH_LOCK;
+                mMode = SET_DEV_INFO;
                 deviceList = new ArrayList<>();
                 mTitleTv.setText(getString(R.string.search_lock));
                 mBleAdapter = new BleAdapter(this, deviceList);
@@ -275,7 +276,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mSearchingIv.startAnimation(mRotateAnimation);
                     mScanLockTv.setText(R.string.tv_scan_lock);
                     mLine.setVisibility(View.VISIBLE);
-                } else if (mMode == SEARCH_LOCK) {
+                } else if (mMode == SEARCH_LOCK ||mMode == SET_DEV_INFO) {
                     mLine.setVisibility(View.GONE);
                     mScanLockTv.setVisibility(View.GONE);
                     mRefreshDevLl.setVisibility(View.VISIBLE);
@@ -293,7 +294,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             } else {
                 if (mMode == DETECTING_LOCK) {
                     mSearchingIv.clearAnimation();
-                } else if (mMode == SEARCH_LOCK) {
+                } else if (mMode == SEARCH_LOCK||mMode == SET_DEV_INFO) {
                     mRescanBtn.setText(R.string.rescanning);
                     stopRefresh();
                 }
@@ -337,7 +338,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 public void run() {
                     if (mMode == DETECTING_LOCK) {
                         detectDevice(device);
-                    } else if (mMode == SEARCH_LOCK) {
+                    } else if (mMode == SEARCH_LOCK||mMode == SET_DEV_INFO) {
                         if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
                             Log.d(TAG, "device.getName() = " + device.getName());
                             addDevice(device);
@@ -377,9 +378,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
                 Arrays.fill(MessageCreator.m256SK, 6, 32, (byte) 0);
             }
-
-            if (mDevice == null || mDevice.getState() == Device.BLE_DISCONNECTED) {
-                if (mMode == SEARCH_LOCK && mDevice == null) {
+            Device connDev = mBleManagerHelper.getBleCardService().getDevice();
+            if (connDev == null || connDev.getState() == Device.BLE_DISCONNECTED) {
+                if (mMode == SEARCH_LOCK) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
                     mLoadDialog.show();

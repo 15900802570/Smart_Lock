@@ -501,6 +501,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 }
 
+                if(mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE && mDevInfo.getUserId() == 0) {
+                    LogUtil.e(TAG, "suarch dev!");
+                    break;
+                }
+
                 if (mDevice.getState() != Device.BLE_DISCONNECTED) break; //设备状态不是非连接，不需要自动连接
 
                 boolean result = mService.connect(mDevice, mDevInfo.getBleMac());
@@ -517,6 +522,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 LogUtil.i(TAG, "reconnect device");
                 if (mService == null || mDevice == null || mDevInfo == null) {
                     LogUtil.e(TAG, "the service or dev is null!");
+                    break;
+                }
+
+                if(mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE && mDevInfo.getUserId() == 0) {
+                    LogUtil.e(TAG, "suarch dev!");
                     break;
                 }
 
