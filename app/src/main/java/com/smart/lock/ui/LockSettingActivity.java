@@ -92,8 +92,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private int REQUEST_CODE = 0;
 
     private boolean mVisibility = true;
-    private int[] mTimePickerValue = {12, 12, 12, 12};
-    private int[] mTempTimePickerValue = {1, 1, 1, 1};
+    private int[] mTimePickerValue = {23, 0, 7, 0};
+    private int[] mTempTimePickerValue = {12, 12, 12, 12};
     private int TIME_PICKER_CODE = 1;
 
     private Device mDevice;
@@ -196,13 +196,13 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             int endTimeInt = mDeviceStatus.getPowerSavingEndTime();
             if (startTimeInt == ConstantUtil.INVALID_POWER_SAVE_TIME || endTimeInt == ConstantUtil.INVALID_POWER_SAVE_TIME) {
                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
-            } else if (startTimeInt > 0 && endTimeInt < 2400) {
-                mTimePickerValue[0] = startTimeInt / 100 + 1;
-                mTimePickerValue[1] = startTimeInt % 100 + 1;
-                mTimePickerValue[2] = endTimeInt / 100 + 1;
-                mTimePickerValue[3] = endTimeInt % 100 + 1;
-                String startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
-                String endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
+            } else if (startTimeInt >= 0 && endTimeInt < 3000) {
+                mTimePickerValue[0] = startTimeInt / 100;
+                mTimePickerValue[1] = startTimeInt % 100;
+                mTimePickerValue[2] = endTimeInt / 100;
+                mTimePickerValue[3] = endTimeInt % 100;
+                String startTime = ConstantUtil.HOUR[mTimePickerValue[0]] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1]];
+                String endTime = ConstantUtil.HOUR[mTimePickerValue[2]] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3]];
                 mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
             } else {
                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
@@ -582,11 +582,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         String startTime = nowTime.replace(
                 11,
                 16,
-                ConstantUtil.HOUR[time[0] - 1] + ":" + ConstantUtil.MINUTE[time[1] - 1]).toString();
+                ConstantUtil.HOUR[time[0]] + ":" + ConstantUtil.MINUTE[time[1]]).toString();
         String endTime = nowTime.replace(
                 11,
                 16,
-                ConstantUtil.HOUR[time[2] - 1] + ":" + ConstantUtil.MINUTE[time[3] - 1]).toString();
+                ConstantUtil.HOUR[time[2]] + ":" + ConstantUtil.MINUTE[time[3]]).toString();
         // 获取时间戳 s
         try {
             long startStamp = DateTimeUtil.dateToStamp(startTime) / 1000;
@@ -651,20 +651,26 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     String startTime;
                     String endTime;
                     int[] closeByte = {12, 12, 12, 12};
+                    int[] initByte = {23, 0, 7, 0};
                     switch (errCode2E[3]) {
                         case BleMsg.TYPE_SET_POWER_SAVE_SUCCESS:
-                            mTimePickerValue = mTempTimePickerValue;
+                            if (Arrays.equals(mTempTimePickerValue, closeByte)) {
+                                mTimePickerValue = initByte;
+                            } else {
+                                mTimePickerValue = mTempTimePickerValue;
+                            }
                         case BleMsg.TYPE_SET_POWER_SAVE_FAILED:
-                            if (Arrays.equals(mTimePickerValue, closeByte)) {
+                            if (Arrays.equals(mTempTimePickerValue, closeByte) &&
+                                    Arrays.equals(mTimePickerValue, initByte)) {
                                 mDeviceStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME);
                                 mDeviceStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME);
                                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
                             } else {
-                                startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
-                                endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
+                                startTime = ConstantUtil.HOUR[mTimePickerValue[0]] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1]];
+                                endTime = ConstantUtil.HOUR[mTimePickerValue[2]] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3]];
                                 mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
-                                mDeviceStatus.setPowerSavingStartTime((mTimePickerValue[0] - 1) * 100 + mTimePickerValue[1] - 1);
-                                mDeviceStatus.setPowerSavingEndTime((mTimePickerValue[2] - 1) * 100 + mTimePickerValue[3] - 1);
+                                mDeviceStatus.setPowerSavingStartTime((mTimePickerValue[0]) * 100 + mTimePickerValue[1]);
+                                mDeviceStatus.setPowerSavingEndTime((mTimePickerValue[2]) * 100 + mTimePickerValue[3]);
                             }
                             DeviceStatusDao.getInstance(this).updateDeviceStatus(mDeviceStatus);
                             break;

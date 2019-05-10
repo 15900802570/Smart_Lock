@@ -126,7 +126,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
      * @return bool 是否创建成功
      */
     private boolean createTempPwd() {
-        if (mExistNum.size() > 30) {
+        if (mExistNum.size() >= 30) {
             ToastUtil.showShort(this, R.string.not_regenerate_temp_pwd);
             return false;
         } else {

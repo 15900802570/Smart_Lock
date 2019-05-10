@@ -138,10 +138,10 @@ public class TimePickerDefineDialog extends DialogFragment {
     }
 
     private void initData() {
-        mStartHourNP.setValue(value[0]);
-        mStartMinuteNP.setValue(value[1]);
-        mEndHourNP.setValue(value[2]);
-        mEndMinuteNP.setValue(value[3]);
+        mStartHourNP.setValue(value[0] + 1);
+        mStartMinuteNP.setValue(value[1] + 1);
+        mEndHourNP.setValue(value[2] + 1);
+        mEndMinuteNP.setValue(value[3] + 1);
     }
 
     private void initEvent() {
@@ -180,10 +180,10 @@ public class TimePickerDefineDialog extends DialogFragment {
     }
 
     private void setValue() {
-        value[0] = mStartHourNP.getValue();
-        value[1] = mStartMinuteNP.getValue();
-        value[2] = mEndHourNP.getValue();
-        value[3] = mEndMinuteNP.getValue();
+        value[0] = mStartHourNP.getValue() - 1;
+        value[1] = mStartMinuteNP.getValue() - 1;
+        value[2] = mEndHourNP.getValue() - 1;
+        value[3] = mEndMinuteNP.getValue() - 1;
     }
 
     private int[] getLastValue() {
