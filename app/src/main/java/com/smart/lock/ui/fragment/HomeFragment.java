@@ -713,7 +713,7 @@ public class HomeFragment extends BaseFragment implements
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
         LogUtil.i(TAG, "scanDevFiaed!");
         mDevice.setState(Device.BLE_DISCONNECTED);
         android.os.Message msg = new android.os.Message();

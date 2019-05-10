@@ -343,7 +343,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

@@ -122,6 +122,10 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
         mAddTv.setOnClickListener(this);
     }
 
+    public int getCounter(){
+        return mPwdAdapter.getItemCount();
+    }
+
     @Override
     public void deviceStateChange(Device device, int state) {
         LogUtil.i(TAG, "deviceStateChange : state is " + state);
@@ -200,7 +204,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

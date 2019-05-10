@@ -117,6 +117,10 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         mAddTv.setOnClickListener(this);
     }
 
+    public int getCounter(){
+        return mCardAdapter.getItemCount();
+    }
+
     @Override
     public void deviceStateChange(Device device, int state) {
         LogUtil.i(TAG, "deviceStateChange : state is " + state);
@@ -228,7 +232,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

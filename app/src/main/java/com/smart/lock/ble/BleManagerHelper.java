@@ -1,20 +1,13 @@
 package com.smart.lock.ble;
 
-import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -110,7 +103,7 @@ public class BleManagerHelper {
                 mBtAdapter.stopLeScan(mLeScanCallback);
             }
             for (UiListener uiListener : mUiListeners) {
-                uiListener.scanDevFialed();
+                uiListener.scanDevFailed();
             }
             Intent intent = new Intent();
             intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);

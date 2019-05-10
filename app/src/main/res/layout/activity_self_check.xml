@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rl_self_check_title"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/y81dp"
+        android:background="@color/app_bg"
+        tools:ignore="UselessParent">
+
+        <TextView
+            android:id="@+id/tv_self_check_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:padding="@dimen/y10dp"
+            android:text="@string/self_check"
+            android:textColor="#ff000000"
+            android:textSize="@dimen/d22sp" />
+
+        <ImageView
+            android:id="@+id/iv_self_check_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:paddingStart="@dimen/x15dp"
+            android:src="@mipmap/btn_back"
+            tools:ignore="ContentDescription,RtlSymmetry" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5sp"
+        android:background="@color/line" />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="@dimen/x106dp"
+        android:paddingStart="@dimen/x40dp"
+        android:paddingEnd="@dimen/x40dp"
+        android:weightSum="3"
+        tools:ignore="DisableBaselineAlignment">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            tools:ignore="UseCompoundDrawables">
+            <ImageView
+                android:id="@+id/iv_self_check_key"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/icon_ok"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/x54dp"
+                android:textSize="@dimen/d20sp"
+                android:text="@string/key"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            tools:ignore="UseCompoundDrawables">
+            <ImageView
+                android:id="@+id/iv_self_check_fp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/icon_ok"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/x54dp"
+                android:textSize="@dimen/d20sp"
+                android:text="@string/fingerprint"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            tools:ignore="UseCompoundDrawables">
+            <ImageView
+                android:id="@+id/iv_self_check_nfc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/icon_ok"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingTop="@dimen/x54dp"
+                android:textSize="@dimen/d20sp"
+                android:text="@string/nfc"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_self_check_tips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/x60dp"
+        android:textSize="@dimen/d19sp"
+        android:gravity="center"
+        android:text="@string/all_parts_are_working_properly"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/x41dp"
+        android:paddingTop="@dimen/x66dp"
+        android:paddingEnd="@dimen/x41dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_self_check_check"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/selector_button_self_check_green"
+            android:text="@string/self_check"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+
+
+</LinearLayout>

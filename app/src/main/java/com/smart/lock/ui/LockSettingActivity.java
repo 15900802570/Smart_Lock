@@ -204,7 +204,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 String startTime = ConstantUtil.HOUR[mTimePickerValue[0] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[1] - 1];
                 String endTime = ConstantUtil.HOUR[mTimePickerValue[2] - 1] + ":" + ConstantUtil.MINUTE[mTimePickerValue[3] - 1];
                 mSetPowerSavingTimeBs.setBtnDes(startTime + " -- " + endTime);
-            }else {
+            } else {
                 mSetPowerSavingTimeBs.setBtnDes(getString(R.string.close));
             }
         }
@@ -335,7 +335,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     }
                     mSetSupportCardBottomDialog.show();
                     break;
-                case R.id.bs_set_power_saving_time:
+                case R.id.bs_set_power_saving_time:     //设置蓝牙省电时间段
                     //    private Dialog mTimePickerDialog;
                     TimePickerDefineDialog mTimePickerDefineDialog = new TimePickerDefineDialog(mTimePickerValue,
                             true,
@@ -345,6 +345,13 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     break;
                 case R.id.next_version_info:        //查看版本信息
                     mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+                    break;
+                case R.id.next_self_check:
+                    Intent selfCheckIntent = new Intent(this, SelfCheckActivity.class);
+                    Bundle selfCheckBundle = new Bundle();
+                    selfCheckBundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                    selfCheckIntent.putExtras(selfCheckBundle);
+                    startActivity(selfCheckIntent);
                     break;
                 case R.id.next_ota_update:
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -700,7 +707,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

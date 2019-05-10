@@ -19,16 +19,21 @@ import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.CardFragment;
 import com.smart.lock.ui.fragment.FingerprintFragment;
 import com.smart.lock.ui.fragment.PwdFragment;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class DeviceKeyActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
     private final static String TAG = DeviceKeyActivity.class.getSimpleName();
@@ -37,6 +42,10 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private NoScrollViewPager mUserPermissionVp;
     private Toolbar mUserSetTb;
     private TextView mTitleTv;
+
+    private PwdFragment mPwdFragment;
+    private CardFragment mCardFragment;
+    private FingerprintFragment mFPFragment;
 
     private boolean mDeleteMode = false;
 
@@ -77,7 +86,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mTitleList.add(getString(R.string.fingerprint));
         mTitleList.add(getString(R.string.card));
 
-        mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
+        mTempUser = (DeviceUser) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mBleManagerHelper = BleManagerHelper.getInstance(this, false);
 
@@ -85,16 +94,16 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
 
         mUsersList = new ArrayList<>();
-        PwdFragment pwdFragment = new PwdFragment();
-        pwdFragment.setTempUser(mTempUser);
-        FingerprintFragment fpFragment = new FingerprintFragment();
-        fpFragment.setTempUser(mTempUser);
-        CardFragment cardFragment = new CardFragment();
-        cardFragment.setTempUser(mTempUser);
+        mPwdFragment = new PwdFragment();
+        mPwdFragment.setTempUser(mTempUser);
+        mFPFragment = new FingerprintFragment();
+        mFPFragment.setTempUser(mTempUser);
+        mCardFragment = new CardFragment();
+        mCardFragment.setTempUser(mTempUser);
 
-        mUsersList.add(pwdFragment);
-        mUsersList.add(fpFragment);
-        mUsersList.add(cardFragment);
+        mUsersList.add(mPwdFragment);
+        mUsersList.add(mFPFragment);
+        mUsersList.add(mCardFragment);
         mUserPagerAdapter = new UserPagerAdapter(getSupportFragmentManager());
         mUserPermissionVp.setAdapter(mUserPagerAdapter);
 
@@ -115,7 +124,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mUserSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                onBackPressed();
             }
         });
     }
@@ -186,6 +195,23 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+        if (deviceStatus.isCombinationLock()) {
+            int counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();
+            if (counter < 2){
+                DialogUtils.createTipsDialogWithConfirm(this,getString(R.string.two_or_more_unlocking_keys_must_be_set)).show();
+                return;
+            }
+            LogUtil.d(TAG, "Counter = " + counter);
+        }
+        super.onBackPressed();
+        finish();
 
     }
 }

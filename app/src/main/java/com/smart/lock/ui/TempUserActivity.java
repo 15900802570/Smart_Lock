@@ -327,7 +327,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

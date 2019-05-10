@@ -128,6 +128,10 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         mAddTv.setOnClickListener(this);
     }
 
+    public int getCounter(){
+        return mFpAdapter.getItemCount();
+    }
+
     @Override
     public void onHiddenChanged(boolean hidden) {
         LogUtil.d(TAG, "hidden = " + hidden);
@@ -267,7 +271,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

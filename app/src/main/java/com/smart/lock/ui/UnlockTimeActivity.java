@@ -634,7 +634,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

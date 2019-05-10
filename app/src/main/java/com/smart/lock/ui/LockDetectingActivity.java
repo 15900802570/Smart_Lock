@@ -532,8 +532,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     }
 
     @Override
-    public void scanDevFialed() {
-        LogUtil.i(TAG, "scanDevFialed!");
+    public void scanDevFailed() {
+        LogUtil.i(TAG, "scanDevFailed!");
         mDevice.setState(Device.BLE_DISCONNECTED);
         android.os.Message msg = new android.os.Message();
         msg.what = BleMsg.SCAN_DEV_FIALED;
