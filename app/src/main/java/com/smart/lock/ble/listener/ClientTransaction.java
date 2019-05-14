@@ -74,7 +74,7 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
         if (timer.isActive()) {
             BleMsgProvider.removeBleMsgListener(this);
             timer.halt();
-            mMessage.recycle();
+//            mMessage.recycle();
         }
     }
 

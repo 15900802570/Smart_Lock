@@ -1,5 +1,7 @@
 package com.smart.lock.ble.listener;
 
+import android.bluetooth.BluetoothGatt;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +26,7 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -51,6 +54,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     private static final int MSG_POLLING_BLE = 4; //轮询
     private static final int MSG_ADD_USER_SUCCESS = 1; //添加设备成功
     private static final int MSG_REGISTER = 2;//注册蓝牙设备
+    private static final int MSG_CHANGE_GATT_STATE = 5;//GATT State
     private static final String MSG_RECEIVER = "receiver_msg";
     private static final int RUN_ON_UI_THREAD = 3; //UI线程
     private Handler mHandler;
@@ -107,7 +111,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onConnected() {
-        LogUtil.i(TAG, "onConnected : change dev state from : " + mDevice.getState() + " to: " + Device.BLE_CONNECTED);
         android.os.Message msg = new android.os.Message();
         msg.what = Device.BLE_CONNECTED;
         mHandler.sendMessage(msg);
@@ -119,8 +122,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setState(Device.BLE_DISCONNECTED);
         MessageCreator.m128AK = null;
         MessageCreator.m256AK = null;
-        mService.disconnect();
-        mService.close();
+        if (mService != null) {
+            mService.disconnect();
+            mService.close();
+        }
         android.os.Message message = new android.os.Message();
         switch (mDevice.getConnectType()) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
@@ -136,7 +141,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     message.what = BleMsg.STATE_DISCONNECTED;
                     mHandler.sendMessage(message);
                     return;
-                } else if (!defaultDevice.getBleMac().equals(mDevInfo.getBleMac())) {
+                } else if (mDevInfo != null && !defaultDevice.getBleMac().equals(mDevInfo.getBleMac())) {
                     LogUtil.e(TAG, "change default dev to connect!");
                     halt();
                     mDevice = Device.getInstance(mCtx);
@@ -156,6 +161,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mHandler.sendMessage(message);
                 halt();
                 break;
+            case Device.BLE_SEARCH_DEV_CONNECT:
+                message.what = BleMsg.STATE_DISCONNECTED;
+                mHandler.sendMessage(message);
+                halt();
+                break;
             default:
                 break;
         }
@@ -168,12 +178,19 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setState(Device.BLE_CONNECTION);
         android.os.Message msg = new android.os.Message();
         msg.what = MSG_REGISTER;
-        mHandler.sendMessageDelayed(msg, 1000); //收到服务后，等待1S
+        mHandler.sendMessageDelayed(msg, 500); //收到服务后，等待0.5s
     }
 
     @Override
-    public void onOtaStateChanged(int state) {
+    public void onGattStateChanged(int state) {
+        LogUtil.i(TAG, "deviceStateChange : state is " + state);
 
+        Bundle extra = new Bundle();
+        extra.putInt("gatt_state", state);
+        android.os.Message msg = new android.os.Message();
+        msg.what = MSG_CHANGE_GATT_STATE;
+        msg.setData(extra);
+        mHandler.sendMessage(msg);
     }
 
     @Override
@@ -204,8 +221,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     public void close() {
         mDevInfo = null;
-        mDevice.halt();
-        mUiListeners.clear();
+        if (mDevice != null)
+            mDevice.halt();
+        if (!mUiListeners.isEmpty()) {
+            mUiListeners.clear();
+        }
+        if (mInstance != null)
+            mInstance = null;
     }
 
     private void receiverLog(Bundle bundle) {
@@ -289,7 +311,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      */
     public boolean scanQrRegister() {
         LogUtil.i(TAG, "scan qr register ble!");
-        if (mDevInfo == null) return false;
+        if (mDevInfo == null || mService == null) return false;
         return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
 
     }
@@ -301,11 +323,18 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      */
     public boolean otherRegister() {
         LogUtil.i(TAG, "other register ble!");
+        if (mService == null) return false;
         if (mDevInfo != null) {
             return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-        } else
-            return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
+        }
+        return false;
+    }
 
+    public boolean searchRegister() {
+        LogUtil.i(TAG, "search register ble!");
+        if (mService == null) return false;
+
+        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
     }
 
     /**
@@ -315,7 +344,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      */
     public boolean setInfoRegister() {
         LogUtil.i(TAG, "set devinfo register ble!");
-        if (mDevInfo == null) return false;
+        if (mDevInfo == null || mService == null) return false;
         String bleMac = mDevInfo.getBleMac().replace(mCtx.getString(R.string.colon), "");
         String nodeId = mDevInfo.getDeviceNodeId();
         String sn = mDevInfo.getDeviceSn();
@@ -513,7 +542,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 }
 
-                if(mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE && mDevInfo.getUserId() == 0) {
+                if (mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE && mDevInfo.getUserId() == 0) {
                     LogUtil.e(TAG, "suarch dev!");
                     break;
                 }
@@ -537,7 +566,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 }
 
-                if(mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE && mDevInfo.getUserId() == 0) {
+                if (mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE && mDevInfo.getUserId() == 0) {
                     LogUtil.e(TAG, "suarch dev!");
                     break;
                 }
@@ -561,6 +590,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mService.disconnect();
                 }
                 break;
+            case MSG_CHANGE_GATT_STATE:
+                int state = msg.getData().getInt("gatt_state", -1);
+                for (UiListener uiListener : mUiListeners) {
+                    uiListener.deviceStateChange(mDevice, state);
+                }
+                break;
+
             case MSG_REGISTER:
                 switch (mDevice.getConnectType()) {
                     case Device.BLE_SCAN_QR_CONNECT_TYPE:
@@ -571,6 +607,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         break;
                     case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
                         setInfoRegister();
+                        break;
+                    case Device.BLE_SEARCH_DEV_CONNECT:
+                        searchRegister();
                         break;
                     default:
                         scanQrRegister();
@@ -602,7 +641,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         return true;
     }
 
-    private void dispatchMessage(Message message, TimerProvider timer) {
+    private synchronized void dispatchMessage(Message message, TimerProvider timer) {
         LogUtil.d(TAG, message.toString());
         try {
             int type = message.getType();
@@ -651,11 +690,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     String addUserId = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_USER_ID));
                     byte[] nodeIdBuf = extra.getByteArray(BleMsg.KEY_NODE_ID);
                     StringUtil.exchange(nodeIdBuf);
+                    LogUtil.d(TAG, "nodeIdBuf + " + Arrays.toString(nodeIdBuf));
                     String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
                     String time = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_LOCK_TIME));
                     String randCode = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_RAND_CODE));
                     DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
-
+                    LogUtil.d(TAG, "nodeId = " + nodeId);
                     mDevInfo.setActivitedTime(Long.parseLong(time, 16));
                     mDevInfo.setConnectType(false);
                     mDevInfo.setUserId(Short.parseShort(addUserId, 16));
@@ -703,6 +743,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     short userId = (short) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                     if (userId == mDevInfo.getUserId()) {
                         byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                        LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);
 

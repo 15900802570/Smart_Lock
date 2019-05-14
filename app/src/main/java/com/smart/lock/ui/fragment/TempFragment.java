@@ -31,6 +31,7 @@ import com.smart.lock.ble.listener.UiListener;
 
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
@@ -43,6 +44,7 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -97,11 +99,12 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     showMessage(mCtx.getResources().getString(R.string.tmp_user) + mCtx.getResources().getString(R.string.add_user_tips));
                     return;
                 }
-                DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
-                if (mDevice.getState() == Device.BLE_CONNECTED)
+
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CONNECT_ADD_TEMP, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
-                else showMessage(getString(R.string.disconnect_ble));
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_tv:
                 if (mTempAdapter.mDeleteUsers.size() != 0) {
@@ -238,9 +241,13 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         mDevice = device;
+        Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+        if (serializable != null && !(serializable instanceof DeviceUser)) {
+            return;
+        }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
-                DeviceUser user = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                DeviceUser user = (DeviceUser) serializable;
                 if (user != null) {
                     DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                     if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
@@ -253,7 +260,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     dispatchErrorCode(errCode[3], user);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_12:
-                DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                DeviceUser addUser = (DeviceUser) serializable;
                 if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
@@ -261,8 +268,10 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
                 authBuf[0] = 0x03;
+                byte[] nodeIdBuf = extra.getByteArray(BleMsg.KEY_NODE_ID);
+                StringUtil.exchange(nodeIdBuf);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_USER_ID), 0, authBuf, 1, 2);
-                System.arraycopy(extra.getByteArray(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
+                System.arraycopy(nodeIdBuf, 0, authBuf, 3, 8);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 10);
 
@@ -540,9 +549,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 holder.mUserPause.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         } else showMessage(getString(R.string.disconnect_ble));
                     }
@@ -551,9 +560,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 holder.mUserRecovery.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         } else showMessage(getString(R.string.disconnect_ble));
                     }
@@ -624,6 +633,13 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
 
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mTempAdapter.setDataSource();
+        mTempAdapter.notifyDataSetChanged();
     }
 
     @Override

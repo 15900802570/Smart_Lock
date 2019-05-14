@@ -31,7 +31,7 @@ public class BleCmd03Creator implements BleCreator {
 
         if (extra == null) throw new RuntimeException("AK is error!");
 
-        short cmdLen = 20;
+        short cmdLen = 16;
         byte[] cmd = new byte[128];
 
         byte[] respRandom = extra.getByteArray(BleMsg.KEY_RANDOM);

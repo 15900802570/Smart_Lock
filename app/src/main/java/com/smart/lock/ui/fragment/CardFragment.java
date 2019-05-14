@@ -38,6 +38,7 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -147,7 +148,11 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                     dispatchErrorCode(errCode[3]);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_16:
-                DeviceKey key = (DeviceKey) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                if (serializable != null && !(serializable instanceof DeviceKey)) {
+                    return;
+                }
+                DeviceKey key = (DeviceKey) serializable;
                 LogUtil.d(TAG, "key = " + ((key == null) ? true : key.toString()));
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_NFC)) {
                     DialogUtils.closeDialog(mLoadDialog);

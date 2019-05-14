@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattServer;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
@@ -31,6 +33,7 @@ import com.smart.lock.utils.SystemUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Service for managing connection and data communication with a GATT server
@@ -125,18 +128,18 @@ public class BleCardService {
                 mStartTime = System.currentTimeMillis();
                 mConnectionState = STATE_CONNECTED;
                 mEndTime2 = System.currentTimeMillis();
-                LogUtil.d(TAG, "connect to success : " + (mEndTime2 - mStartTime2));
-                Log.i(TAG, "Connected to GATT server.");
+                LogUtil.d(TAG, "Connected to GATT server.: " + (mEndTime2 - mStartTime2));
                 // Attempts to discover services after successful connection.
-                Log.i(TAG, "Attempting to start service discovery:" + mBluetoothGatt.discoverServices());
-//                mBleChannel.notifyData(BleMsg.ACTION_GATT_CONNECTED);
+                if (!gatt.discoverServices()) {
+                    LogUtil.d("remote service discovery has been stopped status = " + newState);
+                    disconnect();
+                }
                 mDevStateCallback.onConnected(); //成功回调
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                Log.i(TAG, "refresh ble :" + refreshDeviceCache());
+//                Log.i(TAG, "refresh ble :" + refreshDeviceCache());
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
-//                mBleChannel.notifyData(BleMsg.ACTION_GATT_DISCONNECTED);
                 mDevStateCallback.onDisconnected();
             }
         }
@@ -147,6 +150,13 @@ public class BleCardService {
                 mEndTime = System.currentTimeMillis();
                 LogUtil.d(TAG, "connect to onServices : " + (mEndTime - mStartTime));
                 mDevStateCallback.onServicesDiscovered(status);
+
+//                for (BluetoothGattService service: gatt.getServices()){
+//                    LogUtil.d(TAG, "server uuid : " + service.getUuid().toString());
+//                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()){
+//                        LogUtil.d(TAG, "characteristic uuid : " + characteristic.getUuid().toString());
+//                    }
+//                }
                 if (mBleProvider != null) {
                     mBleProvider.enableTXNotification();
                 }
@@ -172,7 +182,6 @@ public class BleCardService {
             Log.w(TAG, "onCharacteristicChanged()");
 
             if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
-                LogUtil.d(TAG, "characteristic.getValue() length : " + characteristic.getValue().length);
                 mBleProvider.onReceiveBle(characteristic.getValue());
             }
         }
@@ -180,13 +189,7 @@ public class BleCardService {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.d(TAG, "onCharacteristicWrite() status = " + status);
-
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-//                mBleChannel.changeChannelState(BleChannel.STATUS_CHANNEL_WAIT);
-//                mBleChannel.notifyData(BleMsg.ACTION_CHARACTERISTIC_WRITE);
-            } else {
-                Log.e(TAG, "onCharacteristicWrite() status = " + status);
-            }
+            mDevStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS);
         }
     };
 
@@ -330,25 +333,20 @@ public class BleCardService {
      * resources are released properly.
      */
     public void close() {
-        if (mBluetoothGatt == null) {
-            return;
-        }
+
         Log.w(TAG, "mBluetoothGatt closed");
         mBluetoothDeviceAddress = null;
         Log.w(TAG, "mBluetoothGatt : " + (mBluetoothGatt == null));
-        mBluetoothGatt.close();
-        mBluetoothGatt = null;
-
-        mBleReceiver.unregisterReceiver(mCtx);
-        mBleProvider.unRegisterclear();
-        mBleProvider.halt();
+        if (mBluetoothGatt != null) {
+            mBluetoothGatt.close();
+            mBluetoothGatt = null;
+        }
+        if (mBleReceiver != null) {
+            mBleReceiver.unregisterReceiver(mCtx);
+            mBleProvider.unRegisterclear();
+            mBleProvider.halt();
+        }
     }
-
-
-    private void showMessage(String msg) {
-        Log.e(TAG, msg);
-    }
-
 
     /**
      * MSG 01
@@ -622,16 +620,17 @@ public class BleCardService {
 
     /**
      * MSG 2D 设置省电时间段
+     *
      * @param powerSaveTime Byte[] 省电时间段
      * @return bool
      */
-    public boolean sendCmd2D(final byte[] powerSaveTime){
+    public boolean sendCmd2D(final byte[] powerSaveTime) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_2D);
         Bundle bundle = msg.getData();
         if (powerSaveTime != null && powerSaveTime.length == 8) {
             bundle.putByteArray(BleMsg.KEY_POWER_SAVE, powerSaveTime);
-        }else {
+        } else {
             return false;
         }
         return mBleProvider.send(msg);

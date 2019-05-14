@@ -479,7 +479,6 @@ public class BleProvider {
 
         mRspLength += command.length;
 
-        Log.d(TAG, "mRspLength : " + mRspLength);
         if (mRspLength < mPacketLength) {
             return;
         }
@@ -692,11 +691,13 @@ public class BleProvider {
     public synchronized void halt() {
         Thread t = receiverThread;
         receiverThread = null;
-        t.interrupt();
+        if (t != null)
+            t.interrupt();
 
         t = sendThread;
         sendThread = null;
-        t.interrupt();
+        if (t != null)
+            t.interrupt();
 
         bleCommandQueue.clear();
         messageQueue.clear();
@@ -823,9 +824,12 @@ public class BleProvider {
     }
 
     public boolean sendOta(byte[] value, int type) {
-        final UUID RX_SERVICE_UUID = UUID.fromString("0000ffa0-0000-1000-8000-00805f9b34fb");
-        final UUID RX_CMD_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb");
-        final UUID RX_DATA_UUID = UUID.fromString("0000ffa2-0000-1000-8000-00805f9b34fb");
+//        final UUID RX_SERVICE_UUID = UUID.fromString("0000ffa0-0000-1000-8000-00805f9b34fb");
+//        final UUID RX_CMD_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb");
+//        final UUID RX_DATA_UUID = UUID.fromString("0000ffa2-0000-1000-8000-00805f9b34fb");
+
+        final UUID RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
+        final UUID RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
 
         try {
             Thread.sleep(20);
@@ -834,16 +838,12 @@ public class BleProvider {
 
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 
-        Log.d(TAG, "RxService = " + (RxService == null));
+        Log.e(TAG, "RxService = " + (RxService == null));
         if (RxService == null) {
             return false;
         }
         BluetoothGattCharacteristic RxChar = null;
-        if (type == com.smart.lock.ble.message.Message.TYPE_BLE_SEND_OTA_CMD) {
-            RxChar = RxService.getCharacteristic(RX_CMD_UUID);
-        } else if (type == com.smart.lock.ble.message.Message.TYPE_BLE_SEND_OTA_DATA) {
-            RxChar = RxService.getCharacteristic(RX_DATA_UUID);
-        }
+        RxChar = RxService.getCharacteristic(RX_CMD_UUID);
 
         if (RxChar == null) {
             return false;

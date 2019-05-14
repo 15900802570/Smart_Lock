@@ -41,6 +41,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -67,15 +68,17 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         switch (v.getId()) {
             case R.id.tv_add:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
+                LogUtil.d(TAG, "users size : " + users.size());
                 if (users.size() >= 90) {
                     showMessage(mCtx.getResources().getString(R.string.members) + mCtx.getResources().getString(R.string.add_user_tips));
                     return;
                 }
-                DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
-                if (mDevice.getState() == Device.BLE_CONNECTED)
+
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CONNECT_ADD_MUMBER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
-                else showMessage(getString(R.string.disconnect_ble));
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
 //            case R.id.cb_selete_user:
 //                LogUtil.d(TAG, "choise user delete : " + mSelectBtn.getText().toString());
@@ -225,9 +228,13 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         mDevice = device;
         Bundle extra = msg.getData();
+        Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+        if (serializable != null && !(serializable instanceof DeviceUser)) {
+            return;
+        }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
-                DeviceUser user = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                DeviceUser user = (DeviceUser) serializable;
                 if (user != null) {
                     DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                     if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
@@ -240,7 +247,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     dispatchErrorCode(errCode[3], user);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_12:
-                DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                DeviceUser addUser = (DeviceUser) serializable;
                 if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
@@ -248,8 +255,10 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
                 authBuf[0] = 0x02;
+                byte[] nodeIdBuf = extra.getByteArray(BleMsg.KEY_NODE_ID);
+                StringUtil.exchange(nodeIdBuf);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_USER_ID), 0, authBuf, 1, 2);
-                System.arraycopy(extra.getByteArray(BleMsg.KEY_NODE_ID), 0, authBuf, 3, 8);
+                System.arraycopy(nodeIdBuf, 0, authBuf, 3, 8);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
                 System.arraycopy(extra.getByteArray(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 10);
                 byte[] timeBuf = new byte[4];
@@ -259,7 +268,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 Arrays.fill(authBuf, 31, 32, (byte) 0x01);
 
                 String userId = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_USER_ID));
-                LogUtil.d(TAG, "userId = " + userId);
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
                 } catch (Exception e) {
@@ -277,7 +285,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                         DialogUtils.closeDialog(mLoadDialog);
                     }
                 }
-
 
                 break;
             default:
@@ -388,6 +395,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         public MemberAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
+            LogUtil.d(TAG, "muserlist size : " + mUserList.size());
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId() == mDefaultUser.getUserId()) {
@@ -480,7 +488,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         @Override
         public void onBindViewHolder(final MemberViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
-            LogUtil.d(TAG, "userinfo : " + userInfo.toString());
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
@@ -528,9 +535,9 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 holder.mUserPause.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         } else showMessage(getString(R.string.disconnect_ble));
                     }
@@ -539,9 +546,9 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 holder.mUserRecovery.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         } else showMessage(getString(R.string.disconnect_ble));
                     }

@@ -341,7 +341,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 mTempUser.setLcBegin(mStartDate.getText().toString());
                 mTempUser.setLcEnd(mEndDate.getText().toString());
                 mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                DeviceUserDao.getInstance(TempUserActivity.this).updateDeviceUser(mTempUser);
+                mTempUser.setUserName(mEtMome.getText().toString().trim());
+                DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 showMessage(getString(R.string.set_life_cycle_success));
                 break;
             default:

@@ -18,7 +18,7 @@ public class DtComFunHelper {
      * @param deviceInfo 设备信息
      * @return Boolean
      */
-    public static boolean RestoreFactorySettings(Context context, DeviceInfo deviceInfo) {
+    public static boolean restoreFactorySettings(Context context, DeviceInfo deviceInfo) {
         try {
             String nodeId = deviceInfo.getDeviceNodeId();
             DeviceKeyDao.getInstance(context).deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, nodeId);

@@ -142,30 +142,30 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 changeVisible();
                 break;
             case R.id.del_all_pwd:
-                DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_PASSWORD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_fp:
-                DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FINGERPRINT, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_card:
-                DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_user:
-                DialogUtils.closeDialog(mLoadDialog);
-                mLoadDialog.show();
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd13(BleMsg.TYPE_DELETE_ALL_USER, BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
@@ -185,10 +185,10 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     }
 
     public void changeVisible() {
-        if(mDeleteMode){
+        if (mDeleteMode) {
             mDeleteItem.setTitle(getString(R.string.edit));
             mDeleteMode = false;
-        }else {
+        } else {
             mDeleteItem.setTitle(getString(R.string.edit_back));
             mDeleteMode = true;
         }
@@ -357,17 +357,20 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 showMessage(getString(R.string.delete_key_failed));
                 break;
             case BleMsg.TYPE_DELETE_FP_SUCCESS:
-                showMessage(getString(R.string.delete_fp_success));
+                showMessage(getString(R.string.delete_key_success));
                 break;
             case BleMsg.TYPE_DELETE_FP_FAILED:
-                showMessage(getString(R.string.delete_fp_failed));
+                showMessage(getString(R.string.delete_key_failed));
                 break;
             case BleMsg.TYPE_GROUP_DELETE_USER_SUCCESS:
-                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(UserManagerActivity.this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+                ArrayList<DeviceUser> users = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+                LogUtil.d(TAG, "mDefaultDevice.getUserId() : " + mDefaultDevice.getUserId());
                 for (DeviceUser user : users) {
-                    if (!(user.getUserId() == mDefaultDevice.getUserId())) {
-                        DeviceUserDao.getInstance(UserManagerActivity.this).delete(user);
-                        DeviceKeyDao.getInstance(UserManagerActivity.this).deleteUserKey(user.getUserId(), user.getDevNodeId()); //删除开锁信息
+                    LogUtil.d(TAG, "user id : " + user.getUserId());
+                    if (user.getUserId() != mDefaultDevice.getUserId()) {
+
+                        DeviceUserDao.getInstance(this).delete(user);
+                        DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId()); //删除开锁信息
                     }
                 }
 

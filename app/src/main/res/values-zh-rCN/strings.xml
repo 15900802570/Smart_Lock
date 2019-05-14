@@ -31,7 +31,6 @@
     <string name="bt_connected">已连接</string>
     <string name="bt_setting">设置</string>
     <string name="bt_update_time">更新于:</string>
-
     <string name="card_manager">卡片管理</string>
     <string name="password_manager">密码管理</string>
     <string name="fingerprint_manager">指纹管理</string>
@@ -101,7 +100,7 @@
     <string name="pause_user_success">暂停用户成功</string>
     <string name="pause_user_failed">暂停用户失败</string>
     <string name="add_user_success">新增用户成功</string>
-    <string name="add_user_failed">新增用户失败</string>
+    <string name="add_user_failed">用户已满,添加失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
     <string name="add_nfc_failed">录入卡片失败</string>
@@ -118,6 +117,7 @@
     <string name="fp_full">指纹已满</string>
     <string name="fp_exist">指纹已存在</string>
     <string name="device_busy">设备忙</string>
+    <string name="ble_busy">蓝牙连接中或已连接</string>
     <string name="delete_fp_failed">删除指纹失败</string>
     <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>

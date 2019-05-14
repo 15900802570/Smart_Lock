@@ -132,7 +132,6 @@ public class ScanQRHelper implements UiListener {
         String mUserType = StringUtil.bytesToHexString(typeBytes);
         LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(copyNumBytes));
         mUserId = StringUtil.bytesToHexString(copyNumBytes);
-        StringUtil.exchange(ImeiBytes);
         mNodeId = StringUtil.bytesToHexString(ImeiBytes);
         mBleMac = Objects.requireNonNull(StringUtil.bytesToHexString(bleMACBytes)).toUpperCase();
         mRandCode = StringUtil.bytesToHexString(randCodeBytes);
@@ -163,10 +162,10 @@ public class ScanQRHelper implements UiListener {
     }
 
     private void addDev() {
-        if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
+       if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, "授权码已过期，请重新请求");
             alterDialog.show();
-        } else if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
+        } else  if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
             ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
             if (mActivity.getIntent().getExtras() != null && mDevice != null) {
@@ -200,8 +199,8 @@ public class ScanQRHelper implements UiListener {
     }
 
     private void onAuthenticationFailed() {
-        if (mBleManagerHelper.getBleCardService() != null && mBleManagerHelper.getServiceConnection()) {
-            mBleManagerHelper.getBleCardService().close();
+        if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().disconnect();
         }
         DialogUtils.closeDialog(mLoadDialog);
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));
@@ -324,6 +323,8 @@ public class ScanQRHelper implements UiListener {
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
                 DialogUtils.closeDialog(mLoadDialog);
+
+                onAuthenticationFailed();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
             case Message.TYPE_BLE_RECEIVER_CMD_26:

@@ -484,4 +484,5 @@ public class BleMsg {
      */
     public static final byte TYPE_RAND_ERROR = 0x01; //随机数校验失败
     public static final byte TYPE_USER_NOT_EXIST = 0x02; //用户不存在
+    public static final byte  ERR0E_NO_AUTHORITY = 0X03;//无权限
 }

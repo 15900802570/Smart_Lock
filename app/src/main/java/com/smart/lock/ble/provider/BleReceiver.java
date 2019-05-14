@@ -31,6 +31,8 @@ public class BleReceiver extends BroadcastReceiver {
      */
     private BleProvider mProvider;
 
+    private boolean mIsRegister = false;
+
     /**
      * 构造方法
      *
@@ -57,6 +59,7 @@ public class BleReceiver extends BroadcastReceiver {
         }
 
         context.registerReceiver(this, filter);
+        mIsRegister = true;
     }
 
     /**
@@ -65,7 +68,10 @@ public class BleReceiver extends BroadcastReceiver {
      * @param context
      */
     public void unregisterReceiver(Context context) {
-        context.unregisterReceiver(this);
+        if (mIsRegister) {
+            mIsRegister = false;
+            context.unregisterReceiver(this);
+        }
     }
 
     /**

@@ -354,4 +354,5 @@
     <string name="lock_log">Lock log</string>
     <string name="lock_log_set_success">Log set success</string>
     <string name="lock_log_set_failed">Log set failed</string>
+    <string name="ble_busy">Bluetooth is connection or conneed</string>
 </resources>

@@ -490,7 +490,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
      * 清除应用所有的数据
      */
     public void clearAllDataOfApplication() {
-        if (DtComFunHelper.RestoreFactorySettings(this, mDefaultDevice)) {
+        if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
             mRestore = true;
             mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
             if (mDefaultDevice != null) {

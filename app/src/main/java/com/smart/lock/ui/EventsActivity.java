@@ -172,7 +172,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     mEventAdapter.mDeleteLogs.clear();
                     mEventAdapter.chioseALLDelete(false);
                     mSelectCb.setChecked(false);
-
                     if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                         mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
                     } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
@@ -299,6 +298,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
                     mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
                 }
+
                 mEventAdapter.setDataSource(mLogs);
                 mEventAdapter.notifyDataSetChanged();
                 DialogUtils.closeDialog(mLoadDialog);
@@ -383,24 +383,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             }
         }
 
-        public View getHeaderView() {
-            return mHeaderView;
-        }
-
-        public void setHeaderView(View headerView) {
-            mHeaderView = headerView;
-            notifyItemInserted(0);
-        }
-
-        public View getFooterView() {
-            return mFooterView;
-        }
-
-        public void setFooterView(View footerView) {
-            mFooterView = footerView;
-            LogUtil.d(TAG, "getItemCount = " + getItemCount());
-            notifyItemInserted(getItemCount() - 1);
-        }
 
         @Override
         public int getItemViewType(int position) {

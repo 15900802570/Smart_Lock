@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,8 @@ import android.widget.Toast;
 import com.smart.lock.R;
 import com.smart.lock.action.AbstractTransaction;
 import com.smart.lock.action.CheckVersionAction;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.parser.BleOtaPacketParser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.entity.VersionModel;
@@ -37,6 +40,7 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -52,7 +56,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Objects;
 
-public class OtaUpdateActivity extends Activity implements View.OnClickListener {
+public class OtaUpdateActivity extends Activity implements View.OnClickListener, UiListener {
 
     private static final String TAG = OtaUpdateActivity.class.getSimpleName();
     /**
@@ -184,7 +188,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
 
     private final static int PAYLOAD_LEN = 20;
 
-    private boolean bWriteDfuData;
+    private boolean bWriteDfuData = false;
 
     /**
      * 蓝牙服务类
@@ -240,6 +244,18 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
      */
     private Thread mThread;
 
+    private Device mDevice;
+
+    public static final int OTA_PREPARE = 0xFF00;
+    public static final int OTA_START = 0xFF01;
+    public static final int OTA_END = 0xFF02;
+
+    private static final int TAG_OTA_PREPARE = 0;
+    private static final int TAG_OTA_START = 1;
+    private static final int TAG_OTA_END = 2;
+
+    private final BleOtaPacketParser mOtaParser = new BleOtaPacketParser();
+
     /**
      * handler处理消息
      */
@@ -272,8 +288,12 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                     mConnetStatus.setText(R.string.new_dev_version);
 
                     gCmdBytes = FileUtil.loadFirmware(mDevicePath);
+
+                    mOtaParser.set(gCmdBytes);
+
                     mStartBt.setEnabled(true);
                     showMessage(getString(R.string.down_finish));
+
                     break;
                 case DOWNLOAD_ERROR:
                     isSuccess = false;
@@ -303,7 +323,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         initDate();
 
         changeView(0);
-
     }
 
 
@@ -337,13 +356,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
 
         mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(otaReceiver, makeGattUpdateIntentFilter());
-
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         mBleManagerHelper = BleManagerHelper.getInstance(this, true);
-        if (mBleManagerHelper.getServiceConnection()) {
-            mBleManagerHelper.getBleCardService().sendCmd19((byte) 7);
+        mBleManagerHelper.addUiListener(this);
+        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+
+        if (mDevice != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
         }
 
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -353,6 +373,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
 
     /**
      * 得到文件的保存路径
+     * jhj
      *
      * @return
      * @throws IOException
@@ -569,127 +590,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         handler.sendMessage(m);
     }
 
-    private void initLeCallback() {
-
-        mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
-            @Override
-            public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        if (device.getAddress().equals(mDefaultDev.getBleMac())) {
-                            LogUtil.d(TAG, "dev rssi = " + rssi + device.getName());
-                            mHandler.removeCallbacks(mRunnable);
-                            mBtAdapter.stopLeScan(mLeScanCallback);
-                            LogUtil.d(TAG, "mIsConnected = " + mBleManagerHelper.getServiceConnection());
-                            if (!mBleManagerHelper.getServiceConnection() && mBleManagerHelper.getBleCardService() != null) {
-//                                boolean result = mBleManagerHelper.getBleCardService().connect(mDefaultDev.getBleMac());
-//                                LogUtil.d(TAG, "result = " + result);
-
-                            }
-                        }
-
-                    }
-                });
-            }
-        };
-    }
-
-    /**
-     * 广播action
-     *
-     * @returninter
-     */
-    private static IntentFilter makeGattUpdateIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BleMsg.STR_RSP_SECURE_CONNECTION_OTA);
-        intentFilter.addAction(BleMsg.STR_RSP_SET_TIMEOUT);
-        intentFilter.addAction(BleMsg.STR_RSP_OTA_MODE);
-        intentFilter.addAction(BleMsg.ACTION_CHARACTERISTIC_WRITE);
-        intentFilter.addAction(BleMsg.STR_RSP_MSG1C_VERSION);
-        return intentFilter;
-    }
-
-    /**
-     * 蓝牙广播接收器
-     */
-    private final BroadcastReceiver otaReceiver = new BroadcastReceiver() {
-
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action == null) {
-                return;
-            }
-            if (action.equals(BleMsg.STR_RSP_MSG1C_VERSION)) {
-                String sn = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_NODE_SN));
-                String swVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_SW_VER));
-                String hwVer = StringUtil.asciiDeBytesToCharString(intent.getByteArrayExtra(BleMsg.KEY_HW_VER));
-                LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
-                        "HW VERSION = " + hwVer + '\n' +
-                        "SN = " + sn);
-                mDefaultDev.setDeviceSn(sn);
-                mDefaultDev.setDeviceSwVersion(swVer);
-                mDefaultDev.setDeviceHwVersion(hwVer);
-                DeviceInfoDao.getInstance(OtaUpdateActivity.this).updateDeviceInfo(mDefaultDev);
-                checkDevVersion();
-            }
-
-            if (action.equals(BleMsg.STR_RSP_SECURE_CONNECTION_OTA)) {
-                mAK = intent.getByteArrayExtra(BleMsg.KEY_AK);
-                mConnetStatus.setText(R.string.connect_ota_success);
-
-                if (mAK != null && mAK.length != 0) {
-                    if (mBleManagerHelper.getBleCardService() != null) {
-                        mBleManagerHelper.getBleCardService().sendCmdOta(mConnectNodeId, mBleManagerHelper.getAK());
-                    }
-                } else {
-                    mOtaUpdateComplete = true;
-                    prepareDFU();
-                }
-            }
-
-            if (action.equals(BleMsg.STR_RSP_SET_TIMEOUT)) {
-                mConnetStatus.setText(R.string.connect_failed);
-                mStartBt.setEnabled(true);
-                updateDfuReady(Device.DFU_CHAR_DISCONNECTED);
-            }
-
-            if (action.equals(BleMsg.STR_RSP_OTA_MODE)) {
-                Log.d(TAG, "otaUpdateComplete = " + mOtaUpdateComplete);
-
-                if (!mOtaUpdateComplete) {
-                    mConnetStatus.setText(R.string.connect_ota_mode);
-                    scanLeDevice(true);
-                } else {
-                    mBleManagerHelper.setTempMode(false, 0);
-                }
-            }
-
-            if (BleMsg.ACTION_CHARACTERISTIC_WRITE.equals(action)) {
-                if (bWriteDfuData) {
-                    mPb.setProgress(iCmdIndex * 100 / iCmdLen); // add 2017.12.22
-                    iCmdIndex += PAYLOAD_LEN;
-                    Log.d(TAG, "mGattUpdateReceiver!!! " + " prev iCmdIndex=" + iCmdIndex);
-                    if (iCmdIndex < iCmdLen)
-                        writeCommandByPosition(iCmdIndex);
-                    else { // end of writing command;
-                        iCmdIndex = iCmdLen;
-                        endDFU();
-                        mConnetStatus.setText(R.string.dfu_end_waiting);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                mConnetStatus.setText(R.string.ota_complete);
-                            }
-                        }, 6000);
-                    }
-
-                }
-
-            }
-        }
-    };
 
     private void changeView(int action) {
         switch (action) {
@@ -757,13 +657,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
 
     private void prepareDFU() {
         // write start command - 0 to 1580 command handle;
-        buildAndSendDFUCommand(0);
+        buildAndSendDFUCommand(TAG_OTA_PREPARE);
 
         // wait 500ms;
-        WriteCommandAction();
+        writeCommandAction();
     }
 
-    private void WriteCommandAction() {
+    private void writeCommandAction() {
+        buildAndSendDFUCommand(TAG_OTA_START);
 
         if (mBleManagerHelper.getBleCardService() != null) {
             iCmdIndex = 0;
@@ -781,24 +682,21 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         mTvProgress.setText(iCmdLen + " / " + index);
         //if(textCmd != null && !textCmd.equals("")){
         if (gCmdBytes != null) {
-            bWriteDfuData = true;
-
-            byte[] cmd;
-            if (index + PAYLOAD_LEN < iCmdLen)
-                cmd = StringUtil.getSubBytes(gCmdBytes, index, index + PAYLOAD_LEN);
-            else
-                cmd = StringUtil.getSubBytes(gCmdBytes, index, iCmdLen);
+            byte[] cmd = mOtaParser.getNextPacket();
+//            if (index + PAYLOAD_LEN < iCmdLen)
+//                cmd = StringUtil.getSubBytes(gCmdBytes, index, index + PAYLOAD_LEN);
+//            else
+//                cmd = StringUtil.getSubBytes(gCmdBytes, index, iCmdLen);
             mBleManagerHelper.getBleCardService().sendCmdOtaData(cmd, Message.TYPE_BLE_SEND_OTA_DATA);
         }
     }
 
+
     private void endDFU() {
         // write command data to 1580 data handle;
-        buildAndSendDFUCommand(1);
+        buildAndSendDFUCommand(TAG_OTA_END);
         //mHandler = null;
-
         mPb.setProgress(100);
-
         if (mDfuReady == Device.DFU_READY) {
             mStartBt.setEnabled(true);
         }
@@ -811,36 +709,65 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         // count dfu data length;
         iCmdLen = gCmdBytes.length;
         mTvProgress.setText(iCmdLen + " - DFU CMD - " + action);
+        LogUtil.e(TAG, "action : " + action);
+        switch (action) {
+            case TAG_OTA_PREPARE:
+                byte[] prePareCmd = new byte[]{OTA_PREPARE & 0xFF, (byte) (OTA_PREPARE >> 8 & 0xFF)}; //泰凌微
+                mBleManagerHelper.getBleCardService().sendCmdOtaData(prePareCmd, Message.TYPE_BLE_SEND_OTA_CMD);
+                break;
+            case TAG_OTA_START:
+                byte[] dfuCmd = new byte[]{OTA_START & 0xFF, (byte) (OTA_START >> 8 & 0xFF)}; //泰凌微
+                mConnetStatus.setText(R.string.ota_updating);
+                mBleManagerHelper.getBleCardService().sendCmdOtaData(dfuCmd, Message.TYPE_BLE_SEND_OTA_CMD);
+                bWriteDfuData = true;
+                break;
+            case TAG_OTA_END:
+                if (bWriteDfuData) {
+                    byte[] data = new byte[8];
+                    data[0] = OTA_END & 0xFF;
+                    data[1] = (byte) ((OTA_END >> 8) & 0xFF);
+                    data[2] = (byte) (iCmdIndex & 0xFF);
+                    data[3] = (byte) (iCmdIndex >> 8 & 0xFF);
+                    data[4] = (byte) (~iCmdIndex & 0xFF);
+                    data[5] = (byte) (~iCmdIndex >> 8 & 0xFF);
 
-        byte[] dfuCmd = new byte[16];
-        // flag
-        dfuCmd[0] = 0x55;
-        dfuCmd[1] = (byte) 0xAA;
-        dfuCmd[2] = (byte) 0xA5;
-        dfuCmd[3] = 0x5A;
-        // length
-        dfuCmd[4] = (byte) (iCmdLen & 0x000000FF);
-        dfuCmd[5] = (byte) ((iCmdLen & 0x0000FF00) >> 8);
-        dfuCmd[6] = (byte) ((iCmdLen & 0x00FF0000) >> 16);
-        dfuCmd[7] = (byte) ((iCmdLen & 0xFF000000) >> 32);
-        // reserved
-        dfuCmd[8] = 0x0;
-        dfuCmd[9] = 0x0;
-        dfuCmd[10] = 0x0;
-        dfuCmd[11] = 0x0;
-        // action
-        dfuCmd[12] = (byte) action;
-        dfuCmd[13] = 0x0;
-        dfuCmd[14] = 0x0;
-        dfuCmd[15] = 0x0;
-        mConnetStatus.setText(R.string.ota_updating);
-        mBleManagerHelper.getBleCardService().sendCmdOtaData(dfuCmd, Message.TYPE_BLE_SEND_OTA_CMD);
+                    int crc = mOtaParser.crc16(data);
+                    mOtaParser.fillCrc(data, crc);
+                    mConnetStatus.setText(R.string.ota_updating);
+                    mBleManagerHelper.getBleCardService().sendCmdOtaData(data, Message.TYPE_BLE_SEND_OTA_CMD);
+                }
+                bWriteDfuData = false;
+                break;
+
+        }
+
+//        // flag
+//        dfuCmd[0] = 0x55;
+//        dfuCmd[1] = (byte) 0xAA;
+//        dfuCmd[2] = (byte) 0xA5;
+//        dfuCmd[3] = 0x5A;
+//        // length
+//        dfuCmd[4] = (byte) (iCmdLen & 0x000000FF);
+//        dfuCmd[5] = (byte) ((iCmdLen & 0x0000FF00) >> 8);
+//        dfuCmd[6] = (byte) ((iCmdLen & 0x00FF0000) >> 16);
+//        dfuCmd[7] = (byte) ((iCmdLen & 0xFF000000) >> 32);
+//        // reserved
+//        dfuCmd[8] = 0x0;
+//        dfuCmd[9] = 0x0;
+//        dfuCmd[10] = 0x0;
+//        dfuCmd[11] = 0x0;
+//        // action
+//        dfuCmd[12] = (byte) action;
+//        dfuCmd[13] = 0x0;
+//        dfuCmd[14] = 0x0;
+//        dfuCmd[15] = 0x0;
+
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        initLeCallback();
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -864,14 +791,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         Log.d(TAG, "onDestroy()");
 
         mBleManagerHelper.setTempMode(false);
+        mBleManagerHelper.removeUiListener(this);
 
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(otaReceiver);
-        } catch (Exception ignore) {
-            Log.e(TAG, ignore.toString());
-        }
-        try {
-
             if (mThread != null) {
                 mThread.interrupt();
             }
@@ -882,7 +804,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
     }
 
     private void showDevicScan() {
-        if (mScanning == false) {
+        if (!mScanning) {
             mStartBt.setEnabled(true);
             mConnetStatus.setText(getString(R.string.search_failed));
         } else finish();
@@ -903,8 +825,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
                     toDownload(true);
                 } else {
                     mConnetStatus.setText(R.string.start_update);
-                    if (mBleManagerHelper.getServiceConnection()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19((byte) 9);
+                    if (mBleManagerHelper.getBleCardService().getDevice().getState() == Device.BLE_CONNECTED) {
+                        prepareDFU();
                         mConnetStatus.setText(R.string.connect_ota_mode);
                     } else {
                         mBleManagerHelper.startScanDevice();
@@ -932,5 +854,88 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener 
         notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_NO_CLEAR; // 不可清除的通知
 
         mNotificationManager.notify(R.string.app_name, notification);
+    }
+
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        mDevice = device;
+        switch (state) {
+            case BluetoothGatt.GATT_SUCCESS:
+                LogUtil.d(TAG, "bWriteDfuData : " + bWriteDfuData);
+                if (bWriteDfuData) {
+                    mPb.setProgress(iCmdIndex * 100 / iCmdLen); // add 2017.12.22
+                    iCmdIndex += PAYLOAD_LEN;
+                    Log.d(TAG, "mGattUpdateReceiver!!! " + " prev iCmdIndex=" + iCmdIndex);
+                    if (iCmdIndex < iCmdLen)
+                        writeCommandByPosition(iCmdIndex);
+                    else { // end of writing command;
+                        iCmdIndex = iCmdLen;
+                        endDFU();
+                    }
+
+                }
+                break;
+            case BleMsg.STATE_DISCONNECTED:
+                mConnetStatus.setText(R.string.dfu_end_waiting);
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                if (!bWriteDfuData) {
+                    mConnetStatus.setText(R.string.ota_complete);
+                }
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
+        mDevice = device;
+        Bundle extra = msg.getData();
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEIVER_CMD_1C:
+                String sn = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_NODE_SN));
+                String swVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_SW_VER));
+                String hwVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_HW_VER));
+                LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
+                        "HW VERSION = " + hwVer + '\n' +
+                        "SN = " + sn);
+                mDefaultDev.setDeviceSn(sn);
+                mDefaultDev.setDeviceSwVersion(swVer);
+                mDefaultDev.setDeviceHwVersion(hwVer);
+                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+                checkDevVersion();
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFialed() {
+        mConnetStatus.setText(R.string.connect_failed);
+        mStartBt.setEnabled(true);
+        updateDfuReady(Device.DFU_CHAR_DISCONNECTED);
     }
 }

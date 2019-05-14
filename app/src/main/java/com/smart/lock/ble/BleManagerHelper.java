@@ -176,6 +176,14 @@ public class BleManagerHelper {
                 mDevice.setState(Device.BLE_CONNECTION);
                 closeDialog((int) (SCAN_PERIOD / 1000));
                 mBtAdapter.startLeScan(mLeScanCallback);
+            } else {
+                LogUtil.d(TAG, " mService is null : " + (mService == null));
+                if (mService != null) {
+                    mService.disconnect();
+                }
+                mDevice.setState(Device.BLE_CONNECTION);
+                closeDialog((int) (SCAN_PERIOD / 1000));
+                mBtAdapter.startLeScan(mLeScanCallback);
             }
         }
 
@@ -381,14 +389,6 @@ public class BleManagerHelper {
         return mBleMac;
     }
 
-    /**
-     * 获取蓝牙连接状态
-     *
-     * @return
-     */
-    public boolean getServiceConnection() {
-        return mIsConnected;
-    }
 
     /**
      * 获取会话秘钥
@@ -407,6 +407,10 @@ public class BleManagerHelper {
             mService.disconnect();
             mService.close();
 //                mService.stopSelf();
+            MainEngine mianEngine = mService.getMainEngine();
+            if (mianEngine != null) {
+                mianEngine.close();
+            }
             mService = null;
             mBleMac = null;
             mConnectType = 0;

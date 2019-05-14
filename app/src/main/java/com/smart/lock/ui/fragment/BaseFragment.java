@@ -216,14 +216,12 @@ public abstract class BaseFragment extends Fragment {
         DeviceInfo info = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", user.getDevNodeId());
         byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac().replace(":", ""));
         byte[] randCode = StringUtil.hexStringToBytes(info.getDeviceSecret());
-        LogUtil.d(TAG, "userId  : " + Arrays.toString(userId));
-        LogUtil.d(TAG, "randCode  : " + randCode.length);
 
         byte[] buf = new byte[64];
         byte[] authBuf = new byte[64];
 
         authBuf[0] = user.getUserPermission();
-
+        LogUtil.d(TAG,"nodeId = " + Arrays.toString(nodeId));
         System.arraycopy(userId, 0, authBuf, 1, 2);
         System.arraycopy(nodeId, 0, authBuf, 3, 8);
         System.arraycopy(bleMac, 0, authBuf, 11, 6);

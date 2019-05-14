@@ -62,8 +62,6 @@ public class DeviceUserDao {
     }
 
     public void insert(DeviceUser deviceUser) {
-        LogUtil.d(TAG, "DeviceUser : " + deviceUser.toString());
-        LogUtil.d(TAG, "queryDeviceUsers(deviceUser.getDevNodeId()); : " + queryDeviceUsers(deviceUser.getDevNodeId()).toString());
 
         try {
             dao.create(deviceUser);
@@ -317,6 +315,9 @@ public class DeviceUserDao {
                     index = id - 196;
                 }
 
+                if (index >= status.length) {
+                    return;
+                }
                 LogUtil.d(TAG, "status[index] = " + status[index] +
                         "\n" +
                         "index = " + index);

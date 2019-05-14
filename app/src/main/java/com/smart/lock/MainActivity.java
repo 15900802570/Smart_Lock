@@ -201,7 +201,13 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
-        onResume();
+        if (mTabVg.getCurrentItem() != 1) {
+            if (DeviceInfoDao.getInstance(this).queryFirstData("device_default", true) != null) {
+                findViewById(R.id.one_click_unlock_ib).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.one_click_unlock_ib).setVisibility(View.GONE);
+            }
+        }
         mHomeFragment.onAuthenticationSuccess();
         mScanQRHelper.halt();
     }
@@ -211,7 +217,13 @@ public class MainActivity extends AppCompatActivity implements
      */
     @Override
     public void onAuthenticationFailed() {
-        onResume();
+        if (mTabVg.getCurrentItem() != 1) {
+            if (DeviceInfoDao.getInstance(this).queryFirstData("device_default", true) != null) {
+                findViewById(R.id.one_click_unlock_ib).setVisibility(View.VISIBLE);
+            } else {
+                findViewById(R.id.one_click_unlock_ib).setVisibility(View.GONE);
+            }
+        }
         mHomeFragment.onAuthenticationFailed();
     }
 
