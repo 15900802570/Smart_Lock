@@ -579,6 +579,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     private byte[] getPowerSavingTime(int[] time) {
         StringBuilder nowTime = new StringBuilder(DateTimeUtil.stampToDate(String.valueOf(System.currentTimeMillis())));
+        nowTime.replace(17,19,"00");
         String startTime = nowTime.replace(
                 11,
                 16,
