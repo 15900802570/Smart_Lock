@@ -162,10 +162,10 @@ public class ScanQRHelper implements UiListener {
     }
 
     private void addDev() {
-       if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
+        if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, "授权码已过期，请重新请求");
             alterDialog.show();
-        } else  if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
+        } else if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
             ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
             if (mActivity.getIntent().getExtras() != null && mDevice != null) {
@@ -319,6 +319,11 @@ public class ScanQRHelper implements UiListener {
     public void dispatchUiCallback(Message msg, Device device, int type) {
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         mDevice = device;
+        if (mDevice != null && type == BleMsg.USER_PAUSE) {
+            LogUtil.i(TAG, "mDevice.getUserStatus() : " + mDevice.getUserStatus());
+            DialogUtils.closeDialog(mLoadDialog);
+            return;
+        }
         Bundle bundle = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:

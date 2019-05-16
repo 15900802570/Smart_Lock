@@ -1,5 +1,6 @@
 package com.smart.lock.ble.listener;
 
+import android.app.Dialog;
 import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -68,9 +69,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mService.registerDevStateCb(this); //注册设备状态回调
         mHandler = new Handler(this);
 
-        android.os.Message msg = new android.os.Message();
-        msg.what = MSG_POLLING_BLE;
-        mHandler.sendMessageDelayed(msg, 120 * 1000);
+//        android.os.Message msg = new android.os.Message();
+//        msg.what = MSG_POLLING_BLE;
+//        mHandler.sendMessageDelayed(msg, 120 * 1000);
     }
 
 
@@ -152,6 +153,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 message.what = BleMsg.STATE_DISCONNECTED;
                 mHandler.sendMessage(message);
 
+                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                    return; //暂停的用户不需要重连
+                }
                 android.os.Message msg = new android.os.Message();
                 msg.what = MSG_RECONNCT_BLE;
                 mHandler.sendMessageDelayed(msg, 5000);
@@ -162,6 +166,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 halt();
                 break;
             case Device.BLE_SEARCH_DEV_CONNECT:
+                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                    return; //暂停的用户不需要重连
+                }
                 message.what = BleMsg.STATE_DISCONNECTED;
                 mHandler.sendMessage(message);
                 halt();
@@ -351,7 +358,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         return mService.sendCmd05(bleMac, nodeId, sn);
     }
 
-    private void registerCallBack(Bundle bundle) {
+    private void registerCallBack(Message msg, Bundle bundle) {
         LogUtil.i(TAG, "receiver msg 04,check lock info!");
         int battery = bundle.getByte(BleMsg.KEY_BAT_PERSCENT, (byte) 0);
         int userStatus = bundle.getByte(BleMsg.KEY_USER_STATUS, (byte) 0);
@@ -361,6 +368,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         byte[] userState = bundle.getByteArray(BleMsg.KEY_USERS_STATE);
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
         byte[] powerSave = StringUtil.bytesReverse(Objects.requireNonNull(bundle.getByteArray(BleMsg.KEY_POWER_SAVE))); // 字节翻转，结束时间在前
+        LogUtil.d(TAG, "battery = " + battery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
+        LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+        LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
+        LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
+        LogUtil.d(TAG, "powerSave = " + Arrays.toString(powerSave));
 
         mDevice.setBattery(battery);
         mDevice.setUserStatus(userStatus);
@@ -369,12 +381,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setSyncUsers(syncUsers);
         mDevice.setTempSecret(tempSecret);
 
-        LogUtil.d(TAG, "battery = " + battery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
-        LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
-        LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
-        LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
-        LogUtil.d(TAG, "powerSave = " + Arrays.toString(powerSave));
-
+        if (userStatus == ConstantUtil.USER_PAUSE) {
+            for (UiListener uiListener : mUiListeners) {
+                uiListener.dispatchUiCallback(msg, mDevice, BleMsg.USER_PAUSE);
+            }
+            return;
+        }
         byte[] buf = new byte[4];
         System.arraycopy(Objects.requireNonNull(syncUsers), 0, buf, 0, 4);
         long status1 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
@@ -440,7 +452,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
             mDefaultStatus.setRolledBackTime(unLockTime);
             // 获取省电时间段
-            if (Arrays.equals(powerSave,new byte[]{0,0,0,0,0,0,0,0})) {
+            if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
                 mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
                 mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
             } else {
@@ -457,6 +469,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
             }
             DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
+        }
+        mDevice.setState(Device.BLE_CONNECTED);
+        for (UiListener uiListener : mUiListeners) {
+            uiListener.dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
         }
 
     }
@@ -662,11 +678,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_04:
-                    registerCallBack(extra);
-                    mDevice.setState(Device.BLE_CONNECTED);
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
-                    }
+                    registerCallBack(message, extra);
+
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_12:
                    /* int size = DeviceUserDao.getInstance(mCtx).queryUsers(mDevInfo.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER).size();

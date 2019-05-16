@@ -393,6 +393,7 @@ public class BleMsg {
     public static final int RECEIVER_LOGS = 104; //接受log
     public static final int STATE_CONNECTED = 105; //连接成功
     public static final int GATT_SERVICES_DISCOVERED = 106; //发现服务
+    public static final int USER_PAUSE = 107; //USER pause
 
     /**
      * msg 13 type
