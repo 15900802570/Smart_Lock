@@ -373,6 +373,7 @@ public class HomeFragment extends BaseFragment implements
                 mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.GONE);
+                mInstructionBtn.setVisibility(View.GONE);
                 mAdapter.setImageIds(mImageIds);
                 mAdapter.notifyDataSetChanged();
                 break;
