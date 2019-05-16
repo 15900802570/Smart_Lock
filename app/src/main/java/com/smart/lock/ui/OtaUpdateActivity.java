@@ -168,11 +168,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
 
     /**
-     * OTA模式存储的nodeID
-     */
-    private byte[] mConnectNodeId = new byte[8];
-
-    /**
      * 升级文件的路径
      */
     private String mDevicePath;
@@ -933,7 +928,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
         mConnetStatus.setText(R.string.connect_failed);
         mStartBt.setEnabled(true);
         updateDfuReady(Device.DFU_CHAR_DISCONNECTED);

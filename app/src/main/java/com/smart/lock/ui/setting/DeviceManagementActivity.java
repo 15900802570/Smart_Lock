@@ -226,7 +226,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                     @Override
                     public void onClick(View v) {
 
-                        DtComFunHelper.RestoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
+                        DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
                         DeviceInfo default_nor = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
 
                         if (deviceInfo.getDeviceDefault() & default_nor != null) {
