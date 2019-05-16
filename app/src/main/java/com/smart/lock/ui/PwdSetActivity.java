@@ -266,7 +266,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

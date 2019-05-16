@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:state_pressed="true"
-        android:drawable="@drawable/box_corners_dialog_confirm_pressed_true"/>
-    <item
-        android:state_pressed="false"
-        android:drawable="@drawable/box_corners_dialog_confirm_pressed_false"/>
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 阴影部分 最下面一层 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/transparent" />
+        </shape>
+    </item>
+    <!-- 背景部分 -->
+    <!-- 形象的表达：bottom left ... 类似于设置 margin -->
+    <item>
+        <selector>
+            <item
+                android:drawable="@drawable/box_corners_dialog_confirm_pressed_true"
+                android:state_pressed="true" />
+            <item
+                android:drawable="@drawable/box_corners_dialog_confirm_pressed_false"
+                android:state_pressed="false" />
+        </selector>
+    </item>
+</layer-list>

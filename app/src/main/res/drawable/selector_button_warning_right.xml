@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:drawable="@drawable/box_corners_right_alpha_gray_selected"/>
-    <item android:state_pressed="false" android:drawable="@color/transparent"/>
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/transparent" />
+        </shape>
+    </item>
+    <item>
+        <selector>
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="@color/alpha_gray" />
+                    <corners
+                        android:bottomRightRadius="23dp"
+                        android:topRightRadius="23dp" />
+                </shape>
+            </item>
+            <item
+                android:drawable="@color/transparent"
+                android:state_pressed="false" />
+        </selector>
+    </item>
+</layer-list>

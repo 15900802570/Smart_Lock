@@ -152,4 +152,6 @@
     <color name="black_overlay">#66000000</color>
     <color name="blue_key">#FF63AEFF</color>
     <color name="setting_bg">#FFEEEEEE</color>
+    <color name="self_check_green">#2BC80D</color>
+    <color name="self_check_blue">#0078FF</color>
 </resources>

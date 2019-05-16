@@ -28,7 +28,7 @@
         <TextView
             android:id="@+id/tips_tv"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/x115dp"
+            android:layout_height="@dimen/x145dp"
             android:background="@color/white"
             android:gravity="center"
             android:paddingRight="@dimen/x34dp"

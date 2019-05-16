@@ -15,5 +15,5 @@ public interface UiListener {
 
     void addUserSuccess(Device device); //添加用户成功
 
-    void scanDevFialed(); //搜索失败
+    void scanDevFailed(); //搜索失败
 }

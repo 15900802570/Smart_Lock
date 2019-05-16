@@ -440,8 +440,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
             mDefaultStatus.setRolledBackTime(unLockTime);
             // 获取省电时间段
-            if (powerSave[0] == 0 && powerSave[1] == 0 &&
-                    powerSave[2] == 0 && powerSave[3] == 0) {
+            if (Arrays.equals(powerSave,new byte[]{0,0,0,0,0,0,0,0})) {
                 mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
                 mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
             } else {

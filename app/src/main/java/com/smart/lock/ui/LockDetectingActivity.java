@@ -276,7 +276,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mSearchingIv.startAnimation(mRotateAnimation);
                     mScanLockTv.setText(R.string.tv_scan_lock);
                     mLine.setVisibility(View.VISIBLE);
-                } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
+                } else if (mMode == SEARCH_LOCK ||mMode == SET_DEV_INFO) {
                     mLine.setVisibility(View.GONE);
                     mScanLockTv.setVisibility(View.GONE);
                     mRefreshDevLl.setVisibility(View.VISIBLE);
@@ -294,7 +294,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             } else {
                 if (mMode == DETECTING_LOCK) {
                     mSearchingIv.clearAnimation();
-                } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
+                } else if (mMode == SEARCH_LOCK||mMode == SET_DEV_INFO) {
                     mRescanBtn.setText(R.string.rescanning);
                     stopRefresh();
                 }
@@ -338,7 +338,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 public void run() {
                     if (mMode == DETECTING_LOCK) {
                         detectDevice(device);
-                    } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
+                    } else if (mMode == SEARCH_LOCK||mMode == SET_DEV_INFO) {
                         if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
                             Log.d(TAG, "device.getName() = " + device.getName());
                             addDevice(device);
@@ -532,7 +532,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
         LogUtil.i(TAG, "scanDevFialed!");
         if (mDevice != null)
             mDevice.setState(Device.BLE_DISCONNECTED);

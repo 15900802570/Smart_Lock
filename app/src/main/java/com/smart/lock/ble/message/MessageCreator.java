@@ -299,13 +299,14 @@ public class MessageCreator {
      * @param status 智能锁本地密钥状态字
      * @return
      */
-    public static Message getCmd1AMessage(byte type, byte[] status) {
+    public static Message getCmd1AMessage(byte type, byte key, byte[] status) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
 
 
         if (status != null && status.length != 0) {
+            mBundle.putByte(BleMsg.KEY_TYPE, key);
             mBundle.putByteArray(BleMsg.KEY_STATUS, status);
         }
         return mMessage;

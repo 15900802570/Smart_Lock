@@ -27,6 +27,8 @@ import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.db.helper.DtComFunHelper;
+import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
 import com.smart.lock.utils.ConstantUtil;
@@ -224,10 +226,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                     @Override
                     public void onClick(View v) {
 
-                        DeviceUserDao.getInstance(mCtx).deleteByKey(DeviceUserDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
-                        DeviceKeyDao.getInstance(mCtx).deleteByKey(DeviceKeyDao.DEVICE_NODE_ID, deviceInfo.getDeviceNodeId());
-                        DeviceStatusDao.getInstance(mCtx).deleteByKey(DeviceStatusDao.DEVICE_NODEID, deviceInfo.getDeviceNodeId());
-                        DeviceInfoDao.getInstance(mCtx).delete(deviceInfo);
+                        DtComFunHelper.RestoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
                         DeviceInfo default_nor = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
 
                         if (deviceInfo.getDeviceDefault() & default_nor != null) {

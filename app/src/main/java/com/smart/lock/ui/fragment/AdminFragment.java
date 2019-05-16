@@ -369,7 +369,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
     }
 
     @Override
-    public void scanDevFialed() {
+    public void scanDevFailed() {
 
     }
 

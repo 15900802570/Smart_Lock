@@ -4,6 +4,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 
@@ -42,9 +43,10 @@ public class BleCmd1AParse implements BleCommandParse {
             e.printStackTrace();
         }
 
-        byte[] status = Arrays.copyOfRange(buf, 0, 4);
-
-        return MessageCreator.getCmd1AMessage(getParseKey(), status);
+        byte key = buf[0];
+        byte[] status = Arrays.copyOfRange(buf, 1, 5);
+        LogUtil.d("SelfCheck",Arrays.toString(buf) );
+        return MessageCreator.getCmd1AMessage(getParseKey(), key ,status);
     }
 
     @Override

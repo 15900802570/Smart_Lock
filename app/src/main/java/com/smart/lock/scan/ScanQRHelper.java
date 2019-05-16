@@ -374,8 +374,8 @@ public class ScanQRHelper implements UiListener {
     }
 
     @Override
-    public void scanDevFialed() {
-        LogUtil.e(TAG, "scanDevFialed");
+    public void scanDevFailed() {
+        LogUtil.e(TAG, "scanDevFailed");
         DialogUtils.closeDialog(mLoadDialog);
         mBleManagerHelper.removeUiListener(this);
     }
