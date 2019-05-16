@@ -1,14 +1,13 @@
 package com.smart.lock.scan;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -20,11 +19,11 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
-import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
-import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
+import com.smart.lock.permission.PermissionHelper;
+import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
@@ -40,7 +39,7 @@ import com.yzq.zxinglibrary.common.Constant;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ScanQRHelper implements UiListener {
+public class ScanQRHelper implements UiListener, PermissionInterface{
     private final String TAG = ScanQRHelper.class.getSimpleName();
 
     private Activity mActivity;
@@ -58,14 +57,20 @@ public class ScanQRHelper implements UiListener {
     private DeviceInfo mNewDevice;
     private BleManagerHelper mBleManagerHelper;
     private Device mDevice;
+    private PermissionHelper mPermissionHelper;
+    private static final int REQ_CODE_CAMERA = 1;
+    private static final int ACCESS_COARSE_LOCATION = 2;
+    private static final int ACCESS_FINE_LOCATION = 3;
+    private static final int READ_EXTERNAL_STORAGE = 4;
+    private static final int WRITE_EXTERNAL_STORAGE = 5;
 
     public ScanQRHelper(Activity activity, ScanQRResultInterface scanQRResultInterface) {
         mActivity = activity;
         mScanQRResultInterface = scanQRResultInterface;
         mBleManagerHelper = BleManagerHelper.getInstance(activity, false);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mPermissionHelper = new PermissionHelper(mActivity,this);
     }
-
     /**
      * 处理扫描结果
      */
@@ -162,10 +167,10 @@ public class ScanQRHelper implements UiListener {
     }
 
     private void addDev() {
-       if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
+        if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, "授权码已过期，请重新请求");
             alterDialog.show();
-        } else  if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
+        } else if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId) != null) {
             ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
             if (mActivity.getIntent().getExtras() != null && mDevice != null) {
@@ -211,6 +216,10 @@ public class ScanQRHelper implements UiListener {
      * 打开第三方二维码扫描库
      */
     public void scanQr() {
+        mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_COARSE_LOCATION, ACCESS_COARSE_LOCATION);
+    }
+
+    private void doScan() {
         Intent newIntent = new Intent(mActivity, CaptureActivity.class);
         ZxingConfig config = new ZxingConfig();
         config.setPlayBeep(true);//是否播放扫描声音 默认为true
@@ -384,4 +393,52 @@ public class ScanQRHelper implements UiListener {
         mBleManagerHelper.removeUiListener(this);
         mNewDevice = null;
     }
+
+    @Override
+    public void requestPermissionsSuccess(int callBackCode) {
+
+        Log.d(TAG, "success callBackCode = " + callBackCode);
+
+        if (callBackCode == WRITE_EXTERNAL_STORAGE) {
+            doScan();
+        } else if (callBackCode == ACCESS_COARSE_LOCATION) {
+            mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
+        } else if (callBackCode == ACCESS_FINE_LOCATION) {
+            mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, REQ_CODE_CAMERA);
+        } else if (callBackCode == REQ_CODE_CAMERA) {
+            mPermissionHelper.requestPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE);
+        } else if (callBackCode == READ_EXTERNAL_STORAGE) {
+            mPermissionHelper.requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE);
+        }
+
+    }
+
+    @Override
+    public void requestPermissionsFail(int callBackCode) {
+        Log.d(TAG, "failed callBackCode = " + callBackCode);
+        showMessage(mActivity.getString(R.string.rejected_permission));
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{
+                Manifest.permission.CAMERA,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+    }
+
+    /**
+     * 吐司提示
+     *
+     * @param msg 提示信息
+     */
+    protected void showMessage(String msg) {
+        Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public PermissionHelper getPermissionHelper(){
+        return mPermissionHelper;
+    }
+
 }

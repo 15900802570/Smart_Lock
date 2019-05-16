@@ -5,35 +5,25 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
-import java.lang.ref.WeakReference;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import com.smart.lock.ble.BleManagerHelper;
-import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceStatusDao;
-import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
+
+import java.lang.ref.WeakReference;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -138,16 +128,10 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     public void requestPermissionsSuccess(int callBackCode) {
         Log.d(TAG, "success callBackCode = " + callBackCode);
 
-        if (callBackCode == WRITE_EXTERNAL_STORAGE) {
+        if (callBackCode == ACCESS_FINE_LOCATION) {
             openNextActivity(WelcomeActivity.this);//打开下一个界面
         } else if (callBackCode == ACCESS_COARSE_LOCATION) {
             mPermissionHelper.requestPermissions(Manifest.permission.ACCESS_FINE_LOCATION, ACCESS_FINE_LOCATION);
-        } else if (callBackCode == ACCESS_FINE_LOCATION) {
-            mPermissionHelper.requestPermissions(Manifest.permission.CAMERA, REQ_CODE_CAMERA);
-        } else if (callBackCode == REQ_CODE_CAMERA) {
-            mPermissionHelper.requestPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE);
-        } else if (callBackCode == READ_EXTERNAL_STORAGE) {
-            mPermissionHelper.requestPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE);
         }
     }
 
@@ -170,10 +154,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     public String[] getPermissions() {
         return new String[]{
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                Manifest.permission.ACCESS_FINE_LOCATION
         };
     }
 

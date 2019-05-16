@@ -2,8 +2,6 @@ package com.smart.lock.ui.setting;
 
 import android.Manifest;
 import android.app.Dialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,27 +15,19 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.j256.ormlite.stmt.query.In;
 import com.smart.lock.R;
-import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-
-
-import com.smart.lock.ble.listener.MainEngine;
-import com.smart.lock.ble.listener.UiListener;
-import com.smart.lock.ble.message.Message;
-import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.entity.Device;
+import com.smart.lock.scan.ScanQRHelper;
+import com.smart.lock.scan.ScanQRResultInterface;
 import com.smart.lock.ui.LockDetectingActivity;
-import com.smart.lock.ui.OtaUpdateActivity;
-
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.CheckVersionThread;
@@ -45,18 +35,15 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
-import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.DialogFactory;
 import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.ToggleSwitchDefineView;
-import com.yzq.zxinglibrary.android.CaptureActivity;
-import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 
-public class SystemSettingsActivity extends BaseFPActivity implements View.OnClickListener {
+public class SystemSettingsActivity extends BaseFPActivity implements View.OnClickListener, ScanQRResultInterface {
 
     private static String TAG = "SystemSettingsActivity";
 
@@ -106,6 +93,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     };
     private int REQUESTCODE = 0;
     private static final int REQUEST_CODE_SCAN = 1;
+
+    private ScanQRHelper mScanQRHelper;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -200,6 +189,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
         mCtx = this;
         mDialog = DialogFactory.getInstance(this);
+        mScanQRHelper = new ScanQRHelper(this, this);
     }
 
     public void initEvent() {
@@ -279,7 +269,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 }//版本检测
                 break;
             case R.id.next_set_info:
-                scanQr();
+                mScanQRHelper.scanQr();
                 break;
             default:
                 doOnClick(v.getId());
@@ -287,21 +277,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
     }
 
-    /**
-     * 打开第三方二维码扫描库
-     */
-    private void scanQr() {
-        Intent newIntent = new Intent(this, CaptureActivity.class);
-        ZxingConfig config = new ZxingConfig();
-        config.setPlayBeep(true);//是否播放扫描声音 默认为true
-        config.setShake(true);//是否震动  默认为true
-        config.setDecodeBarCode(false);//是否扫描条形码 默认为true
-        config.setReactColor(R.color.colorAccent);//设置扫描框四个角的颜色 默认为淡蓝色
-        config.setFrameLineColor(R.color.colorAccent);//设置扫描框边框颜色 默认无色
-        config.setFullScreenScan(true);//是否全屏扫描  默认为true  设为false则只会在扫描框中扫描
-        newIntent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
-        startActivityForResult(newIntent, REQUEST_CODE_SCAN);
-    }
 
     private void doOnClick(@IdRes int idRes) {
         switch (idRes) {
@@ -467,6 +442,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        mScanQRHelper.getPermissionHelper().requestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUESTCODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -495,6 +471,22 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             }
         });
         builder.create().show();
+    }
+
+    /**
+     * 添加设备成功响应函数
+     *
+     * @param deviceInfo 新设备信息
+     */
+    @Override
+    public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
+    }
+
+    /**
+     * 添加失败响应函数
+     */
+    @Override
+    public void onAuthenticationFailed() {
     }
 
 }

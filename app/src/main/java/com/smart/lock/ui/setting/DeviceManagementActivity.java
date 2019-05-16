@@ -5,9 +5,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.os.Bundle;
-
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,11 +23,7 @@ import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceKeyDao;
-import com.smart.lock.db.dao.DeviceStatusDao;
-import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.helper.DtComFunHelper;
-import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
 import com.smart.lock.utils.ConstantUtil;
@@ -141,6 +136,12 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     public void onAuthenticationFailed() {
         mAddNewDevDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.disconnect_ble_first));
         mAddNewDevDialog.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        mScanQRHelper.getPermissionHelper().requestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 

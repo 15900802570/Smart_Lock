@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         });
         mTabVg.setNoScroll(true);
+
         mScanQRHelper = new ScanQRHelper(this, this);
     }
 
@@ -245,5 +246,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onScanQrCode() {
         mScanQRHelper.scanQr();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        mScanQRHelper.getPermissionHelper().requestPermissionsResult(requestCode, permissions, grantResults);
     }
 }
