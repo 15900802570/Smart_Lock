@@ -120,7 +120,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mHandler = new Handler();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
         mCalendar = Calendar.getInstance();

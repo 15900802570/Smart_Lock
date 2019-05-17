@@ -88,7 +88,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
         mTempUser = (DeviceUser) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
 
         int currentItem = getIntent().getExtras().getInt(BleMsg.KEY_CURRENT_ITEM);
 

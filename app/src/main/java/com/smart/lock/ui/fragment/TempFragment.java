@@ -166,7 +166,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
         DeviceUserDao.getInstance(mCtx).registerObserver(mOb);
@@ -268,20 +268,23 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
                 authBuf[0] = 0x03;
-                byte[] nodeIdBuf = extra.getByteArray(BleMsg.KEY_NODE_ID);
-                StringUtil.exchange(nodeIdBuf);
-                System.arraycopy(extra.getByteArray(BleMsg.KEY_USER_ID), 0, authBuf, 1, 2);
-                System.arraycopy(nodeIdBuf, 0, authBuf, 3, 8);
-                System.arraycopy(extra.getByteArray(BleMsg.KEY_BLE_MAC), 0, authBuf, 11, 6);
-                System.arraycopy(extra.getByteArray(BleMsg.KEY_RAND_CODE), 0, authBuf, 17, 10);
 
-                byte[] timeBuf = new byte[4];
-                StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
-                System.arraycopy(timeBuf, 0, authBuf, 27, 4);
+                byte[] authCode = extra.getByteArray(BleMsg.KEY_AUTH_CODE);
+                if (authCode == null) return;
 
-                Arrays.fill(authBuf, 31, 32, (byte) 0x01);
+                byte[] userIdBuf = new byte[2];
 
-                String userId = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_USER_ID));
+                System.arraycopy(authCode, 0, userIdBuf, 0, 2);
+
+                Short userId = Short.parseShort(StringUtil.bytesToHexString(userIdBuf), 16);
+
+                byte[] timeQr = new byte[4];
+                StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeQr);
+                System.arraycopy(timeQr, 0, authBuf, 1, 4); //二维码有效时间
+
+                System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
+
+                Arrays.fill(authBuf, 35, 29, (byte) 0x1d); //补充字节
 
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -289,20 +292,16 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     e.printStackTrace();
                 }
 
-                LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
-
                 String path = createQRcodeImage(buf, ConstantUtil.DEVICE_TEMP);
                 Log.d(TAG, "path = " + path);
-                DeviceUser deviceUser;
                 if (path != null) {
-                    deviceUser = createDeviceUser(Short.parseShort(userId, 16), path, ConstantUtil.DEVICE_TEMP);
+                    DeviceUser deviceUser = createDeviceUser(userId, path, StringUtil.bytesToHexString(authCode));
 
                     if (deviceUser != null) {
                         mTempAdapter.addItem(deviceUser);
                         DialogUtils.closeDialog(mLoadDialog);
                     }
                 }
-
 
                 break;
             default:

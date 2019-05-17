@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.smart.lock.R;
+import com.smart.lock.ble.listener.DeviceListener;
 import com.smart.lock.ble.listener.MainEngine;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.MessageCreator;
@@ -68,11 +69,6 @@ public class BleManagerHelper {
     private int mMode = 0;
 
     /**
-     * 临时储存的OTA模式
-     */
-    private boolean mTempMode = false;
-
-    /**
      * 连接方式 0-扫描二维码 1-普通安全连接,2-设置设备信息
      */
     private byte mConnectType = 0;
@@ -93,6 +89,8 @@ public class BleManagerHelper {
     private DeviceStatus mDefaultStatus; //用户状态
 //    private Dialog mLoadDialog;
 
+    private DeviceListener mDeviceListener;
+
     private ArrayList<UiListener> mUiListeners = new ArrayList(); //Ui监听集合
 
     private Runnable mRunnable = new Runnable() {
@@ -111,9 +109,8 @@ public class BleManagerHelper {
         }
     };
 
-    public BleManagerHelper(Context context, Boolean isOtaMode) {
+    public BleManagerHelper(Context context) {
         mContext = context;
-        mTempMode = isOtaMode;
         mHandler = new Handler();
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -124,16 +121,14 @@ public class BleManagerHelper {
         }
     }
 
-    public static BleManagerHelper getInstance(Context context, Boolean isOtaMode) {
+    public static BleManagerHelper getInstance(Context context) {
         LogUtil.d(TAG, "instance is " + (instance == null));
         if (instance == null) {
             synchronized (BleManagerHelper.class) {
                 if (instance == null) {
-                    instance = new BleManagerHelper(context, isOtaMode);
+                    instance = new BleManagerHelper(context);
                 }
             }
-        } else {
-            instance.setTempMode(isOtaMode);
         }
         return instance;
     }
@@ -239,6 +234,16 @@ public class BleManagerHelper {
         mBtAdapter.stopLeScan(mLeScanCallback);
     }
 
+    public void addDeviceLintener(DeviceListener listener) {
+        mDeviceListener = listener;
+    }
+
+    public void deleteDefaultDev() {
+        mDeviceListener.deleteDeviceDev();
+        mHandler.removeCallbacks(mRunnable);
+        mBtAdapter.stopLeScan(mLeScanCallback);
+    }
+
     /**
      * 蓝牙搜索结果回调
      */
@@ -307,15 +312,6 @@ public class BleManagerHelper {
             }
         }
 
-    }
-
-    public void setTempMode(Boolean isOtaMode) {
-        mTempMode = isOtaMode;
-    }
-
-    public void setTempMode(Boolean isOtaMode, int mode) {
-        mTempMode = isOtaMode;
-        mMode = mode;
     }
 
     /**

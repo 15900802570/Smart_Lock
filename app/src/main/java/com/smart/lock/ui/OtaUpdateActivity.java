@@ -353,7 +353,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mBleManagerHelper = BleManagerHelper.getInstance(this, true);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
 
@@ -784,8 +784,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy()");
-
-        mBleManagerHelper.setTempMode(false);
         mBleManagerHelper.removeUiListener(this);
 
         try {

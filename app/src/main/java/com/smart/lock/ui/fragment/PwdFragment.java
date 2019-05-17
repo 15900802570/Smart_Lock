@@ -102,7 +102,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
         mCtx = mPwdView.getContext();
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
 
         mPwdAdapter = new PwdManagerAdapter(mCtx);

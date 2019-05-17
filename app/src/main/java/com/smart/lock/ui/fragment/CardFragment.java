@@ -99,7 +99,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         mCtx = mCardView.getContext();
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
         mCardAdapter = new CardManagerAdapter(mCtx);
         mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));

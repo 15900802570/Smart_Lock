@@ -730,7 +730,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     String addUserId = StringUtil.bytesToHexString(addUserIdBuf);
                     StringUtil.exchange(nodeIdBuf);
                     String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
-                    StringUtil.exchange(bleMacBuf);
                     String bleMac = StringUtil.bytesToHexString(bleMacBuf);
                     LogUtil.d(TAG, "bleMac = " + bleMac);
 
@@ -743,7 +742,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDevInfo.setConnectType(false);
                     mDevInfo.setUserId(Short.parseShort(addUserId, 16));
                     mDevInfo.setDeviceNodeId(nodeId);
-                    mDevInfo.setBleMac(bleMac);
+                    mDevInfo.setBleMac(StringUtil.getMacAdr(bleMac));
                     mDevInfo.setNodeType(ConstantUtil.SMART_LOCK);
                     mDevInfo.setDeviceDate(System.currentTimeMillis() / 1000);
                     if (defaultDevice != null) mDevInfo.setDeviceDefault(false);

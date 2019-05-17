@@ -67,7 +67,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
     public ScanQRHelper(Activity activity, ScanQRResultInterface scanQRResultInterface) {
         mActivity = activity;
         mScanQRResultInterface = scanQRResultInterface;
-        mBleManagerHelper = BleManagerHelper.getInstance(activity, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(activity);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
         mPermissionHelper = new PermissionHelper(mActivity,this);
     }

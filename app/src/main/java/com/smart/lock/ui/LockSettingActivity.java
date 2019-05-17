@@ -161,7 +161,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             mUserID = getIntent().getShortExtra(BleMsg.KEY_USER_ID, (short) 101);
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
-            mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+            mBleManagerHelper = BleManagerHelper.getInstance(this);
             mBleManagerHelper.addUiListener(this);
             mDevice = mBleManagerHelper.getBleCardService().getDevice();
         } catch (NullPointerException e) {

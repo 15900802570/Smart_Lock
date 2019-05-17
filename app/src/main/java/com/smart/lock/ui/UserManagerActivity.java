@@ -99,7 +99,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mUserPermissionVp.setNoScroll(true);
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
         mBleManagerHelper.addUiListener(this);
 

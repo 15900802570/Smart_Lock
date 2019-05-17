@@ -108,7 +108,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         mCtx = mFpView.getContext();
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
         mFpAdapter = new FpManagerAdapter(mCtx);
         mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));

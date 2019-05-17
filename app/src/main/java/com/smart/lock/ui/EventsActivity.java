@@ -114,7 +114,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mDeviceUser = DeviceUserDao.getInstance(this).queryUser(mNodeId, mDefaultDevice.getUserId());
 
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
 
         DeviceLogDao.getInstance(this).deleteAll();
