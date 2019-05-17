@@ -24,6 +24,7 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.helper.DtComFunHelper;
+import com.smart.lock.entity.Device;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
 import com.smart.lock.utils.ConstantUtil;
@@ -237,6 +238,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                         } else if (deviceInfo.getDeviceDefault()) {
                             mBleManagerHelper.deleteDefaultDev();
                             mBleManagerHelper.getBleCardService().disconnect();
+                            Device.getInstance(DeviceManagementActivity.this).halt();
                         }
                         mDevList.remove(position);
                         mDevManagementAdapter.notifyDataSetChanged();

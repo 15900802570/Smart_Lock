@@ -27,6 +27,7 @@ import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
@@ -124,22 +125,21 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         byte[] typeBytes = new byte[1];
         byte[] timeBytes = new byte[4];
         byte[] userIdBytes = new byte[2];
-        byte[] ImeiBytes = new byte[8];
+        byte[] imeiBytes = new byte[8];
         byte[] bleMACBytes = new byte[6];
         byte[] randCodeBytes = new byte[18];
         byte[] authCode = new byte[30];
         System.arraycopy(devInfo, 0, typeBytes, 0, 1);
         System.arraycopy(devInfo, 1, timeBytes, 0, 4);
         System.arraycopy(devInfo, 5, userIdBytes, 0, 2);
-        System.arraycopy(devInfo, 7, ImeiBytes, 0, 8);
+        System.arraycopy(devInfo, 7, imeiBytes, 0, 8);
         System.arraycopy(devInfo, 15, bleMACBytes, 0, 6);
         System.arraycopy(devInfo, 21, randCodeBytes, 0, 10);
-        System.arraycopy(devInfo, 31, timeBytes, 0, 4);
         System.arraycopy(devInfo, 5,authCode,0,30);
         String mUserType = StringUtil.bytesToHexString(typeBytes);
         LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(userIdBytes));
         mUserId = StringUtil.bytesToHexString(userIdBytes);
-        mNodeId = StringUtil.bytesToHexString(ImeiBytes);
+        mNodeId = StringUtil.bytesToHexString(StringUtil.bytesReverse(imeiBytes));
         mBleMac = Objects.requireNonNull(StringUtil.bytesToHexString(bleMACBytes)).toUpperCase();
         mRandCode = StringUtil.bytesToHexString(randCodeBytes);
         mTime = StringUtil.byte2Int(timeBytes);
@@ -150,7 +150,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                 "NodeId = " + mNodeId + '\n' +
                 "mRandCode = " + mRandCode + '\n' +
                 "mBleMac = " + mBleMac + '\n' +
-                "Time = " + mTime +'\n'+
+                "Time = " + DateTimeUtil.stampToDate(mTime +"000") +'\n'+
                 "mAuthCode = " + Arrays.toString(authCode));
 
         addDev(authCode);
@@ -182,6 +182,8 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                 DeviceInfo deviceDev = (DeviceInfo) mActivity.getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
                 if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
                     mBleManagerHelper.getBleCardService().disconnect();
+                    mDevice.halt();
+
                 }
 
             }
@@ -212,6 +214,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
     private void onAuthenticationFailed() {
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() == Device.BLE_CONNECTED) {
             mBleManagerHelper.getBleCardService().disconnect();
+            mDevice.halt();
         }
         DialogUtils.closeDialog(mLoadDialog);
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));
