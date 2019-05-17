@@ -217,7 +217,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser)) {
+        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
             return;
         }
         switch (msg.getType()) {
@@ -260,7 +260,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
                 System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
 
-                Arrays.fill(authBuf, 35, 29, (byte) 0x1d); //补充字节
+                Arrays.fill(authBuf, 35, 64, (byte) 0x1d); //补充字节
 
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -596,27 +596,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
                     @Override
                     public void onClick(View v) {
-                        String path = userInfo.getQrPath();
-                        Log.d(TAG, "path = " + path);
-                        if (StringUtil.checkNotNull(path)) {
-                            String qrName = StringUtil.getFileName(path);
-                            if (System.currentTimeMillis() - Long.parseLong(qrName) <= 30 * 60 * 60) {
-                                Log.d(TAG, "qrName = " + qrName);
-                                displayImage(path);
-                            } else {
-                                File delQr = new File(path);
-                                boolean result = delQr.delete();
-                                if (result) {
-                                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
-                                }
-                                String newPath = createQr(userInfo);
-                                Log.d(TAG, "newPath = " + newPath);
-                            }
-
-                        } else {
-                            String newPath = createQr(userInfo);
-                            Log.d(TAG, "newPath = " + newPath);
-                        }
+                        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                            mBleManagerHelper.getBleCardService().sendCmd25(userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(mContext.getString(R.string.unconnected_device));
                     }
                 });
 

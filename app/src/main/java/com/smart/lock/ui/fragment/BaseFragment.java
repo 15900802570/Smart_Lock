@@ -225,11 +225,12 @@ public abstract class BaseFragment extends Fragment {
 
         byte[] timeQr = new byte[4];
         StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeQr);
+        LogUtil.d(TAG,"time is " + (System.currentTimeMillis() / 1000 + 30 * 60));
         System.arraycopy(timeQr, 0, authBuf, 1, 4); //二维码有效时间
 
         System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
 
-        Arrays.fill(authBuf, 35, 29, (byte) 0x1d); //补充字节
+        Arrays.fill(authBuf, 35, 64, (byte) 0x1d); //补充字节
 
         try {
             AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -248,39 +249,40 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected void setAuthCode(byte[] authTime, DeviceInfo info, DeviceUser user) {
-        byte[] authCode = new byte[32];
+        LogUtil.d(TAG, "user : " + user.toString());
+        byte[] authCode = new byte[30];
         if (StringUtil.checkNotNull(info.getDeviceNodeId())) {
             byte[] userId = new byte[2];
-            StringUtil.short2Bytes(info.getUserId(), userId);
+            StringUtil.short2Bytes(user.getUserId(), userId);
             System.arraycopy(userId, 0, authCode, 0, 2);
 
             byte[] nodeIdBuf = new byte[8];
             String nodeId = info.getDeviceNodeId();
             if (nodeId.getBytes().length == 15) {
                 nodeId = "0" + nodeId;
-                nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
-                StringUtil.exchange(nodeIdBuf);
-                LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
-                System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
             }
+            nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
+            StringUtil.exchange(nodeIdBuf);
+            LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
+            System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
 
             byte[] bleMacBuf = new byte[6];
             String bleMac = info.getBleMac();
-            if (StringUtil.checkNotNull(bleMac) && bleMac.getBytes().length == 12) {
-                bleMacBuf = StringUtil.hexStringToBytes(bleMac);
+            if (StringUtil.checkNotNull(bleMac)) {
+                bleMacBuf = StringUtil.hexStringToBytes(bleMac.replace(":", ""));
                 System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
                 LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
             }
 
             byte[] randCodeBuf = new byte[10];
             String randCode = info.getDeviceSecret();
-            if (StringUtil.checkNotNull(randCode) && randCode.getBytes().length == 10) {
+            if (StringUtil.checkNotNull(randCode)) {
                 randCodeBuf = StringUtil.hexStringToBytes(randCode);
                 System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
                 LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
             }
 
-            System.arraycopy(authTime, 0, authCode, 26, 30);
+            System.arraycopy(authTime, 0, authCode, 26, 4);
 
             LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
             user.setAuthCode(StringUtil.bytesToHexString(authCode));

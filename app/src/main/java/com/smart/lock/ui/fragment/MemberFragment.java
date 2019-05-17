@@ -230,7 +230,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser)) {
+        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
             return;
         }
         switch (msg.getType()) {
@@ -272,7 +272,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
                 System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
 
-                Arrays.fill(authBuf, 35, 29, (byte) 0x1d); //补充字节
+                Arrays.fill(authBuf, 35, 64, (byte) 0x1d); //补充字节
 
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);

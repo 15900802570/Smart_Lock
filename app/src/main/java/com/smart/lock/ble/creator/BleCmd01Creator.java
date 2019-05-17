@@ -35,13 +35,14 @@ public class BleCmd01Creator implements BleCreator {
         byte type = data.getByte(BleMsg.KEY_CMD_TYPE);
         short userId = data.getShort(BleMsg.KEY_USER_ID);
         String authCode = data.getString(BleMsg.KEY_AUTH_CODE);
-        LogUtil.d(TAG, "authCode : " + authCode);
+
         byte[] authCodeBuf = new byte[30];
 
         if (!authCode.equals("0")) {
             authCodeBuf = StringUtil.hexStringToBytes(authCode);
         } else Arrays.fill(authCodeBuf, 0, 30, (byte) 0x00);
 
+        LogUtil.d(TAG, "authCode : " + Arrays.toString(authCodeBuf));
         short cmdLen = 65;
         byte[] buf = new byte[48];
 

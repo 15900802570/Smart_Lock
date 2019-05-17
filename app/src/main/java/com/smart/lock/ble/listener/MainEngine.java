@@ -340,10 +340,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 authCode = StringUtil.bytesToHexString(mDevice.getTempAuthCode());
             }
 
-            if(StringUtil.checkNotNull(authCode)) {
+            if (StringUtil.checkNotNull(authCode)) {
                 return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, authCode, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-            }else {
-                LogUtil.e(TAG,"authCode = null" );
+            } else {
+                LogUtil.e(TAG, "authCode = null");
                 return false;
             }
         }
@@ -837,7 +837,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     }
 
     private void setAuthCode(byte[] authTime) {
-        byte[] authCode = new byte[32];
+        byte[] authCode = new byte[30];
         if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             byte[] userId = new byte[2];
             StringUtil.short2Bytes(mDevInfo.getUserId(), userId);
@@ -847,29 +847,29 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             String nodeId = mDevInfo.getDeviceNodeId();
             if (nodeId.getBytes().length == 15) {
                 nodeId = "0" + nodeId;
-                nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
-                StringUtil.exchange(nodeIdBuf);
-                LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
-                System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
             }
+            nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
+            StringUtil.exchange(nodeIdBuf);
+            LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
+            System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
 
             byte[] bleMacBuf = new byte[6];
             String bleMac = mDevInfo.getBleMac();
-            if (StringUtil.checkNotNull(bleMac) && bleMac.getBytes().length == 12) {
-                bleMacBuf = StringUtil.hexStringToBytes(bleMac);
+            if (StringUtil.checkNotNull(bleMac)) {
+                bleMacBuf = StringUtil.hexStringToBytes(bleMac.replace(":", ""));
                 System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
                 LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
             }
 
             byte[] randCodeBuf = new byte[10];
             String randCode = mDevInfo.getDeviceSecret();
-            if (StringUtil.checkNotNull(randCode) && randCode.getBytes().length == 10) {
+            if (StringUtil.checkNotNull(randCode)) {
                 randCodeBuf = StringUtil.hexStringToBytes(randCode);
                 System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
                 LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
             }
 
-            System.arraycopy(authTime, 0, authCode, 26, 30);
+            System.arraycopy(authTime, 0, authCode, 26, 4);
 
             LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
 
