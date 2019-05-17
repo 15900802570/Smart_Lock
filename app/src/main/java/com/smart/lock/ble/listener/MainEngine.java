@@ -440,7 +440,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
             mDefaultStatus.setRolledBackTime(unLockTime);
             // 获取省电时间段
-            if (Arrays.equals(powerSave,new byte[]{0,0,0,0,0,0,0,0})) {
+            if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
                 mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
                 mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
             } else {
@@ -545,18 +545,20 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     LogUtil.e(TAG, "suarch dev!");
                     break;
                 }
+                LogUtil.d(TAG, "Ble Status = " + mDevice.getState());
 
-                if (mDevice.getState() != Device.BLE_DISCONNECTED) break; //设备状态不是非连接，不需要自动连接
+                if (mDevice.getState() == Device.BLE_DISCONNECTED) { //设备状态不是非连接，不需要自动连接
 
-                boolean result = mService.connect(mDevice, mDevInfo.getBleMac());
-                LogUtil.d(TAG, "result : " + result);
-                if (result) mDevice.setState(Device.BLE_CONNECTION);
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.reConnectBle(mDevice);
+                    boolean result = mService.connect(mDevice, mDevInfo.getBleMac());
+                    LogUtil.d(TAG, "result : " + result);
+                    if (result) mDevice.setState(Device.BLE_CONNECTION);
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.reConnectBle(mDevice);
+                    }
+                    android.os.Message pollingMsg = new android.os.Message();
+                    pollingMsg.what = MSG_POLLING_BLE;
+                    mHandler.sendMessageDelayed(pollingMsg, 120 * 1000);
                 }
-                android.os.Message pollingMsg = new android.os.Message();
-                pollingMsg.what = MSG_POLLING_BLE;
-                mHandler.sendMessageDelayed(pollingMsg, 120 * 1000);
                 break;
             case MSG_RECONNCT_BLE:
                 LogUtil.i(TAG, "reconnect device");
@@ -664,8 +666,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 case Message.TYPE_BLE_RECEIVER_CMD_04:
                     registerCallBack(extra);
                     mDevice.setState(Device.BLE_CONNECTED);
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
+                    for (int i = 0; i < mUiListeners.size(); i++) {
+                        mUiListeners.get(i).dispatchUiCallback(message, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_12:

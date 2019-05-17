@@ -630,18 +630,22 @@ public class HomeFragment extends BaseFragment implements
                 showMessage(getString(R.string.random_error));
                 break;
             case BleMsg.TYPE_USER_NOT_EXIST:
-                mDevice.setState(Device.BLE_DISCONNECTED);
-                mBleManagerHelper.getBleCardService().disconnect();
-                LogUtil.d(TAG, "用户已删除");
-                // 删除相关数据
-                if (mDefaultDevice != null) {
-                    DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);
-                    mDefaultDevice = null;
-                    mDefaultUser = null;
+                if (type == Message.TYPE_BLE_RECEIVER_CMD_0E) {
+                    mDevice.setState(Device.BLE_DISCONNECTED);
+                    mBleManagerHelper.getBleCardService().disconnect();
+                    LogUtil.d(TAG, "用户已删除");
+                    // 删除相关数据
+                    if (mDefaultDevice != null) {
+                        DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);
+                        mDefaultDevice = null;
+                        mDefaultUser = null;
+                    }
+                    mDevice.halt();
+                    refreshView(UNBIND_DEVICE);
+                    DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
+                } else if (type == Message.TYPE_BLE_RECEIVER_CMD_2E) {
+                    showMessage(mCtx.getString(R.string.no_authority));
                 }
-                mDevice.halt();
-                refreshView(UNBIND_DEVICE);
-                DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
                 break;
             case BleMsg.ERR0E_NO_AUTHORITY:
                 if (type == Message.TYPE_BLE_RECEIVER_CMD_2E) {

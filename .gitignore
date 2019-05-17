@@ -11,3 +11,6 @@
 .idea/*.xml
 .idea/libraries
 .idea/caches
+
+safety/build
+safety/release
