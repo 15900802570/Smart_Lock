@@ -258,11 +258,11 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " can't receiver msg!");
+                LogUtil.e(TAG,msg.getType() + " can't receiver msg!");
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;
             default:

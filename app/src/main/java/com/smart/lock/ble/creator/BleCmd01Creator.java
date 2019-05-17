@@ -34,6 +34,13 @@ public class BleCmd01Creator implements BleCreator {
         int apk = 0x01;
         byte type = data.getByte(BleMsg.KEY_CMD_TYPE);
         short userId = data.getShort(BleMsg.KEY_USER_ID);
+        String authCode = data.getString(BleMsg.KEY_AUTH_CODE);
+        LogUtil.d(TAG, "authCode : " + authCode);
+        byte[] authCodeBuf = new byte[30];
+
+        if (!authCode.equals("0")) {
+            authCodeBuf = StringUtil.hexStringToBytes(authCode);
+        } else Arrays.fill(authCodeBuf, 0, 30, (byte) 0x00);
 
         short cmdLen = 33;
         byte[] buf = new byte[16];
@@ -48,7 +55,7 @@ public class BleCmd01Creator implements BleCreator {
         StringUtil.int2Bytes(apk, buf);
         System.arraycopy(buf, 0, cmd, 3, 1);
 
-        byte[] msgBuf = new byte[16];
+        byte[] msgBuf = new byte[48];
         msgBuf[0] = type;
 
         StringUtil.short2Bytes(userId, buf);
@@ -57,7 +64,11 @@ public class BleCmd01Creator implements BleCreator {
         long time = System.currentTimeMillis() / 1000;
         StringUtil.int2Bytes((int) time, buf);
         System.arraycopy(buf, 0, msgBuf, 3, 4);
-        Arrays.fill(msgBuf, 7, 16, (byte) 0x09);
+
+        System.arraycopy(authCodeBuf, 0, msgBuf, 7, 30); //authCode
+
+        Arrays.fill(msgBuf, 37, 48, (byte) 0x0b);
+
 
         try {
             if (MessageCreator.mIs128Code)
@@ -83,14 +94,14 @@ public class BleCmd01Creator implements BleCreator {
             e.printStackTrace();
         }
 
-        System.arraycopy(buf, 0, cmd, 20, 16);
+        System.arraycopy(buf, 0, cmd, 52, 16);
 
-        short crc = StringUtil.crc16(cmd, 36);
+        short crc = StringUtil.crc16(cmd, 68);
 
         StringUtil.short2Bytes(crc, buf);
-        System.arraycopy(buf, 0, cmd, 36, 2);
+        System.arraycopy(buf, 0, cmd, 68, 2);
         byte[] bleCmd = new byte[38];
-        System.arraycopy(cmd, 0, bleCmd, 0, 38);
+        System.arraycopy(cmd, 0, bleCmd, 0, 70);
 
         return bleCmd;
     }

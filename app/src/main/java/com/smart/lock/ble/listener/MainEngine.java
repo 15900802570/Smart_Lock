@@ -185,7 +185,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setState(Device.BLE_CONNECTION);
         android.os.Message msg = new android.os.Message();
         msg.what = MSG_REGISTER;
-        mHandler.sendMessageDelayed(msg, 500); //收到服务后，等待0.5s
+        mHandler.sendMessageDelayed(msg, 600); //收到服务后，等待0.6s
     }
 
     @Override
@@ -319,7 +319,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public boolean scanQrRegister() {
         LogUtil.i(TAG, "scan qr register ble!");
         if (mDevInfo == null || mService == null) return false;
-        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
 
     }
 
@@ -332,7 +332,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.i(TAG, "other register ble!");
         if (mService == null) return false;
         if (mDevInfo != null) {
-            return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+            mDefaultUser = mDeviceUserDao.queryUser(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
+            return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, mDefaultUser.getAuthCode(), mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
         }
         return false;
     }
@@ -341,7 +342,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.i(TAG, "search register ble!");
         if (mService == null) return false;
 
-        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
+        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", (short) 0, BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
     }
 
     /**
@@ -509,7 +510,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
             }
             for (Short userId : userIds) {
-                createDeviceUser(userId, null);
+                createDeviceUser(userId, null, null);
             }
         }
     }
@@ -519,12 +520,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      *
      * @param userId
      */
-    private synchronized DeviceUser createDeviceUser(short userId, String path) {
+    private synchronized DeviceUser createDeviceUser(short userId, String path, String authCode) {
         DeviceUser user = new DeviceUser();
         user.setDevNodeId(mDevInfo.getDeviceNodeId());
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(userId);
         user.setUserStatus(ConstantUtil.USER_UNENABLE);
+        user.setAuthCode(authCode);
         LogUtil.d(TAG, "userId : " + userId);
         if (userId < 101) {
             user.setUserPermission(ConstantUtil.DEVICE_MASTER);
@@ -587,7 +589,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
 
                 if (mDevice.getState() != Device.BLE_DISCONNECTED) break; //设备状态不是非连接，不需要自动连接
-
 
                 boolean connect = mService.connect(mDevice, mDevInfo.getBleMac());
                 if (connect) mDevice.setState(Device.BLE_CONNECTION);
@@ -699,19 +700,38 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         }
                         return;
                     }
-                    String addUserId = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_USER_ID));
-                    byte[] nodeIdBuf = extra.getByteArray(BleMsg.KEY_NODE_ID);
+                    byte[] authCode = extra.getByteArray(BleMsg.KEY_AUTH_CODE);
+
+                    byte[] addUserIdBuf = new byte[2];
+                    byte[] nodeIdBuf = new byte[8];
+                    byte[] bleMacBuf = new byte[6];
+                    byte[] randCodeBuf = new byte[10];
+                    byte[] timeBuf = new byte[4];
+
+                    System.arraycopy(authCode, 0, addUserIdBuf, 0, 2);
+                    System.arraycopy(authCode, 2, nodeIdBuf, 0, 8);
+                    System.arraycopy(authCode, 10, bleMacBuf, 0, 6);
+                    System.arraycopy(authCode, 16, randCodeBuf, 0, 10);
+                    System.arraycopy(authCode, 26, timeBuf, 0, 4);
+
+
+                    String addUserId = StringUtil.bytesToHexString(addUserIdBuf);
                     StringUtil.exchange(nodeIdBuf);
-                    LogUtil.d(TAG, "nodeIdBuf + " + Arrays.toString(nodeIdBuf));
                     String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
-                    String time = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_LOCK_TIME));
-                    String randCode = StringUtil.bytesToHexString(extra.getByteArray(BleMsg.KEY_RAND_CODE));
+                    StringUtil.exchange(bleMacBuf);
+                    String bleMac = StringUtil.bytesToHexString(bleMacBuf);
+                    LogUtil.d(TAG, "bleMac = " + bleMac);
+
+                    String time = StringUtil.bytesToHexString(timeBuf);
+                    String randCode = StringUtil.bytesToHexString(randCodeBuf);
                     DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
                     LogUtil.d(TAG, "nodeId = " + nodeId);
+
                     mDevInfo.setActivitedTime(Long.parseLong(time, 16));
                     mDevInfo.setConnectType(false);
                     mDevInfo.setUserId(Short.parseShort(addUserId, 16));
                     mDevInfo.setDeviceNodeId(nodeId);
+                    mDevInfo.setBleMac(bleMac);
                     mDevInfo.setNodeType(ConstantUtil.SMART_LOCK);
                     mDevInfo.setDeviceDate(System.currentTimeMillis() / 1000);
                     if (defaultDevice != null) mDevInfo.setDeviceDefault(false);
@@ -721,7 +741,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDeviceInfoDao.insert(mDevInfo);
 
                     Short sUserId = Short.parseShort(addUserId, 16);
-                    createDeviceUser(sUserId, null);
+
+                    createDeviceUser(sUserId, null, StringUtil.bytesToHexString(authCode));
 
                     android.os.Message msg = new android.os.Message();
                     msg.what = MSG_ADD_USER_SUCCESS;
@@ -740,7 +761,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     byte[] seconds = extra.getByteArray(BleMsg.KEY_TIME_OUT);
 
                     if (seconds != null && timer != null) {
-                        long timeOut = seconds[0] * 1000 + 5; //APP侧比芯片侧时长多5s，避免重复remove
+                        long timeOut = seconds[0] * 1000 + 5000; //APP侧比芯片侧时长多5s，避免重复remove
                         LogUtil.i(TAG, "receiver msg 18,reset timer : " + timeOut);
                         timer.reSetTimeOut(timeOut);
                     }

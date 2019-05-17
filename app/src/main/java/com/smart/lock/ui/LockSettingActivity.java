@@ -79,6 +79,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private TextView mSetRolledBackTime5sTv;
     private TextView mSetRolledBackTime8sTv;
     private TextView mSetRolledBackTime10sTv;
+    private TextView mTitleTv;
     private NextActivityDefineView mFactoryResetNa;
 
     private TextView mSetSafetyCardTv;
@@ -97,6 +98,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private int TIME_PICKER_CODE = 1;
 
     private Device mDevice;
+    private int mCount = 0; //打开测试条例
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +116,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mNormallyOpenTs = findViewById(R.id.ts_normally_open);
         mVoicePromptTs = findViewById(R.id.ts_voice_prompt);
         mLogEnableTs = findViewById(R.id.ts_log_enable);
+        mTitleTv = findViewById(R.id.tv_title);
 
         mSetRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
         mSetSupportCardTypeBs = findViewById(R.id.bs_support_card_type);
@@ -130,6 +133,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mNormallyOpenTs.setDes(getResources().getString(R.string.normally_open));
         mVoicePromptTs.setDes(getResources().getString(R.string.voice_prompt));
         mLogEnableTs.setDes(getString(R.string.lock_log));
+        mLogEnableTs.setVisibility(View.GONE); //测试使用
 
         mSetRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
         mSetSupportCardTypeBs.setDes(getString(R.string.support_types_of_card));
@@ -173,6 +177,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mFactoryResetNa.setVisibility(View.GONE);
             mSetSupportCardTypeBs.setVisibility(View.GONE);
         }
+    }
+
+    private void enableTest() {
+        mLogEnableTs.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -264,6 +272,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             }
         });
 
+        //门锁抬头
+        mTitleTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doClick(R.string.lock_settings);
+            }
+        });
+
     }
 
     @Override
@@ -280,11 +296,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
 
     public void onClick(View view) {
-        if (mDevice.getState() == Device.BLE_CONNECTED) {
+        if (mDevice.getState() == Device.BLE_CONNECTED || view.getId() == R.id.iv_back) {
             switch (view.getId()) {
                 case R.id.iv_back:
                     finish();
-
+                    break;
                 case R.id.ts_intelligent_lock:  //智能锁芯
                     doClick(R.string.intelligent_lock);
                     break;
@@ -387,6 +403,12 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private void doClick(int value) {
         if (mDevice.getState() == Device.BLE_CONNECTED) {
             switch (value) {
+                case R.string.lock_settings:
+                    mCount++;
+                    if (mCount >= 5) {
+                        enableTest();
+                    }
+                    break;
                 case R.string.intelligent_lock: //智能锁芯
                     if (mDeviceStatus.isIntelligentLockCore()) {
                         mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_CLOSE);
@@ -579,7 +601,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     private byte[] getPowerSavingTime(int[] time) {
         StringBuilder nowTime = new StringBuilder(DateTimeUtil.stampToDate(String.valueOf(System.currentTimeMillis())));
-        nowTime.replace(17,19,"00");
+        nowTime.replace(17, 19, "00");
         String startTime = nowTime.replace(
                 11,
                 16,
@@ -697,10 +719,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         int exception = msg.getException();
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
-                showMessage(msg.getType() + " can't receiver msg!");
+                LogUtil.e(msg.getType() + " can't receiver msg!");
                 break;
             case Message.EXCEPTION_SEND_FAIL:
-                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;
             default:

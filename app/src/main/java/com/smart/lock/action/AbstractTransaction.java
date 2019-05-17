@@ -477,7 +477,7 @@ public abstract class AbstractTransaction {
     }
 
     public void initParamData(Map<String, Object> map) {
-
+        LogUtil.d(TAG,"requst map : " + map.toString());
     }
 
 }

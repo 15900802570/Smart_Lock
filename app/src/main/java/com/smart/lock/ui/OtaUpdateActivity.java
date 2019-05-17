@@ -386,7 +386,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
     private void checkDevVersion() {
         mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-        mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+        mVersionAction.setDeviceSn("1586210");
         mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
         mVersionAction.setTransferPayResponse(tCheckDevResponse);
         mVersionAction.transStart(this);
@@ -871,7 +871,11 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 }
                 break;
             case BleMsg.STATE_DISCONNECTED:
-                mConnetStatus.setText(R.string.dfu_end_waiting);
+                if (iCmdIndex < iCmdLen) {
+                    mConnetStatus.setText(R.string.ota_file_dan);
+                    showMessage("请退出当前界面,重新连接门锁！");
+                } else
+                    mConnetStatus.setText(R.string.dfu_end_waiting);
                 break;
             case BleMsg.STATE_CONNECTED:
 

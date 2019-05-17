@@ -160,6 +160,10 @@
      public void *(android.webkit.webView, jav.lang.String);
  }
 
+ #避免混淆js相关的接口
+ -keepattributes *JavascriptInterface*
+ -keep class com.wyk.test.js.** { *; }
+
  # 移除Log类打印各个等级日志的代码，打正式包的时候可以做为禁log使用，这里可以作为禁止log打印的功能使用
  # 记得proguard-android.txt中一定不要加-dontoptimize才起作用
  # 另外的一种实现方案是通过BuildConfig.DEBUG的变量来控制
@@ -197,8 +201,16 @@
  #-----------处理第三方依赖库---------
 
  -dontwarn com.j256.**
+ -keep class com.j256.{*;}
  -dontwarn org.bouncycastle.**
+ -keep class org.bouncycastle.**{*;}
  -dontwarn org.w3c.**
+ -keep class org.w3c.{*;}
  -dontwarn net.sf**
+  -keep class net.sf**{*;}
  -dontwarn java.beans.**
+ -keep class java.beans.**{*;}
+ -keep class org.apache.**{*;}
  -dontwarn org.apache.**
+
+

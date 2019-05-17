@@ -57,6 +57,9 @@ public class DeviceUser implements Serializable {
     @DatabaseField(columnName = "qr_path")
     private String qrPath;
 
+    @DatabaseField(columnName = "auth_code")
+    private String authCode;
+
     public String getLcBegin() {
         return lcBegin;
     }
@@ -186,16 +189,26 @@ public class DeviceUser implements Serializable {
                 ", userPermission=" + userPermission +
                 ", userStatus=" + userStatus +
                 ", createTime=" + createTime +
-                ", lcBegin=" + lcBegin +
-                ", lcEnd=" + lcEnd +
-                ", stTsBegin=" + stTsBegin +
-                ", stTsEnd=" + stTsEnd +
-                ", ndTsBegin=" + ndTsBegin +
-                ", ndTsend=" + ndTsend +
-                ", thTsBegin=" + thTsBegin +
-                ", thTsEnd=" + thTsEnd +
+                ", lcBegin='" + lcBegin + '\'' +
+                ", lcEnd='" + lcEnd + '\'' +
+                ", stTsBegin='" + stTsBegin + '\'' +
+                ", stTsEnd='" + stTsEnd + '\'' +
+                ", ndTsBegin='" + ndTsBegin + '\'' +
+                ", ndTsend='" + ndTsend + '\'' +
+                ", thTsBegin='" + thTsBegin + '\'' +
+                ", thTsEnd='" + thTsEnd + '\'' +
                 ", userName='" + userName + '\'' +
                 ", qrPath='" + qrPath + '\'' +
+                ", authCode='" + authCode + '\'' +
                 '}';
     }
+
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+
 }
