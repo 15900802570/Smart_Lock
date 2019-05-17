@@ -332,8 +332,20 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.i(TAG, "other register ble!");
         if (mService == null) return false;
         if (mDevInfo != null) {
+            String authCode = null;
             mDefaultUser = mDeviceUserDao.queryUser(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
-            return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, mDefaultUser.getAuthCode(), mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+            if (mDefaultUser != null && mDefaultUser.getAuthCode() != null) {
+                authCode = mDefaultUser.getAuthCode();
+            } else if (mDevice.getTempAuthCode() != null) {
+                authCode = StringUtil.bytesToHexString(mDevice.getTempAuthCode());
+            }
+
+            if(StringUtil.checkNotNull(authCode)) {
+                return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, authCode, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+            }else {
+                LogUtil.e(TAG,"authCode = null" );
+                return false;
+            }
         }
         return false;
     }

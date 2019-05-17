@@ -52,13 +52,15 @@ public class PermissionHelper {
      * 判断是否有某个权限
      *
      * @param context
-     * @param permission
+     * @param permissions
      * @return
      */
-    public  boolean hasPermission(Context context, String permission) {
+    public boolean hasPermission(Context context, String... permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { // Android 6.0判断，6.0以下跳过。在清单文件注册即可，不用动态请求，这里直接视为有权限
-            if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
+            for (String permission : permissions) {
+                if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
             }
         }
         return true;
