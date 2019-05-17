@@ -242,7 +242,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         Bundle extra = msg.getData();
         mDevice = device;
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser)) {
+        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
             return;
         }
         switch (msg.getType()) {
@@ -284,7 +284,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
                 System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
 
-                Arrays.fill(authBuf, 35, 29, (byte) 0x1d); //补充字节
+                Arrays.fill(authBuf, 35, 64, (byte) 0x1d); //补充字节
 
                 try {
                     AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -303,6 +303,22 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     }
                 }
 
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                short userIdTag = (short) serializable;
+                if (userIdTag <= 200 || userIdTag > 301) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+
+                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                if (userInfo != null) {
+                    byte[] authTime = new byte[4];
+                    System.arraycopy(userInfo, 8, authTime, 0, 4);
+
+                    DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                    setAuthCode(authTime, mDefaultDevice, devUser);
+                }
                 break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
