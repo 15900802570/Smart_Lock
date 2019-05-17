@@ -150,8 +150,10 @@ public class BleManagerHelper {
             mContext = context;
             mNodeId = bundle.getString(BleMsg.KEY_NODE_ID);
             mSn = bundle.getString(BleMsg.KEY_NODE_SN);
-        } else
+        } else {
             mUserId = bundle.getShort(BleMsg.KEY_USER_ID);
+            mDevice.setTempAuthCode(bundle.getByteArray(BleMsg.KEY_AUTH_CODE));
+        }
         LogUtil.d(TAG, "mUserId = " + mUserId);
 
         if (!mBtAdapter.isEnabled()) {

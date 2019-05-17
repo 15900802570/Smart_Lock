@@ -128,7 +128,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
-        mSetDevInfoNv.setVisibility(View.GONE);
+//        mSetDevInfoNv.setVisibility(View.GONE);
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -382,7 +382,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
         if (resultCode == RESULT_OK && data != null) {
 
-            if (requestCode == REQUEST_CODE_SCAN) {
+            if (requestCode == ConstantUtil.SCAN_QRCODE_REQUEST_CODE) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 LogUtil.d(TAG, "content = " + content);
                 String[] dvInfo = content.split(",");

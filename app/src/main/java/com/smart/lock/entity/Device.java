@@ -47,6 +47,7 @@ public class Device {
     private byte[] syncUsers = new byte[16]; //同步状态字，16字节
     private byte[] allStatus = new byte[100];//所有用户状态
     private byte[] tempSecret = new byte[4 * (mIs128Code ? 16 : 32)]; //临时秘钥储存
+    private byte[] tempAuthCode = new byte[30];
 
     public Device(Context context) {
         mContext = context;
@@ -164,5 +165,13 @@ public class Device {
                 ", allStatus=" + Arrays.toString(allStatus) +
                 ", tempSecret=" + Arrays.toString(tempSecret) +
                 '}';
+    }
+
+    public byte[] getTempAuthCode() {
+        return tempAuthCode;
+    }
+
+    public void setTempAuthCode(byte[] tempAuthCode) {
+        this.tempAuthCode = tempAuthCode;
     }
 }

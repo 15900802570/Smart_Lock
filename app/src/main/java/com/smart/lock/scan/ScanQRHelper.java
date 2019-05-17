@@ -117,26 +117,28 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
             AES_ECB_PKCS7.AES256Decode(mByte, devInfo, MessageCreator.mQrSecret);
             LogUtil.d(TAG, "devInfo =" + Arrays.toString(devInfo));
             getDevInfo(devInfo);
-            addDev();
         }
     }
 
     private void getDevInfo(byte[] devInfo) {
         byte[] typeBytes = new byte[1];
-        byte[] copyNumBytes = new byte[2];
+        byte[] timeBytes = new byte[4];
+        byte[] userIdBytes = new byte[2];
         byte[] ImeiBytes = new byte[8];
         byte[] bleMACBytes = new byte[6];
-        byte[] timeBytes = new byte[4];
         byte[] randCodeBytes = new byte[18];
+        byte[] authCode = new byte[30];
         System.arraycopy(devInfo, 0, typeBytes, 0, 1);
-        System.arraycopy(devInfo, 1, copyNumBytes, 0, 2);
-        System.arraycopy(devInfo, 3, ImeiBytes, 0, 8);
-        System.arraycopy(devInfo, 11, bleMACBytes, 0, 6);
-        System.arraycopy(devInfo, 17, randCodeBytes, 0, 10);
-        System.arraycopy(devInfo, 27, timeBytes, 0, 4);
+        System.arraycopy(devInfo, 1, timeBytes, 0, 4);
+        System.arraycopy(devInfo, 5, userIdBytes, 0, 2);
+        System.arraycopy(devInfo, 7, ImeiBytes, 0, 8);
+        System.arraycopy(devInfo, 15, bleMACBytes, 0, 6);
+        System.arraycopy(devInfo, 21, randCodeBytes, 0, 10);
+        System.arraycopy(devInfo, 31, timeBytes, 0, 4);
+        System.arraycopy(devInfo, 5,authCode,0,30);
         String mUserType = StringUtil.bytesToHexString(typeBytes);
-        LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(copyNumBytes));
-        mUserId = StringUtil.bytesToHexString(copyNumBytes);
+        LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(userIdBytes));
+        mUserId = StringUtil.bytesToHexString(userIdBytes);
         mNodeId = StringUtil.bytesToHexString(ImeiBytes);
         mBleMac = Objects.requireNonNull(StringUtil.bytesToHexString(bleMACBytes)).toUpperCase();
         mRandCode = StringUtil.bytesToHexString(randCodeBytes);
@@ -148,7 +150,10 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                 "NodeId = " + mNodeId + '\n' +
                 "mRandCode = " + mRandCode + '\n' +
                 "mBleMac = " + mBleMac + '\n' +
-                "Time = " + mTime);
+                "Time = " + mTime +'\n'+
+                "mAuthCode = " + Arrays.toString(authCode));
+
+        addDev(authCode);
     }
 
     /**
@@ -166,7 +171,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         mActivity.startActivity(intent);
     }
 
-    private void addDev() {
+    private void addDev(byte[] authCode) {
         if ((Long.valueOf(mTime)) < System.currentTimeMillis() / 1000) {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, "授权码已过期，请重新请求");
             alterDialog.show();
@@ -188,6 +193,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
             bundle.putShort(BleMsg.KEY_USER_ID, Short.parseShort(mUserId, 16));
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
             bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+            bundle.putByteArray(BleMsg.KEY_AUTH_CODE, authCode);
             mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, bundle, mActivity);
         }
     }
