@@ -208,7 +208,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private void initDate() {
         mRotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_loading);
         Bundle extras = getIntent().getExtras();
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         //扫描连接
         if (extras != null) {
             mConnectType = extras.getByte(BleMsg.KEY_BLE_CONNECT_TYPE);

@@ -113,19 +113,22 @@ public abstract class BaseFragment extends Fragment {
      *
      * @param userId 用户ID
      */
-    protected synchronized DeviceUser createDeviceUser(short userId, String path, byte permission) {
+    protected synchronized DeviceUser createDeviceUser(short userId, String path, String authCode) {
         DeviceUser user = new DeviceUser();
         user.setDevNodeId(mNodeId);
         user.setCreateTime(System.currentTimeMillis() / 1000);
         user.setUserId(userId);
-        user.setUserPermission(permission);
         user.setUserStatus(ConstantUtil.USER_UNENABLE);
-        if (permission == ConstantUtil.DEVICE_MASTER) {
-            user.setUserName(getString(R.string.administrator) + userId);
-        } else if (permission == ConstantUtil.DEVICE_MEMBER) {
-            user.setUserName(getString(R.string.members) + userId);
+        user.setAuthCode(authCode);
+        if (userId < 101) {
+            user.setUserPermission(ConstantUtil.DEVICE_MASTER);
+            user.setUserName(mCtx.getString(R.string.administrator) + userId);
+        } else if (userId < 201) {
+            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
+            user.setUserName(mCtx.getString(R.string.members) + userId);
         } else {
-            user.setUserName(getString(R.string.tmp_user) + userId);
+            user.setUserPermission(ConstantUtil.DEVICE_TEMP);
+            user.setUserName(mCtx.getString(R.string.tmp_user) + userId);
         }
 
         user.setQrPath(path);
@@ -221,7 +224,7 @@ public abstract class BaseFragment extends Fragment {
         byte[] authBuf = new byte[64];
 
         authBuf[0] = user.getUserPermission();
-        LogUtil.d(TAG,"nodeId = " + Arrays.toString(nodeId));
+        LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
         System.arraycopy(userId, 0, authBuf, 1, 2);
         System.arraycopy(nodeId, 0, authBuf, 3, 8);
         System.arraycopy(bleMac, 0, authBuf, 11, 6);

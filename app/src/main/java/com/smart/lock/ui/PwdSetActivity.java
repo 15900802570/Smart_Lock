@@ -101,7 +101,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             mTitleTv.setText(R.string.modify_pwd);
         }
 
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
         mHandler = new Handler();
         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));

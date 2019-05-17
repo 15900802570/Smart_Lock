@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initDate() {
-        BleManagerHelper.getInstance(this, false);
+        BleManagerHelper.getInstance(this);
         mPagerList = new ArrayList<>();
         mHomeFragment = new HomeFragment();
         mPagerList.add(mHomeFragment);
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements
     protected void onDestroy() {
         LogUtil.d(TAG, TAG + " onDestroy!");
         super.onDestroy();
-        BleManagerHelper.getInstance(this, false).stopService();
+        BleManagerHelper.getInstance(this).stopService();
     }
 
 

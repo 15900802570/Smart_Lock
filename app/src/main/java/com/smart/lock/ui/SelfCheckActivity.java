@@ -58,7 +58,7 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void initData() {
-        mBleManagerHelper = BleManagerHelper.getInstance(this, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
         mWaitingDialog = DialogUtils.createLoadingDialog(this, this.getString(R.string.data_loading));
     }

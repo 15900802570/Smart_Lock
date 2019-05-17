@@ -37,6 +37,7 @@ import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.DeviceListener;
 import com.smart.lock.ble.listener.MainEngine;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
@@ -72,7 +73,7 @@ import java.util.Objects;
 
 public class HomeFragment extends BaseFragment implements
         View.OnClickListener,
-        AdapterView.OnItemClickListener, UiListener {
+        AdapterView.OnItemClickListener, UiListener, DeviceListener {
     private static final String TAG = HomeFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private View mHomeView;
@@ -262,7 +263,8 @@ public class HomeFragment extends BaseFragment implements
             }
         });
 
-        mBleManagerHelper = BleManagerHelper.getInstance(mCtx, false);
+        mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
+        mBleManagerHelper.addDeviceLintener(this);
         mBleManagerHelper.addUiListener(this);
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mDevice = Device.getInstance(mCtx);
@@ -775,4 +777,13 @@ public class HomeFragment extends BaseFragment implements
         mHandler.sendMessage(msg);
     }
 
+    @Override
+    public void deleteDeviceDev() {
+        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+        if (mDefaultDevice != null) {
+            refreshView(BIND_DEVICE);
+        } else {
+            refreshView(UNBIND_DEVICE);
+        }
+    }
 }

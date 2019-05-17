@@ -243,7 +243,7 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
                                 " sn = " + mSn + "\n" +
                                 "mNodeId = " + mNodeId+'\n'+
                                 "oldMAC = " + dev.getAddress());
-                        BleManagerHelper.getInstance(SetLocalInfo.this, false).connectBle((byte) 2, bundle, SetLocalInfo.this);
+                        BleManagerHelper.getInstance(SetLocalInfo.this).connectBle((byte) 2, bundle, SetLocalInfo.this);
                     }
                 });
             }
