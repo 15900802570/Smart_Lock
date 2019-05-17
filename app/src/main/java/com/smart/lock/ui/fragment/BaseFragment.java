@@ -29,12 +29,14 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
+import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -213,28 +215,21 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected String createQr(DeviceUser user) {
-        byte[] nodeId = StringUtil.hexStringToBytes(user.getDevNodeId());
-        byte[] userId = new byte[2];
-        StringUtil.short2Bytes(user.getUserId(), userId);
-        DeviceInfo info = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", user.getDevNodeId());
-        byte[] bleMac = StringUtil.hexStringToBytes(info.getBleMac().replace(":", ""));
-        byte[] randCode = StringUtil.hexStringToBytes(info.getDeviceSecret());
-
         byte[] buf = new byte[64];
         byte[] authBuf = new byte[64];
-
         authBuf[0] = user.getUserPermission();
-        LogUtil.d(TAG, "nodeId = " + Arrays.toString(nodeId));
-        System.arraycopy(userId, 0, authBuf, 1, 2);
-        System.arraycopy(nodeId, 0, authBuf, 3, 8);
-        System.arraycopy(bleMac, 0, authBuf, 11, 6);
-        System.arraycopy(randCode, 0, authBuf, 17, 10);
+        byte[] authCode = new byte[30];
+        if (StringUtil.checkNotNull(user.getAuthCode())) {
+            authCode = StringUtil.hexStringToBytes(user.getAuthCode());
+        }
 
-        byte[] timeBuf = new byte[4];
-        StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeBuf);
-        System.arraycopy(timeBuf, 0, authBuf, 27, 4);
+        byte[] timeQr = new byte[4];
+        StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeQr);
+        System.arraycopy(timeQr, 0, authBuf, 1, 4); //二维码有效时间
 
-        Arrays.fill(authBuf, 39, 64, (byte) 0x25);
+        System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
+
+        Arrays.fill(authBuf, 35, 29, (byte) 0x1d); //补充字节
 
         try {
             AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
@@ -242,7 +237,7 @@ public abstract class BaseFragment extends Fragment {
             e.printStackTrace();
         }
 
-        String path = createQRcodeImage(buf, ConstantUtil.DEVICE_MASTER);
+        String path = createQRcodeImage(buf, user.getUserPermission());
         Log.d(TAG, "path = " + path);
         if (path != null) {
             user.setQrPath(path);
@@ -250,6 +245,47 @@ public abstract class BaseFragment extends Fragment {
         }
 
         return path;
+    }
+
+    protected void setAuthCode(byte[] authTime, DeviceInfo info, DeviceUser user) {
+        byte[] authCode = new byte[32];
+        if (StringUtil.checkNotNull(info.getDeviceNodeId())) {
+            byte[] userId = new byte[2];
+            StringUtil.short2Bytes(info.getUserId(), userId);
+            System.arraycopy(userId, 0, authCode, 0, 2);
+
+            byte[] nodeIdBuf = new byte[8];
+            String nodeId = info.getDeviceNodeId();
+            if (nodeId.getBytes().length == 15) {
+                nodeId = "0" + nodeId;
+                nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
+                StringUtil.exchange(nodeIdBuf);
+                LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
+                System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
+            }
+
+            byte[] bleMacBuf = new byte[6];
+            String bleMac = info.getBleMac();
+            if (StringUtil.checkNotNull(bleMac) && bleMac.getBytes().length == 12) {
+                bleMacBuf = StringUtil.hexStringToBytes(bleMac);
+                System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
+                LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
+            }
+
+            byte[] randCodeBuf = new byte[10];
+            String randCode = info.getDeviceSecret();
+            if (StringUtil.checkNotNull(randCode) && randCode.getBytes().length == 10) {
+                randCodeBuf = StringUtil.hexStringToBytes(randCode);
+                System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
+                LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
+            }
+
+            System.arraycopy(authTime, 0, authCode, 26, 30);
+
+            LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
+            user.setAuthCode(StringUtil.bytesToHexString(authCode));
+            DeviceUserDao.getInstance(mActivity).updateDeviceUser(user);
+        }
     }
 
     /**

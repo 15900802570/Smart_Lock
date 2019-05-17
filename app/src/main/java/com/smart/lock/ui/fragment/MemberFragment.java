@@ -292,6 +292,43 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 }
 
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                short userIdTag = (short) serializable;
+                if (userIdTag <= 100 || userIdTag > 201) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+
+                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                if (userInfo != null) {
+                    byte[] authTime = new byte[4];
+                    System.arraycopy(userInfo, 8, authTime, 0, 4);
+
+                    DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                    setAuthCode(authTime, mDefaultDevice, devUser);
+
+                    String qrPath = devUser.getQrPath();
+                    if (StringUtil.checkNotNull(qrPath)) {
+                        String qrName = StringUtil.getFileName(qrPath);
+                        if (System.currentTimeMillis() - Long.parseLong(qrName) <= 30 * 60 * 60) {
+                            Log.d(TAG, "qrName = " + qrName);
+                            displayImage(qrPath);
+                        } else {
+                            File delQr = new File(qrPath);
+                            boolean result = delQr.delete();
+                            if (result) {
+                                mCtx.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + qrPath)));
+                            }
+                            String newPath = createQr(devUser);
+                            Log.d(TAG, "newPath = " + newPath);
+                        }
+
+                    } else {
+                        String newPath = createQr(devUser);
+                        Log.d(TAG, "newPath = " + newPath);
+                    }
+                }
+                break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
@@ -575,27 +612,10 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
                     @Override
                     public void onClick(View v) {
-                        String path = userInfo.getQrPath();
-                        Log.d(TAG, "path = " + path);
-                        if (StringUtil.checkNotNull(path)) {
-                            String qrName = StringUtil.getFileName(path);
-                            if (System.currentTimeMillis() - Long.parseLong(qrName) <= 30 * 60 * 60) {
-                                Log.d(TAG, "qrName = " + qrName);
-                                displayImage(path);
-                            } else {
-                                File delQr = new File(path);
-                                boolean result = delQr.delete();
-                                if (result) {
-                                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + path)));
-                                }
-                                String newPath = createQr(userInfo);
-                                Log.d(TAG, "newPath = " + newPath);
-                            }
+                        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                            mBleManagerHelper.getBleCardService().sendCmd25(userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(mContext.getString(R.string.unconnected_device));
 
-                        } else {
-                            String newPath = createQr(userInfo);
-                            Log.d(TAG, "newPath = " + newPath);
-                        }
                     }
                 });
 

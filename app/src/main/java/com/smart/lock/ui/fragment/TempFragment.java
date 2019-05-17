@@ -304,6 +304,22 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 }
 
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                short userIdTag = (short) serializable;
+                if (userIdTag <= 200 || userIdTag > 301) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+
+                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                if (userInfo != null) {
+                    byte[] authTime = new byte[4];
+                    System.arraycopy(userInfo, 8, authTime, 0, 4);
+
+                    DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                    setAuthCode(authTime, mDefaultDevice, devUser);
+                }
+                break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;

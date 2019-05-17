@@ -680,7 +680,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_04:
                     registerCallBack(message, extra);
-
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_12:
                    /* int size = DeviceUserDao.getInstance(mCtx).queryUsers(mDevInfo.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER).size();
@@ -787,10 +786,18 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
 
-                        mDevInfo.setMixUnlock(userInfo[8]);
-                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
+                        byte[] authTime = new byte[4];
+                        System.arraycopy(userInfo, 8, authTime, 0, 4);
+
+                        setAuthCode(authTime);
+//                        mDevInfo.setMixUnlock(userInfo[8]);
+//                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
                         mEndTime = System.currentTimeMillis();
                         LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
+                    } else {
+                        for (UiListener uiListener : mUiListeners) {
+                            uiListener.dispatchUiCallback(message, mDevice, -1);
+                        }
                     }
 
                     break;
@@ -814,6 +821,46 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         } finally {
             message.recycle();
+        }
+    }
+
+    private void setAuthCode(byte[] authTime) {
+        byte[] authCode = new byte[32];
+        if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
+            byte[] userId = new byte[2];
+            StringUtil.short2Bytes(mDevInfo.getUserId(), userId);
+            System.arraycopy(userId, 0, authCode, 0, 2);
+
+            byte[] nodeIdBuf = new byte[8];
+            String nodeId = mDevInfo.getDeviceNodeId();
+            if (nodeId.getBytes().length == 15) {
+                nodeId = "0" + nodeId;
+                nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
+                StringUtil.exchange(nodeIdBuf);
+                LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
+                System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
+            }
+
+            byte[] bleMacBuf = new byte[6];
+            String bleMac = mDevInfo.getBleMac();
+            if (StringUtil.checkNotNull(bleMac) && bleMac.getBytes().length == 12) {
+                bleMacBuf = StringUtil.hexStringToBytes(bleMac);
+                System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
+                LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
+            }
+
+            byte[] randCodeBuf = new byte[10];
+            String randCode = mDevInfo.getDeviceSecret();
+            if (StringUtil.checkNotNull(randCode) && randCode.getBytes().length == 10) {
+                randCodeBuf = StringUtil.hexStringToBytes(randCode);
+                System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
+                LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
+            }
+
+            System.arraycopy(authTime, 0, authCode, 26, 30);
+
+            LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
+
         }
     }
 }

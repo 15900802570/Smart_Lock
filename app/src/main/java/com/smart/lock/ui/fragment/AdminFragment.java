@@ -279,6 +279,42 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     }
                 }
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                short userIdTag = (short) serializable;
+                if (userIdTag <= 0 || userIdTag > 101) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                if (userInfo != null) {
+                    byte[] authTime = new byte[4];
+                    System.arraycopy(userInfo, 8, authTime, 0, 4);
+
+                    DeviceUser devUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                    setAuthCode(authTime, mDefaultDevice, devUser);
+
+                    String qrPath = devUser.getQrPath();
+                    if (StringUtil.checkNotNull(qrPath)) {
+                        String qrName = StringUtil.getFileName(qrPath);
+                        if (System.currentTimeMillis() - Long.parseLong(qrName) <= 30 * 60 * 60) {
+                            Log.d(TAG, "qrName = " + qrName);
+                            displayImage(qrPath);
+                        } else {
+                            File delQr = new File(qrPath);
+                            boolean result = delQr.delete();
+                            if (result) {
+                                mAdminView.getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + qrPath)));
+                            }
+                            String newPath = createQr(devUser);
+                            Log.d(TAG, "newPath = " + newPath);
+                        }
+
+                    } else {
+                        String newPath = createQr(devUser);
+                        Log.d(TAG, "newPath = " + newPath);
+                    }
+                }
+                break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
