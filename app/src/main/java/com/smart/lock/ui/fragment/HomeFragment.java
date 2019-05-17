@@ -3,6 +3,7 @@ package com.smart.lock.ui.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -60,6 +61,7 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MyGridView;
 
 import java.io.Serializable;
@@ -141,6 +143,7 @@ public class HomeFragment extends BaseFragment implements
     private int mImageIdsNor[];
     private Device mDevice;
     private Context mCtx;
+    private Dialog alterDialog;
 
     public void onAuthenticationSuccess() {
         refreshView(BIND_DEVICE);
@@ -444,6 +447,7 @@ public class HomeFragment extends BaseFragment implements
 
     public void onResume() {
         super.onResume();
+
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         if (mDefaultDevice == null) {
             mDevice = null;
@@ -463,6 +467,9 @@ public class HomeFragment extends BaseFragment implements
         LogUtil.d(TAG, "default ble : " + mDefaultDevice.getBleMac());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+            if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                return;
+            }
             MessageCreator.setSk(mDefaultDevice);
             refreshView(DEVICE_CONNECTING);
             Bundle bundle = new Bundle();
@@ -694,11 +701,11 @@ public class HomeFragment extends BaseFragment implements
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " can't receiver msg!");
+                LogUtil.e(msg.getType() + " can't receiver msg!");
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;
             default:
@@ -713,8 +720,15 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
+        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType() + type);
         mDevice = device;
+        if (mDevice != null && type == BleMsg.USER_PAUSE) {
+            ToastUtil.showShort(mCtx, mCtx.getString(R.string.user_pause_contact_admin));
+            if (mBleManagerHelper.getBleCardService() != null) {
+                mBleManagerHelper.getBleCardService().disconnect();
+            }
+            return;
+        }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
             case Message.TYPE_BLE_RECEIVER_CMD_2E:

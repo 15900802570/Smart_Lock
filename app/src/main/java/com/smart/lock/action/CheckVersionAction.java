@@ -1,6 +1,8 @@
 
 package com.smart.lock.action;
 
+import android.util.Log;
+
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
@@ -131,6 +133,7 @@ public class CheckVersionAction extends AbstractTransaction {
         Map<String, Object> paramCheckVersion = new HashMap<>();
         paramCheckVersion.put(ParamName.DEVICE_SN, sendData.deviceSn);
         paramCheckVersion.put(ParamName.EXTENSION, sendData.extension);
+
         super.initParamData(paramCheckVersion);
         return paramCheckVersion;
     }

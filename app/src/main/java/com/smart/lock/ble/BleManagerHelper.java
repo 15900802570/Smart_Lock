@@ -230,6 +230,9 @@ public class BleManagerHelper {
     }
 
     public void stopScan() {
+        for (UiListener uiListener : mUiListeners) {
+            uiListener.scanDevFailed();
+        }
         mHandler.removeCallbacks(mRunnable);
         mBtAdapter.stopLeScan(mLeScanCallback);
     }

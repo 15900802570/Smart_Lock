@@ -248,11 +248,11 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " can't receiver msg!");
+                LogUtil.e(msg.getType() + " can't receiver msg!");
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;
             default:

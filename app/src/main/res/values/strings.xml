@@ -363,4 +363,6 @@
     <string name="one_normal">Normal</string>
     <string name="two_or_more_unlocking_keys_must_be_set">Two or more unlocking keys must be set after the combination unlock is enabled.</string>
     <string name="ble_busy">Bluetooth is connection or conneed</string>
+    <string name="user_pause_contact_admin">" 用户已被暂停,请联系管理员 The user has been suspended. Please contact the administrator."</string>
+    <string name="plz_press_key">Keyboard confirmation</string>
 </resources>

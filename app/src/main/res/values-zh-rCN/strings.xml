@@ -255,6 +255,7 @@
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
     <string name="search_lock">搜索附近的门锁</string>
     <string name="plz_press_setting">请按设置键</string>
+    <string name="plz_press_key">请按键确认</string>
     <string name="self_message">个人中心</string>
     <string name="web_site">官方网站</string>
     <string name="customer_service">官方电话</string>
@@ -375,4 +376,5 @@
     <string name="exception">项异常</string>
     <string name="one_normal">项正常</string>
     <string name="two_or_more_unlocking_keys_must_be_set">开启组合开锁后必须设置两组及以上开锁密钥</string>
+    <string name="user_pause_contact_admin">用户已被暂停,请联系管理员</string>
 </resources>

@@ -134,6 +134,17 @@ public class BleCardService {
                     LogUtil.d("remote service discovery has been stopped status = " + newState);
                     disconnect();
                 }
+//
+//                try {
+//                    Thread.sleep(600);
+//                    if (!gatt.discoverServices()) {
+//                        LogUtil.d("remote service discovery has been stopped status = " + newState);
+//                        disconnect();
+//                    }
+//                } catch (InterruptedException e) {
+//                    // TODO Auto-generated catch block
+//                    e.printStackTrace();
+//                }
                 mDevStateCallback.onConnected(); //成功回调
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -351,7 +362,7 @@ public class BleCardService {
     /**
      * MSG 01
      */
-    public boolean sendCmd01(byte cmdType, short userId, int timeOut) {
+    public boolean sendCmd01(byte cmdType, String authCode, short userId, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_01);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");
@@ -359,6 +370,9 @@ public class BleCardService {
         Bundle mBundle = msg.getData();
         mBundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
         mBundle.putShort(BleMsg.KEY_USER_ID, userId);
+        if (StringUtil.checkNotNull(authCode)) {
+            mBundle.putString(BleMsg.KEY_AUTH_CODE, authCode);
+        }
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();

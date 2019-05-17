@@ -6,8 +6,8 @@ android {
         applicationId "com.smart.lock"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 3
-        versionName "1.0.3"
+        versionCode 1
+        versionName "1.0.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,6 +16,12 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    //Add the following configuration
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
     }
 
     packagingOptions {

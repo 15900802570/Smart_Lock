@@ -122,13 +122,13 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mNumPwdSwitchTv.setDes("密码验证");
         mFingersPrintSwitchTv.setDes("指纹验证");
         mOpenTestTv.setDes("测试自动连接");
-        mOpenTestTv.setVisibility(View.VISIBLE);
+        mOpenTestTv.setVisibility(View.GONE);
         mModifyPwdNv.setDes(getResources().getString(R.string.modify_pwd));
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
-        mSetDevInfoNv.setVisibility(View.VISIBLE);
+        mSetDevInfoNv.setVisibility(View.GONE);
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -237,7 +237,6 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     public void onFingerprintCancel() {
         mFingerprintSwitchLightTbtn.setChecked(mIsFPRequired);
     }
-
 
     @Override
     public void onClick(View v) {

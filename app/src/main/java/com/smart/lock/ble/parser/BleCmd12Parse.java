@@ -30,20 +30,22 @@ public class BleCmd12Parse implements BleCommandParse {
             AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
         else
             AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
+        byte[] authCode = new byte[30];
+        System.arraycopy(buf, 0, authCode, 0, 30);
 
-        byte[] userId = new byte[2];
-        byte[] nodeId = new byte[8];
-        byte[] bleMac = new byte[6];
-        byte[] randCode = new byte[10];
-        byte[] time = new byte[4];
+//        byte[] userId = new byte[2];
+//        byte[] nodeId = new byte[8];
+//        byte[] bleMac = new byte[6];
+//        byte[] randCode = new byte[10];
+//        byte[] time = new byte[4];
+//
+//        System.arraycopy(buf, 0, userId, 0, 2);
+//        System.arraycopy(buf, 2, nodeId, 0, 8);
+//        System.arraycopy(buf, 10, bleMac, 0, 6);
+//        System.arraycopy(buf, 16, randCode, 0, 10);
+//        System.arraycopy(buf, 26, time, 0, 4);
 
-        System.arraycopy(buf, 0, userId, 0, 2);
-        System.arraycopy(buf, 2, nodeId, 0, 8);
-        System.arraycopy(buf, 10, bleMac, 0, 6);
-        System.arraycopy(buf, 16, randCode, 0, 10);
-        System.arraycopy(buf, 26, time, 0, 4);
-
-        return MessageCreator.getCmd12Message(getParseKey(), userId, nodeId, bleMac, randCode, time);
+        return MessageCreator.getCmd12Message(getParseKey(), authCode);
     }
 
     @Override

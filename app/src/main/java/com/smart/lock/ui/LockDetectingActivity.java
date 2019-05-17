@@ -136,13 +136,24 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     break;
                 case BleMsg.REGISTER_SUCCESS:
                     DialogUtils.closeDialog(mLoadDialog);
+
                     if (mMode == SEARCH_LOCK) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_setting));
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_NO_SCAN_QR_ADD_USER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                     } else {
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_key));
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPE_SCAN_QR_ADD_MASTER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
+                    }
+                    break;
+                case BleMsg.USER_PAUSE:
+                    if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                        Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mCtx, getString(R.string.user_pause_contact_admin));
+                        alterDialog.show();
+                        if (mBleManagerHelper.getBleCardService() != null) {
+                            mBleManagerHelper.getBleCardService().disconnect();
+                        }
                     }
                     break;
                 case BleMsg.TYPE_ADD_USER_SUCCESS:
@@ -276,7 +287,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mSearchingIv.startAnimation(mRotateAnimation);
                     mScanLockTv.setText(R.string.tv_scan_lock);
                     mLine.setVisibility(View.VISIBLE);
-                } else if (mMode == SEARCH_LOCK ||mMode == SET_DEV_INFO) {
+                } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
                     mLine.setVisibility(View.GONE);
                     mScanLockTv.setVisibility(View.GONE);
                     mRefreshDevLl.setVisibility(View.VISIBLE);
@@ -294,7 +305,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             } else {
                 if (mMode == DETECTING_LOCK) {
                     mSearchingIv.clearAnimation();
-                } else if (mMode == SEARCH_LOCK||mMode == SET_DEV_INFO) {
+                } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
                     mRescanBtn.setText(R.string.rescanning);
                     stopRefresh();
                 }
@@ -338,7 +349,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 public void run() {
                     if (mMode == DETECTING_LOCK) {
                         detectDevice(device);
-                    } else if (mMode == SEARCH_LOCK||mMode == SET_DEV_INFO) {
+                    } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
                         if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
                             Log.d(TAG, "device.getName() = " + device.getName());
                             addDevice(device);
@@ -491,14 +502,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " can't receiver msg!");
+                LogUtil.e(msg.getType() + " can't receiver msg!");
                 if (msg.getType() == Message.TYPE_BLE_SEND_CMD_01 || msg.getType() == Message.TYPE_BLE_SEND_CMD_03) {
                     mBleManagerHelper.getBleCardService().disconnect();
                 }
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
-                showMessage(msg.getType() + " send failed!");
+                LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;
             default:
@@ -511,6 +522,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     public void dispatchUiCallback(Message msg, Device device, int type) {
         LogUtil.i(TAG, "onChange!");
         mDevice = device;
+//        if (mDevice != null && type == BleMsg.USER_PAUSE) {
+//            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mCtx, getString(R.string.user_pause_contact_admin));
+//            alterDialog.show();
+//            if (mBleManagerHelper.getBleCardService() != null) {
+//                mBleManagerHelper.getBleCardService().disconnect();
+//            }
+//            return;
+//        }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
@@ -599,13 +618,13 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     @Override
                     public void onClick(View v) {
                         if (mScanning) {
-                           scanLeDevice(false);
+                            scanLeDevice(false);
                         }
                         mBleMac = dev.getAddress();
                         Device connDev = mBleManagerHelper.getBleCardService().getDevice();
                         if (connDev == null || connDev.getState() == Device.BLE_DISCONNECTED) {
                             detectDevice(dev);
-                        }else
+                        } else
                             showMessage(mContext.getString(R.string.ble_busy));
 
                     }

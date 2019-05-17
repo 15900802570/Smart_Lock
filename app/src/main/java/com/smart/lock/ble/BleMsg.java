@@ -307,6 +307,8 @@ public class BleMsg {
      * 硬件版本信息
      */
     public static final String KEY_HW_VER = "hwVER";
+    //用户授权码
+    public static final String KEY_AUTH_CODE = "authCode";
 
     /**
      * 设置默认页
@@ -314,6 +316,7 @@ public class BleMsg {
     public static final String KEY_CURRENT_ITEM = "currentItem";
     //连接方式
     public static final String KEY_BLE_CONNECT_TYPE = "bleConnectType";
+
 
 
     /**
@@ -393,6 +396,7 @@ public class BleMsg {
     public static final int RECEIVER_LOGS = 104; //接受log
     public static final int STATE_CONNECTED = 105; //连接成功
     public static final int GATT_SERVICES_DISCOVERED = 106; //发现服务
+    public static final int USER_PAUSE = 107; //USER pause
 
     /**
      * msg 13 type

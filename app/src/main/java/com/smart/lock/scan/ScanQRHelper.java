@@ -328,6 +328,11 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
     public void dispatchUiCallback(Message msg, Device device, int type) {
         LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         mDevice = device;
+        if (mDevice != null && type == BleMsg.USER_PAUSE) {
+            LogUtil.i(TAG, "mDevice.getUserStatus() : " + mDevice.getUserStatus());
+            DialogUtils.closeDialog(mLoadDialog);
+            return;
+        }
         Bundle bundle = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:

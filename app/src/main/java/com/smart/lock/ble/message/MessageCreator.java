@@ -154,35 +154,19 @@ public class MessageCreator {
      * 获取消息Message.TYPE_BLE_RECEIVER_CMD_12
      *
      * @param type     消息类型
-     * @param userId   用户编号
-     * @param nodeId   设备编号
-     * @param bleMac   蓝牙地址
-     * @param randCode 设备动态码
-     * @param time     设备时间
+     * @param authCode   用户授权码
      * @return
      */
-    public static Message getCmd12Message(byte type, byte[] userId, byte[] nodeId, byte[] bleMac, byte[] randCode, byte[] time) {
+    public static Message getCmd12Message(byte type,byte[] authCode) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
         Bundle mBundle = mMessage.getData();
 
-        if (userId != null && userId.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_USER_ID, userId);
-        }
-        if (nodeId != null && nodeId.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_NODE_ID, nodeId);
-        }
-        if (bleMac != null && bleMac.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_BLE_MAC, bleMac);
-        }
-        if (randCode != null && randCode.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_RAND_CODE, randCode);
+        if (authCode != null && authCode.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_AUTH_CODE, authCode);
         }
 
-        if (time != null && time.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_LOCK_TIME, time);
-        }
         return mMessage;
     }
 
