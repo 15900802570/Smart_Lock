@@ -42,8 +42,8 @@ public class BleCmd01Creator implements BleCreator {
             authCodeBuf = StringUtil.hexStringToBytes(authCode);
         } else Arrays.fill(authCodeBuf, 0, 30, (byte) 0x00);
 
-        short cmdLen = 33;
-        byte[] buf = new byte[16];
+        short cmdLen = 65;
+        byte[] buf = new byte[48];
 
         byte[] cmd = new byte[128];
 
@@ -79,7 +79,7 @@ public class BleCmd01Creator implements BleCreator {
             e.printStackTrace();
         }
 
-        System.arraycopy(buf, 0, cmd, 4, 16);
+        System.arraycopy(buf, 0, cmd, 4, 48);
 
         for (int i = 0; i < MessageCreator.pwdRandom.length; i++) {
             MessageCreator.pwdRandom[i] = (byte) new Random().nextInt(10);
@@ -100,7 +100,7 @@ public class BleCmd01Creator implements BleCreator {
 
         StringUtil.short2Bytes(crc, buf);
         System.arraycopy(buf, 0, cmd, 68, 2);
-        byte[] bleCmd = new byte[38];
+        byte[] bleCmd = new byte[70];
         System.arraycopy(cmd, 0, bleCmd, 0, 70);
 
         return bleCmd;
