@@ -164,6 +164,12 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     break;
                 case BleMsg.TYPE_ADD_USER_FAILED:
                     DialogUtils.closeDialog(mLoadDialog);
+                    showMessage(mCtx.getString(R.string.add_user_full));
+                    if (mDevice.getState() != Device.BLE_DISCONNECTED)
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    break;
+                case BleMsg.TYPE_USER_FULL:
+                    DialogUtils.closeDialog(mLoadDialog);
                     showMessage(mCtx.getString(R.string.add_user_failed));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
@@ -437,8 +443,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 break;
             case R.id.btn_confirm:
                 String deviceName = mRemarkEt.getText().toString().trim();
-                mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? getString(R.string.lock_default_name) : deviceName));
-                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
+                if (mDetectingDevice != null) {
+                    mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? getString(R.string.lock_default_name) : deviceName));
+                    DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
+                }
                 if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                     finish();
                 } else {
@@ -455,6 +463,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     private void dispatchErrorCode(byte errCode) {
         LogUtil.i(TAG, "errCode : " + errCode);
+
         switch (errCode) {
             case BleMsg.TYPE_ADD_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.add_user_success));
@@ -463,6 +472,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 android.os.Message msg = new android.os.Message();
                 msg.what = BleMsg.TYPE_ADD_USER_FAILED;
                 mHandler.sendMessage(msg);
+            case BleMsg.TYPE_USER_FULL:
+                android.os.Message msgFull = new android.os.Message();
+                msgFull.what = BleMsg.TYPE_USER_FULL;
+                mHandler.sendMessage(msgFull);
                 break;
             default:
                 break;

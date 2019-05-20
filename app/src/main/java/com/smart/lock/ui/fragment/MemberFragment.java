@@ -1,6 +1,7 @@
 package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -34,11 +36,13 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.db.dao.UserProfileDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.io.File;
@@ -202,6 +206,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 mMemberAdapter.notifyDataSetChanged();
             }
         });
+
     }
 
     @Override
@@ -311,7 +316,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     if (StringUtil.checkNotNull(qrPath)) {
                         String qrName = StringUtil.getFileName(qrPath);
                         if (System.currentTimeMillis() - Long.parseLong(qrName) <= 30 * 60 * 60) {
-                            Log.d(TAG, "qrName = " + qrName);
                             displayImage(qrPath);
                         } else {
                             File delQr = new File(qrPath);
@@ -557,22 +561,31 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                final AlertDialog editDialog = DialogUtils.showEditDialog(mContext, mContext.getString(R.string.modify_note_name), userInfo);
-                holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
+                //修改呢称响应事件
+                mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        editDialog.show();
+                    public void onClick(View view) {
+                        String newName = ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        if (!newName.isEmpty()) {
+                            holder.mNameTv.setText(newName);
+                            userInfo.setUserName(newName);
+                            DeviceUserDao.getInstance(mContext).updateDeviceUser(userInfo);
+                        } else {
+                            ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
+                        }
+                        mEditorNameDialog.dismiss();
                     }
                 });
 
-                if (editDialog != null) {
-                    editDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            holder.mNameTv.setText(DeviceUserDao.getInstance(mContext).queryUser(userInfo.getDevNodeId(), userInfo.getUserId()).getUserName());
-                        }
-                    });
-                }
+                holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).setText(holder.mNameTv.getText().toString());
+                        mEditorNameDialog.show();
+                    }
+                });
+
 
                 holder.mUserPause.setOnClickListener(new View.OnClickListener() {
                     @Override

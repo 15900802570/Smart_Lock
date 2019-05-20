@@ -386,6 +386,7 @@ public class BleMsg {
     public static final byte TYPE_DELETE_FP_FAILED = 0x23; //删除指纹失败
     public static final byte TYPE_FP_FULL = 0x24; //指纹已满
     public static final byte TYPE_EQUIPMENT_BUSY = 0x25; //设备忙
+    public static final byte TYPE_USER_FULL = 0x2B; //用户已满
 
     public static final byte TYPE_FINGERPRINT_EXIST = 0x2A; //指纹已存在
 

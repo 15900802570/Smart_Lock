@@ -13,6 +13,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -31,8 +32,11 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 /**
@@ -46,7 +50,6 @@ public class BleCardService {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
-    private int mConnectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
@@ -78,20 +81,23 @@ public class BleCardService {
      * 蓝牙消息分发器
      */
     private MainEngine mEngine;
+    private Handler mHandler;
 
-
-    public static final int ATT_MTU_MAX = 517;
-    public static final int ATT_MTU_MIN = 23;
-
-    private long mStartTime = 0, mEndTime = 0;
-    private long mStartTime2 = 0, mEndTime2 = 0;
     private Context mCtx;
     private static BleCardService mInstance;
     private DeviceStateCallback mDevStateCallback;
 
+    private Runnable mRunnable = new Runnable() {
+        public void run() {
+            mDevStateCallback.onDisconnected();
+        }
+    };
+
+
     public BleCardService(Context context) {
         mCtx = context;
         mEngine = new MainEngine(mCtx, this);
+        mHandler = new Handler();
     }
 
     private static ArrayList<UiListener> mUiListeners = new ArrayList<>();
@@ -125,31 +131,15 @@ public class BleCardService {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                mStartTime = System.currentTimeMillis();
-                mConnectionState = STATE_CONNECTED;
-                mEndTime2 = System.currentTimeMillis();
-                LogUtil.d(TAG, "Connected to GATT server.: " + (mEndTime2 - mStartTime2));
                 // Attempts to discover services after successful connection.
                 if (!gatt.discoverServices()) {
                     LogUtil.d("remote service discovery has been stopped status = " + newState);
                     disconnect();
-                }
-//
-//                try {
-//                    Thread.sleep(600);
-//                    if (!gatt.discoverServices()) {
-//                        LogUtil.d("remote service discovery has been stopped status = " + newState);
-//                        disconnect();
-//                    }
-//                } catch (InterruptedException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
+                } else closeDialog(10);
                 mDevStateCallback.onConnected(); //成功回调
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 //                Log.i(TAG, "refresh ble :" + refreshDeviceCache());
-                mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
                 mDevStateCallback.onDisconnected();
             }
@@ -158,8 +148,9 @@ public class BleCardService {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                mEndTime = System.currentTimeMillis();
-                LogUtil.d(TAG, "connect to onServices : " + (mEndTime - mStartTime));
+
+                mHandler.removeCallbacks(mRunnable);
+                LogUtil.d(TAG, "remove mRunnable");
                 mDevStateCallback.onServicesDiscovered(status);
 
 //                for (BluetoothGattService service: gatt.getServices()){
@@ -254,6 +245,16 @@ public class BleCardService {
     }
 
     /**
+     * 超时提示框
+     *
+     * @param seconds 时间
+     */
+    private void closeDialog(int seconds) {
+        mHandler.removeCallbacks(mRunnable);
+        mHandler.postDelayed(mRunnable, seconds * 1000);
+    }
+
+    /**
      * Connects to the GATT server hosted on the Bluetooth LE device.
      *
      * @return Return true if the connection is initiated successfully. The
@@ -279,7 +280,6 @@ public class BleCardService {
         if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
-                mConnectionState = STATE_CONNECTING;
                 return true;
             } else {
                 return false;
@@ -287,7 +287,7 @@ public class BleCardService {
         }
 
         final BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(address);
-        Log.d(TAG, "remoteDevice : " + remoteDevice.getAddress() + " hashcode : " + remoteDevice.hashCode());
+        Log.d(TAG, "remoteDevice : " + remoteDevice.getAddress());
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -295,8 +295,6 @@ public class BleCardService {
         // We want to directly connect to the device, so we are setting the
         // autoConnect
         // parameter to false.
-        mStartTime2 = System.currentTimeMillis();
-
         mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
         Log.d(TAG, "mBluetoothGatt is : " + ((mBluetoothGatt == null) ? true : mBluetoothGatt.hashCode()));
 
@@ -312,7 +310,6 @@ public class BleCardService {
         }
 
         mBluetoothDeviceAddress = address;
-        mConnectionState = STATE_CONNECTING;
         return true;
     }
 

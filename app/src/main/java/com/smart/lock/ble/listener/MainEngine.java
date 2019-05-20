@@ -134,7 +134,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mHandler.sendMessage(message);
                 break;
             case Device.BLE_OTHER_CONNECT_TYPE:
-
                 DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
                 if (defaultDevice == null) {
                     LogUtil.e(TAG, "defaultDevice is null");
@@ -158,7 +157,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 android.os.Message msg = new android.os.Message();
                 msg.what = MSG_RECONNCT_BLE;
-                mHandler.sendMessageDelayed(msg, 5000);
+                mHandler.sendMessageDelayed(msg, 8000);
                 break;
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
                 message.what = BleMsg.STATE_DISCONNECTED;
@@ -171,7 +170,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 message.what = BleMsg.STATE_DISCONNECTED;
                 mHandler.sendMessage(message);
-                halt();
+//                halt();
                 break;
             default:
                 break;
@@ -600,12 +599,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 }
 
-                if (mDevice.getState() != Device.BLE_DISCONNECTED) break; //设备状态不是非连接，不需要自动连接
-
-                boolean connect = mService.connect(mDevice, mDevInfo.getBleMac());
-                if (connect) mDevice.setState(Device.BLE_CONNECTION);
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.reConnectBle(mDevice);
+                if (mDevice.getState() == Device.BLE_DISCONNECTED) { //设备状态不是非连接，不需要自动连接
+                    boolean connect = mService.connect(mDevice, mDevInfo.getBleMac());
+                    if (connect) mDevice.setState(Device.BLE_CONNECTION);
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.reConnectBle(mDevice);
+                    }
                 }
                 break;
             case MSG_ADD_USER_SUCCESS:
@@ -705,7 +704,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         return;
                     } */ //暂时不支持已存在设备扫描管理员的情况下，再次扫描添加管理员
                     DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-                    if (addUser == null || addUser.getUserPermission() != BleMsg.TYPE_SCAN_QR_ADD_MASTER) {
+                    if (addUser == null || !(addUser.getUserPermission() == BleMsg.TYPE_SCAN_QR_ADD_MASTER ||
+                            addUser.getUserPermission() == BleMsg.TYPT_NO_SCAN_QR_ADD_USER)) {
                         for (UiListener uiListener : mUiListeners) {
                             uiListener.dispatchUiCallback(message, mDevice, -1);
                         }
@@ -787,8 +787,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     if (userId == mDevInfo.getUserId()) {
                         byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                         LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
-                        mDefaultUser.setUserStatus(userInfo[0]);
-                        mDeviceUserDao.updateDeviceUser(mDefaultUser);
+
 
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
@@ -801,9 +800,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         byte[] authTime = new byte[4];
                         System.arraycopy(userInfo, 8, authTime, 0, 4);
 
-                        setAuthCode(authTime);
+                        String auth = setAuthCode(authTime);
 //                        mDevInfo.setMixUnlock(userInfo[8]);
 //                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
+                        mDefaultUser.setAuthCode((auth.equals("0")) ? null : auth);
+                        mDefaultUser.setUserStatus(userInfo[0]);
+                        mDeviceUserDao.updateDeviceUser(mDefaultUser);
                         mEndTime = System.currentTimeMillis();
                         LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
                     } else {
@@ -836,7 +838,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         }
     }
 
-    private void setAuthCode(byte[] authTime) {
+    private String setAuthCode(byte[] authTime) {
         byte[] authCode = new byte[30];
         if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             byte[] userId = new byte[2];
@@ -874,5 +876,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
 
         }
+
+        return StringUtil.bytesToHexString(authCode);
     }
 }
