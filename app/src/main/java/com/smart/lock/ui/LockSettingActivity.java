@@ -7,17 +7,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
@@ -35,12 +36,10 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.BtnSettingDefineView;
+import com.smart.lock.widget.NextActivityDefineView;
 import com.smart.lock.widget.TimePickerDefineDialog;
 import com.smart.lock.widget.ToggleSwitchDefineView;
-import com.smart.lock.widget.NextActivityDefineView;
-import com.smart.lock.widget.BtnSettingDefineView;
-
-import com.smart.lock.R;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -195,7 +194,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mVoicePromptTs.setChecked(mDeviceStatus.isVoicePrompt());
 
             mSetTime = mDeviceStatus.getRolledBackTime();
-            mSetRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + getResources().getString(R.string.s));
+            mSetRolledBackTimeBs.setBtnDes(mSetTime + getResources().getString(R.string.s));
 
             mSetSupportOrdinaryCards = mDeviceStatus.isM1Support();
             mSetSupportCardTypeBs.setBtnDes(mSetSupportOrdinaryCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
@@ -509,27 +508,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 mWaitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
                 mWaitingDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
-                clearAllDataOfApplication();
+                if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
+                    mRestore = true;
+                } else {
+                    ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
+                }
                 break;
         }
-        mWarningDialog.cancel();
-    }
-
-    /**
-     * 清除应用所有的数据
-     */
-    public void clearAllDataOfApplication() {
-        if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
-            mRestore = true;
-            mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
-            if (mDefaultDevice != null) {
-                mDefaultDevice.setDeviceDefault(true);
-                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDevice);
-            }
-        } else {
-            ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
-        }
-
+        DialogUtils.closeDialog(mWarningDialog);
     }
 
     @Override
@@ -805,7 +791,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
             case 0x20:  //回锁时间设置成功
                 mDeviceStatus.setRolledBackTime(mSetTime);
-                mSetRolledBackTimeBs.setBtnDes(String.valueOf(mSetTime) + LockSettingActivity.this.getResources().getString(R.string.s));
+                mSetRolledBackTimeBs.setBtnDes(mSetTime + LockSettingActivity.this.getResources().getString(R.string.s));
                 break;
             case 0x22:  //恢复出厂设置成功
                 if (mRestore) {

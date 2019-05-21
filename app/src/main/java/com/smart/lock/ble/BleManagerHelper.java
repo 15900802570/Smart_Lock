@@ -198,14 +198,21 @@ public class BleManagerHelper {
             devInfo.setBleMac(mac);
         }
 
+        DeviceInfo devInfo = null;
+
+
         switch (type) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
+                devInfo = new DeviceInfo();
                 devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
             case Device.BLE_OTHER_CONNECT_TYPE:
-
+                devInfo = DeviceInfoDao.getInstance(ctx).queryFirstData("device_default", true);
+                if (devInfo == null) {
+                    devInfo = new DeviceInfo();
+                }
                 if (bundle.getShort(BleMsg.KEY_USER_ID) != 0 && StringUtil.checkNotNull(bundle.getString(BleMsg.KEY_NODE_ID))) {
                     devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
                     devInfo.setDeviceNodeId(bundle.getString(BleMsg.KEY_NODE_ID));
@@ -213,13 +220,32 @@ public class BleManagerHelper {
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
+            case Device.BLE_SCAN_AUTH_CODE_CONNECT:
+                devInfo = new DeviceInfo();
+                if (bundle.getShort(BleMsg.KEY_USER_ID) != 0 && StringUtil.checkNotNull(bundle.getString(BleMsg.KEY_NODE_ID))) {
+                    devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
+                    devInfo.setDeviceNodeId(bundle.getString(BleMsg.KEY_NODE_ID));
+                    devInfo.setBleMac(bundle.getString(BleMsg.KEY_BLE_MAC));
+                }
+                mDevice.setDevInfo(devInfo);
+                mDevice.setConnectType(type);
+                break;
+
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
+                String mac = bundle.getString(BleMsg.KEY_BLE_MAC);
+                devInfo = new DeviceInfo();
+                if (StringUtil.checkNotNull(mac) && mac.length() == 12) {
+                    devInfo.setBleMac(StringUtil.getMacAdr(mac));
+                } else {
+                    devInfo.setBleMac(mac);
+                }
                 devInfo.setDeviceNodeId(bundle.getString(BleMsg.KEY_NODE_ID));
                 devInfo.setDeviceSn(bundle.getString(BleMsg.KEY_NODE_SN));
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
             default:
+                devInfo = new DeviceInfo();
                 devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
@@ -268,7 +294,8 @@ public class BleManagerHelper {
                     }
                 }
             } else {
-                LogUtil.d(TAG, "mBleMac :" + mBleMac);
+                LogUtil.d(TAG, "mBleMac :" + mBleMac + "\n" +
+                        "device " + device.getAddress());
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mHandler.removeCallbacks(mRunnable);

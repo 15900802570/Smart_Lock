@@ -335,7 +335,7 @@
     <string name="pwd_setting_failed">密码设置失败</string>
 
     <string name="version_download">版本下载中</string>
-    <string name="delete_failed">多设备下默认设备无法删除!</string>
+    <string name="default_dev_delete_failed">多设备下默认设备无法删除!</string>
     <string name="modify_name">修改呢称</string>
     <string name="cannot_be_empty_str">昵称不能为空</string>
     <string name="card">卡片</string>
@@ -359,7 +359,6 @@
     <string name="latest_version">最新版本:</string>
     <string name="support_types_of_card">支持的卡片类型</string>
     <string name="safety_card">安全卡片</string>
-    <string name="ordinary_card">普通卡片</string>
     <string name="power_saving_time_period">设置省电时间段</string>
     <string name="close">关闭</string>
     <string name="qr_code_error">二维码错误</string>
@@ -378,4 +377,5 @@
     <string name="one_normal">项正常</string>
     <string name="two_or_more_unlocking_keys_must_be_set">开启组合开锁后必须设置两组及以上开锁密钥</string>
     <string name="user_pause_contact_admin">用户已被暂停,请联系管理员</string>
+    <string name="ordinary_card">安全卡片和普通卡片</string>
 </resources>

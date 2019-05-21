@@ -311,7 +311,7 @@
     <string name="device_busy">Device Busy</string>
     <string name="setting_dev_info">Setting up device information</string>
     <string name="version_download">Version Download</string>
-    <string name="delete_failed">Default devices cannot be deleted under multiple devices</string>
+    <string name="default_dev_delete_failed">Default devices cannot be deleted under multiple devices</string>
     <string name="modify_name">Modify Name</string>
     <string name="cannot_be_empty_str">Nickname cannot be empty</string>
     <string name="unenable_ble">Unenable Bluetooth</string>
@@ -342,7 +342,7 @@
     <string name="latest_version">Latest Version:</string>
     <string name="support_types_of_card">Supported Card Types</string>
     <string name="safety_card">Safety card</string>
-    <string name="ordinary_card">Ordinary card</string>
+    <string name="ordinary_card">Ordinary Card A Safety Card</string>
     <string name="power_saving_time_period">Setting Power Saving Time Period</string>
     <string name="close">Close</string>
     <string name="qr_code_error">QR Code ERROR</string>

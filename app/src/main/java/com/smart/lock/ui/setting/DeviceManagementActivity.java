@@ -128,7 +128,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
     @Override
     public void onAuthenticationSuccess(DeviceInfo deviceInfo) {
-        mDevManagementAdapter.addItem(deviceInfo);
+        mDevManagementAdapter.refreshList();
         LogUtil.d(TAG, "NewDevice = " + deviceInfo);
         mDevManagementAdapter.notifyDataSetChanged();
     }
@@ -183,6 +183,9 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 mDevList.add(0, deviceInfo);
             }
         }
+        private void refreshList(){
+            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
+        }
 
         @NonNull
         @Override
@@ -195,7 +198,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         }
 
         @Override
-        public void onBindViewHolder(@NonNull MyViewHolder myViewHolder, @SuppressLint("RecyclerView") final int position) {
+        public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, @SuppressLint("RecyclerView") final int position) {
             final DeviceInfo deviceInfo = mDevList.get(position);
             if (deviceInfo != null) {
                 try {
@@ -217,33 +220,38 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 myViewHolder.mSetDefaultLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mDefaultInfo.setDeviceDefault(false);
-                        DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
-                        deviceInfo.setDeviceDefault(true);
-                        DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
+                        // 判断是否更换默认设备
+                        if (mDefaultInfo == null) {
+                            deviceInfo.setDeviceDefault(true);
+                            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
+                        } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
+                            mDefaultInfo.setDeviceDefault(false);
+                            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
+                            deviceInfo.setDeviceDefault(true);
+                            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
+                            mBleManagerHelper.getBleCardService().disconnect();
+                            Device.getInstance(DeviceManagementActivity.this).exchangeConnect(deviceInfo);
+                            LogUtil.d(TAG, "设置为默认设备");
+                        }
                         mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
                         mDevManagementAdapter.notifyDataSetChanged();
-                        LogUtil.d(TAG, "设置为默认设备");
                     }
                 });
                 myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
-                        DeviceInfo default_nor = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
-
-                        if (deviceInfo.getDeviceDefault() & default_nor != null) {
-                            ToastUtil.showLong(mCtx, R.string.delete_failed);
-                            mDevManagementAdapter.notifyDataSetChanged();
-                            return;
-                        } else if (deviceInfo.getDeviceDefault()) {
+                        if (deviceInfo.getDeviceDefault() && DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false) != null) {
+                            ToastUtil.showLong(mCtx, R.string.default_dev_delete_failed);
+                            myViewHolder.mSwipeLayout.close();
+                        } else {
+                            DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
                             mBleManagerHelper.deleteDefaultDev();
                             mBleManagerHelper.getBleCardService().disconnect();
                             Device.getInstance(DeviceManagementActivity.this).halt();
+                            mDevList.remove(position);
+                            mDevManagementAdapter.notifyDataSetChanged();
+
                         }
-                        mDevList.remove(position);
-                        mDevManagementAdapter.notifyDataSetChanged();
                     }
                 });
             }
