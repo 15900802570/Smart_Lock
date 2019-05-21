@@ -27,6 +27,7 @@ public class Device {
     public static final byte BLE_OTHER_CONNECT_TYPE = 1;
     public static final byte BLE_SET_DEVICE_INFO_CONNECT_TYPE = 2;
     public static final byte BLE_SEARCH_DEV_CONNECT = 3;
+    public static final byte BLE_SCAN_AUTH_CODE_CONNECT = 4;
     public static final byte BLE_CONNECT_TYPE = BLE_SCAN_QR_CONNECT_TYPE;
 
     public static final int DFU_CHAR_EXISTS = 0x01;
@@ -148,6 +149,11 @@ public class Device {
         state = BLE_DISCONNECTED;
         instance = null;
         mDevInfo = null;
+    }
+
+    public void exchangeConnect(DeviceInfo deviceInfo){
+        state = BLE_DISCONNECTED;
+        mDevInfo = deviceInfo;
     }
 
     @Override

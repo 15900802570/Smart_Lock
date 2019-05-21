@@ -1,10 +1,10 @@
 package com.smart.lock.scan;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -18,9 +18,9 @@ import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceStatus;
+import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceStatusDao;
+import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
@@ -40,7 +40,7 @@ import com.yzq.zxinglibrary.common.Constant;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ScanQRHelper implements UiListener, PermissionInterface{
+public class ScanQRHelper implements UiListener, PermissionInterface {
     private final String TAG = ScanQRHelper.class.getSimpleName();
 
     private Activity mActivity;
@@ -70,8 +70,9 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         mScanQRResultInterface = scanQRResultInterface;
         mBleManagerHelper = BleManagerHelper.getInstance(activity);
         mDevice = mBleManagerHelper.getBleCardService().getDevice();
-        mPermissionHelper = new PermissionHelper(mActivity,this);
+        mPermissionHelper = new PermissionHelper(mActivity, this);
     }
+
     /**
      * 处理扫描结果
      */
@@ -84,6 +85,8 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         } else if (content.length() == 128) {
             mByte = StringUtil.hexStringToBytes(content);
         } else if (content.length() == 47) {
+
+            // 通过扫描绑定设备
             String[] dvInfo = content.split(",");
             if (dvInfo.length == 3 && dvInfo[0].length() == 18 && dvInfo[1].length() == 12 && dvInfo[2].length() == 15) {
                 String mSn = dvInfo[0];
@@ -96,6 +99,12 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                     bundle.putString(BleMsg.KEY_NODE_SN, mSn);
                     bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
 
+                    // 断开老设备
+                    if (mDevice != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
+                        mDevice.halt();
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
+
                     startIntent(LockDetectingActivity.class, bundle);
                 } else {
                     ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
@@ -104,6 +113,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
             } else {
                 ToastUtil.show(mActivity, mActivity.getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
             }
+
         } else {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.plz_scan_correct_qr));
             alterDialog.show();
@@ -135,7 +145,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         System.arraycopy(devInfo, 7, imeiBytes, 0, 8);
         System.arraycopy(devInfo, 15, bleMACBytes, 0, 6);
         System.arraycopy(devInfo, 21, randCodeBytes, 0, 10);
-        System.arraycopy(devInfo, 5,authCode,0,30);
+        System.arraycopy(devInfo, 5, authCode, 0, 30);
         String mUserType = StringUtil.bytesToHexString(typeBytes);
         LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(userIdBytes));
         mUserId = StringUtil.bytesToHexString(userIdBytes);
@@ -150,7 +160,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                 "NodeId = " + mNodeId + '\n' +
                 "mRandCode = " + mRandCode + '\n' +
                 "mBleMac = " + mBleMac + '\n' +
-                "Time = " + DateTimeUtil.stampToDate(mTime +"000") +'\n'+
+                "Time = " + DateTimeUtil.stampToDate(mTime + "000") + '\n' +
                 "mAuthCode = " + Arrays.toString(authCode));
 
         addDev(authCode);
@@ -183,7 +193,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                 if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
                     mBleManagerHelper.getBleCardService().disconnect();
                     mDevice.halt();
-
                 }
 
             }
@@ -196,13 +205,13 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
             bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
             bundle.putByteArray(BleMsg.KEY_AUTH_CODE, authCode);
-            mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, bundle, mActivity);
+            mBleManagerHelper.connectBle(Device.BLE_SCAN_AUTH_CODE_CONNECT, bundle, mActivity);
         }
     }
 
-    private void onAuthenticationSuccess() {
+    private void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_success));
-        mScanQRResultInterface.onAuthenticationSuccess(mNewDevice);
+        mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
         if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
             Intent intent = new Intent(mActivity, LockScreenActivity.class);
             intent.putExtra(ConstantUtil.IS_RETURN, true);
@@ -241,73 +250,72 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         mActivity.startActivityForResult(newIntent, ConstantUtil.SCAN_QRCODE_REQUEST_CODE);
     }
 
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if(resultCode == Activity.RESULT_OK) switch (requestCode) {
-//            case ConstantUtil.SCAN_QRCODE_REQUEST_CODE:
-//                mScanQRHelper.ScanDoCode(data);
-//                break;
-//            case ConstantUtil.SETTING_PWD_REQUEST_CODE:
-//                break;
-//        }
-//        LogUtil.d(TAG, "测试测试测试测试");
-//    }
+    /**
+     * 创建用户
+     *
+     * @param userId
+     */
+    private synchronized void createDeviceUser(short userId, String path, String authCode) {
+        DeviceUser user = new DeviceUser();
+        user.setDevNodeId(mNodeId);
+        user.setCreateTime(System.currentTimeMillis() / 1000);
+        user.setUserId(userId);
+        user.setUserStatus(ConstantUtil.USER_UNENABLE);
+        user.setAuthCode(authCode);
+        LogUtil.d(TAG, "userId : " + userId);
+        if (userId < 101) {
+            user.setUserPermission(ConstantUtil.DEVICE_MASTER);
+            user.setUserName(mActivity.getString(R.string.administrator) + userId);
+        } else if (userId < 201) {
+            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
+            user.setUserName(mActivity.getString(R.string.members) + userId);
+        } else {
+            user.setUserPermission(ConstantUtil.DEVICE_TEMP);
+            user.setUserName(mActivity.getString(R.string.tmp_user) + userId);
+        }
+
+        user.setQrPath(path);
+        DeviceUserDao.getInstance(mActivity).insert(user);
+    }
 
     /**
      * 创建设备
      */
-    private void createDevice() {
-        DeviceInfo oldDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_nodeId", mNodeId);
-        if (oldDevice == null) {
-            DeviceInfo defaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
-            LogUtil.d(TAG, "newDevice: " + "BLEMAC =" + mBleMac);
-            mNewDevice = new DeviceInfo();
-            mNewDevice.setActivitedTime(Long.valueOf(mTime));
-            mNewDevice.setBleMac(getMacAdr(mBleMac));
-            mNewDevice.setConnectType(false);
-            mNewDevice.setUserId(Short.parseShort(mUserId, 16));
-            LogUtil.d(TAG, "mNewDevice userId : " + mNewDevice.getUserId());
-            mNewDevice.setDeviceNodeId(mNodeId);
-            mNewDevice.setNodeType(ConstantUtil.SMART_LOCK);
-            mNewDevice.setDeviceDate(System.currentTimeMillis() / 1000);
-            if (defaultDevice != null) mNewDevice.setDeviceDefault(false);
-            else mNewDevice.setDeviceDefault(true);
-            mNewDevice.setDeviceSn("");
-            mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name));
-            mNewDevice.setDeviceSecret(mRandCode);
-            DeviceInfoDao.getInstance(mActivity).insert(mNewDevice);
+    private DeviceInfo createDevice() {
+
+        LogUtil.d(TAG, "New Device2 : " + '\n' +
+                "UserId = " + mUserId + '\n' +
+                "NodeId = " + mNodeId + '\n' +
+                "mRandCode = " + mRandCode + '\n' +
+                "mBleMac = " + mBleMac + '\n' +
+                "Time = " + DateTimeUtil.stampToDate(mTime + "000") + '\n');
+        LogUtil.d(TAG, "newDevice: " + "BLEMAC =" + mBleMac);
+        mNewDevice = new DeviceInfo();
+        mNewDevice.setActivitedTime(Long.valueOf(mTime));
+        mNewDevice.setBleMac(getMacAdr(mBleMac));
+        mNewDevice.setConnectType(false);
+        mNewDevice.setUserId(Short.parseShort(mUserId, 16));
+        LogUtil.d(TAG, "mNewDevice userId : " + mNewDevice.getUserId());
+        mNewDevice.setDeviceNodeId(mNodeId);
+        mNewDevice.setNodeType(ConstantUtil.SMART_LOCK);
+        mNewDevice.setDeviceDate(System.currentTimeMillis() / 1000);
+        DeviceInfo oldDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true);
+        if (oldDevice != null) {
+            try {
+                oldDevice.setDeviceDefault(false);
+                DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(oldDevice);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+        mNewDevice.setDeviceDefault(true);
+        mNewDevice.setDeviceSn("");
+        mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name));
+        mNewDevice.setDeviceSecret(mRandCode);
+        DeviceInfoDao.getInstance(mActivity).insert(mNewDevice);
+        return mNewDevice;
     }
 
-    /**
-     * 创建设备状态
-     */
-    private void createDeviceStatus() {
-        DeviceStatus deviceStatus = DeviceStatusDao.getInstance(mActivity)
-                .queryOrCreateByNodeId(mNodeId);
-        switch (mStatus) {
-            case 0:
-                deviceStatus.setVoicePrompt(false);
-                deviceStatus.setNormallyOpen(false);
-                break;
-            case 1:
-                deviceStatus.setVoicePrompt(false);
-                deviceStatus.setNormallyOpen(true);
-                break;
-            case 2:
-                deviceStatus.setVoicePrompt(true);
-                deviceStatus.setNormallyOpen(false);
-                break;
-            case 3:
-                deviceStatus.setVoicePrompt(true);
-                deviceStatus.setNormallyOpen(true);
-                break;
-            default:
-                break;
-        }
-        deviceStatus.setRolledBackTime(unLockTime);
-        DeviceStatusDao.getInstance(mActivity).updateDeviceStatus(deviceStatus);
-    }
 
     /**
      * 转成标准MAC地址
@@ -342,30 +350,23 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
             DialogUtils.closeDialog(mLoadDialog);
             return;
         }
-        Bundle bundle = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
-                DialogUtils.closeDialog(mLoadDialog);
-
                 onAuthenticationFailed();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
-            case Message.TYPE_BLE_RECEIVER_CMD_26:
-                LogUtil.d(TAG, "array = " + Arrays.toString(bundle.getByteArray(BleMsg.KEY_STATUS)));
-                mStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
-                unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
-                LogUtil.d(TAG, "unLockTime = " + unLockTime);
-                if (unLockTime != 0) {
-                    createDevice();
-                    createDeviceStatus();
-                    DialogUtils.closeDialog(mLoadDialog);
-                    onAuthenticationSuccess();
+                DeviceInfo deviceInfo = DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId);
+                LogUtil.d(TAG, "deviceInfo = " + deviceInfo + '\n' +
+                        "mNodeId = " + mNodeId);
+                if (deviceInfo == null) {
+                    onAuthenticationSuccess(createDevice());
                 }
                 break;
             default:
                 break;
 
         }
+        DialogUtils.closeDialog(mLoadDialog);
     }
 
     @Override
@@ -451,7 +452,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public PermissionHelper getPermissionHelper(){
+    public PermissionHelper getPermissionHelper() {
         return mPermissionHelper;
     }
 

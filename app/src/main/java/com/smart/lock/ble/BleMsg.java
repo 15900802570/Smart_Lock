@@ -318,7 +318,6 @@ public class BleMsg {
     public static final String KEY_BLE_CONNECT_TYPE = "bleConnectType";
 
 
-
     /**
      * MSG 2E ERRCODE
      */
@@ -489,5 +488,7 @@ public class BleMsg {
      */
     public static final byte TYPE_RAND_ERROR = 0x01; //随机数校验失败
     public static final byte TYPE_USER_NOT_EXIST = 0x02; //用户不存在
-    public static final byte  ERR0E_NO_AUTHORITY = 0X03;//无权限
+    public static final byte ERR0E_NO_AUTHORITY = 0X03; //无权限
+    public static final byte TYPE_DEVICE_BUSY = 0x04; //设备忙
+    public static final byte TYPE_AUTH_CODE_ERROR = 0x05; //鉴权码错误
 }

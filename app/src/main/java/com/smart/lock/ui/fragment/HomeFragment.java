@@ -135,16 +135,12 @@ public class HomeFragment extends BaseFragment implements
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
 
-    private String[] mBlePermission = new String[]{
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-    };
-
     private int mImageIds[]; //主界面图片
     private int mImageIdsNor[];
     private Device mDevice;
     private Context mCtx;
-    private Dialog alterDialog;
+
+    private int mAuthErrorCounter = 0;
 
     public void onAuthenticationSuccess() {
         refreshView(BIND_DEVICE);
@@ -638,24 +634,6 @@ public class HomeFragment extends BaseFragment implements
             case BleMsg.TYPE_RAND_ERROR:
                 showMessage(getString(R.string.random_error));
                 break;
-            case BleMsg.TYPE_USER_NOT_EXIST:
-                if (type == Message.TYPE_BLE_RECEIVER_CMD_0E) {
-                    mDevice.setState(Device.BLE_DISCONNECTED);
-                    mBleManagerHelper.getBleCardService().disconnect();
-                    LogUtil.d(TAG, "用户已删除");
-                    // 删除相关数据
-                    if (mDefaultDevice != null) {
-                        DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);
-                        mDefaultDevice = null;
-                        mDefaultUser = null;
-                    }
-                    mDevice.halt();
-                    refreshView(UNBIND_DEVICE);
-                    DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
-                } else if (type == Message.TYPE_BLE_RECEIVER_CMD_2E) {
-                    showMessage(mCtx.getString(R.string.no_authority));
-                }
-                break;
             case BleMsg.ERR0E_NO_AUTHORITY:
                 if (type == Message.TYPE_BLE_RECEIVER_CMD_2E) {
                     return;
@@ -664,9 +642,35 @@ public class HomeFragment extends BaseFragment implements
                 mBleManagerHelper.getBleCardService().disconnect();
                 showMessage(mCtx.getString(R.string.no_authority));
                 break;
+            // 鉴权码失败和用户不存在均视为用户已被删除
+            case BleMsg.TYPE_USER_NOT_EXIST:
+            case BleMsg.TYPE_AUTH_CODE_ERROR:
+                userHadBeenDelete(type);
+                break;
             default:
                 break;
         }
+    }
+
+    private void userHadBeenDelete(int type) {
+
+        if (type == Message.TYPE_BLE_RECEIVER_CMD_0E) {
+            mBleManagerHelper.getBleCardService().disconnect();
+            if (mAuthErrorCounter++ == 1) {
+                LogUtil.d(TAG, "用户已删除");
+                // 删除相关数据
+                if (mDefaultDevice != null) {
+                    DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);
+                    mDefaultDevice = null;
+                    mDefaultUser = null;
+                }
+                Device.getInstance(mCtx).halt();
+                mBleManagerHelper.getBleCardService().disconnect();
+                refreshView(UNBIND_DEVICE);
+                DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
+            }
+        }
+
     }
 
     @Override
