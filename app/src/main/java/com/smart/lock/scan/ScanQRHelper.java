@@ -40,7 +40,7 @@ import com.yzq.zxinglibrary.common.Constant;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ScanQRHelper implements UiListener, PermissionInterface{
+public class ScanQRHelper implements UiListener, PermissionInterface {
     private final String TAG = ScanQRHelper.class.getSimpleName();
 
     private Activity mActivity;
@@ -70,8 +70,9 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         mScanQRResultInterface = scanQRResultInterface;
         mBleManagerHelper = BleManagerHelper.getInstance(activity);
         mDevice = Device.getInstance(activity);
-        mPermissionHelper = new PermissionHelper(mActivity,this);
+        mPermissionHelper = new PermissionHelper(mActivity, this);
     }
+
     /**
      * 处理扫描结果
      */
@@ -135,7 +136,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         System.arraycopy(devInfo, 7, imeiBytes, 0, 8);
         System.arraycopy(devInfo, 15, bleMACBytes, 0, 6);
         System.arraycopy(devInfo, 21, randCodeBytes, 0, 10);
-        System.arraycopy(devInfo, 5,authCode,0,30);
+        System.arraycopy(devInfo, 5, authCode, 0, 30);
         String mUserType = StringUtil.bytesToHexString(typeBytes);
         LogUtil.d(TAG, "copyNumBytes : " + Arrays.toString(userIdBytes));
         mUserId = StringUtil.bytesToHexString(userIdBytes);
@@ -150,7 +151,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
                 "NodeId = " + mNodeId + '\n' +
                 "mRandCode = " + mRandCode + '\n' +
                 "mBleMac = " + mBleMac + '\n' +
-                "Time = " + DateTimeUtil.stampToDate(mTime +"000") +'\n'+
+                "Time = " + DateTimeUtil.stampToDate(mTime + "000") + '\n' +
                 "mAuthCode = " + Arrays.toString(authCode));
 
         addDev(authCode);
@@ -179,10 +180,11 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
             ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
         } else {
             if (mActivity.getIntent().getExtras() != null && mDevice != null) {
-                DeviceInfo deviceDev = (DeviceInfo) mActivity.getIntent().getExtras().getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
                 if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
-                    mBleManagerHelper.getBleCardService().disconnect();
                     mDevice.halt();
+                    mDevice.setDisconnectBle(true);
+                    LogUtil.d(TAG, "hash code 1: " + mDevice.hashCode());
+                    mBleManagerHelper.getBleCardService().disconnect();
 
                 }
 
@@ -203,6 +205,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
     private void onAuthenticationSuccess() {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_success));
         mScanQRResultInterface.onAuthenticationSuccess(mNewDevice);
+        mDevice.setDisconnectBle(false);
         if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
             Intent intent = new Intent(mActivity, LockScreenActivity.class);
             intent.putExtra(ConstantUtil.IS_RETURN, true);
@@ -451,7 +454,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface{
         Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public PermissionHelper getPermissionHelper(){
+    public PermissionHelper getPermissionHelper() {
         return mPermissionHelper;
     }
 

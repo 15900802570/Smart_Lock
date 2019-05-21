@@ -179,7 +179,9 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         }
 
         private void addItem(DeviceInfo deviceInfo) {
-            mDevList.add(0, deviceInfo);
+            if (mDevList.indexOf(deviceInfo) == -1) {
+                mDevList.add(0, deviceInfo);
+            }
         }
 
         @NonNull
