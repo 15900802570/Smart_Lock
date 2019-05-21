@@ -10,9 +10,11 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -306,8 +308,15 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
                     // mContext.startActivity(intent1);
 
                     Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(Uri.parse("file://" + path),
-                            "application/vnd.android.package-archive");
+                    File updateFile = new File(path);
+                    if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+                        Uri uriForFile = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".provider", updateFile);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        intent.setDataAndType(uriForFile, mContext.getContentResolver().getType(uriForFile));
+                    }else{
+                        intent.setDataAndType(Uri.parse("file://" + path),
+                                "application/vnd.android.package-archive");
+                    }
                     mContext.startActivity(intent);
                     // nm.cancel(1); //关闭通知
                     System.exit(0);
@@ -412,8 +421,16 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
 
     private void showNotification() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse("file://" + path),
-                "application/vnd.android.package-archive");
+        File file = new File(path);
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+            Uri uriForFile = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".provider", file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setDataAndType(uriForFile, mContext.getContentResolver().getType(uriForFile));
+        }else{
+            intent.setDataAndType(Uri.parse("file://" + path),
+                    "application/vnd.android.package-archive");
+        }
+
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
                 intent, 0);
         String fixMessage = mContext.getString(R.string.app_name)

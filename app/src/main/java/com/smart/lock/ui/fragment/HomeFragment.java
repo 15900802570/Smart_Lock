@@ -56,7 +56,6 @@ import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
-import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -65,9 +64,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MyGridView;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -104,7 +101,6 @@ public class HomeFragment extends BaseFragment implements
     private ArrayList<View> mDots; //spot list
 
     private int mOldPosition = 0;// 记录上一次点的位置
-    private int mCurrentItem; // 当前页面
 
     public static final int BIND_DEVICE = 0; //用户已添加设备
     public static final int UNBIND_DEVICE = 1;//未添加设备
@@ -243,7 +239,6 @@ public class HomeFragment extends BaseFragment implements
                 mDots.get(position).setBackgroundResource(R.drawable.dot_normal);
 
                 mOldPosition = position;
-                mCurrentItem = position;
             }
 
             @Override
@@ -291,7 +286,9 @@ public class HomeFragment extends BaseFragment implements
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        showMessage(getString(R.string.retry_connect));
+                        if(!mDevice.isDisconnectBle()){
+                            showMessage(getString(R.string.retry_connect));
+                        }
                         if (mDefaultDevice != null) {
                             refreshView(BIND_DEVICE);
                         } else {
@@ -453,9 +450,6 @@ public class HomeFragment extends BaseFragment implements
             return;
         }
         LogUtil.d(TAG, "mDefaultDevice : " + mDefaultDevice.toString());
-        for (DeviceUser user : DeviceUserDao.getInstance(mCtx).queryAll()) {
-            LogUtil.d(TAG, "user : " + user.toString());
-        }
 
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         if (mDefaultUser == null) {
@@ -465,7 +459,7 @@ public class HomeFragment extends BaseFragment implements
         LogUtil.d(TAG, "default ble : " + mDefaultDevice.getBleMac());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
-            if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
+            if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
                 return;
             }
             MessageCreator.setSk(mDefaultDevice);
@@ -499,19 +493,33 @@ public class HomeFragment extends BaseFragment implements
 
         switch (v.getId()) {
             case R.id.ll_status:
-                if (mDevice.getState() == Device.BLE_DISCONNECTED) {
-                    refreshView(DEVICE_CONNECTING);
-                    MessageCreator.setSk(mDefaultDevice);
-                    Bundle dev = new Bundle();
-                    dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                    dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                    mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mCtx);
-                } else if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    showMessage(mCtx.getString(R.string.bt_connected));
-                } else if (mDevice.getState() == Device.BLE_CONNECTION) {
-                    showMessage(mCtx.getString(R.string.bt_connecting));
+                switch (mDevice.getState()) {
+                    case Device.BLE_DISCONNECTED:
+                        refreshView(DEVICE_CONNECTING);
+                        MessageCreator.setSk(mDefaultDevice);
+                        Bundle dev = new Bundle();
+                        dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                        dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                        mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mCtx);
+                        mDevice.setDisconnectBle(false);
+                        break;
+                    case Device.BLE_CONNECTED:
+//                        showMessage(mCtx.getString(R.string.bt_connected));
+                        if (mBleManagerHelper.getBleCardService() != null) {
+                            LogUtil.d(TAG,"hashcode"+mDevice.hashCode());
+                            mDevice.setDisconnectBle(true);
+                            mBleManagerHelper.getBleCardService().disconnect();
+                        }
+                        break;
+                    case Device.BLE_CONNECTION:
+                        if (mBleManagerHelper.getBleCardService() != null) {
+                            mBleManagerHelper.getBleCardService().disconnect();
+                            mBleManagerHelper.stopScan();
+                            mDevice.setDisconnectBle(true);
+                        }
+//                        showMessage(mCtx.getString(R.string.bt_connecting));
+                        break;
                 }
-
                 break;
             case R.id.ll_setting:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {

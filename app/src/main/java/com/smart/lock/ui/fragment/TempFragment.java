@@ -41,6 +41,7 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.TempUserActivity;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -65,15 +66,15 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     private TextView mDeleteTv;
     private Context mCtx;
     private Device mDevice;
-    /**
-     * 定义一个内容观察者
-     */
-    private Dao.DaoObserver mOb = new Dao.DaoObserver() {
-        @Override
-        public void onChange() {
-            mHandler.sendEmptyMessage(0);
-        }
-    };
+//    /**
+//     * 定义一个内容观察者
+//     */
+//    private Dao.DaoObserver mOb = new Dao.DaoObserver() {
+//        @Override
+//        public void onChange() {
+//            mHandler.sendEmptyMessage(0);
+//        }
+//    };
 
     @SuppressLint("HandlerLeak")
     Handler mHandler = new Handler() {
@@ -148,6 +149,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     public void refreshView() {
+
         mTempAdapter.setDataSource();
         mTempAdapter.notifyDataSetChanged();
     }
@@ -171,8 +173,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
-        DeviceUserDao.getInstance(mCtx).registerObserver(mOb);
+        mDevice = Device.getInstance(mCtx);
+//        DeviceUserDao.getInstance(mCtx).registerObserver(mOb);
         mTempAdapter = new TempAdapter(mCtx);
         mLinerLayoutManager = new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
@@ -313,16 +315,86 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
-
+                DeviceUser tempUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, userIdTag);
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
-                if (userInfo != null) {
-                    byte[] authTime = new byte[4];
-                    System.arraycopy(userInfo, 8, authTime, 0, 4);
+                LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
 
-                    DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
-                    setAuthCode(authTime, mDefaultDevice, devUser);
+
+                if (userInfo != null) {
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
+
+                    tempUser.setUserStatus(userInfo[0]);
+
+                    byte[] stTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
+
+                    byte[] stTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
+
+                    byte[] ndTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
+
+                    byte[] ndTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
+
+                    byte[] thTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
+
+                    byte[] thTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
+
+                    String stBegin = StringUtil.byte2Int(stTsBegin);
+                    if (!stBegin.equals("0000")) {
+                        tempUser.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
+                    }
+
+                    String stEnd = StringUtil.byte2Int(stTsEnd);
+                    if (!stEnd.equals("0000")) {
+                        tempUser.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
+                    }
+
+                    String ndBegin = StringUtil.byte2Int(ndTsBegin);
+                    if (!ndBegin.equals("0000")) {
+                        tempUser.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
+                    }
+
+                    String ndEnd = StringUtil.byte2Int(ndTsEnd);
+                    if (!ndEnd.equals("0000")) {
+                        tempUser.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
+                    }
+
+                    String thBegin = StringUtil.byte2Int(thTsBegin);
+                    if (!thBegin.equals("0000")) {
+                        tempUser.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
+                    }
+
+                    String thEnd = StringUtil.byte2Int(thTsEnd);
+                    if (!thEnd.equals("0000")) {
+                        tempUser.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
+                    }
+
+                    LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
+                            "stEnd : " + stEnd + "\n" +
+                            "ndBegin : " + ndBegin + "\n" +
+                            "ndEnd : " + ndEnd + "\n" +
+                            "thBegin : " + thBegin + "\n" +
+                            "thEnd : " + thEnd + "\n");
+                    LogUtil.d(TAG, "tempUser : " + tempUser.toString());
+
+//                    StringUtil.checkTempUserStatus(this, mTempUser);
+
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(tempUser);
+
                 }
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
+
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
@@ -358,6 +430,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 break;
             case BleMsg.TYPE_PAUSE_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.pause_user_success));
+
                 DeviceUser pauseUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                 pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
                 DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
@@ -480,8 +553,10 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 if (user.getUserId() == changeUser.getUserId()) {
                     index = mUserList.indexOf(user);
                     user.setUserStatus(state);
+                    if (index != -1) {
+                        notifyItemChanged(index);
+                    }
                 }
-                notifyItemChanged(index);
             }
         }
 
@@ -528,6 +603,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
                     mSwipelayout.setRightSwipeEnabled(false);
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.normal));
@@ -540,11 +616,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
-                } else {
-                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.invalid));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.dark_gray));
-                    mSwipelayout.setRightSwipeEnabled(false);
                 }
+
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
                 final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
@@ -587,6 +660,14 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     @Override
                     public void onClick(View v) {
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                            int tempStatus = StringUtil.checkTempUserStatus(mContext, userInfo);
+//                            LogUtil.d(TAG, "tempStatus : " + tempStatus);
+//
+//                            if (tempStatus == ConstantUtil.USER_PAUSE) {
+//                                showMessage("请修改有效生命周期或开锁时间段");
+//                                notifyItemChanged(position);
+//                                return;
+//                            }
                             DialogUtils.closeDialog(mLoadDialog);
                             mLoadDialog.show();
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
@@ -664,14 +745,22 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onResume() {
         super.onResume();
-        mTempAdapter.setDataSource();
-        mTempAdapter.notifyDataSetChanged();
+        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
+        for (DeviceUser user : list) {
+            if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && user != null) {
+                mLoadDialog.show();
+                mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+            } else showMessage(getString(R.string.unconnected_device));
+        }
+
+
+        refreshView();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        DeviceUserDao.getInstance(mCtx).unregisterObserver(mOb);
+//        DeviceUserDao.getInstance(mCtx).unregisterObserver(mOb);
         mBleManagerHelper.removeUiListener(this);
     }
 }

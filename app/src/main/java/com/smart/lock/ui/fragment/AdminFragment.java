@@ -147,7 +147,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mAdminView.getContext());
         mBleManagerHelper.addUiListener(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mDevice = Device.getInstance(mAdminView.getContext());
         mAdminAdapter = new AdminAdapter(mAdminView.getContext());
         LinearLayoutManager mLinerLayoutManager = new LinearLayoutManager(mAdminView.getContext(), LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(mLinerLayoutManager);
@@ -476,8 +476,11 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 if (user.getUserId() == changeUser.getUserId()) {
                     index = mUserList.indexOf(user);
                     user.setUserStatus(state);
+                    if (index != -1) {
+                        notifyItemChanged(index);
+                    }
+
                 }
-                notifyItemChanged(index);
             }
         }
 
@@ -537,10 +540,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
-                } else {
-                    holder.mUserStateTv.setText(mAdminView.getContext().getResources().getString(R.string.invalid));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.dark_gray));
-                    mSwipelayout.setRightSwipeEnabled(false);
                 }
                 holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
 

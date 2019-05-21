@@ -31,6 +31,7 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
@@ -39,8 +40,10 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -69,6 +72,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     private Device mDevice;  //当前连接设备信息
 
     private DeviceInfo mDefaultDevice; //默认设备
+    private DeviceKeyDao mDeviceKeyDao;//设备信息管理者
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,16 +96,17 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
+        mDeviceKeyDao = DeviceKeyDao.getInstance(this);
         mHandler = new Handler();
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mDevice = Device.getInstance(this);
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
 
         mStartDate.setText(mTempUser.getLcBegin() == null ? getString(R.string._1970_01_01) : mTempUser.getLcBegin());
         mEndDate.setText(mTempUser.getLcEnd() == null ? getString(R.string._1970_01_01) : mTempUser.getLcEnd());
-        mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
     }
 
     @Override
@@ -285,12 +290,18 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     public void dispatchUiCallback(Message msg, Device device, int type) {
         LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
+        Bundle extra = msg.getData();
+        Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
+            return;
+        }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_2E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
                 break;
+
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
@@ -340,7 +351,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             case BleMsg.TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS:
                 mTempUser.setLcBegin(mStartDate.getText().toString());
                 mTempUser.setLcEnd(mEndDate.getText().toString());
-                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 mTempUser.setUserName(mEtMome.getText().toString().trim());
                 DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 showMessage(getString(R.string.set_life_cycle_success));

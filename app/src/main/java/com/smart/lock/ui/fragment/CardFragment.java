@@ -175,7 +175,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
                 if (mTempUser != null) {
-                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
                 mCardAdapter.addItem(deviceKey);

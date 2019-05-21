@@ -151,8 +151,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 message.what = BleMsg.STATE_DISCONNECTED;
                 mHandler.sendMessage(message);
-
-                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                LogUtil.d(TAG, "hashcode" + mDevice.hashCode());
+                LogUtil.d(TAG, "mDevice.isDisconnectBle() : " + mDevice.isDisconnectBle());
+                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
                     return; //暂停的用户不需要重连
                 }
                 android.os.Message msg = new android.os.Message();
@@ -415,7 +416,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         System.arraycopy(syncUsers, 12, buf, 0, 4);
         long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
         LogUtil.d(TAG, "status4 = " + status4);
-
+        LogUtil.d(TAG, "mDevInfo.getDeviceNodeId() = " + mDevInfo.getDeviceNodeId());
         if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getDeviceNodeId(), 2));//第二字节状态字
@@ -589,7 +590,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case MSG_RECONNCT_BLE:
                 LogUtil.i(TAG, "reconnect device");
-                if (mService == null || mDevice == null || mDevInfo == null) {
+                if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle()) {
                     LogUtil.e(TAG, "the service or dev is null!");
                     break;
                 }

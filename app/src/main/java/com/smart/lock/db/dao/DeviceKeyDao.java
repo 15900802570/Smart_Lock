@@ -230,6 +230,20 @@ public class DeviceKeyDao {
         return list;
     }
 
+    public ArrayList<DeviceKey> queryUserDeviceKey(Object nodeId, Object userId) {
+        ArrayList<DeviceKey> list = new ArrayList<DeviceKey>();
+        try {
+            list = (ArrayList<DeviceKey>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId)
+                    .query();
+            if (list != null) {
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public DeviceKey queryByLockId(Object nodeId, Object userId, Object lockId, Object type) {
         DeviceKey deviceKey = new DeviceKey();
         try {

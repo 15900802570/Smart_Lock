@@ -44,6 +44,18 @@ public class DateTimeUtil {
     /**
      * 将时间戳转换为时间
      */
+    public static String stampToMinute(String s){
+        String res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        long lt = new Long(s);
+        Date date = new Date(lt);
+        res = simpleDateFormat.format(date);
+        return res;
+    }
+
+    /**
+     * 将时间戳转换为时间
+     */
     public static String stampToDate(String s){
         String res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -59,6 +71,28 @@ public class DateTimeUtil {
     public static long dateToStamp(String s) throws ParseException{
         long res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = simpleDateFormat.parse(s);
+        res = date.getTime();
+        return res;
+    }
+
+    /**
+     * 将时间转换为时间戳 ms
+     */
+    public static long dateToStampTime(String s) throws ParseException{
+        long res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
+        Date date = simpleDateFormat.parse(s);
+        res = date.getTime();
+        return res;
+    }
+
+    /**
+     * 将时间转换为时间戳 ms
+     */
+    public static long dateToStampDay(String s) throws ParseException{
+        long res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = simpleDateFormat.parse(s);
         res = date.getTime();
         return res;
@@ -191,15 +225,7 @@ public class DateTimeUtil {
     }
 
     public static Date stringConvertDate(String dateString) {
-        return parse("yyyy-MM-dd HH:mm:ss", dateString);
-
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-//        try {
-//            return sdf.parse(date);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
+        return parse("HH:mm", dateString);
     }
 
     public static Date stringConvertDate(String dateString, String pattern) {

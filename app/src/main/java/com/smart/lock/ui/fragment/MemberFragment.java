@@ -162,7 +162,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mDevice = Device.getInstance(mCtx);
         mMemberAdapter = new MemberAdapter(mCtx);
         LinearLayoutManager linerLayoutManager = new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false);
         mUsersRv.setLayoutManager(linerLayoutManager);
@@ -491,8 +491,10 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 if (user.getUserId() == changeUser.getUserId()) {
                     index = mUserList.indexOf(user);
                     user.setUserStatus(state);
+                    if (index != -1) {
+                        notifyItemChanged(index);
+                    }
                 }
-                notifyItemChanged(index);
             }
         }
 
@@ -552,12 +554,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
                     mSwipelayout.setRightSwipeEnabled(true);
-                } else {
-                    mSwipelayout.setRightSwipeEnabled(false);
-                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.invalid));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.dark_gray));
                 }
-
 
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
