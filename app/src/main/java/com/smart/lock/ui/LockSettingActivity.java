@@ -163,7 +163,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             LogUtil.d(TAG, "Default = " + mDefaultDevice);
             mBleManagerHelper = BleManagerHelper.getInstance(this);
             mBleManagerHelper.addUiListener(this);
-            mDevice = mBleManagerHelper.getBleCardService().getDevice();
+            mDevice = Device.getInstance(this);
         } catch (NullPointerException e) {
             e.printStackTrace();
         }

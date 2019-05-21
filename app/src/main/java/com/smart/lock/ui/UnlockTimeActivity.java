@@ -122,7 +122,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         mHandler = new Handler();
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mDevice = Device.getInstance(this);
         mCalendar = Calendar.getInstance();
         mSecondUnlockTimeLl.setVisibility(View.GONE);
         mThirtUnlockTimeLl.setVisibility(View.GONE);
@@ -499,7 +499,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         } else {
             Arrays.fill(unlockTime, 16, 24, (byte) 0);
         }
-
+        LogUtil.d(TAG, "unlockTime : " + Arrays.toString(unlockTime));
         return unlockTime;
     }
 
@@ -648,7 +648,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 mTempUser.setNdTsend(mSecondEndTime.getText().toString());
                 mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
                 mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
-                mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 DeviceUserDao.getInstance(UnlockTimeActivity.this).updateDeviceUser(mTempUser);
                 showMessage(getString(R.string.set_unlock_time_success));
                 break;

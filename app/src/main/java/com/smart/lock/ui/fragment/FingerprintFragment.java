@@ -192,7 +192,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
                 if (mTempUser != null) {
-                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
 

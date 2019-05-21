@@ -100,7 +100,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mBleManagerHelper = BleManagerHelper.getInstance(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mDevice = Device.getInstance(this);
         mBleManagerHelper.addUiListener(this);
 
         mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));

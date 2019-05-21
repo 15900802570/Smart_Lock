@@ -355,7 +355,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
-        mDevice = mBleManagerHelper.getBleCardService().getDevice();
+        mDevice = Device.getInstance(this);
 
         if (mDevice != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
@@ -386,7 +386,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
     private void checkDevVersion() {
         mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-        mVersionAction.setDeviceSn("1586210");
+        mVersionAction.setDeviceSn(SystemUtils.getMetaDataFromApp(this));
         mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
         mVersionAction.setTransferPayResponse(tCheckDevResponse);
         mVersionAction.transStart(this);
@@ -818,7 +818,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     toDownload(true);
                 } else {
                     mConnetStatus.setText(R.string.start_update);
-                    if (mBleManagerHelper.getBleCardService().getDevice().getState() == Device.BLE_CONNECTED) {
+                    if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
                         prepareDFU();
                         mConnetStatus.setText(R.string.connect_ota_mode);
                     } else {

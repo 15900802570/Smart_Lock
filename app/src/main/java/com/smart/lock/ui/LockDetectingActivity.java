@@ -164,13 +164,13 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     break;
                 case BleMsg.TYPE_ADD_USER_FAILED:
                     DialogUtils.closeDialog(mLoadDialog);
-                    showMessage(mCtx.getString(R.string.add_user_full));
+                    showMessage(mCtx.getString(R.string.add_user_failed));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
                     break;
                 case BleMsg.TYPE_USER_FULL:
                     DialogUtils.closeDialog(mLoadDialog);
-                    showMessage(mCtx.getString(R.string.add_user_failed));
+                    showMessage(mCtx.getString(R.string.add_user_full));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
                     break;
@@ -395,7 +395,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
                 Arrays.fill(MessageCreator.m256SK, 6, 32, (byte) 0);
             }
-            Device connDev = mBleManagerHelper.getBleCardService().getDevice();
+            Device connDev = Device.getInstance(mCtx);
             if (connDev == null || connDev.getState() == Device.BLE_DISCONNECTED) {
                 if (mMode == SEARCH_LOCK) {
                     DialogUtils.closeDialog(mLoadDialog);
@@ -634,7 +634,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                             scanLeDevice(false);
                         }
                         mBleMac = dev.getAddress();
-                        Device connDev = mBleManagerHelper.getBleCardService().getDevice();
+                        Device connDev = Device.getInstance(mCtx);
                         if (connDev == null || connDev.getState() == Device.BLE_DISCONNECTED) {
                             detectDevice(dev);
                         } else

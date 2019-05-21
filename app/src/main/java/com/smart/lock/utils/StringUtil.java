@@ -11,16 +11,29 @@
 
 package com.smart.lock.utils;
 
+import android.content.Context;
 import android.text.Editable;
 import android.util.Log;
 
+import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceUserDao;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.zip.CRC32;
 
 public class StringUtil {
+
+    private static final String TAG = "StringUtil";
 
     public static boolean strIsNullOrEmpty(String s) {
         return (null == s || s.trim().length() < 1);
@@ -535,6 +548,112 @@ public class StringUtil {
 
         return sb.toString();
     }
+
+    public static int checkTempUserStatus(Context context, DeviceUser tempUser) {
+        ArrayList<DeviceKey> keys = DeviceKeyDao.getInstance(context).queryUserDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId());
+        if (!keys.isEmpty()) { //判断是否有开锁信息
+            if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
+                tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+            } else {
+                try {
+                    Date now = new Date(System.currentTimeMillis());
+                    Date begin = new Date(DateTimeUtil.dateToStampDay(tempUser.getLcBegin()));
+                    Date end = new Date(DateTimeUtil.dateToStampDay(tempUser.getLcEnd()));
+                    LogUtil.d(TAG, "isEffectiveDate(now, begin, end) : " + isEffectiveDate(now, begin, end));
+                    if (!isEffectiveDate(now, begin, end)) { //判断当前时间在生命周期以内
+                        tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                    } else {
+                        Date nowTime = new Date(DateTimeUtil.dateToStampTime(DateTimeUtil.stampToMinute(String.valueOf(System.currentTimeMillis()))));
+                        LogUtil.d(TAG, "nowTime : " + nowTime);
+
+                        if (checkNotNull(tempUser.getStTsBegin()) && checkNotNull(tempUser.getStTsEnd())) {
+                            Date startTime = new Date(DateTimeUtil.dateToStampTime(tempUser.getStTsBegin()));
+                            Date endTime = new Date(DateTimeUtil.dateToStampTime(tempUser.getStTsEnd()));
+                            LogUtil.d(TAG, "st startTime : " + startTime + "\n" + "st endTime : " + endTime);
+                            if (isEffectiveDate(now, startTime, endTime)) {
+                                LogUtil.d(TAG, "stTime user enable!");
+                                tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                            } else {
+                                tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                            }
+
+                        } else {
+                            tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                        }
+
+                        if (checkNotNull(tempUser.getNdTsBegin()) && checkNotNull(tempUser.getNdTsend())) {
+                            Date startTime = new Date(DateTimeUtil.dateToStampTime(tempUser.getNdTsBegin()));
+                            Date endTime = new Date(DateTimeUtil.dateToStampTime(tempUser.getNdTsend()));
+                            LogUtil.d(TAG, "nd startTime : " + startTime + "\n" + "nd endTime : " + endTime);
+                            if (isEffectiveDate(now, startTime, endTime)) {
+                                LogUtil.d(TAG, "ndTime user enable!");
+                                tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                            } else {
+                                tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                            }
+                        } else {
+                            tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                        }
+
+                        if (checkNotNull(tempUser.getThTsBegin()) && checkNotNull(tempUser.getThTsBegin())) {
+                            Date startTime = new Date(DateTimeUtil.dateToStampTime(tempUser.getThTsBegin()));
+                            Date endTime = new Date(DateTimeUtil.dateToStampTime(tempUser.getThTsEnd()));
+                            LogUtil.d(TAG, "th startTime : " + startTime + "\n" + "th endTime : " + endTime);
+                            if (isEffectiveDate(now, startTime, endTime)) {
+                                LogUtil.d(TAG, "thTime user enable!");
+                                tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                            } else {
+                                tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                            }
+                        } else {
+                            tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                        }
+
+                    }
+
+                    DeviceUserDao.getInstance(context).updateDeviceUser(tempUser);
+
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
+        return tempUser.getUserStatus();
+    }
+
+    /**
+     * 判断当前时间是否在[startTime, endTime]区间，注意时间格式要一致
+     *
+     * @param nowTime   当前时间
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return
+     * @author jqlin
+     */
+    public static boolean isEffectiveDate(Date nowTime, Date startTime, Date endTime) {
+        if (nowTime.getTime() == startTime.getTime()
+                || nowTime.getTime() == endTime.getTime()) {
+            return true;
+        }
+
+        Calendar date = Calendar.getInstance();
+        date.setTime(nowTime);
+
+        Calendar begin = Calendar.getInstance();
+        begin.setTime(startTime);
+
+        Calendar end = Calendar.getInstance();
+        end.setTime(endTime);
+
+        if (date.after(begin) && date.before(end)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 final class Strings {
@@ -574,4 +693,6 @@ final class Strings {
     public static boolean isEmpty(String str) {
         return str == null || str.trim().isEmpty();
     }
+
+
 }

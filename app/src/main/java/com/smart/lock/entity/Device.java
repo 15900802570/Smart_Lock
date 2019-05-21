@@ -23,6 +23,8 @@ public class Device {
     public static final int BLE_CONNECTION = 21; //正在连接
     public static final int BLE_DISCONNECTED = 22; //未连接
 
+    private boolean mDisconnectBle = false;//主动断开蓝牙
+
     public static final byte BLE_SCAN_QR_CONNECT_TYPE = 0;
     public static final byte BLE_OTHER_CONNECT_TYPE = 1;
     public static final byte BLE_SET_DEVICE_INFO_CONNECT_TYPE = 2;
@@ -62,6 +64,14 @@ public class Device {
             }
         }
         return instance;
+    }
+
+    public boolean isDisconnectBle() {
+        return mDisconnectBle;
+    }
+
+    public void setDisconnectBle(boolean mDisconnectBle) {
+        this.mDisconnectBle = mDisconnectBle;
     }
 
     public byte getConnectType() {
