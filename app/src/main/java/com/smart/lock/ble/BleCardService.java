@@ -135,7 +135,8 @@ public class BleCardService {
                 if (!gatt.discoverServices()) {
                     LogUtil.d("remote service discovery has been stopped status = " + newState);
                     disconnect();
-                } else closeDialog(10);
+                }
+//                else closeDialog(10);
                 mDevStateCallback.onConnected(); //成功回调
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {

@@ -74,7 +74,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="@dimen/y49dp">
+            android:paddingTop="@dimen/y49dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"

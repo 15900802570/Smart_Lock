@@ -268,7 +268,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     mTvProgress.setText(FileUtil.formatFileSize(downloadSize) + "/" + fileSizeText);
                     break;
                 case DOWNLOAD_OK:
-                    showNotification();
+//                    showNotification();
                     downloadSize = 0;
                     fileSize = 0;
                     mStartBt.setText(R.string.start_update);
@@ -337,15 +337,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
     private void initDate() {
         mDefaultDev = (DeviceInfo) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-
         mHandler = new Handler();
-
         mPb.setProgress(100);
-
-        mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
-
-        mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
-        mLatestVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -854,7 +847,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     mPb.setProgress(iCmdIndex * 100 / iCmdLen); // add 2017.12.22
                     iCmdIndex += PAYLOAD_LEN;
                     Log.d(TAG, "mGattUpdateReceiver!!! " + " prev iCmdIndex=" + iCmdIndex);
-                    if (iCmdIndex < iCmdLen)
+                    if (mOtaParser.hasNextPacket())
                         writeCommandByPosition(iCmdIndex);
                     else { // end of writing command;
                         iCmdIndex = iCmdLen;
@@ -901,6 +894,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mDefaultDev.setDeviceSwVersion(swVer);
                 mDefaultDev.setDeviceHwVersion(hwVer);
                 DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+
+                mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
+                mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
+                mLatestVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
                 checkDevVersion();
                 break;
             default:

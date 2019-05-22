@@ -28,7 +28,7 @@ public class BaseApplication extends Application {
     private final static String TAG = "BaseApplication";
     private Context mContext;
     protected BleManagerHelper mBleManagerHelper; //蓝牙服务
-    public static int MLOOP_INTERVAL_SECS = 30;
+    public static int MLOOP_INTERVAL_SECS = 600;
     /**
      * 定时任务工具类
      */
@@ -46,54 +46,54 @@ public class BaseApplication extends Application {
         mBleManagerHelper = BleManagerHelper.getInstance(mContext);
         mDevice = Device.getInstance(this);
 //        startLoop();
-        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-            @Override
-            public void onActivityCreated(Activity activity, Bundle bundle) {
-
-            }
-
-            @Override
-            public synchronized void onActivityStarted(Activity activity) {
-                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到前台");
-                synchronized (mStateLock) {
-                    if (mTimer != null && mActive) {
-                        mActive = false;
-                        mTimer.cancel();
-                        mTimer = null;
-                    }
-                }
-            }
-
-            @Override
-            public void onActivityResumed(Activity activity) {
-
-            }
-
-            @Override
-            public void onActivityPaused(Activity activity) {
-
-            }
-
-            @Override
-            public synchronized void onActivityStopped(Activity activity) {
-                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到后台");
-                synchronized (mStateLock) {
-                    if (!mActive) {
-                        startLoop();
-                    }
-                }
-            }
-
-            @Override
-            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onActivityDestroyed(Activity activity) {
-
-            }
-        });
+//        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+//            @Override
+//            public void onActivityCreated(Activity activity, Bundle bundle) {
+//
+//            }
+//
+//            @Override
+//            public synchronized void onActivityStarted(Activity activity) {
+//                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到前台");
+//                synchronized (mStateLock) {
+//                    if (mTimer != null && mActive) {
+//                        mActive = false;
+//                        mTimer.cancel();
+//                        mTimer = null;
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onActivityResumed(Activity activity) {
+//
+//            }
+//
+//            @Override
+//            public void onActivityPaused(Activity activity) {
+//
+//            }
+//
+//            @Override
+//            public synchronized void onActivityStopped(Activity activity) {
+//                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到后台");
+//                synchronized (mStateLock) {
+//                    if (!mActive) {
+//                        startLoop();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+//
+//            }
+//
+//            @Override
+//            public void onActivityDestroyed(Activity activity) {
+//
+//            }
+//        });
     }
 
     public BleManagerHelper getmBleManagerHelper() {
