@@ -253,4 +253,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         mScanQRHelper.getPermissionHelper().requestPermissionsResult(requestCode, permissions, grantResults);
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
 }

@@ -186,20 +186,7 @@ public class BleManagerHelper {
             return null;
         }
         mDevice = Device.getInstance(ctx);
-        LogUtil.d(TAG, "hash code 2: " + mDevice.hashCode());
-        DeviceInfo devInfo = DeviceInfoDao.getInstance(ctx).queryFirstData("device_default", true);
-        if (devInfo == null) {
-            devInfo = new DeviceInfo();
-        }
-        String mac = bundle.getString(BleMsg.KEY_BLE_MAC);
-        if (StringUtil.checkNotNull(mac) && mac.length() == 12) {
-            devInfo.setBleMac(StringUtil.getMacAdr(mac));
-        } else {
-            devInfo.setBleMac(mac);
-        }
-
         DeviceInfo devInfo = null;
-
 
         switch (type) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
@@ -230,7 +217,7 @@ public class BleManagerHelper {
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
-
+            case Device.BLE_SEARCH_DEV_CONNECT:
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
                 String mac = bundle.getString(BleMsg.KEY_BLE_MAC);
                 devInfo = new DeviceInfo();

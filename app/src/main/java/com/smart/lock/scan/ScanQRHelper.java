@@ -137,7 +137,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         byte[] userIdBytes = new byte[2];
         byte[] imeiBytes = new byte[8];
         byte[] bleMACBytes = new byte[6];
-        byte[] randCodeBytes = new byte[18];
+        byte[] randCodeBytes = new byte[10];
         byte[] authCode = new byte[30];
         System.arraycopy(devInfo, 0, typeBytes, 0, 1);
         System.arraycopy(devInfo, 1, timeBytes, 0, 4);
@@ -194,9 +194,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                     mDevice.setDisconnectBle(true);
                     LogUtil.d(TAG, "hash code 1: " + mDevice.hashCode());
                     mBleManagerHelper.getBleCardService().disconnect();
-
                 }
-
             }
             mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
             mLoadDialog.show();
@@ -343,6 +341,18 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        LogUtil.i(TAG, "deviceStateChange : state is " + state);
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                if (mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT) {
+                    showMessage("添加失败,请重试!");
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
+                break;
+            default:
+                LogUtil.e(TAG, "state : " + state + "is can not handle");
+                break;
+        }
     }
 
     @Override
@@ -365,11 +375,13 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 if (deviceInfo == null) {
                     onAuthenticationSuccess(createDevice());
                 }
+
                 break;
             default:
                 break;
 
         }
+        mBleManagerHelper.removeUiListener(this);
         DialogUtils.closeDialog(mLoadDialog);
     }
 
@@ -456,7 +468,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         Toast.makeText(mActivity, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public PermissionHelper getPermissionHelper(){
+    public PermissionHelper getPermissionHelper() {
         return mPermissionHelper;
     }
 

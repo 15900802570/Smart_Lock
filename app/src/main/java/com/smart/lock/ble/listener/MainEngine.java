@@ -59,6 +59,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     private static final String MSG_RECEIVER = "receiver_msg";
     private static final int RUN_ON_UI_THREAD = 3; //UI线程
     private Handler mHandler;
+    private final Object mStateLock = new Object();
 
     public MainEngine(Context context, BleCardService service) {
         mCtx = context;
@@ -99,9 +100,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onConnected() {
-        android.os.Message msg = new android.os.Message();
-        msg.what = Device.BLE_CONNECTED;
-        mHandler.sendMessage(msg);
+        sendMessage(Device.BLE_CONNECTED, null, 0);
     }
 
     @Override
@@ -115,22 +114,19 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mService.disconnect();
             mService.close();
         }
-        android.os.Message message = new android.os.Message();
         switch (mDevice.getConnectType()) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
-                message.what = BleMsg.STATE_DISCONNECTED;
-                mHandler.sendMessage(message);
+                sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                 break;
+            case Device.BLE_SCAN_AUTH_CODE_CONNECT:
             case Device.BLE_OTHER_CONNECT_TYPE:
-                message.what = BleMsg.STATE_DISCONNECTED;
-                mHandler.sendMessage(message);
+                sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
 
                 DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
                 if (defaultDevice == null) {
                     LogUtil.e(TAG, "defaultDevice is null");
                     halt();
-                    message.what = BleMsg.STATE_DISCONNECTED;
-                    mHandler.sendMessage(message);
+                    sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                     return;
                 }
 //                } else if (mDevInfo != null && !defaultDevice.getBleMac().equals(mDevInfo.getBleMac()) && mDevice.isDisconnectBle()) {
@@ -141,25 +137,20 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 //                    mDevice.setState(Device.BLE_DISCONNECTED);
 //                }
                 LogUtil.d(TAG, "mDevice.isDisconnectBle() : " + mDevice.isDisconnectBle());
-                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
+                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()|| mDevice.isBackGroundConnect()) {
                     return; //暂停的用户不需要重连
                 }
-                android.os.Message msg = new android.os.Message();
-                msg.what = MSG_RECONNCT_BLE;
-                mHandler.sendMessageDelayed(msg, 8000);
+                sendMessage(MSG_RECONNCT_BLE, null, 8);
                 break;
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
-                message.what = BleMsg.STATE_DISCONNECTED;
-                mHandler.sendMessage(message);
+                sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                 halt();
                 break;
             case Device.BLE_SEARCH_DEV_CONNECT:
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     return; //暂停的用户不需要重连
                 }
-                message.what = BleMsg.STATE_DISCONNECTED;
-                mHandler.sendMessage(message);
-//                halt();
+                sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                 break;
             default:
                 break;
@@ -171,9 +162,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public void onServicesDiscovered(int status) {
         LogUtil.i(TAG, "onServicesDiscovered : device connect type is " + mDevice.getConnectType());
         mDevice.setState(Device.BLE_CONNECTION);
-        android.os.Message msg = new android.os.Message();
-        msg.what = MSG_REGISTER;
-        mHandler.sendMessageDelayed(msg, 600); //收到服务后，等待0.6s
+        sendMessage(MSG_REGISTER, null, 6);
     }
 
     @Override
@@ -182,10 +171,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         Bundle extra = new Bundle();
         extra.putInt("gatt_state", state);
-        android.os.Message msg = new android.os.Message();
-        msg.what = MSG_CHANGE_GATT_STATE;
-        msg.setData(extra);
-        mHandler.sendMessage(msg);
+        sendMessage(MSG_CHANGE_GATT_STATE, extra, 0);
     }
 
     @Override
@@ -194,13 +180,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         int type = message.getType();
         Log.i(TAG, "onReceive Message type : " + Message.getMessageTypeTag(type));
 
-        android.os.Message msg = new android.os.Message();
-        msg.what = RUN_ON_UI_THREAD;
         Bundle bundle = new Bundle();
         bundle.putSerializable(MSG_RECEIVER, message);
         bundle.putSerializable("timer", timer);
-        msg.setData(bundle);
-        mHandler.sendMessage(msg);
+        sendMessage(RUN_ON_UI_THREAD, bundle, 0);
     }
 
     @Override
@@ -381,12 +364,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setUnLockTime(unLockTime);
         mDevice.setSyncUsers(syncUsers);
         mDevice.setTempSecret(tempSecret);
-
-        if (userStatus == ConstantUtil.USER_PAUSE) {
-            for (UiListener uiListener : mUiListeners) {
-                uiListener.dispatchUiCallback(msg, mDevice, BleMsg.USER_PAUSE);
+        synchronized (this.mStateLock) {
+            if (userStatus == ConstantUtil.USER_PAUSE) {
+                for (UiListener uiListener : mUiListeners) {
+                    uiListener.dispatchUiCallback(msg, mDevice, BleMsg.USER_PAUSE);
+                }
+                return;
             }
-            return;
         }
         byte[] buf = new byte[4];
         System.arraycopy(Objects.requireNonNull(syncUsers), 0, buf, 0, 4);
@@ -405,9 +389,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
         LogUtil.d(TAG, "status4 = " + status4);
         LogUtil.d(TAG, "mDevInfo.getDeviceNodeId() = " + mDevInfo.getDeviceNodeId());
-        DeviceInfo oldDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_nodeId", mDevInfo.getDeviceNodeId());
 
-        if (oldDevice != null) {
+        if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
+            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
+            mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
+
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getDeviceNodeId(), 2));//第二字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status3, mDevInfo.getDeviceNodeId(), 3));//第三字节状态字
@@ -417,10 +403,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
             getUserInfo();
-
-            mDefaultUser = mDeviceUserDao.queryUser(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
-            mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
-
 
             if (mDefaultStatus != null) {
                 if ((stStatus & 1) == 1) {  //常开功能
@@ -473,13 +455,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
             }
-        }else {
-            mDevice.setState(Device.BLE_CONNECTED);
+        }
+
+        mDevice.setState(Device.BLE_CONNECTED);
+        synchronized (this.mStateLock) {
             for (UiListener uiListener : mUiListeners) {
                 uiListener.dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
             }
         }
-
 
     }
 
@@ -577,13 +560,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 for (UiListener uiListener : mUiListeners) {
                     uiListener.reConnectBle(mDevice);
                 }
-                android.os.Message pollingMsg = new android.os.Message();
-                pollingMsg.what = MSG_POLLING_BLE;
-                mHandler.sendMessageDelayed(pollingMsg, 120 * 1000);
+                sendMessage(MSG_POLLING_BLE,null,120);
                 break;
             case MSG_RECONNCT_BLE:
                 LogUtil.i(TAG, "reconnect device");
-                if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle()) {
+                if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle()|| mDevice.isBackGroundConnect()) {
                     LogUtil.e(TAG, "the service or dev is null!");
                     break;
                 }
@@ -624,6 +605,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         scanQrRegister();
                         break;
                     case Device.BLE_OTHER_CONNECT_TYPE:
+                    case Device.BLE_SCAN_AUTH_CODE_CONNECT:
                         otherRegister();
                         break;
                     case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
@@ -636,9 +618,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         scanQrRegister();
                         break;
                 }
-                android.os.Message sendState = new android.os.Message();
-                sendState.what = BleMsg.GATT_SERVICES_DISCOVERED;
-                mHandler.sendMessage(sendState);
+                sendMessage(BleMsg.GATT_SERVICES_DISCOVERED,null,0);
                 break;
             case BleMsg.STATE_DISCONNECTED:
                 for (UiListener uiListener : mUiListeners) {
@@ -748,9 +728,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                     createDeviceUser(sUserId, null, StringUtil.bytesToHexString(authCode));
 
-                    android.os.Message msg = new android.os.Message();
-                    msg.what = MSG_ADD_USER_SUCCESS;
-                    mHandler.sendMessageDelayed(msg, 2000);//断开设备2s,后通知UI进行更新
+                    sendMessage(MSG_ADD_USER_SUCCESS,null,2);
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_1A:
                 case Message.TYPE_BLE_RECEIVER_CMD_1C:
@@ -872,5 +850,17 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         }
 
         return StringUtil.bytesToHexString(authCode);
+    }
+
+    private void sendMessage(int type, Bundle bundle, int time) {
+        android.os.Message msg = new android.os.Message();
+        if (bundle != null) {
+            msg.setData(bundle);
+        }
+        msg.what = type;
+        if (time != 0) {
+            mHandler.sendMessageDelayed(msg, time * 1000);
+        } else mHandler.sendMessage(msg);
+
     }
 }

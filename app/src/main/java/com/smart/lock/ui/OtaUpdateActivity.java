@@ -385,11 +385,13 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     }
 
     private void checkDevVersion() {
-        mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-        mVersionAction.setDeviceSn(SystemUtils.getMetaDataFromApp(this));
-        mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
-        mVersionAction.setTransferPayResponse(tCheckDevResponse);
-        mVersionAction.transStart(this);
+        if(mDefaultDev!=null) {
+            mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
+            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+            mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
+            mVersionAction.setTransferPayResponse(tCheckDevResponse);
+            mVersionAction.transStart(this);
+        }
     }
 
     AbstractTransaction.TransferPayResponse tCheckDevResponse = new AbstractTransaction.TransferPayResponse() {
@@ -411,14 +413,13 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mLatestVersionName.setText(version.versionName);
                 mFileName = getString(R.string.app_name) + version.versionName;
                 getPath(version.versionCode);
-                LogUtil.d(TAG, "versionName = " + version.versionName +
-                        "versionCode = " + version.versionCode);
+                LogUtil.d(TAG, "versionName = " + version.versionName + "versionCode = " + version.versionCode);
                 int len = version.versionName.length();
                 int swLen = mDefaultDev.getDeviceSwVersion().length();
                 int code = 0;
                 if (len >= 5 && swLen >= 5)
                     code = StringUtil.compareVersion(version.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
-                if (0 == code) {
+                if (0 == code || code == -1) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
                     if (version.forceUpdate) {
@@ -427,7 +428,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                         compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
                     }
                 }
-
             } else {
                 compareVersion(CheckVersionAction.NO_NEW_VERSION);
             }
@@ -517,7 +517,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         } catch (Exception e) {
             sendMessage(DOWNLOAD_ERROR);
             e.printStackTrace();
-            Log.e(TAG, " e = " + e.getMessage().toString());
         } finally {
             try {
                 is.close();

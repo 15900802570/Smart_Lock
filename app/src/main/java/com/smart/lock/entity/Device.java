@@ -27,6 +27,16 @@ public class Device {
 
     private boolean mDisconnectBle = false;//主动断开蓝牙
 
+    public boolean isBackGroundConnect() {
+        return mBackGroundConnect;
+    }
+
+    public void setBackGroundConnect(boolean mBackGroundConnect) {
+        this.mBackGroundConnect = mBackGroundConnect;
+    }
+
+    private boolean mBackGroundConnect = false;//
+
     public static final byte BLE_SCAN_QR_CONNECT_TYPE = 0;
     public static final byte BLE_OTHER_CONNECT_TYPE = 1;
     public static final byte BLE_SET_DEVICE_INFO_CONNECT_TYPE = 2;
@@ -177,13 +187,22 @@ public class Device {
         mDevInfo = deviceInfo;
     }
 
+    public byte[] getTempAuthCode() {
+        return tempAuthCode;
+    }
+
+    public void setTempAuthCode(byte[] tempAuthCode) {
+        this.tempAuthCode = tempAuthCode;
+    }
+
     @Override
     public String toString() {
         return "Device{" +
                 "mContext=" + mContext +
+                ", mDisconnectBle=" + mDisconnectBle +
+                ", mBackGroundConnect=" + mBackGroundConnect +
                 ", connectType=" + connectType +
                 ", mDevInfo=" + mDevInfo +
-                ", mDisconnectBle=" + mDisconnectBle +
                 ", state=" + state +
                 ", battery=" + battery +
                 ", userStatus=" + userStatus +
@@ -192,14 +211,7 @@ public class Device {
                 ", syncUsers=" + Arrays.toString(syncUsers) +
                 ", allStatus=" + Arrays.toString(allStatus) +
                 ", tempSecret=" + Arrays.toString(tempSecret) +
+                ", tempAuthCode=" + Arrays.toString(tempAuthCode) +
                 '}';
-    }
-
-    public byte[] getTempAuthCode() {
-        return tempAuthCode;
-    }
-
-    public void setTempAuthCode(byte[] tempAuthCode) {
-        this.tempAuthCode = tempAuthCode;
     }
 }

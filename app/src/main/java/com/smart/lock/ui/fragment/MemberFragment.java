@@ -299,7 +299,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 short userIdTag = (short) serializable;
-                if (userIdTag <= 100 || userIdTag > 201) {
+                if (userIdTag <= 100 || userIdTag > 200) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }

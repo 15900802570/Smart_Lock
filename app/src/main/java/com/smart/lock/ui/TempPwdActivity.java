@@ -59,6 +59,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     private String mMac;
     private String mSecret;
     private List<String> mSecretList = new ArrayList<>();
+    private DeviceInfo mDefaultDevice;
 
     private RecyclerView mTempPwdListViewRv;
     private Set<Integer> mExistNum = new HashSet<>();
@@ -77,7 +78,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
     }
 
     private void initData() {
-        DeviceInfo mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
+        mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mMac = mDefaultDevice.getBleMac().replace(getString(R.string.colon), "");
         String tempSecret = mDefaultDevice.getTempSecret();
@@ -111,6 +112,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                 finish();
                 break;
             case R.id.btn_create_temp_pwd:
+                if (StringUtil.checkIsNull(mDefaultDevice.getTempSecret())) {
+                    Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if (createTempPwd()) {
                     saveTempPwd();
                 }

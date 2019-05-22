@@ -286,7 +286,7 @@ public class HomeFragment extends BaseFragment implements
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        if(!mDevice.isDisconnectBle()){
+                        if (!mDevice.isDisconnectBle()) {
                             showMessage(getString(R.string.retry_connect));
                         }
                         if (mDefaultDevice != null) {
@@ -462,6 +462,7 @@ public class HomeFragment extends BaseFragment implements
             if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
                 return;
             }
+            mDevice.setBackGroundConnect(false);
             MessageCreator.setSk(mDefaultDevice);
             refreshView(DEVICE_CONNECTING);
             Bundle bundle = new Bundle();
@@ -498,15 +499,16 @@ public class HomeFragment extends BaseFragment implements
                         refreshView(DEVICE_CONNECTING);
                         MessageCreator.setSk(mDefaultDevice);
                         Bundle dev = new Bundle();
-                        dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                        dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                        mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mCtx);
-                        mDevice.setDisconnectBle(false);
+                        if (mDefaultUser != null) {
+                            dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                            dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                            mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mCtx);
+                            mDevice.setDisconnectBle(false);
+                        }
                         break;
                     case Device.BLE_CONNECTED:
 //                        showMessage(mCtx.getString(R.string.bt_connected));
                         if (mBleManagerHelper.getBleCardService() != null) {
-                            LogUtil.d(TAG,"hashcode"+mDevice.hashCode());
                             mDevice.setDisconnectBle(true);
                             mBleManagerHelper.getBleCardService().disconnect();
                         }
@@ -661,11 +663,12 @@ public class HomeFragment extends BaseFragment implements
     }
 
     private void userHadBeenDelete(int type) {
-
         if (type == Message.TYPE_BLE_RECEIVER_CMD_0E) {
-            mBleManagerHelper.getBleCardService().disconnect();
+            if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
+                mBleManagerHelper.getBleCardService().disconnect();
             if (mAuthErrorCounter++ == 1) {
                 LogUtil.d(TAG, "用户已删除");
+                mAuthErrorCounter = 0;
                 // 删除相关数据
                 if (mDefaultDevice != null) {
                     DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);

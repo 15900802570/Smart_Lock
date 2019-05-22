@@ -89,7 +89,7 @@ public class BleCardService {
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
-            mDevStateCallback.onDisconnected();
+            disconnect();
         }
     };
 
@@ -263,7 +263,6 @@ public class BleCardService {
      * callback.
      */
     public boolean connect(Device device, String address) {
-
 
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");

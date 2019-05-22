@@ -151,7 +151,6 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
         isSuccess = true;
         FileOutputStream fos = null;
         InputStream is = null;
-        long time1 = System.currentTimeMillis() / 1000;
         try {
             URL u = new URL(url);
             URLConnection conn = u.openConnection();
@@ -192,8 +191,6 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
             }
         } catch (Exception e) {
             sendMessage(DOWNLOAD_ERROR);
-            long time2 = System.currentTimeMillis() / 1000;
-            Log.d(TAG, "time out : " + (time2 - time1));
             e.printStackTrace();
         } finally {
             try {
@@ -308,15 +305,19 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
                     // mContext.startActivity(intent1);
 
                     Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     File updateFile = new File(path);
-                    if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-                        Uri uriForFile = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".provider", updateFile);
+                    Uri apkUri;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        // 授予文件操作的临时权限,根据需求设定，一般安装只需要READ权限
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        intent.setDataAndType(uriForFile, mContext.getContentResolver().getType(uriForFile));
-                    }else{
-                        intent.setDataAndType(Uri.parse("file://" + path),
-                                "application/vnd.android.package-archive");
+                        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        // 获取配置的FileProvider的 Content Uri的值
+                        apkUri = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".getPackageName", updateFile);
+                    } else {
+                        apkUri = Uri.fromFile(updateFile);
                     }
+                    intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
                     mContext.startActivity(intent);
                     // nm.cancel(1); //关闭通知
                     System.exit(0);
@@ -421,15 +422,20 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
 
     private void showNotification() {
         Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         File file = new File(path);
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-            Uri uriForFile = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".provider", file);
+        Uri apkUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // 授予文件操作的临时权限,根据需求设定，一般安装只需要READ权限
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setDataAndType(uriForFile, mContext.getContentResolver().getType(uriForFile));
-        }else{
-            intent.setDataAndType(Uri.parse("file://" + path),
-                    "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            // 获取配置的FileProvider的 Content Uri的值
+            apkUri = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".getPackageName", file);
+        } else {
+            apkUri = Uri.fromFile(file);
         }
+        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+
 
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0,
                 intent, 0);

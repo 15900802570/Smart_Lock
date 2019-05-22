@@ -7,9 +7,12 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
+import com.smart.lock.R;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 
 import java.io.File;
@@ -215,6 +218,36 @@ public class DeviceUserDao {
             deviceUser = dao.queryBuilder().where().eq("dev_node_id", nodeId).and().eq("user_id", userId).queryForFirst();
             if (deviceUser != null) {
                 return deviceUser;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return deviceUser;
+    }
+
+    public synchronized DeviceUser queryOrCreateByNodeId(Object nodeId, short userId) {
+        DeviceUser deviceUser = null;
+        try {
+            deviceUser = dao.queryBuilder().where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).queryForFirst();
+            if (deviceUser != null) {
+                return deviceUser;
+            } else {
+                deviceUser = new DeviceUser();
+                deviceUser.setDevNodeId((String) nodeId);
+                deviceUser.setUserId(userId);
+                deviceUser.setCreateTime(System.currentTimeMillis() / 1000);
+                if (userId < 101) {
+                    deviceUser.setUserPermission(ConstantUtil.DEVICE_MASTER);
+                    deviceUser.setUserName(mContext.getString(R.string.administrator) + userId);
+                } else if (userId < 201) {
+                    deviceUser.setUserPermission(ConstantUtil.DEVICE_MEMBER);
+                    deviceUser.setUserName(mContext.getString(R.string.members) + userId);
+                } else {
+                    deviceUser.setUserPermission(ConstantUtil.DEVICE_TEMP);
+                    deviceUser.setUserName(mContext.getString(R.string.tmp_user) + userId);
+                }
+                dao.create(deviceUser);
+                deviceUser = dao.queryBuilder().where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).queryForFirst();
             }
         } catch (SQLException e) {
             e.printStackTrace();

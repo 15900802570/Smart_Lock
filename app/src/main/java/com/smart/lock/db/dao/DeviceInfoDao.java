@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -141,6 +142,24 @@ public class DeviceInfoDao {
             e.printStackTrace();
         }
         return strings;
+    }
+
+    public DeviceInfo queryOrCreateByNodeId(String value) {
+        DeviceInfo deviceInfo = null;
+        try {
+            deviceInfo = dao.queryBuilder().where().eq(NODE_ID, value).queryForFirst();
+            if (deviceInfo != null) {
+                return deviceInfo;
+            } else {
+                deviceInfo = new DeviceInfo();
+                deviceInfo.setDeviceNodeId(value);
+                dao.create(deviceInfo);
+                deviceInfo = dao.queryBuilder().where().eq(NODE_ID, value).queryForFirst();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return deviceInfo;
     }
 
     /**

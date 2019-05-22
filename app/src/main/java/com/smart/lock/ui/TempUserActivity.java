@@ -104,9 +104,9 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
-
-        mStartDate.setText(mTempUser.getLcBegin() == null ? getString(R.string._1970_01_01) : mTempUser.getLcBegin());
-        mEndDate.setText(mTempUser.getLcEnd() == null ? getString(R.string._1970_01_01) : mTempUser.getLcEnd());
+        String day = mCalendar.get(Calendar.YEAR) + "-" + (mCalendar.get(Calendar.MONTH) + 1) + "-" + mCalendar.get(Calendar.DAY_OF_MONTH);
+        mStartDate.setText(mTempUser.getLcBegin() == null ? day : mTempUser.getLcBegin());
+        mEndDate.setText(mTempUser.getLcEnd() == null ? day : mTempUser.getLcEnd());
     }
 
     @Override
@@ -143,6 +143,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, AlertDialog.THEME_HOLO_LIGHT, this,
                 mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.getDatePicker().setTag(tag);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         if (tag == TEMP_USER_START_DATE) {
             datePickerDialog.setTitle("设置起始日期");
         } else
