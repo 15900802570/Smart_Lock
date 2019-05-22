@@ -97,19 +97,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mUiListeners.remove(uiListener);
     }
 
-    /**
-     * UI 获取连接设备信息
-     *
-     * @return
-     */
-    public Device getDevice() {
-        if (mDevice == null) {
-            LogUtil.e(TAG, "Device is null,check ble is connected!");
-        }
-
-        return mDevice;
-    }
-
     @Override
     public void onConnected() {
         android.os.Message msg = new android.os.Message();
@@ -119,6 +106,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onDisconnected() {
+        LogUtil.d(TAG, "device " + mDevice.toString());
         LogUtil.i(TAG, "onDisconnected : change dev state from : " + mDevice.getState() + " to: " + Device.BLE_DISCONNECTED);
         mDevice.setState(Device.BLE_DISCONNECTED);
         MessageCreator.m128AK = null;
@@ -134,6 +122,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mHandler.sendMessage(message);
                 break;
             case Device.BLE_OTHER_CONNECT_TYPE:
+                message.what = BleMsg.STATE_DISCONNECTED;
+                mHandler.sendMessage(message);
+
                 DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
                 if (defaultDevice == null) {
                     LogUtil.e(TAG, "defaultDevice is null");
@@ -141,17 +132,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     message.what = BleMsg.STATE_DISCONNECTED;
                     mHandler.sendMessage(message);
                     return;
-                } else if (mDevInfo != null && !defaultDevice.getBleMac().equals(mDevInfo.getBleMac())) {
-                    LogUtil.e(TAG, "change default dev to connect!");
-                    halt();
-                    mDevice = Device.getInstance(mCtx);
-                    mDevice.setConnectType(Device.BLE_OTHER_CONNECT_TYPE);
-                    mDevice.setDevInfo(defaultDevice);
-                    mDevice.setState(Device.BLE_DISCONNECTED);
                 }
-                message.what = BleMsg.STATE_DISCONNECTED;
-                mHandler.sendMessage(message);
-                LogUtil.d(TAG, "hashcode" + mDevice.hashCode());
+//                } else if (mDevInfo != null && !defaultDevice.getBleMac().equals(mDevInfo.getBleMac()) && mDevice.isDisconnectBle()) {
+//                    LogUtil.e(TAG, "change default dev to connect!");
+//                    mDevice = Device.getInstance(mCtx);
+//                    mDevice.setConnectType(Device.BLE_OTHER_CONNECT_TYPE);
+//                    mDevice.setDevInfo(defaultDevice);
+//                    mDevice.setState(Device.BLE_DISCONNECTED);
+//                }
                 LogUtil.d(TAG, "mDevice.isDisconnectBle() : " + mDevice.isDisconnectBle());
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
                     return; //暂停的用户不需要重连
@@ -417,7 +405,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
         LogUtil.d(TAG, "status4 = " + status4);
         LogUtil.d(TAG, "mDevInfo.getDeviceNodeId() = " + mDevInfo.getDeviceNodeId());
-        if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
+        DeviceInfo oldDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_nodeId", mDevInfo.getDeviceNodeId());
+
+        if (oldDevice != null) {
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getDeviceNodeId(), 2));//第二字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status3, mDevInfo.getDeviceNodeId(), 3));//第三字节状态字
@@ -430,63 +420,66 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
             mDefaultUser = mDeviceUserDao.queryUser(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
+
+
+            if (mDefaultStatus != null) {
+                if ((stStatus & 1) == 1) {  //常开功能
+                    mDefaultStatus.setNormallyOpen(true);
+                } else {
+                    mDefaultStatus.setNormallyOpen(false);
+                }
+                if ((stStatus & 2) == 2) {  //语音提示
+                    mDefaultStatus.setVoicePrompt(true);
+                } else {
+                    mDefaultStatus.setVoicePrompt(false);
+                }
+                if ((stStatus & 4) == 4) {  //智能锁芯
+                    mDefaultStatus.setIntelligentLockCore(true);
+                } else {
+                    mDefaultStatus.setIntelligentLockCore(false);
+                }
+                if ((stStatus & 8) == 8) {  //防撬开关
+                    mDefaultStatus.setAntiPrizingAlarm(true);
+                } else {
+                    mDefaultStatus.setAntiPrizingAlarm(false);
+                }
+                if ((stStatus & 16) == 16) {    //组合开锁
+                    mDefaultStatus.setCombinationLock(true);
+                } else {
+                    mDefaultStatus.setCombinationLock(false);
+                }
+                if ((stStatus & 32) == 32) {    //支持M1卡
+                    mDefaultStatus.setM1Support(true);
+                } else {
+                    mDefaultStatus.setM1Support(false);
+                }
+                mDefaultStatus.setRolledBackTime(unLockTime);
+                // 获取省电时间段
+                if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
+                    mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
+                    mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
+                } else {
+                    byte[] startPowerSave = new byte[4];
+                    byte[] endPowerSave = new byte[4];
+                    System.arraycopy(powerSave, 4, startPowerSave, 0, 4);
+                    System.arraycopy(powerSave, 0, endPowerSave, 0, 4);
+                    String startTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(startPowerSave) + "000");
+                    String endTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(endPowerSave) + "000");
+                    LogUtil.d(TAG, "powerSave = " + '\n' +
+                            "startStamp = " + startTimeStr + "\n" +
+                            "endStamp = " + endTimeStr);
+                    mDefaultStatus.setPowerSavingStartTime(Integer.valueOf(startTimeStr.substring(11, 13)) * 100 + Integer.valueOf(startTimeStr.substring(14, 16)));
+                    mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
+                }
+                DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
+            }
+        }else {
+            mDevice.setState(Device.BLE_CONNECTED);
+            for (UiListener uiListener : mUiListeners) {
+                uiListener.dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
+            }
         }
 
-        if (mDefaultStatus != null) {
-            if ((stStatus & 1) == 1) {  //常开功能
-                mDefaultStatus.setNormallyOpen(true);
-            } else {
-                mDefaultStatus.setNormallyOpen(false);
-            }
-            if ((stStatus & 2) == 2) {  //语音提示
-                mDefaultStatus.setVoicePrompt(true);
-            } else {
-                mDefaultStatus.setVoicePrompt(false);
-            }
-            if ((stStatus & 4) == 4) {  //智能锁芯
-                mDefaultStatus.setIntelligentLockCore(true);
-            } else {
-                mDefaultStatus.setIntelligentLockCore(false);
-            }
-            if ((stStatus & 8) == 8) {  //防撬开关
-                mDefaultStatus.setAntiPrizingAlarm(true);
-            } else {
-                mDefaultStatus.setAntiPrizingAlarm(false);
-            }
-            if ((stStatus & 16) == 16) {    //组合开锁
-                mDefaultStatus.setCombinationLock(true);
-            } else {
-                mDefaultStatus.setCombinationLock(false);
-            }
-            if ((stStatus & 32) == 32) {    //支持M1卡
-                mDefaultStatus.setM1Support(true);
-            } else {
-                mDefaultStatus.setM1Support(false);
-            }
-            mDefaultStatus.setRolledBackTime(unLockTime);
-            // 获取省电时间段
-            if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
-                mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
-                mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
-            } else {
-                byte[] startPowerSave = new byte[4];
-                byte[] endPowerSave = new byte[4];
-                System.arraycopy(powerSave, 4, startPowerSave, 0, 4);
-                System.arraycopy(powerSave, 0, endPowerSave, 0, 4);
-                String startTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(startPowerSave) + "000");
-                String endTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(endPowerSave) + "000");
-                LogUtil.d(TAG, "powerSave = " + '\n' +
-                        "startStamp = " + startTimeStr + "\n" +
-                        "endStamp = " + endTimeStr);
-                mDefaultStatus.setPowerSavingStartTime(Integer.valueOf(startTimeStr.substring(11, 13)) * 100 + Integer.valueOf(startTimeStr.substring(14, 16)));
-                mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
-            }
-            DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
-        }
-        mDevice.setState(Device.BLE_CONNECTED);
-        for (UiListener uiListener : mUiListeners) {
-            uiListener.dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS); //注册成功回调
-        }
 
     }
 
@@ -789,7 +782,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                         LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
 
-
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
@@ -804,6 +796,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         String auth = setAuthCode(authTime);
 //                        mDevInfo.setMixUnlock(userInfo[8]);
 //                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
+                        LogUtil.d(TAG, "mDefaultUser : " + mDefaultUser.toString());
                         mDefaultUser.setAuthCode((auth.equals("0")) ? null : auth);
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);

@@ -3,6 +3,7 @@ package com.smart.lock.entity;
 import android.content.Context;
 
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -17,6 +18,7 @@ public class Device {
     public static final UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
     public static final UUID TX_CHAR_UUID = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+    private static final String TAG = "Device";
     private static Device instance;
     private Context mContext;
     public static final int BLE_CONNECTED = 20; //已连接
@@ -156,8 +158,17 @@ public class Device {
     }
 
     public void halt() {
+        LogUtil.d(TAG, "halt");
         state = BLE_DISCONNECTED;
-        instance = null;
+        battery = 0; //设备当前电量
+        userStatus = 0; //当前用户状态，1字节，0-未启用，1-启用，2-暂停
+        stStatus = 0; //设置状态字，1字节，低位第一位表示常开功能是否开启，低位第二位表示语音提示是否开启
+        unLockTime = 0; //回锁时间，1字节，5s，8s，10s
+        syncUsers = new byte[16]; //同步状态字，16字节
+        allStatus = new byte[100];//所有用户状态
+        tempSecret = new byte[4 * (mIs128Code ? 16 : 32)]; //临时秘钥储存
+        tempAuthCode = new byte[30];
+
         mDevInfo = null;
     }
 
@@ -172,6 +183,7 @@ public class Device {
                 "mContext=" + mContext +
                 ", connectType=" + connectType +
                 ", mDevInfo=" + mDevInfo +
+                ", mDisconnectBle=" + mDisconnectBle +
                 ", state=" + state +
                 ", battery=" + battery +
                 ", userStatus=" + userStatus +

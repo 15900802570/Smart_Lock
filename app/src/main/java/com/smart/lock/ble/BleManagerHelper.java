@@ -139,7 +139,8 @@ public class BleManagerHelper {
      * @return
      */
     public void connectBle(final byte type, Bundle bundle, Context context) {
-        getDevice(type, bundle, context);
+        Device dev = getDevice(type, bundle, context);
+        LogUtil.d(TAG, "dev : " + dev.toString());
         mConnectType = type;
         mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
         if (StringUtil.checkIsNull(mBleMac)) {
@@ -185,6 +186,17 @@ public class BleManagerHelper {
             return null;
         }
         mDevice = Device.getInstance(ctx);
+        LogUtil.d(TAG, "hash code 2: " + mDevice.hashCode());
+        DeviceInfo devInfo = DeviceInfoDao.getInstance(ctx).queryFirstData("device_default", true);
+        if (devInfo == null) {
+            devInfo = new DeviceInfo();
+        }
+        String mac = bundle.getString(BleMsg.KEY_BLE_MAC);
+        if (StringUtil.checkNotNull(mac) && mac.length() == 12) {
+            devInfo.setBleMac(StringUtil.getMacAdr(mac));
+        } else {
+            devInfo.setBleMac(mac);
+        }
 
         DeviceInfo devInfo = null;
 
