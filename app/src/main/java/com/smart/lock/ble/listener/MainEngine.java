@@ -137,10 +137,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 //                    mDevice.setState(Device.BLE_DISCONNECTED);
 //                }
                 LogUtil.d(TAG, "mDevice.isDisconnectBle() : " + mDevice.isDisconnectBle());
-                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()|| mDevice.isBackGroundConnect()) {
+                if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     return; //暂停的用户不需要重连
                 }
-                sendMessage(MSG_RECONNCT_BLE, null, 8);
+                sendMessage(MSG_RECONNCT_BLE, null, 8 * 1000);
                 break;
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
                 sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
@@ -162,7 +162,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public void onServicesDiscovered(int status) {
         LogUtil.i(TAG, "onServicesDiscovered : device connect type is " + mDevice.getConnectType());
         mDevice.setState(Device.BLE_CONNECTION);
-        sendMessage(MSG_REGISTER, null, 6);
+        sendMessage(MSG_REGISTER, null, 600);
     }
 
     @Override
@@ -560,11 +560,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 for (UiListener uiListener : mUiListeners) {
                     uiListener.reConnectBle(mDevice);
                 }
-                sendMessage(MSG_POLLING_BLE,null,120);
+                sendMessage(MSG_POLLING_BLE, null, 120 * 1000);
                 break;
             case MSG_RECONNCT_BLE:
                 LogUtil.i(TAG, "reconnect device");
-                if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle()|| mDevice.isBackGroundConnect()) {
+                if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     LogUtil.e(TAG, "the service or dev is null!");
                     break;
                 }
@@ -618,7 +618,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         scanQrRegister();
                         break;
                 }
-                sendMessage(BleMsg.GATT_SERVICES_DISCOVERED,null,0);
+                sendMessage(BleMsg.GATT_SERVICES_DISCOVERED, null, 0);
                 break;
             case BleMsg.STATE_DISCONNECTED:
                 for (UiListener uiListener : mUiListeners) {
@@ -728,7 +728,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                     createDeviceUser(sUserId, null, StringUtil.bytesToHexString(authCode));
 
-                    sendMessage(MSG_ADD_USER_SUCCESS,null,2);
+                    sendMessage(MSG_ADD_USER_SUCCESS, null, 2 * 1000);
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_1A:
                 case Message.TYPE_BLE_RECEIVER_CMD_1C:
@@ -852,14 +852,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         return StringUtil.bytesToHexString(authCode);
     }
 
-    private void sendMessage(int type, Bundle bundle, int time) {
+    private void sendMessage(int type, Bundle bundle, long time) {
         android.os.Message msg = new android.os.Message();
         if (bundle != null) {
             msg.setData(bundle);
         }
         msg.what = type;
         if (time != 0) {
-            mHandler.sendMessageDelayed(msg, time * 1000);
+            mHandler.sendMessageDelayed(msg, time);
         } else mHandler.sendMessage(msg);
 
     }
