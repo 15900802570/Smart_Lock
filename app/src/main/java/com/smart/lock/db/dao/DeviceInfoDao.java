@@ -67,7 +67,7 @@ public class DeviceInfoDao {
         }
     }
 
-    public void updateDeviceInfo(DeviceInfo info) {
+    public synchronized void updateDeviceInfo(DeviceInfo info) {
         try {
             dao.update(info);
 
@@ -238,6 +238,22 @@ public class DeviceInfoDao {
             e.printStackTrace();
         }
         return list;
+    }
+
+    public synchronized void setNoDefaultDev() {
+        ArrayList<DeviceInfo> list = null;
+        try {
+            list = (ArrayList<DeviceInfo>) dao.queryForAll();
+
+            if (list != null) {
+                for (DeviceInfo info :list){
+                    info.setDeviceDefault(false);
+                    updateDeviceInfo(info);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public ArrayList<DeviceInfo> queryByUser(short userId) {

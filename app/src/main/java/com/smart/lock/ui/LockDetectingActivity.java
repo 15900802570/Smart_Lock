@@ -81,7 +81,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     private Animation mRotateAnimation;
     private static final long SCAN_PERIOD = 30000; //scanning for 30 seconds
-    private boolean mScanning;
+    private boolean mScanning, mSearchAddDev = false; //搜索添加
     private BluetoothAdapter mBluetoothAdapter;//蓝牙适配器
     private BleManagerHelper mBleManagerHelper;
 
@@ -133,15 +133,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mScanLockTv.setText(R.string.disconnect_ble);
                     mRescanLl.setVisibility(View.VISIBLE);
                     mTipsLl.setVisibility(View.VISIBLE);
+                    mSearchAddDev = false;
                     break;
                 case BleMsg.REGISTER_SUCCESS:
                     DialogUtils.closeDialog(mLoadDialog);
 
-                    if (mMode == SEARCH_LOCK) {
+                    if (mMode == SEARCH_LOCK && mSearchAddDev) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_setting));
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_NO_SCAN_QR_ADD_USER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
+                    } else if (mDevice != null && mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_key));
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPE_SCAN_QR_ADD_MASTER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
@@ -155,24 +156,28 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                             mBleManagerHelper.getBleCardService().disconnect();
                         }
                     }
+                    mSearchAddDev = false;
                     break;
                 case BleMsg.TYPE_ADD_USER_SUCCESS:
                     mTitleTv.setText(R.string.add_lock_success);
                     mSearchingRl.setVisibility(View.GONE);
                     mAddLockSuccessLl.setVisibility(View.VISIBLE);
                     DialogUtils.closeDialog(mLoadDialog);
+                    mSearchAddDev = false;
                     break;
                 case BleMsg.TYPE_ADD_USER_FAILED:
                     DialogUtils.closeDialog(mLoadDialog);
                     showMessage(mCtx.getString(R.string.add_user_failed));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
+                    mSearchAddDev = false;
                     break;
                 case BleMsg.TYPE_USER_FULL:
                     DialogUtils.closeDialog(mLoadDialog);
                     showMessage(mCtx.getString(R.string.add_user_full));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
+                    mSearchAddDev = false;
                     break;
                 default:
                     break;
@@ -473,6 +478,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 android.os.Message msg = new android.os.Message();
                 msg.what = BleMsg.TYPE_ADD_USER_FAILED;
                 mHandler.sendMessage(msg);
+                break;
             case BleMsg.TYPE_USER_FULL:
                 android.os.Message msgFull = new android.os.Message();
                 msgFull.what = BleMsg.TYPE_USER_FULL;
@@ -636,11 +642,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
                     @Override
                     public void onClick(View v) {
-                        if (mScanning) {
-                            scanLeDevice(false);
-                        }
-                        mBleMac = dev.getAddress();
-                        detectDevice(dev);
+                        if (!mSearchAddDev) {
+                            if (mScanning) {
+                                scanLeDevice(false);
+                            }
+                            mSearchAddDev = true;
+                            mBleMac = dev.getAddress();
+                            detectDevice(dev);
+                        } else showMessage(getString(R.string.data_loading));
 
                     }
                 });

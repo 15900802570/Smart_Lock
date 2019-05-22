@@ -101,7 +101,7 @@ public class DialogUtils {
         window.setAttributes(lp);
         window.setWindowAnimations(R.style.PopWindowAnimStyle);
 
-//        loadingDialog.setCancelable(false);
+        loadingDialog.setCancelable(false);
 
         return loadingDialog;
     }

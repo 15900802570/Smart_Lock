@@ -301,15 +301,8 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         mNewDevice.setDeviceNodeId(mNodeId);
         mNewDevice.setNodeType(ConstantUtil.SMART_LOCK);
         mNewDevice.setDeviceDate(System.currentTimeMillis() / 1000);
-        DeviceInfo oldDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true);
-        if (oldDevice != null) {
-            try {
-                oldDevice.setDeviceDefault(false);
-                DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(oldDevice);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        DeviceInfoDao.getInstance(mActivity).setNoDefaultDev();
+
         mNewDevice.setDeviceDefault(true);
         mNewDevice.setDeviceSn("");
         mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name));

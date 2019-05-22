@@ -89,7 +89,7 @@ public class BleCardService {
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
-            disconnect();
+            mDevStateCallback.onDisconnected();
         }
     };
 
