@@ -210,7 +210,7 @@
     <string name="rolled_back_time">回锁时间</string>
     <string name="version_info">版本信息</string>
     <string name="self_check">自检修复</string>
-    <string name="ota_update">OTA升级</string>
+    <string name="ota_update">固件升级</string>
     <string name="voice_prompt">语音提示</string>
     <string name="set_up_time">设置时间</string>
     <string name="lock_log">门锁日志</string>

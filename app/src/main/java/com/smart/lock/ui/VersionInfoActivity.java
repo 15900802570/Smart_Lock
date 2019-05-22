@@ -57,6 +57,7 @@ public class VersionInfoActivity extends AppCompatActivity {
         if (mDefaultDevice.getDeviceHwVersion() != null) {
             mHardVersionTv.setText(mDefaultDevice.getDeviceHwVersion());
         }
+        mImeiTv.setVisibility(View.GONE);
 
     }
 
