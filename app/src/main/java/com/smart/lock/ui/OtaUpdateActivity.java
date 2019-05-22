@@ -5,17 +5,11 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -40,7 +34,6 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -151,9 +144,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     /**
      *
      */
-    private TextView mVersionName;
+    private TextView mCurrentVersion;
 
-    private TextView mLatestVersionName;
+    private TextView mLatestVersion;
 
     /**
      * scanning for 10 seconds
@@ -333,8 +326,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         mStartBt = findViewById(R.id.version_start);
         mDeviceSnTv = findViewById(R.id.dev_mac);
         mUpdateMsg = findViewById(R.id.update_content);
-        mVersionName = findViewById(R.id.version_name);
-        mLatestVersionName = findViewById(R.id.latest_version_name);
+        mCurrentVersion = findViewById(R.id.tv_current_version);
+        mLatestVersion = findViewById(R.id.tv_latest_version);
     }
 
     private void initEvent() {
@@ -350,6 +343,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         mPb.setProgress(100);
 
         mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
+
+        mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
+        mLatestVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
 
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -407,8 +403,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mUpdateMsg.setText(version.msg);
                 mDownloadUrl = ConstantUtil.BASE_URL + version.path;
                 Log.d(TAG, "mDownloadUrl = " + mDownloadUrl);
-                mVersionName.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
-                mLatestVersionName.setText(version.versionName);
+                mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
+                mLatestVersion.setText(version.versionName);
                 mFileName = getString(R.string.app_name) + version.versionName;
                 getPath(version.versionCode);
                 LogUtil.d(TAG, "versionName = " + version.versionName +

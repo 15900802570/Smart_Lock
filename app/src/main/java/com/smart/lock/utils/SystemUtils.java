@@ -108,6 +108,15 @@ public class SystemUtils {
         context.startActivity(intent);
     }
 
+    public static void shareText(Context context, String title, String msg){
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.setType("text/*");//设置分享内容的类型
+        intent.putExtra(Intent.EXTRA_TEXT, msg);
+        intent = Intent.createChooser(intent, title);
+        context.startActivity(intent);
+    }
+
     private static void save(Context context, Bitmap bmp, File appDir) {
         //命名文件名称
         String fileName = System.currentTimeMillis() + ".jpg";

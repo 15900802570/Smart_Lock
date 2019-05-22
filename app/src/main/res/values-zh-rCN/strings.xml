@@ -378,4 +378,5 @@
     <string name="two_or_more_unlocking_keys_must_be_set">开启组合开锁后必须设置两组及以上开锁密钥</string>
     <string name="user_pause_contact_admin">用户已被暂停,请联系管理员</string>
     <string name="ordinary_card">安全卡片和普通卡片</string>
+    <string name="set_ordinary_card_warning">普通卡片安全级别较低，存在被复制风险，请您妥善保管卡片。</string>
 </resources>

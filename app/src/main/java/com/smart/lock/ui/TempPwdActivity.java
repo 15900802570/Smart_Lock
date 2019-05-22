@@ -30,6 +30,7 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 
 import java.security.InvalidKeyException;
@@ -363,14 +364,14 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         public void onBindViewHolder(@NonNull MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final TempPwd tempPwdInfo = mTempPwdList.get(position);
             long failureTime;
-            String tempPwd;
+            final String tempPwd;
             if (tempPwdInfo != null) {
                 tempPwd = tempPwdInfo.getTempPwd();
                 failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime());
                 viewHolder.mTempPwdTv.setText(
                         tempPwd.substring(0, 3) +
                                 getResources().getString(R.string.temp_password) +
-                                tempPwd.substring(tempPwd.length() - 2)
+                                tempPwd.substring(tempPwd.length() - 3)
                 );
                 viewHolder.mTempPwdFailureTimeTv.setText(DateTimeUtil.timeStamp2Date(
                         String.valueOf(failureTime),
@@ -389,11 +390,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     viewHolder.mShare.setVisibility(View.VISIBLE);
                     mExistNum.add(tempPwdInfo.getRandomNum());
                 }
-                viewHolder.mTempPwdLl.setOnLongClickListener(new View.OnLongClickListener() {
+                viewHolder.mTempPwdLl.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public boolean onLongClick(View v) {
+                    public void onClick(View v) {
                         showPwdDialog(String.valueOf(tempPwdInfo.getTempPwd()));
-                        return true;
                     }
                 });
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
@@ -408,7 +408,8 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         mTempPwdAdapter.notifyDataSetChanged();
-                        Toast.makeText(TempPwdActivity.this, "还没有实现", Toast.LENGTH_SHORT).show();
+                        SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share),"*" + tempPwd);
+//                        Toast.makeText(TempPwdActivity.this, "还没有实现", Toast.LENGTH_SHORT).show();
                     }
                 });
 

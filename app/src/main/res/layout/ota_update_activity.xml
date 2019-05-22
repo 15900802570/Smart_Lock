@@ -107,7 +107,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/version_name"
+                        android:id="@+id/tv_current_version"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical|left"
@@ -138,7 +138,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/latest_version_name"
+                        android:id="@+id/tv_latest_version"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center_vertical|left"

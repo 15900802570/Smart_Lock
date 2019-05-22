@@ -28,8 +28,10 @@
         <TextView
             android:id="@+id/tips_tv"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y115dp"
+            android:layout_height="@dimen/y135dp"
             android:background="@color/white"
+            android:paddingStart="@dimen/x20dp"
+            android:paddingEnd="@dimen/x20dp"
             android:gravity="center"
             android:text="@string/tips"
             android:textSize="@dimen/d19sp" />
