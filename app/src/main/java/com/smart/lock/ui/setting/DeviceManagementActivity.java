@@ -229,8 +229,8 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                             DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
                             deviceInfo.setDeviceDefault(true);
                             DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
-                            mBleManagerHelper.getBleCardService().disconnect();
                             Device.getInstance(DeviceManagementActivity.this).exchangeConnect(deviceInfo);
+                            mBleManagerHelper.getBleCardService().disconnect();
                             LogUtil.d(TAG, "设置为默认设备");
                         }
                         mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
@@ -246,8 +246,8 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                         } else {
                             DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
                             mBleManagerHelper.deleteDefaultDev();
-                            mBleManagerHelper.getBleCardService().disconnect();
                             Device.getInstance(DeviceManagementActivity.this).halt();
+                            mBleManagerHelper.getBleCardService().disconnect();
                             mDevList.remove(position);
                             mDevManagementAdapter.notifyDataSetChanged();
 

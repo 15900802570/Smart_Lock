@@ -465,28 +465,46 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         switch (view.getId()) {
             case R.id.set_time_5s:
                 LogUtil.d(TAG, "set_time_5s");
-                mSetTime = 5;
-                mBleManagerHelper.getBleCardService().sendCmd1D((byte) 5);
+                if (mDeviceStatus.getRolledBackTime() != 5) {
+                    mSetTime = 5;
+                    mBleManagerHelper.getBleCardService().sendCmd1D((byte) 5);
+                }
                 break;
             case R.id.set_time_8s:
                 LogUtil.d(TAG, "set_time_8s");
-                mSetTime = 8;
-                mBleManagerHelper.getBleCardService().sendCmd1D((byte) 8);
+                if (mDeviceStatus.getRolledBackTime() != 8) {
+                    mSetTime = 8;
+                    mBleManagerHelper.getBleCardService().sendCmd1D((byte) 8);
+                }
                 break;
             case R.id.set_time_10s:
                 LogUtil.d(TAG, "set_time_10s");
-                mSetTime = 10;
-                mBleManagerHelper.getBleCardService().sendCmd1D((byte) 10);
+                if (mDeviceStatus.getRolledBackTime() != 10) {
+                    mSetTime = 10;
+                    mBleManagerHelper.getBleCardService().sendCmd1D((byte) 10);
+                }
                 break;
             case R.id.set_support_ordinary_card:
                 LogUtil.d(TAG, "set_ordinary_card");
-                mTempSetSupportCards = true;
-                mBleManagerHelper.getBleCardService().sendCmd19((byte) 16);
+                if (!mSetSupportOrdinaryCards) {
+                    final Dialog mSetOrdinaryCardDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(this, getString(R.string.set_ordinary_card_warning));
+                    mSetOrdinaryCardDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mTempSetSupportCards = true;
+                            mBleManagerHelper.getBleCardService().sendCmd19((byte) 16);
+                            DialogUtils.closeDialog(mSetOrdinaryCardDialog);
+                        }
+                    });
+                    mSetOrdinaryCardDialog.show();
+                }
                 break;
             case R.id.set_support_safety_card:
                 LogUtil.d(TAG, "set_safety_card");
-                mTempSetSupportCards = false;
-                mBleManagerHelper.getBleCardService().sendCmd19((byte) 17);
+                if (mSetSupportOrdinaryCards) {
+                    mTempSetSupportCards = false;
+                    mBleManagerHelper.getBleCardService().sendCmd19((byte) 17);
+                }
                 break;
             default:
                 break;
