@@ -304,6 +304,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
         mNewDevice.setDeviceDefault(true);
         mNewDevice.setDeviceSn("");
+        mNewDevice.setTempSecret(StringUtil.bytesToHexString(Device.getInstance(mActivity).getTempSecret()));
         mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name));
         mNewDevice.setDeviceSecret(mRandCode);
         DeviceInfoDao.getInstance(mActivity).insert(mNewDevice);
