@@ -18,6 +18,7 @@ import com.smart.lock.utils.LogUtil;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class DeviceUserDao {
     private final String TAG = DeviceUserDao.class.getSimpleName();
@@ -307,11 +308,12 @@ public class DeviceUserDao {
      * @return 获取本地用户状态字
      */
     public long getUserStatus(String nodeId, int num) {
-        long ret = 0;
-        int index = 0;
+        long ret = 0 & 0xFFFFFFFF;
+        long index = 0;
         ArrayList<Short> userIds = queryDeviceUserIds(nodeId);
-        if (userIds != null && !userIds.isEmpty()) {
+        ArrayList<Long> indexs = new ArrayList<>();
 
+        if (userIds != null && !userIds.isEmpty()) {
             for (Short userId : userIds) {
                 if (userId > 0 && userId <= 5) { //管理员编号
                     index = userId - 1;
@@ -320,12 +322,22 @@ public class DeviceUserDao {
                 } else if (userId > 200 && userId <= 300) { //临时用户
                     index = userId - 196;
                 }
-
-                if ((num - 1) * 32 <= index && index < num * 32) {
-                    ret |= 1 << index;
+                synchronized (this) {
+                    indexs.add(index);
                 }
             }
         }
+        if (!indexs.isEmpty()) {
+            Collections.sort(indexs);
+            for (long i : indexs) {
+                if ((num - 1) * 32 <= i && i < num * 32) {
+                    i = i - (num - 1) * 32;
+                    ret |= 1L << i;
+                }
+
+            }
+        }
+
         return ret;
     }
 
@@ -351,9 +363,6 @@ public class DeviceUserDao {
                 if (index >= status.length) {
                     return;
                 }
-                LogUtil.d(TAG, "status[index] = " + status[index] +
-                        "\n" +
-                        "index = " + index);
                 if (status[index] != user.getUserStatus()) {
                     user.setUserStatus(status[index]);
                     updateDeviceUser(user);
@@ -383,7 +392,6 @@ public class DeviceUserDao {
                 for (int i = (num - 1) * 32; i < 32 * num; i++) {
                     tmp = ret & (1 << i);
                     if (tmp != 0) {
-                        Log.d(TAG, "I = " + i);
                         if (i < 5) { //管理员
                             diffIds.add((short) (i + 1));
                         } else if (i < 10) {

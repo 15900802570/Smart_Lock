@@ -374,7 +374,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     }
 
     private void checkDevVersion() {
-        if(mDefaultDev!=null) {
+        if (mDefaultDev != null) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
             mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
@@ -652,7 +652,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         if (mBleManagerHelper.getBleCardService() != null) {
             iCmdIndex = 0;
             iCmdLen = gCmdBytes.length;//updateCmdBytes();
-            mTvProgress.setText(iCmdLen + " / " + iCmdIndex);
+            mPb.setProgress(mOtaParser.getProgress());
+            mTvProgress.setText(mOtaParser.getTotal() + " / " + mOtaParser.getIndex());
 
             Log.d(TAG, "WriteCommandAction!!! iCmdLen = " + iCmdLen);
             writeCommandByPosition(iCmdIndex);
@@ -662,14 +663,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     /**/
     private void writeCommandByPosition(int index) {
         Log.d(TAG, "WriteCommandByPosition!!! index = " + index);
-        mTvProgress.setText(iCmdLen + " / " + index);
+        mTvProgress.setText(mOtaParser.getTotal() + " / " + mOtaParser.getIndex());
         //if(textCmd != null && !textCmd.equals("")){
         if (gCmdBytes != null) {
             byte[] cmd = mOtaParser.getNextPacket();
-//            if (index + PAYLOAD_LEN < iCmdLen)
-//                cmd = StringUtil.getSubBytes(gCmdBytes, index, index + PAYLOAD_LEN);
-//            else
-//                cmd = StringUtil.getSubBytes(gCmdBytes, index, iCmdLen);
             mBleManagerHelper.getBleCardService().sendCmdOtaData(cmd, Message.TYPE_BLE_SEND_OTA_DATA);
         }
     }
@@ -691,20 +688,24 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         Log.d(TAG, "build DFU Cmd...........");
         // count dfu data length;
         iCmdLen = gCmdBytes.length;
-        mTvProgress.setText(iCmdLen + " - DFU CMD - " + action);
+        mTvProgress.setText(mOtaParser.getTotal() + " / " + mOtaParser.getIndex());
         LogUtil.e(TAG, "action : " + action);
         switch (action) {
             case TAG_OTA_PREPARE:
+                mConnetStatus.setText(R.string.checking_version);
                 byte[] prePareCmd = new byte[]{OTA_PREPARE & 0xFF, (byte) (OTA_PREPARE >> 8 & 0xFF)}; //泰凌微
                 mBleManagerHelper.getBleCardService().sendCmdOtaData(prePareCmd, Message.TYPE_BLE_SEND_OTA_CMD);
                 break;
             case TAG_OTA_START:
+                mConnetStatus.setText(R.string.start_update);
                 byte[] dfuCmd = new byte[]{OTA_START & 0xFF, (byte) (OTA_START >> 8 & 0xFF)}; //泰凌微
                 mConnetStatus.setText(R.string.ota_updating);
                 mBleManagerHelper.getBleCardService().sendCmdOtaData(dfuCmd, Message.TYPE_BLE_SEND_OTA_CMD);
                 bWriteDfuData = true;
                 break;
             case TAG_OTA_END:
+                mConnetStatus.setText(R.string.ota_complete);
+                mTvProgress.setText(mOtaParser.getTotal() + " / " + (mOtaParser.getIndex() + 1));
                 if (bWriteDfuData) {
                     byte[] data = new byte[8];
                     data[0] = OTA_END & 0xFF;
@@ -808,7 +809,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     mConnetStatus.setText(R.string.start_update);
                     if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
                         prepareDFU();
-                        mConnetStatus.setText(R.string.connect_ota_mode);
                     } else {
                         mBleManagerHelper.startScanDevice();
                     }
@@ -820,23 +820,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         }
     }
 
-    private void showNotification() {
-        String fixMessage = getString(R.string.fix_alert);
-
-        Notification notification = new Notification.Builder(this)
-                .setContentTitle(getString(R.string.down_alert))
-                .setContentText(fixMessage)
-                .setSmallIcon(R.mipmap.icon)
-                .build();
-        notification.defaults |= Notification.DEFAULT_SOUND; // 声音通知
-        notification.defaults |= Notification.DEFAULT_VIBRATE; // 颤动通知
-        notification.icon = R.mipmap.icon;
-        notification.tickerText = getString(R.string.app_name) + getString(R.string.down_finish);
-        notification.flags = Notification.FLAG_AUTO_CANCEL | Notification.FLAG_NO_CLEAR; // 不可清除的通知
-
-        mNotificationManager.notify(R.string.app_name, notification);
-    }
-
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
@@ -844,12 +827,12 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             case BluetoothGatt.GATT_SUCCESS:
                 LogUtil.d(TAG, "bWriteDfuData : " + bWriteDfuData);
                 if (bWriteDfuData) {
-                    mPb.setProgress(iCmdIndex * 100 / iCmdLen); // add 2017.12.22
+                    mPb.setProgress(mOtaParser.getProgress());
                     iCmdIndex += PAYLOAD_LEN;
-                    Log.d(TAG, "mGattUpdateReceiver!!! " + " prev iCmdIndex=" + iCmdIndex);
-                    if (mOtaParser.hasNextPacket())
+                    if (mOtaParser.hasNextPacket()) {
+                        mConnetStatus.setText(R.string.ota_updating);
                         writeCommandByPosition(iCmdIndex);
-                    else { // end of writing command;
+                    } else { // end of writing command;
                         iCmdIndex = iCmdLen;
                         endDFU();
                     }

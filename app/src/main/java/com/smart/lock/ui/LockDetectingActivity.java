@@ -406,15 +406,19 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 connDev.setDisconnectBle(true);
                 mBleManagerHelper.getBleCardService().disconnect();
             }
-
+            DialogUtils.closeDialog(mLoadDialog);
+            LogUtil.d(TAG, "mDevice is" + ((mDevice == null) ? true : mDevice.toString()));
+            if (mDevice != null && mDevice.getConnectType() == Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE) {
+                mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
+                mLoadDialog.show();
+            }
             if (mMode == SEARCH_LOCK) {
-                DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
                 mLoadDialog.show();
                 Bundle bundle = new Bundle();
                 bundle.putString(BleMsg.KEY_BLE_MAC, device.getAddress());
                 mDevice = mBleManagerHelper.getDevice(Device.BLE_SEARCH_DEV_CONNECT, bundle, this);
-                mBleManagerHelper.getBleCardService().connect(mDevice, device.getAddress());
+                mBleManagerHelper.getBleCardService().connect(mDevice, device.getAddress()); //搜索添加
             } else
                 mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
         }
@@ -499,6 +503,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 android.os.Message msg = new android.os.Message();
                 msg.what = BleMsg.STATE_DISCONNECTED;
                 mHandler.sendMessage(msg);
+                mSearchAddDev = false;
                 break;
             case BleMsg.STATE_CONNECTED:
 

@@ -227,8 +227,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) serializable;
                 if (user != null) {
-                    DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
+//                    DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+//                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
+//                        DialogUtils.closeDialog(mLoadDialog);
+//                        return;
+//                    }
+                    if (user.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
                         DialogUtils.closeDialog(mLoadDialog);
                         return;
                     }
@@ -374,6 +378,10 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mAdminView.getContext().getString(R.string.recovery_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_USER_FULL:
+                showMessage(mAdminView.getContext().getString(R.string.add_user_full));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:

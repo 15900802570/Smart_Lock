@@ -13,13 +13,14 @@ public class BleOtaPacketParser implements BleCommandParse {
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_SEND_OTA_CMD ;
+        return Message.TYPE_BLE_SEND_OTA_CMD;
     }
 
     @Override
     public String getTag() {
         return this.getClass().getName();
     }
+
     private int total;
     private int index = -1;
     private byte[] data;
@@ -159,10 +160,15 @@ public class BleOtaPacketParser implements BleCommandParse {
     }
 
     public int getProgress() {
+        invalidateProgress();
         return this.progress;
     }
 
-    public int getIndex(){
+    public int getIndex() {
         return this.index;
+    }
+
+    public int getTotal() {
+        return this.total;
     }
 }

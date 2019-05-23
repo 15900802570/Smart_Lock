@@ -12,5 +12,8 @@
 .idea/libraries
 .idea/caches
 
+app/build
+app/release
+
 safety/build
 safety/release

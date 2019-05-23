@@ -838,8 +838,8 @@ public class BleProvider {
 
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 
-        Log.e(TAG, "RxService = " + (RxService == null));
         if (RxService == null) {
+            Log.e(TAG, "RxService is null" );
             return false;
         }
         BluetoothGattCharacteristic RxChar = null;
@@ -849,7 +849,6 @@ public class BleProvider {
             return false;
         }
 
-        Log.d(TAG, "value = " + Arrays.toString(value));
         RxChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
         RxChar.setValue(value);
         return mBleGatt.writeCharacteristic(RxChar);

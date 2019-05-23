@@ -149,9 +149,21 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     public void refreshView() {
-
         mTempAdapter.setDataSource();
         mTempAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
+            for (DeviceUser user : list) {
+                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && user != null) {
+                    mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.unconnected_device));
+            }
+        }
     }
 
     @Override
@@ -254,8 +266,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) serializable;
                 if (user != null) {
-                    DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
+                    if (user.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
                         DialogUtils.closeDialog(mLoadDialog);
                         return;
                     }
@@ -317,8 +328,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 }
                 DeviceUser tempUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, userIdTag);
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
-                LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
-
 
                 if (userInfo != null) {
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
@@ -386,12 +395,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                             "thBegin : " + thBegin + "\n" +
                             "thEnd : " + thEnd + "\n");
                     LogUtil.d(TAG, "tempUser : " + tempUser.toString());
-
-//                    StringUtil.checkTempUserStatus(this, mTempUser);
-
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(tempUser);
-
                 }
+                refreshView();
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
 
@@ -452,6 +458,10 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mCtx.getString(R.string.recovery_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_USER_FULL:
+                showMessage(mCtx.getString(R.string.add_user_full));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
@@ -745,16 +755,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onResume() {
         super.onResume();
-        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
-        for (DeviceUser user : list) {
-            if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && user != null) {
-                mLoadDialog.show();
-                mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-            } else showMessage(getString(R.string.unconnected_device));
-        }
-
-
-        refreshView();
     }
 
     @Override

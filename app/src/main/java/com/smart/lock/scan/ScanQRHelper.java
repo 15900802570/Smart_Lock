@@ -212,7 +212,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     private void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_success));
         mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
-        mScanQRResultInterface.onAuthenticationSuccess(mNewDevice);
         mDevice.setDisconnectBle(false);
         if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
             Intent intent = new Intent(mActivity, LockScreenActivity.class);

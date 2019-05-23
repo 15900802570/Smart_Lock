@@ -67,6 +67,8 @@ public class BleCmd01Creator implements BleCreator {
 
         Arrays.fill(msgBuf, 36, 48, (byte) 0x0c);
 
+        LogUtil.d(TAG,"加密前的F1 :" + StringUtil.getBytes(msgBuf));
+
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(msgBuf, buf, MessageCreator.m128SK);
@@ -75,11 +77,13 @@ public class BleCmd01Creator implements BleCreator {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        LogUtil.d(TAG,"加密后的F1 :" + StringUtil.getBytes(buf));
 
-        LogUtil.d(TAG, "code : " + Arrays.toString(MessageCreator.m128SK));
+        LogUtil.d(TAG, "F1 SK : " + Arrays.toString(MessageCreator.m128SK));
 
         System.arraycopy(buf, 0, cmd, 5, 48);
 
+        LogUtil.d(TAG, " 随机数之前的加密数据: " + StringUtil.getBytes(cmd));
         for (int i = 0; i < MessageCreator.pwdRandom.length; i++) {
             MessageCreator.pwdRandom[i] = (byte) new Random().nextInt(10);
         }

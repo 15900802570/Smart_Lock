@@ -124,10 +124,14 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         mBleManagerHelper.addUiListener(this);
         mDevice = Device.getInstance(this);
         mCalendar = Calendar.getInstance();
-        mSecondUnlockTimeLl.setVisibility(View.GONE);
-        mThirtUnlockTimeLl.setVisibility(View.GONE);
-        mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
 
+        mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
+        if (mTempUser.getNdTsBegin() == null) {
+            mSecondUnlockTimeLl.setVisibility(View.GONE);
+        }
+        if (mTempUser.getThTsBegin() == null) {
+            mThirtUnlockTimeLl.setVisibility(View.GONE);
+        }
         mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "08:00" : mTempUser.getStTsBegin());
         mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "09:00" : mTempUser.getStTsEnd());
 
@@ -648,7 +652,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 mTempUser.setNdTsend(mSecondEndTime.getText().toString());
                 mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
                 mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
-                DeviceUserDao.getInstance(UnlockTimeActivity.this).updateDeviceUser(mTempUser);
+                DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 showMessage(getString(R.string.set_unlock_time_success));
                 break;
             case BleMsg.TYPE_NO_AUTHORITY_1E:

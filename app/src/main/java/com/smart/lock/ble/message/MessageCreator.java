@@ -154,10 +154,10 @@ public class MessageCreator {
      * 获取消息Message.TYPE_BLE_RECEIVER_CMD_12
      *
      * @param type     消息类型
-     * @param authCode   用户授权码
+     * @param authCode 用户授权码
      * @return
      */
-    public static Message getCmd12Message(byte type,byte[] authCode) {
+    public static Message getCmd12Message(byte type, byte[] authCode) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
@@ -214,7 +214,7 @@ public class MessageCreator {
         }
         if (errCode[3] == 0x2 || errCode[3] == 0x3 || errCode[3] == 0x4
                 || errCode[3] == 0x00 || errCode[3] == 0x1 || errCode[3] == 0x6
-                || errCode[3] == 0x05 || errCode[3] == 0x7) {
+                || errCode[3] == 0x05 || errCode[3] == 0x7 || errCode[3] == 0x2B) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
         } else if (errCode[3] == 0x8 || errCode[3] == 0x09 || errCode[3] == 0x0a
                 || errCode[3] == 0x0b || errCode[3] == 0x0c || errCode[3] == 0x0d

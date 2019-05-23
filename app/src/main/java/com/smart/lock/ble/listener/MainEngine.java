@@ -388,7 +388,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         System.arraycopy(syncUsers, 12, buf, 0, 4);
         long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
         LogUtil.d(TAG, "status4 = " + status4);
-        LogUtil.d(TAG, "mDevInfo.getDeviceNodeId() = " + mDevInfo.getDeviceNodeId());
 
         if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());

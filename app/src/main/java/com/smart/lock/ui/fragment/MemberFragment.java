@@ -242,8 +242,8 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) serializable;
                 if (user != null) {
-                    DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
+//                    DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
+                    if (user.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
                         DialogUtils.closeDialog(mLoadDialog);
                         return;
                     }
@@ -354,7 +354,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
                 DeviceUser deleteUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                Log.d(TAG, "deleteUser : " + deleteUser.toString());
                 DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
                 mMemberAdapter.removeItem(deleteUser);
                 if (mMemberAdapter.mDeleteUsers.size() == 0) {
@@ -389,6 +388,10 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mCtx.getString(R.string.recovery_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_USER_FULL:
+                showMessage(mCtx.getString(R.string.add_user_full));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:

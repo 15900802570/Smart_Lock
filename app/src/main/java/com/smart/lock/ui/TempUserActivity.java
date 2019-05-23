@@ -154,6 +154,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Bundle bundle = new Bundle();
+        mTempUser = DeviceUserDao.getInstance(this).queryUser(mTempUser.getDevNodeId(), mTempUser.getUserId());//更新状态
         bundle.putSerializable(BleMsg.KEY_TEMP_USER, mTempUser);
         switch (item.getItemId()) {
             case android.R.id.home:
