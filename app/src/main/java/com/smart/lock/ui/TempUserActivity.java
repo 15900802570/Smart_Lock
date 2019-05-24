@@ -143,7 +143,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, AlertDialog.THEME_HOLO_LIGHT, this,
                 mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.getDatePicker().setTag(tag);
-//        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         if (tag == TEMP_USER_START_DATE) {
             datePickerDialog.setTitle("设置起始日期");
         } else

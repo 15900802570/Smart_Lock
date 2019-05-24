@@ -28,6 +28,7 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
@@ -223,7 +224,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         Bundle extra = msg.getData();
         mDevice = device;
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (!mIsHint || serializable == null) {
+        if (!mIsHint || serializable == null || serializable instanceof DeviceKey) {
             DialogUtils.closeDialog(mLoadDialog);
             return;
         }
@@ -644,7 +645,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 StringUtil.checkTempUserStatus(mCtx, user);
             }
         }
-        mTempAdapter.notifyDataSetChanged();
+        refreshView();
     }
 
     @Override
