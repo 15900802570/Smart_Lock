@@ -143,7 +143,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, AlertDialog.THEME_HOLO_LIGHT, this,
                 mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.getDatePicker().setTag(tag);
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+//        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         if (tag == TEMP_USER_START_DATE) {
             datePickerDialog.setTitle("设置起始日期");
         } else
@@ -161,11 +161,49 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 finish();
                 break;
             case R.id.item_set_unlock_time:
-                startIntent(UnlockTimeActivity.class, bundle, -1);
+                if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
+                    try {
+                        Date now = new Date(System.currentTimeMillis());
+                        Date begin = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcBegin()));
+                        Date end = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcEnd()));
+                        boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+                        LogUtil.d(TAG, "ret : " + ret);
+
+                        if (!ret) {
+                            showMessage("请设置有效的生命周期!");
+                        } else {
+                            startIntent(UnlockTimeActivity.class, bundle, -1);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    startIntent(UnlockTimeActivity.class, bundle, -1);
+                }
                 break;
             case R.id.item_set_unlock_key:
-                bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
-                startIntent(DeviceKeyActivity.class, bundle, -1);
+
+                if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
+                    try {
+                        Date now = new Date(System.currentTimeMillis());
+                        Date begin = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcBegin()));
+                        Date end = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcEnd()));
+                        boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+                        LogUtil.d(TAG, "ret : " + ret);
+
+                        if (!ret) {
+                            showMessage("请设置有效的生命周期!");
+                        } else {
+                            bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                            startIntent(DeviceKeyActivity.class, bundle, -1);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                    startIntent(DeviceKeyActivity.class, bundle, -1);
+                }
                 break;
             default:
                 break;
@@ -283,7 +321,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }

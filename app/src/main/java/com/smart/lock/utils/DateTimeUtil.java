@@ -44,7 +44,7 @@ public class DateTimeUtil {
     /**
      * 将时间戳转换为时间
      */
-    public static String stampToMinute(String s){
+    public static String stampToMinute(String s) {
         String res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         long lt = new Long(s);
@@ -56,7 +56,7 @@ public class DateTimeUtil {
     /**
      * 将时间戳转换为时间
      */
-    public static String stampToDate(String s){
+    public static String stampToDate(String s) {
         String res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long lt = new Long(s);
@@ -68,7 +68,7 @@ public class DateTimeUtil {
     /**
      * 将时间转换为时间戳 ms
      */
-    public static long dateToStamp(String s) throws ParseException{
+    public static long dateToStamp(String s) throws ParseException {
         long res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = simpleDateFormat.parse(s);
@@ -79,7 +79,7 @@ public class DateTimeUtil {
     /**
      * 将时间转换为时间戳 ms
      */
-    public static long dateToStampTime(String s) throws ParseException{
+    public static long dateToStampTime(String s) throws ParseException {
         long res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
         Date date = simpleDateFormat.parse(s);
@@ -90,7 +90,7 @@ public class DateTimeUtil {
     /**
      * 将时间转换为时间戳 ms
      */
-    public static long dateToStampDay(String s) throws ParseException{
+    public static long dateToStampDay(String s) throws ParseException {
         long res;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = simpleDateFormat.parse(s);
@@ -185,7 +185,7 @@ public class DateTimeUtil {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        LogUtil.d(TAG,"dt1.getTime() = " + dt1.getTime() + dt2.getTime());
+        LogUtil.d(TAG, "dt1.getTime() = " + dt1.getTime() + " dt2.getTime() = " + dt2.getTime());
         if (dt1.getTime() >= dt2.getTime()) {
             isBigger = false;
         } else if (dt1.getTime() < dt2.getTime()) {

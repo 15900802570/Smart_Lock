@@ -128,7 +128,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
@@ -140,7 +139,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }

@@ -32,10 +32,14 @@ import com.smart.lock.ui.fragment.AdminFragment;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.MemberFragment;
 import com.smart.lock.ui.fragment.TempFragment;
+import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
@@ -83,6 +87,22 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void initData() {
+        mHandler = new Handler();
+        mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
+        mDevice = Device.getInstance(this);
+        mBleManagerHelper.addUiListener(this);
+
+        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
+        if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
+            ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+            for (DeviceUser user : list) {
+                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && user != null) {
+                    mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.unconnected_device));
+            }
+        }
+
         mTitleList = new ArrayList<>();
         mTitleList.add(getString(R.string.administrator));
         mTitleList.add(getString(R.string.members));
@@ -97,13 +117,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         initTabLayout();
         mUserPermissionVp.setOffscreenPageLimit(2);
         mUserPermissionVp.setNoScroll(true);
-        mHandler = new Handler();
-        mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        mBleManagerHelper = BleManagerHelper.getInstance(this);
-        mDevice = Device.getInstance(this);
-        mBleManagerHelper.addUiListener(this);
-
-        mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
     }
 
     private void initEvent() {
@@ -292,7 +305,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -301,11 +313,96 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     public void dispatchUiCallback(Message msg, Device device, int type) {
         LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
+        Bundle extra = msg.getData();
+        Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
+            DialogUtils.closeDialog(mLoadDialog);
+            return;
+        }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                short userIdTag = (short) serializable;
+                if (userIdTag <= 200 || userIdTag > 301) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+                DeviceUser tempUser = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+
+                if (userInfo != null) {
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
+                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
+
+                    tempUser.setUserStatus(userInfo[0]);
+
+                    byte[] stTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
+
+                    byte[] stTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
+
+                    byte[] ndTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
+
+                    byte[] ndTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
+
+                    byte[] thTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
+
+                    byte[] thTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
+
+                    String stBegin = StringUtil.byte2Int(stTsBegin);
+                    if (!stBegin.equals("0000")) {
+                        tempUser.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
+                    }
+
+                    String stEnd = StringUtil.byte2Int(stTsEnd);
+                    if (!stEnd.equals("0000")) {
+                        tempUser.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
+                    }
+
+                    String ndBegin = StringUtil.byte2Int(ndTsBegin);
+                    if (!ndBegin.equals("0000")) {
+                        tempUser.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
+                    }
+
+                    String ndEnd = StringUtil.byte2Int(ndTsEnd);
+                    if (!ndEnd.equals("0000")) {
+                        tempUser.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
+                    }
+
+                    String thBegin = StringUtil.byte2Int(thTsBegin);
+                    if (!thBegin.equals("0000")) {
+                        tempUser.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
+                    }
+
+                    String thEnd = StringUtil.byte2Int(thTsEnd);
+                    if (!thEnd.equals("0000")) {
+                        tempUser.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
+                    }
+
+                    LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
+                            "stEnd : " + stEnd + "\n" +
+                            "ndBegin : " + ndBegin + "\n" +
+                            "ndEnd : " + ndEnd + "\n" +
+                            "thBegin : " + thBegin + "\n" +
+                            "thEnd : " + thEnd + "\n");
+                    LogUtil.d(TAG, "tempUser : " + tempUser.toString());
+                    DeviceUserDao.getInstance(this).updateDeviceUser(tempUser);
+                }
+                DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");

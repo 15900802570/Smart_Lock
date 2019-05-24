@@ -644,6 +644,9 @@ public class HomeFragment extends BaseFragment implements
                 mBleManagerHelper.getBleCardService().disconnect();
                 showMessage(mCtx.getString(R.string.no_authority));
                 break;
+            case BleMsg.TYPE_DEVICE_BUSY:
+                showMessage(getString(R.string.device_busy));
+                break;
             // 鉴权码失败和用户不存在均视为用户已被删除
             case BleMsg.TYPE_USER_NOT_EXIST:
             case BleMsg.TYPE_AUTH_CODE_ERROR:
@@ -678,7 +681,6 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         mDevice = device;
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         switch (state) {
@@ -699,7 +701,6 @@ public class HomeFragment extends BaseFragment implements
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -714,7 +715,6 @@ public class HomeFragment extends BaseFragment implements
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
-                LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;
             default:

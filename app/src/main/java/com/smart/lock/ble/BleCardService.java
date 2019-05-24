@@ -148,11 +148,7 @@ public class BleCardService {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-
                 mHandler.removeCallbacks(mRunnable);
-                LogUtil.d(TAG, "remove mRunnable");
-                mDevStateCallback.onServicesDiscovered(status);
-
 //                for (BluetoothGattService service: gatt.getServices()){
 //                    LogUtil.d(TAG, "server uuid : " + service.getUuid().toString());
 //                    for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()){
@@ -162,7 +158,7 @@ public class BleCardService {
                 if (mBleProvider != null) {
                     mBleProvider.enableTXNotification();
                 }
-
+                mDevStateCallback.onServicesDiscovered(status);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
@@ -224,9 +220,7 @@ public class BleCardService {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
-        // For API level 18 and above, get a reference to BluetoothAdapter
-        // through
-        // BluetoothManager.
+        // For API level 18 and above, get a reference to BluetoothAdapter through BluetoothManager.
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) mCtx.getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -295,8 +289,6 @@ public class BleCardService {
         // autoConnect
         // parameter to false.
         mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
-        Log.d(TAG, "mBluetoothGatt is : " + ((mBluetoothGatt == null) ? true : mBluetoothGatt.hashCode()));
-
         if (null != mBluetoothGatt) {
             mEngine.registerDevice(device);
             mBleProvider = new BleProvider(true, mBluetoothGatt);
@@ -319,12 +311,16 @@ public class BleCardService {
      * callback.
      */
     public void disconnect() {
-        if (mBluetoothAdapter == null || mBluetoothGatt == null) {
+        if (mBluetoothAdapter == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        LogUtil.d(TAG, "service disconnect!");
-        mBluetoothGatt.disconnect();
+
+        if (mBluetoothGatt != null) {
+            LogUtil.d(TAG, "service disconnect!");
+            mBluetoothGatt.disconnect();
+        }
+
     }
 
     public MainEngine getMainEngine() {

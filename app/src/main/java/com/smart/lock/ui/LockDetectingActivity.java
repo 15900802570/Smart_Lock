@@ -497,7 +497,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
         mDetectingDevice = device.getDevInfo();
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 android.os.Message msg = new android.os.Message();
@@ -515,7 +514,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 }
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }

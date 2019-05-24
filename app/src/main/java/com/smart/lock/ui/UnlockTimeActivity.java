@@ -126,12 +126,16 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         mCalendar = Calendar.getInstance();
 
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
+        if (mTempUser.getStTsBegin() == null) {
+            mFirstUnlockTimeLl.setVisibility(View.GONE);
+        }
         if (mTempUser.getNdTsBegin() == null) {
             mSecondUnlockTimeLl.setVisibility(View.GONE);
         }
         if (mTempUser.getThTsBegin() == null) {
             mThirtUnlockTimeLl.setVisibility(View.GONE);
         }
+        LogUtil.d(TAG, "mTempUser = " + mTempUser.toString());
         mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "08:00" : mTempUser.getStTsBegin());
         mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "09:00" : mTempUser.getStTsEnd());
 
@@ -548,15 +552,22 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 break;
 
             case R.id.tv_add_unlock_time:
+                mTempUser = DeviceUserDao.getInstance(this).queryUser(mTempUser.getDevNodeId(), mTempUser.getUserId());//更新状态
                 if (mFirstUnlockTimeLl.getVisibility() == View.GONE) {
+                    mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "08:00" : mTempUser.getStTsBegin());
+                    mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "09:00" : mTempUser.getStTsEnd());
                     mFirstUnlockTimeLl.setVisibility(View.VISIBLE);
                     return;
                 }
                 if (mSecondUnlockTimeLl.getVisibility() == View.GONE) {
+                    mSecondStartTime.setText(mTempUser.getNdTsBegin() == null ? "11:00" : mTempUser.getNdTsBegin());
+                    mSecondEndTime.setText(mTempUser.getNdTsend() == null ? "12:00" : mTempUser.getNdTsend());
                     mSecondUnlockTimeLl.setVisibility(View.VISIBLE);
                     return;
                 }
                 if (mThirtUnlockTimeLl.getVisibility() == View.GONE) {
+                    mThirdStartTime.setText(mTempUser.getThTsBegin() == null ? "17:00" : mTempUser.getThTsBegin());
+                    mThirtEndTime.setText(mTempUser.getThTsEnd() == null ? "18:00" : mTempUser.getThTsEnd());
                     mThirtUnlockTimeLl.setVisibility(View.VISIBLE);
                     return;
                 }
@@ -587,7 +598,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -646,12 +656,28 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS:
-                mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
-                mTempUser.setStTsEnd(mFirstEndTime.getText().toString());
-                mTempUser.setNdTsBegin(mSecondStartTime.getText().toString());
-                mTempUser.setNdTsend(mSecondEndTime.getText().toString());
-                mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
-                mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
+                if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE) {
+                    mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
+                    mTempUser.setStTsEnd(mFirstEndTime.getText().toString());
+                } else {
+                    mTempUser.setStTsBegin(null);
+                    mTempUser.setStTsEnd(null);
+                }
+                if (mSecondUnlockTimeLl.getVisibility() == View.VISIBLE) {
+                    mTempUser.setNdTsBegin(mSecondStartTime.getText().toString());
+                    mTempUser.setNdTsend(mSecondEndTime.getText().toString());
+                } else {
+                    mTempUser.setNdTsBegin(null);
+                    mTempUser.setNdTsend(null);
+                }
+                if (mThirtUnlockTimeLl.getVisibility() == View.VISIBLE) {
+                    mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
+                    mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
+                } else {
+                    mTempUser.setThTsBegin(null);
+                    mTempUser.setThTsEnd(null);
+                }
+
                 DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 showMessage(getString(R.string.set_unlock_time_success));
                 break;

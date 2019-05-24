@@ -187,7 +187,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -222,6 +221,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 deviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
                 DeviceKeyDao.getInstance(this).insert(deviceKey);
                 if (mTempUser != null) {
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 }
                 showMessage(getString(R.string.set_pwd_success));

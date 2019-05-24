@@ -855,7 +855,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 }
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }

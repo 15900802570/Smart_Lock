@@ -135,13 +135,11 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void onHiddenChanged(boolean hidden) {
-        LogUtil.d(TAG, "hidden = " + hidden);
         super.onHiddenChanged(hidden);
     }
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
@@ -153,7 +151,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -180,9 +177,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 }
 
                 final byte[] lockId = extra.getByteArray(BleMsg.KEY_LOCK_ID);
-                LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 String mLockId = String.valueOf(lockId[0]);
-                LogUtil.d(TAG, "lockId = " + mLockId);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
@@ -192,6 +187,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
                 if (mTempUser != null) {
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
 

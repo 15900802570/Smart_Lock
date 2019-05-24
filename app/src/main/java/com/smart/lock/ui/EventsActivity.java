@@ -232,7 +232,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }

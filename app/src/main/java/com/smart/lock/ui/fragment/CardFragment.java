@@ -124,7 +124,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
@@ -136,7 +135,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -175,6 +173,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
                 if (mTempUser != null) {
+                    mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
                 mCardAdapter.addItem(deviceKey);

@@ -334,7 +334,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 if (mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT) {
@@ -343,7 +342,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 }
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }

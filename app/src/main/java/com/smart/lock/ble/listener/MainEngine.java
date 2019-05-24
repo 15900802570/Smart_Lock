@@ -599,25 +599,30 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
 
             case MSG_REGISTER:
+                boolean isConnect = false;
                 switch (mDevice.getConnectType()) {
                     case Device.BLE_SCAN_QR_CONNECT_TYPE:
-                        scanQrRegister();
+                        isConnect = scanQrRegister();
                         break;
                     case Device.BLE_OTHER_CONNECT_TYPE:
                     case Device.BLE_SCAN_AUTH_CODE_CONNECT:
-                        otherRegister();
+                        isConnect = otherRegister();
                         break;
                     case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
-                        setInfoRegister();
+                        isConnect = setInfoRegister();
                         break;
                     case Device.BLE_SEARCH_DEV_CONNECT:
-                        searchRegister();
+                        isConnect = searchRegister();
                         break;
                     default:
-                        scanQrRegister();
+                        isConnect = scanQrRegister();
                         break;
                 }
-                sendMessage(BleMsg.GATT_SERVICES_DISCOVERED, null, 0);
+                if (isConnect) {
+                    sendMessage(BleMsg.GATT_SERVICES_DISCOVERED, null, 0);
+                } else {
+                    if (mService != null) mService.disconnect();
+                }
                 break;
             case BleMsg.STATE_DISCONNECTED:
                 for (UiListener uiListener : mUiListeners) {

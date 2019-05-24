@@ -97,7 +97,6 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     @SuppressLint("SetTextI18n")
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.d(TAG, "dispatchUiCallback");
         Bundle extra = msg.getData();
 
         switch (msg.getType()) {

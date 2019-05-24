@@ -1,12 +1,8 @@
 package com.smart.lock.ui.fragment;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,7 +20,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
-import com.j256.ormlite.dao.Dao;
 import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
@@ -33,7 +28,6 @@ import com.smart.lock.ble.listener.UiListener;
 
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
@@ -49,8 +43,10 @@ import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 public class TempFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = TempFragment.class.getSimpleName();
@@ -66,29 +62,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     private TextView mDeleteTv;
     private Context mCtx;
     private Device mDevice;
-//    /**
-//     * 定义一个内容观察者
-//     */
-//    private Dao.DaoObserver mOb = new Dao.DaoObserver() {
-//        @Override
-//        public void onChange() {
-//            mHandler.sendEmptyMessage(0);
-//        }
-//    };
-
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case 0:
-                    refreshView();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    private Boolean mIsHint = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,14 +130,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
-            for (DeviceUser user : list) {
-                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && user != null) {
-                    mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                } else showMessage(getString(R.string.unconnected_device));
-            }
-        }
+        mIsHint = isVisibleToUser;
+        LogUtil.d(TAG, "mIsHint : " + mIsHint);
     }
 
     @Override
@@ -232,11 +200,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         });
     }
 
-
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
@@ -248,39 +214,27 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         mDevice = device;
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
+        if (!mIsHint || serializable == null) {
+            DialogUtils.closeDialog(mLoadDialog);
             return;
         }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) serializable;
-                if (user != null) {
-                    if (user.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        return;
-                    }
-                } else return;
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], user);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_12:
-                DeviceUser addUser = (DeviceUser) serializable;
-                if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_TEMP) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
                 authBuf[0] = 0x03;
@@ -309,10 +263,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 }
 
                 String path = createQRcodeImage(buf, ConstantUtil.DEVICE_TEMP);
-                Log.d(TAG, "path = " + path);
                 if (path != null) {
                     DeviceUser deviceUser = createDeviceUser(userId, path, StringUtil.bytesToHexString(authCode));
-
                     if (deviceUser != null) {
                         mTempAdapter.addItem(deviceUser);
                         DialogUtils.closeDialog(mLoadDialog);
@@ -320,89 +272,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 }
 
                 break;
-            case Message.TYPE_BLE_RECEIVER_CMD_26:
-                short userIdTag = (short) serializable;
-                if (userIdTag <= 200 || userIdTag > 301) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
-                DeviceUser tempUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, userIdTag);
-                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
-
-                if (userInfo != null) {
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
-
-                    tempUser.setUserStatus(userInfo[0]);
-
-                    byte[] stTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
-
-                    byte[] stTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
-
-                    byte[] ndTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
-
-                    byte[] ndTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
-
-                    byte[] thTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
-
-                    byte[] thTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
-
-                    String stBegin = StringUtil.byte2Int(stTsBegin);
-                    if (!stBegin.equals("0000")) {
-                        tempUser.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
-                    }
-
-                    String stEnd = StringUtil.byte2Int(stTsEnd);
-                    if (!stEnd.equals("0000")) {
-                        tempUser.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
-                    }
-
-                    String ndBegin = StringUtil.byte2Int(ndTsBegin);
-                    if (!ndBegin.equals("0000")) {
-                        tempUser.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
-                    }
-
-                    String ndEnd = StringUtil.byte2Int(ndTsEnd);
-                    if (!ndEnd.equals("0000")) {
-                        tempUser.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
-                    }
-
-                    String thBegin = StringUtil.byte2Int(thTsBegin);
-                    if (!thBegin.equals("0000")) {
-                        tempUser.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
-                    }
-
-                    String thEnd = StringUtil.byte2Int(thTsEnd);
-                    if (!thEnd.equals("0000")) {
-                        tempUser.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
-                    }
-
-                    LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
-                            "stEnd : " + stEnd + "\n" +
-                            "ndBegin : " + ndBegin + "\n" +
-                            "ndEnd : " + ndEnd + "\n" +
-                            "thBegin : " + thBegin + "\n" +
-                            "thEnd : " + thEnd + "\n");
-                    LogUtil.d(TAG, "tempUser : " + tempUser.toString());
-                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(tempUser);
-                }
-                refreshView();
-                DialogUtils.closeDialog(mLoadDialog);
-                break;
 
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -421,12 +292,11 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
-                showMessage(mCtx.getString(R.string.delete_user_success));
                 DeviceUser deleteUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                Log.d(TAG, "deleteUser : " + deleteUser.toString());
                 DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
                 mTempAdapter.removeItem(deleteUser);
                 if (mTempAdapter.mDeleteUsers.size() == 0) {
+                    showMessage(mCtx.getString(R.string.delete_user_success));
                     DialogUtils.closeDialog(mLoadDialog);
                 } else return;
                 break;
@@ -670,17 +540,31 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     @Override
                     public void onClick(View v) {
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
-//                            int tempStatus = StringUtil.checkTempUserStatus(mContext, userInfo);
-//                            LogUtil.d(TAG, "tempStatus : " + tempStatus);
-//
-//                            if (tempStatus == ConstantUtil.USER_PAUSE) {
-//                                showMessage("请修改有效生命周期或开锁时间段");
-//                                notifyItemChanged(position);
-//                                return;
-//                            }
-                            DialogUtils.closeDialog(mLoadDialog);
-                            mLoadDialog.show();
-                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                            if (userInfo.getLcBegin() != null && userInfo.getLcEnd() != null) {
+                                try {
+                                    Date now = new Date(System.currentTimeMillis());
+                                    Date begin = new Date(DateTimeUtil.dateToStampDay(userInfo.getLcBegin()));
+                                    Date end = new Date(DateTimeUtil.dateToStampDay(userInfo.getLcEnd()));
+                                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+                                    LogUtil.d(TAG, "ret : " + ret);
+
+                                    if (!ret) {
+                                        showMessage("请设置有效的生命周期后恢复!");
+                                        notifyItemChanged(position);
+                                    } else {
+                                        DialogUtils.closeDialog(mLoadDialog);
+                                        mLoadDialog.show();
+                                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                                    }
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                DialogUtils.closeDialog(mLoadDialog);
+                                mLoadDialog.show();
+                                mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                            }
+
                         } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
@@ -701,7 +585,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
                     @Override
                     public void onClick(View v) {
-                        LogUtil.d(TAG, "userInfo = " + userInfo.toString());
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
                         startIntent(TempUserActivity.class, bundle);
@@ -748,13 +631,20 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 mUserContent = itemView.findViewById(R.id.ll_content);
             }
 
-
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        LogUtil.d(TAG, "mIsHint : " + mIsHint + " onResume");
+        if (mIsHint) {
+            ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
+            for (DeviceUser user : list) {
+                StringUtil.checkTempUserStatus(mCtx, user);
+            }
+        }
+        mTempAdapter.notifyDataSetChanged();
     }
 
     @Override

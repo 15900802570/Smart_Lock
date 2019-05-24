@@ -62,6 +62,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
     private TextView mTipTv;
     private TextView mDeleteTv;
     private Device mDevice;
+    private Boolean mIsHint = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,8 +197,14 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        mIsHint = isVisibleToUser;
+        super.setUserVisibleHint(isVisibleToUser);
+
+    }
+
+    @Override
     public void deviceStateChange(Device device, int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
@@ -209,7 +216,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
     }
@@ -220,33 +226,18 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
+        if (!mIsHint || serializable == null) {
+            DialogUtils.closeDialog(mLoadDialog);
             return;
         }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) serializable;
-                if (user != null) {
-//                    DeviceUser delUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-//                    if (delUser == null || delUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
-//                        DialogUtils.closeDialog(mLoadDialog);
-//                        return;
-//                    }
-                    if (user.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        return;
-                    }
-                } else return;
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], user);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_12:
-                DeviceUser addUser = (DeviceUser) serializable;
-                if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
 
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
@@ -276,7 +267,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 }
 
                 String path = createQRcodeImage(buf, ConstantUtil.DEVICE_MASTER);
-                Log.d(TAG, "path = " + path);
                 if (path != null) {
                     DeviceUser deviceUser = createDeviceUser(userId, path, StringUtil.bytesToHexString(authCode));
 
@@ -342,12 +332,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
-                showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
                 DeviceUser deleteUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
                 DeviceKeyDao.getInstance(mAdminView.getContext()).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
 
                 mAdminAdapter.removeItem(deleteUser);
                 if (mAdminAdapter.mDeleteUsers.size() == 0) {
+                    showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
                     DialogUtils.closeDialog(mLoadDialog);
                 } else return;
                 break;

@@ -63,6 +63,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
     private TextView mDeleteTv;
     private Context mCtx;
     private Device mDevice;
+    private Boolean mIsHint = false;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,7 +213,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
@@ -224,9 +224,14 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 break;
             default:
-                LogUtil.e(TAG, "state : " + state + "is can not handle");
                 break;
         }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        mIsHint = isVisibleToUser;
+        super.setUserVisibleHint(isVisibleToUser);
     }
 
     @Override
@@ -235,29 +240,18 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
+        if (!mIsHint || serializable == null) {
+            DialogUtils.closeDialog(mLoadDialog);
             return;
         }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 DeviceUser user = (DeviceUser) serializable;
-                if (user != null) {
-//                    DeviceUser delUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                    if (user.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        return;
-                    }
-                } else return;
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], user);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_12:
-                DeviceUser addUser = (DeviceUser) serializable;
-                if (addUser == null || addUser.getUserPermission() != ConstantUtil.DEVICE_MEMBER) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
                 byte[] buf = new byte[64];
                 byte[] authBuf = new byte[64];
                 authBuf[0] = 0x02;
