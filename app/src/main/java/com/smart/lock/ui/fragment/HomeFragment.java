@@ -3,6 +3,7 @@ package com.smart.lock.ui.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,9 +19,11 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -192,6 +195,7 @@ public class HomeFragment extends BaseFragment implements
         mBleConnectIv.setOnClickListener(this);
         mInstructionBtn.setOnClickListener(this);
         mDevStatusLl.setOnClickListener(this);
+        mLockNameTv.setOnClickListener(this);
         mScanQrIv.setOnClickListener((View.OnClickListener) mActivity);
     }
 
@@ -331,8 +335,6 @@ public class HomeFragment extends BaseFragment implements
                     mLockStatusTv.setText(R.string.bt_connect_success);
                     mBleConnectIv.setClickable(false);
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
-                    if (mDefaultDevice != null)
-                        mLockNameTv.setText(mDefaultDevice.getDeviceName());
                     mBattery = mDevice.getBattery();
                     refreshBattery(mBattery);
                 } else {
@@ -353,6 +355,7 @@ public class HomeFragment extends BaseFragment implements
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
                     mAdapter.setImageIds(mImageIdsNor);
+                    mLockNameTv.setText(mDefaultDevice.getDeviceName());
                     mAdapter.notifyDataSetChanged();
                 }
                 break;
@@ -435,19 +438,25 @@ public class HomeFragment extends BaseFragment implements
     public void onResume() {
         super.onResume();
 
-        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
-        if (mDefaultDevice == null) {
+        DeviceInfo newDeviceInfo = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+
+        if (newDeviceInfo == null) {
             mDevice = null;
             refreshView(UNBIND_DEVICE);
             return;
         }
+        // 检测是否有切换默认用户，已MAC地址来判断，用于切换蓝牙连接
+        if (mDefaultDevice == null || !newDeviceInfo.getBleMac().equals(mDefaultDevice.getBleMac())) {
+            mDefaultDevice = newDeviceInfo;
+        }
         LogUtil.d(TAG, "mDefaultDevice : " + mDefaultDevice.toString());
-
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         if (mDefaultUser == null) {
             LogUtil.e(TAG, "mDefaultUser is null! ");
             return;
         }
+
+        mLockNameTv.setText(mDefaultDevice.getDeviceName());
         LogUtil.d(TAG, "default ble : " + mDefaultDevice.getBleMac());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
@@ -538,6 +547,25 @@ public class HomeFragment extends BaseFragment implements
                 else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
                     showMessage(mCtx.getString(R.string.bt_unconnected));
                 }
+            case R.id.tv_lock_name:
+                final Dialog modifyNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_name), mDefaultDevice.getDeviceName());
+                ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                modifyNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String newName = ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        if (!newName.isEmpty()) {
+                            mLockNameTv.setText(newName);
+                            mDefaultDevice.setDeviceName(newName);
+                            DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(mDefaultDevice);
+                        } else {
+                            ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
+                        }
+                        modifyNameDialog.dismiss();
+                    }
+                });
+                modifyNameDialog.show();
+                break;
             default:
                 break;
         }

@@ -184,6 +184,11 @@ public class ConstantUtil {
     public static final byte USER_REMOTE = 0x07;
 
     /**
+     * 临时密码开锁
+     */
+    public static final byte USER_TEMP_PWD = 0x08;
+
+    /**
      *
      */
     public static final int INVALID_POWER_SAVE_TIME = Integer.MAX_VALUE;

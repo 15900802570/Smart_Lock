@@ -1,10 +1,8 @@
 package com.smart.lock.ui.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -24,16 +22,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
-import com.j256.ormlite.dao.Dao;
 import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
-
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;

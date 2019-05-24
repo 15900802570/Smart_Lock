@@ -445,6 +445,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.card) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
                     viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                } else if (logInfo.getLogType() == ConstantUtil.USER_TEMP_PWD) {
+                    viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + mContext.getString(R.string.open) + devInfo.getDeviceName());
                 }
 
                 viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
