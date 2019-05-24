@@ -1,10 +1,8 @@
 package com.smart.lock.ui.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -94,8 +92,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
 
-                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
-                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                if (mActivity instanceof AdminFragment.OnFragmentInteractionListener) {
+                    ((AdminFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
 
                 break;
@@ -232,6 +230,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 //                        DialogUtils.closeDialog(mLoadDialog);
 //                        return;
 //                    }
+                    LogUtil.d(TAG, user.toString());
                     if (user.getUserPermission() != ConstantUtil.DEVICE_MASTER) {
                         DialogUtils.closeDialog(mLoadDialog);
                         return;

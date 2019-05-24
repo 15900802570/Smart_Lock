@@ -120,8 +120,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
-                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
-                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                if (mActivity instanceof TempFragment.OnFragmentInteractionListener) {
+                    ((TempFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
                 break;
             default:

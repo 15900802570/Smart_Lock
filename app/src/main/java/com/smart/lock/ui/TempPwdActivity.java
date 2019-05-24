@@ -6,11 +6,11 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,7 +64,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
 
     private RecyclerView mTempPwdListViewRv;
     private Set<Integer> mExistNum = new HashSet<>();
-    private int mRandomNum = 101; // 零时密码随机数，有效值0-99,101为无效值
+    private int mRandomNum = Integer.MAX_VALUE; // 零时密码随机数，有效值0-99,其他值无效
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +104,14 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
         mTempPwdListViewRv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         mTempPwdListViewRv.setItemAnimator(new DefaultItemAnimator());
         mTempPwdListViewRv.setAdapter(mTempPwdAdapter);
+
+        for (TempPwd tempPwd : mTempPwdAdapter.getTempPwdList()) {
+            if (System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime()) < 0) {
+                mExistNum.add(tempPwd.getRandomNum());
+            }
+        }
+        LogUtil.d(TAG, "ExistNum = " + mExistNum +
+                '\n' + "Size = " + mExistNum.size());
     }
 
     @Override
@@ -152,14 +160,14 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             }
             if (mIsOnceForTempPwd) {
                 if (mRandomNum < 10) {
-                    mSecret = "0" + mRandomNum + String.valueOf(tempSecret);
-                } else {
+                    mSecret = "0" + mRandomNum + tempSecret;
+                } else if (mRandomNum < 99) {
                     mSecret = mRandomNum + String.valueOf(tempSecret);
                 }
             } else {
                 mSecret = String.valueOf(tempSecret);
             }
-            showPwdDialog(String.valueOf(mSecret));
+            showPwdDialog(mSecret);
             LogUtil.d(TAG, "mSecret=" + mSecret);
             return true;
         }
@@ -352,6 +360,10 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
             mTempPwdList.remove(positionDelete);
         }
 
+        private ArrayList<TempPwd> getTempPwdList() {
+            return mTempPwdList;
+        }
+
         @NonNull
         @Override
         public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -393,7 +405,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_valid);
                     viewHolder.mDelete.setVisibility(View.GONE);
                     viewHolder.mShare.setVisibility(View.VISIBLE);
-                    mExistNum.add(tempPwdInfo.getRandomNum());
                 }
                 viewHolder.mTempPwdLl.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -413,7 +424,7 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                     @Override
                     public void onClick(View v) {
                         mTempPwdAdapter.notifyDataSetChanged();
-                        SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share),"*" + tempPwd);
+                        SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share), "*" + tempPwd);
 //                        Toast.makeText(TempPwdActivity.this, "还没有实现", Toast.LENGTH_SHORT).show();
                     }
                 });
