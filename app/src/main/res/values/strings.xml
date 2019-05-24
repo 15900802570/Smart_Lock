@@ -284,7 +284,7 @@
     <string name="ota_connection">Connecting OTA mode</string>
     <string name="update_version">Updated version:</string>
     <string name="current_version">Current version:</string>
-    <string name="not_regenerate_temp_pwd">There is a temporary password. Do not regenerate it.</string>
+    <string name="not_regenerate_temp_pwd">A valid temporary password can generate up to 30 groups. Please try again later.</string>
     <string name="dev_default">Default</string>
     <string name="check_app_version">Check Version</string>
     <string name="after_down">after down</string>
@@ -367,4 +367,5 @@
     <string name="plz_press_key">Keyboard confirmation</string>
     <string name="add_user_full">Add failed,user full</string>
     <string name="set_ordinary_card_warning">Ordinary cards have a lower security level and are subject to copying. Please keep your cards safe.</string>
+    <string name="edit_device_name">Modify Device\'s Name</string>
 </resources>

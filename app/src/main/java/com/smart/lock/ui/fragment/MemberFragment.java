@@ -113,6 +113,10 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
 
+                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
+                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                }
+
                 break;
             default:
                 break;

@@ -95,8 +95,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
 
-                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
-                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                if (mActivity instanceof AdminFragment.OnFragmentInteractionListener) {
+                    ((AdminFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
 
                 break;

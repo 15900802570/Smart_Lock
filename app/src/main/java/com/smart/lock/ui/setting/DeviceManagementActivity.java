@@ -231,6 +231,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                             DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
                             Device.getInstance(DeviceManagementActivity.this).exchangeConnect(deviceInfo);
                             mBleManagerHelper.getBleCardService().disconnect();
+                            Device.getInstance(DeviceManagementActivity.this).setDisconnectBle(false);
                             LogUtil.d(TAG, "设置为默认设备");
                         }
                         mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();

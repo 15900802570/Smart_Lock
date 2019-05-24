@@ -1,5 +1,6 @@
 package com.smart.lock.ui.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -25,7 +26,6 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
-
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceUser;
@@ -94,8 +94,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
                 }
-                if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
-                    ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                if (mActivity instanceof TempFragment.OnFragmentInteractionListener) {
+                    ((TempFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
                 break;
             default:
