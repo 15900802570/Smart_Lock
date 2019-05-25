@@ -476,6 +476,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public void onBindViewHolder(@NonNull final TempViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);

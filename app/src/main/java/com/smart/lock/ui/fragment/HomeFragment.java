@@ -547,6 +547,7 @@ public class HomeFragment extends BaseFragment implements
                 else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
                     showMessage(mCtx.getString(R.string.bt_unconnected));
                 }
+                break;
             case R.id.tv_lock_name:
                 final Dialog modifyNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_name), mDefaultDevice.getDeviceName());
                 ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
