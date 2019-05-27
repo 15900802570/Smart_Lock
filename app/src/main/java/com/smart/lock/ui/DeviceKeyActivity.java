@@ -23,6 +23,7 @@ import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.CardFragment;
 import com.smart.lock.ui.fragment.FingerprintFragment;
@@ -204,11 +205,10 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         if (deviceStatus.isCombinationLock()) {
             int counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();
-            if (counter < 2){
+            if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && counter < 2){
                 DialogUtils.createTipsDialogWithConfirm(this,getString(R.string.two_or_more_unlocking_keys_must_be_set)).show();
                 return;
             }
-            LogUtil.d(TAG, "Counter = " + counter);
         }
         super.onBackPressed();
         finish();
