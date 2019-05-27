@@ -193,7 +193,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
@@ -230,7 +229,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 finish();
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }

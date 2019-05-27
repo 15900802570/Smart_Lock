@@ -177,8 +177,6 @@ public class BleCardService {
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            Log.w(TAG, "onCharacteristicChanged()");
-
             if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
                 mBleProvider.onReceiveBle(characteristic.getValue());
             }

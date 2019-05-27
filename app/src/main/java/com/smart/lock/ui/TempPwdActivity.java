@@ -95,7 +95,6 @@ public class TempPwdActivity extends Activity implements View.OnClickListener {
                 mSecretList.add(tempSecret.substring(128, 192));
                 mSecretList.add(tempSecret.substring(192, 256));
             }
-            LogUtil.d(TAG, "mSecretList = " + mSecretList.toString());
         } else {
             Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
         }

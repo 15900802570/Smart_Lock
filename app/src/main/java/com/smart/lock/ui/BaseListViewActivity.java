@@ -50,8 +50,6 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
     protected String mNodeId;
     protected DeviceInfo mDefaultDevice; //默认设备
 
-    protected ClientTransaction mCt;
-
     /**
      * 蓝牙
      */
@@ -98,9 +96,7 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
      * @param seconds 秒
      */
     protected void closeDialog(final int seconds, Handler handler, Runnable runnable) {
-
         handler.removeCallbacks(runnable);
-
         handler.postDelayed(runnable, seconds * 1000);
     }
 
@@ -133,10 +129,5 @@ public class BaseListViewActivity extends AppCompatActivity implements View.OnCl
 
         intent.setClass(this, cls);
         startActivity(intent);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }

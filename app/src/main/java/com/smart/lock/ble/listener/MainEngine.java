@@ -69,15 +69,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDeviceKeyDao = DeviceKeyDao.getInstance(context);
         mService.registerDevStateCb(this); //注册设备状态回调
         mHandler = new Handler(this);
-
-//        android.os.Message msg = new android.os.Message();
-//        msg.what = MSG_POLLING_BLE;
-//        mHandler.sendMessageDelayed(msg, 120 * 1000);
     }
 
 
     public static MainEngine getInstance(Context context, BleCardService service) {
-        LogUtil.d(TAG, "instance is " + (mInstance == null));
         if (mInstance == null) {
             synchronized (MainEngine.class) {
                 if (mInstance == null) {
@@ -105,7 +100,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onDisconnected() {
-        LogUtil.d(TAG, "device " + mDevice.toString());
         LogUtil.i(TAG, "onDisconnected : change dev state from : " + mDevice.getState() + " to: " + Device.BLE_DISCONNECTED);
         mDevice.setState(Device.BLE_DISCONNECTED);
         MessageCreator.m128AK = null;
@@ -129,14 +123,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                     return;
                 }
-//                } else if (mDevInfo != null && !defaultDevice.getBleMac().equals(mDevInfo.getBleMac()) && mDevice.isDisconnectBle()) {
-//                    LogUtil.e(TAG, "change default dev to connect!");
-//                    mDevice = Device.getInstance(mCtx);
-//                    mDevice.setConnectType(Device.BLE_OTHER_CONNECT_TYPE);
-//                    mDevice.setDevInfo(defaultDevice);
-//                    mDevice.setState(Device.BLE_DISCONNECTED);
-//                }
-                LogUtil.d(TAG, "mDevice.isDisconnectBle() : " + mDevice.isDisconnectBle());
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     return; //暂停的用户不需要重连
                 }
@@ -167,8 +153,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onGattStateChanged(int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
-
         Bundle extra = new Bundle();
         extra.putInt("gatt_state", state);
         sendMessage(MSG_CHANGE_GATT_STATE, extra, 0);
@@ -264,8 +248,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             devLog.setKeyName(keyName);
         else
             devLog.setKeyName(keyName + String.valueOf(lockId[0]));
-
-        LogUtil.d(TAG, "devLog = " + devLog.toString());
 
         DeviceLogDao.getInstance(mCtx).insert(devLog);
     }

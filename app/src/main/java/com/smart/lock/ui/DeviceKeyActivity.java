@@ -200,7 +200,6 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void onBackPressed() {
-
         DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         if (deviceStatus.isCombinationLock()) {
             int counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();
@@ -208,7 +207,6 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
                 DialogUtils.createTipsDialogWithConfirm(this,getString(R.string.two_or_more_unlocking_keys_must_be_set)).show();
                 return;
             }
-            LogUtil.d(TAG, "Counter = " + counter);
         }
         super.onBackPressed();
         finish();

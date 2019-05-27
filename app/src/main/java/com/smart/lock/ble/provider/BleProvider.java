@@ -464,10 +464,8 @@ public class BleProvider {
             LogUtil.d(TAG, "command = " + StringUtil.getBytes(command));
             mPacketLength = (command[1] * 256) + ((command[2] < 0 ? (256 + command[2]) : command[2]) + 5);
 
-            Log.i(TAG, "recvResponse() new cmd length = " + mPacketLength);
-
             if (mPacketLength > INT_SESSION_BUF_MAX_LEN || mPacketLength == 0) {
-                Log.i(TAG, "recvResponse() length is to large.");
+                LogUtil.i(TAG, "recvResponse() length is to large.");
                 return;
             }
 
@@ -756,11 +754,6 @@ public class BleProvider {
         }
         mCheckTimeOut = false;
         mCt = null;
-        if (debug) {
-            Log.d(TAG, "removeBleMsgListener : " + key + " removeBleMsgListener size : "
-                    + transactionBleMsgListenerMap.size());
-        }
-
         return transactionBleMsgListenerMap.remove(key);
     }
 
