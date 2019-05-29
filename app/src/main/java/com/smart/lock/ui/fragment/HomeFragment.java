@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
@@ -58,8 +59,10 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MyGridView;
+import com.smart.lock.widget.TimePickerWithDateDefineDialog;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Objects;
 
 

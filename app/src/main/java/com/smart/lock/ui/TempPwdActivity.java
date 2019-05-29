@@ -1,13 +1,13 @@
 package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,10 +32,12 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.TimePickerWithDateDefineDialog;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -51,7 +53,7 @@ import static com.smart.lock.ble.message.MessageCreator.mIs128Code;
 import static com.smart.lock.ble.message.MessageCreator.mIsOnceForTempPwd;
 import static com.smart.lock.utils.ConstantUtil.NUMBER_100;
 
-public class TempPwdActivity extends Activity implements View.OnClickListener {
+public class TempPwdActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static String TAG = "TempPwdActivity";
 

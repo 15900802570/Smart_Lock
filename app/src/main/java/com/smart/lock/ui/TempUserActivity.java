@@ -1,24 +1,15 @@
 package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,22 +30,21 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.widget.TimePickerWithDateDefineDialog;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-public class TempUserActivity extends BaseActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, UiListener {
+public class TempUserActivity extends BaseActivity implements View.OnClickListener, UiListener, TimePickerWithDateDefineDialog.onTimeAndDatePickerListener {
     private final static String TAG = TempUserActivity.class.getSimpleName();
 
     private Toolbar mUsetSetTb;
     private TextView mTitleTv;
     private EditText mEtMome;
-    private TextView mStartDate;
-    private TextView mEndDate;
+    private TextView mStartDateTv;
+    private TextView mEndDateTv;
     private Button mConfirmBtn;
 
     private Dialog mLoadDialog;
@@ -64,6 +54,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     private static final int TEMP_USER_START_DATE = 1;
     private static final int TEMP_USER_END_DATE = 2;
+    private long mStartDate, mEndDate;
 
     /**
      * 蓝牙
@@ -89,11 +80,12 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         mUsetSetTb = findViewById(R.id.tb_temp_user_set);
         mTitleTv = findViewById(R.id.tv_title);
         mEtMome = findViewById(R.id.et_memo);
-        mStartDate = findViewById(R.id.tv_start_date);
-        mEndDate = findViewById(R.id.tv_end_date);
+        mStartDateTv = findViewById(R.id.tv_start_date);
+        mEndDateTv = findViewById(R.id.tv_end_date);
         mConfirmBtn = findViewById(R.id.btn_confirm);
     }
 
+    @SuppressLint("SetTextI18n")
     private void initData() {
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mDeviceKeyDao = DeviceKeyDao.getInstance(this);
@@ -104,9 +96,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
-        String day = mCalendar.get(Calendar.YEAR) + "-" + (mCalendar.get(Calendar.MONTH) + 1) + "-" + mCalendar.get(Calendar.DAY_OF_MONTH);
-        mStartDate.setText(mTempUser.getLcBegin() == null ? day : mTempUser.getLcBegin());
-        mEndDate.setText(mTempUser.getLcEnd() == null ? day : mTempUser.getLcEnd());
+        initDate();
     }
 
     @Override
@@ -116,8 +106,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     }
 
     private void initEvent() {
-        mStartDate.setOnClickListener(this);
-        mEndDate.setOnClickListener(this);
+        mStartDateTv.setOnClickListener(this);
+        mEndDateTv.setOnClickListener(this);
         mConfirmBtn.setOnClickListener(this);
     }
 
@@ -134,21 +124,60 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
+    @SuppressLint("SetTextI18n")
+    private void initDate() {
+        String day = mCalendar.get(Calendar.YEAR) + "-" + (mCalendar.get(Calendar.MONTH) + 1) + "-" + mCalendar.get(Calendar.DAY_OF_MONTH);
+        if (mTempUser.getLcBegin() == null) {
+            mStartDateTv.setText(day + " 00:00");
+            try {
+                mStartDate = DateTimeUtil.dateToStamp(day + " 00:00:00") / 1000;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mStartDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcBegin() + "000").substring(0, 16));
+            mStartDate = Long.valueOf(mTempUser.getLcBegin());
+        }
+        if (mTempUser.getLcEnd() == null) {
+            mEndDateTv.setText(day + " 23:59");
+            try {
+                mEndDate = DateTimeUtil.dateToStamp(day + " 23:59:00") / 1000;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            mEndDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcEnd() + "000").substring(0, 16));
+            mEndDate = Long.valueOf(mTempUser.getLcEnd());
+        }
+    }
+
     /**
      * 日期选择器
      *
      * @param tag 标签
      */
-    private void showDatePickerDialog(int tag) {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, AlertDialog.THEME_HOLO_LIGHT, this,
-                mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
-        datePickerDialog.getDatePicker().setTag(tag);
-        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+    private void showDatePickerDialog(int tag) throws ParseException {
+        TimePickerWithDateDefineDialog timePickerDialog;
+
         if (tag == TEMP_USER_START_DATE) {
-            datePickerDialog.setTitle("设置起始日期");
-        } else
-            datePickerDialog.setTitle("设置结束日期");
-        datePickerDialog.show();
+            timePickerDialog = new TimePickerWithDateDefineDialog(
+                    this,
+                    getString(R.string.set_start_time),
+                    mStartDate,
+                    0,
+                    TEMP_USER_START_DATE
+            );
+        } else {
+            timePickerDialog = new TimePickerWithDateDefineDialog(
+                    this,
+                    getString(R.string.set_end_time),
+                    mEndDate,
+                    mStartDate,
+                    TEMP_USER_END_DATE
+            );
+        }
+        timePickerDialog.show(this.getSupportFragmentManager(), "TimePicker");
+
     }
 
     @Override
@@ -162,20 +191,16 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 break;
             case R.id.item_set_unlock_time:
                 if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
-                    try {
-                        Date now = new Date(System.currentTimeMillis());
-                        Date begin = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcBegin()));
-                        Date end = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcEnd()));
-                        boolean ret = StringUtil.isEffectiveDate(now, begin, end);
-                        LogUtil.d(TAG, "ret : " + ret);
+                    Date now = new Date(System.currentTimeMillis());
+                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin()+ "000"));
+                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd()+ "000"));
+                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+                    LogUtil.d(TAG, "ret : " + ret);
 
-                        if (!ret) {
-                            showMessage("请设置有效的生命周期!");
-                        } else {
-                            startIntent(UnlockTimeActivity.class, bundle, -1);
-                        }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    if (!ret) {
+                        showMessage("请设置有效的生命周期!");
+                    } else {
+                        startIntent(UnlockTimeActivity.class, bundle, -1);
                     }
                 } else {
                     startIntent(UnlockTimeActivity.class, bundle, -1);
@@ -184,21 +209,17 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             case R.id.item_set_unlock_key:
 
                 if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
-                    try {
-                        Date now = new Date(System.currentTimeMillis());
-                        Date begin = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcBegin()));
-                        Date end = new Date(DateTimeUtil.dateToStampDay(mTempUser.getLcEnd()));
-                        boolean ret = StringUtil.isEffectiveDate(now, begin, end);
-                        LogUtil.d(TAG, "ret : " + ret);
+                    Date now = new Date(System.currentTimeMillis());
+                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
+                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd()+ "000"));
+                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+                    LogUtil.d(TAG, "ret : " + ret);
 
-                        if (!ret) {
-                            showMessage("请设置有效的生命周期!");
-                        } else {
-                            bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
-                            startIntent(DeviceKeyActivity.class, bundle, -1);
-                        }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    if (!ret) {
+                        showMessage("请设置有效的生命周期!");
+                    } else {
+                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                        startIntent(DeviceKeyActivity.class, bundle, -1);
                     }
                 } else {
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
@@ -225,30 +246,38 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_start_date:
-                showDatePickerDialog(TEMP_USER_START_DATE);
+                try {
+                    showDatePickerDialog(TEMP_USER_START_DATE);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.tv_end_date:
-                showDatePickerDialog(TEMP_USER_END_DATE);
+                try {
+                    showDatePickerDialog(TEMP_USER_END_DATE);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.btn_confirm:
                 if (StringUtil.checkIsNull(mEtMome.getText().toString())) {
                     showMessage("备注名不能为空！");
                     return;
                 }
-                if (mStartDate.getText().toString().equals(getString(R.string._1970_01_01)) || mEndDate.getText().toString().equals(getString(R.string._1970_01_01))) {
+                if (mStartDateTv.getText().toString().equals(getString(R.string._1970_01_01)) || mEndDateTv.getText().toString().equals(getString(R.string._1970_01_01))) {
                     showMessage(getString(R.string.plz_set_right_life_cycle));
                     return;
                 }
 
-                if (DateTimeUtil.isDateOneBigger(mStartDate.getText().toString(), mEndDate.getText().toString())) {
-                    if (mStartDate.getText().toString().equals(mTempUser.getLcBegin()) && mEndDate.getText().toString().equals(mTempUser.getLcEnd())){
+                if (mStartDate < mEndDate) {
+                    if (mStartDateTv.getText().toString().equals(mTempUser.getLcBegin()) && mEndDateTv.getText().toString().equals(mTempUser.getLcEnd())) {
                         showMessage(getString(R.string.life_cycle_not_changed));
                         return;
                     }
                     if (mDevice.getState() == Device.BLE_CONNECTED) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifyCycle(mStartDate.getText().toString(), mEndDate.getText().toString()));
+                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle(mStartDateTv.getText().toString(), mEndDateTv.getText().toString()));
                         if (mTempUser.getUserStatus() == ConstantUtil.USER_PAUSE) {
                             mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, mTempUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                         }
@@ -266,47 +295,22 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-    private byte[] getLifyCycle(String begin, String end) {
+    private byte[] getLifeCycle(String begin, String end) {
         byte[] lifeCycle = new byte[8];
-        SimpleDateFormat currentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String BeginStr = begin + " " + "00" + getString(R.string.colon) + "00" + ":00";
-        String endStr = end + " " + "00" + getString(R.string.colon) + "00" + ":00";
 
-        try {
-            Date beginDate = currentTime.parse(BeginStr);
-            Date EndDate = currentTime.parse(endStr);
+        int beginTime = (int) mStartDate;
+        int endTime = (int) mEndDate;
 
-            int beginTime = Long.valueOf((beginDate.getTime() / 1000)).intValue();
-            int endTime = Long.valueOf((EndDate.getTime() / 1000)).intValue();
-
-            LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
-            byte[] timeBuf = new byte[4];
-            StringUtil.int2Bytes(beginTime, timeBuf);
-            System.arraycopy(timeBuf, 0, lifeCycle, 0, 4);
-            StringUtil.int2Bytes(endTime, timeBuf);
-            System.arraycopy(timeBuf, 0, lifeCycle, 4, 4);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
+        byte[] timeBuf = new byte[4];
+        StringUtil.int2Bytes(beginTime, timeBuf);
+        System.arraycopy(timeBuf, 0, lifeCycle, 0, 4);
+        StringUtil.int2Bytes(endTime, timeBuf);
+        System.arraycopy(timeBuf, 0, lifeCycle, 4, 4);
 
         return lifeCycle;
     }
 
-    @Override
-    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        Log.d(TAG, "view.getTag() = " + view.getTag());
-        switch ((int) view.getTag()) {
-            case TEMP_USER_START_DATE:
-                mStartDate.setText(year + "-" + (month + 1) + "-" + dayOfMonth);
-                break;
-            case TEMP_USER_END_DATE:
-                mEndDate.setText(year + "-" + (month + 1) + "-" + dayOfMonth);
-                break;
-            default:
-                break;
-        }
-
-    }
 
     @Override
     protected void onDestroy() {
@@ -395,8 +399,8 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 showMessage(getString(R.string.no_authority));
                 break;
             case BleMsg.TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS:
-                mTempUser.setLcBegin(mStartDate.getText().toString());
-                mTempUser.setLcEnd(mEndDate.getText().toString());
+                mTempUser.setLcBegin(String.valueOf(mStartDate));
+                mTempUser.setLcEnd(String.valueOf(mEndDate));
                 mTempUser.setUserName(mEtMome.getText().toString().trim());
                 DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 showMessage(getString(R.string.set_life_cycle_success));
@@ -405,5 +409,26 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 break;
         }
         DialogUtils.closeDialog(mLoadDialog);
+    }
+
+    @Override
+    public void onTimeAndDatePickerClickConfirm(long timeStamp, int requestCode) {
+        String timeStr = DateTimeUtil.timeStamp2Date(String.valueOf(timeStamp), "yyyy-MM-dd HH:mm");
+        switch (requestCode) {
+            case TEMP_USER_START_DATE:
+                mStartDateTv.setText(timeStr);
+                mStartDate = timeStamp;
+                break;
+            case TEMP_USER_END_DATE:
+                mEndDateTv.setText(timeStr);
+                mEndDate = timeStamp;
+                break;
+            default:
+                break;
+        }
+
+        LogUtil.d(TAG, "startTime = " + mStartDate + '\n' +
+                "endTime = " + mEndDate);
+
     }
 }

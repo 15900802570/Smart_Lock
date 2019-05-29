@@ -1,6 +1,7 @@
 package com.smart.lock.widget;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -16,10 +17,13 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.smart.lock.R;
+import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.ToastUtil;
 
+import java.text.ParseException;
 import java.util.Objects;
 import java.util.Calendar;
 
@@ -38,28 +42,36 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
     private View mView;
 
     private String mTitleStr;
+    private Context mActivity;
 
 
     private int mYear, mMonth, mDay, mHour, mMinute, requestCode;
+    private int sYear, sMonth, sDay;
+
+    private long minTimeStamp;
 
     /**
+     * 构造函数
      *
-     * @param title title
-     * @param mYear 年
-     * @param mMonth 月
-     * @param mDay 日
-     * @param mHour 时
-     * @param mMinute 分
-     * @param requestCode 请求参数
+     * @param title        title
+     * @param timeStamp    初始时间戳
+     * @param minTimeStamp 最小时间戳，0表示没有最小时间
+     * @param requestCode  请求参数
      */
     @SuppressLint("ValidFragment")
-    public TimePickerWithDateDefineDialog(String title, int mYear, int mMonth, int mDay, int mHour, int mMinute, int requestCode) {
+    public TimePickerWithDateDefineDialog(Context context, String title, long timeStamp, long minTimeStamp, int requestCode) {
+        mActivity = context;
+        String timeStr = DateTimeUtil.timeStamp2Date(String.valueOf(timeStamp), "yyyyMMddHHmm");
         this.mTitleStr = title;
-        this.mYear = mYear;
-        this.mMonth = mMonth;
-        this.mDay = mDay;
-        this.mHour = mHour;
-        this.mMinute = mMinute;
+        this.minTimeStamp = minTimeStamp;
+        this.mYear = Integer.valueOf(timeStr.substring(0, 4));
+        this.mMonth = Integer.valueOf(timeStr.substring(4, 6));
+        this.mDay = Integer.valueOf(timeStr.substring(6, 8));
+        this.mHour = Integer.valueOf(timeStr.substring(8, 10));
+        this.mMinute = Integer.valueOf(timeStr.substring(10, 12));
+        this.sYear = mYear;
+        this.sMonth = mMonth;
+        this.sDay = mDay;
         this.requestCode = requestCode;
     }
 
@@ -118,11 +130,14 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         mYearNp.setMinValue(mCalendar.get(Calendar.YEAR));
         mYearNp.setMaxValue(2100);
         mYearNp.setValue(mCalendar.get(Calendar.YEAR));
+        mYearNp.setWrapSelectorWheel(false);
+        mYearNp.setOnValueChangedListener(mOnYearChangedListener);
 
         mMonthNp.setFormatter(formatter);
         mMonthNp.setMinValue(1);
         mMonthNp.setMaxValue(12);
         mMonthNp.setValue(mCalendar.get(Calendar.MONTH));
+        mMonthNp.setOnValueChangedListener(mOnMonthChangedListener);
 
         judgeMonth();
 
@@ -151,6 +166,8 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         mDayNp.setValue(mDay);
         mHourNp.setValue(mHour);
         mMinuteNp.setValue(mMinute);
+        judgeYear();
+        judgeMonth();
     }
 
     private void initEvent() {
@@ -165,43 +182,112 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         mConfirmBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setValue();
-                if (getActivity() instanceof onTimeAndDatePickerListener) {
-                    ((onTimeAndDatePickerListener) getActivity()).onTimeAndDatePickerClickConfirm(mYear, mMonth, mDay, mHour, mMinute, requestCode);
+                long timeStamp = getValue();
+                if (timeStamp <= minTimeStamp) {
+                    ToastUtil.show(mActivity, mActivity.getString(R.string.time_is_invalid), Toast.LENGTH_LONG);
+                } else {
+                    if (getActivity() instanceof onTimeAndDatePickerListener) {
+                        ((onTimeAndDatePickerListener) getActivity()).onTimeAndDatePickerClickConfirm(getValue(), requestCode);
+                    }
+                    dismiss();
                 }
-                dismiss();
             }
 
         });
     }
 
-    private void setValue() {
+
+    private NumberPicker.OnValueChangeListener mOnYearChangedListener = new NumberPicker.OnValueChangeListener() {
+        @Override
+        public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+            mYear = mYearNp.getValue();
+            judgeYear();
+            judgeMonth();
+        }
+    };
+    private NumberPicker.OnValueChangeListener mOnMonthChangedListener = new NumberPicker.OnValueChangeListener() {
+        @Override
+        public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+            mMonth = mMonthNp.getValue();
+            judgeMonth();
+        }
+    };
+
+    private long getValue() {
         mYear = mYearNp.getValue();
         mMonth = mMonthNp.getValue();
         mDay = mDayNp.getValue();
 
         mHour = mHourNp.getValue();
         mMinute = mMinuteNp.getValue();
+
+        String timeStr = getStr(mYear) + "-" + getStr(mMonth) + "-" + getStr(mDay) + " " +
+                getStr(mHour) + ":" + getStr(mMinute) + ":00";
+
+        try {
+            long timeStamp = DateTimeUtil.dateToStamp(timeStr);
+            return timeStamp / 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
+
 
     /**
      * 回调函数，用于获取设置的时间段，用请求参数区分不同的Dialog
      */
     public interface onTimeAndDatePickerListener {
-        void onTimeAndDatePickerClickConfirm(int mYear, int mMonth, int mDay, int mHour, int mMinute, int requestCode);
+        void onTimeAndDatePickerClickConfirm(long timeStamp, int requestCode);
     }
 
 
     private NumberPicker.Formatter formatter = new NumberPicker.Formatter() {
         @Override
         public String format(int value) {
-            String Str = String.valueOf(value);
-            if (value < 10) {
-                Str = "0" + Str;
-            }
-            return Str;
+            return getStr(value);
         }
     };
+
+    private String getStr(int value) {
+        String Str = String.valueOf(value);
+        if (value < 10) {
+            Str = "0" + Str;
+        }
+        return Str;
+    }
+
+
+    private void judgeYear() {
+        if (mMonth == 2) {
+            if (mYear % 4 == 0 && mYear % 100 != 0 || mYear % 400 == 0) {
+                if (mDayNp.getMaxValue() != 29) {
+                    mDayNp.setDisplayedValues(null);
+                    mDayNp.setMinValue(1);
+                    mDayNp.setMaxValue(29);
+                }
+            } else {
+                if (mDayNp.getMaxValue() != 28) {
+                    mDayNp.setDisplayedValues(null);
+                    mDayNp.setMinValue(1);
+                    mDayNp.setMaxValue(28);
+                }
+            }
+        }
+        if (mYear == sYear) {
+            mMonthNp.setWrapSelectorWheel(false);
+            mMonthNp.setDisplayedValues(null);
+            mMonthNp.setMinValue(sMonth);
+            mMonthNp.setMaxValue(12);
+        } else {
+            mMonthNp.setWrapSelectorWheel(true);
+            mMonthNp.setDisplayedValues(null);
+            mMonthNp.setMinValue(1);
+            mMonthNp.setMaxValue(12);
+        }
+        mMonth = mMonthNp.getValue();
+        mDay = mDayNp.getValue();
+    }
 
     private void judgeMonth() {
         if (mMonth == 2) {
@@ -237,6 +323,13 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
                         mDayNp.setMaxValue(31);
                     }
             }
+        }
+        if (mYear == sYear && mMonth == sMonth) {
+            mDayNp.setWrapSelectorWheel(false);
+            mDayNp.setMinValue(sDay);
+        } else {
+            mDayNp.setWrapSelectorWheel(true);
+            mDayNp.setMinValue(1);
         }
         mDay = mDayNp.getValue();
 

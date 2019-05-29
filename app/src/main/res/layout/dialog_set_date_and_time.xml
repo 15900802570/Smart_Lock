@@ -31,6 +31,8 @@
             android:layout_height="@dimen/x180dp"
             android:background="@color/white"
             android:gravity="center"
+            android:paddingStart="@dimen/x20dp"
+            android:paddingEnd="@dimen/x20dp"
             android:orientation="horizontal">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,6 +43,7 @@
                     android:id="@+id/year_np"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:background="@color/white">
 
                 </com.smart.lock.widget.NumberPickerView>
@@ -54,6 +57,7 @@
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/month_np"
                     android:layout_width="wrap_content"
+                    android:layout_weight="1"
                     android:layout_height="match_parent">
 
                 </com.smart.lock.widget.NumberPickerView>
@@ -66,6 +70,7 @@
                     android:textColor="@color/black"/>
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/day_np"
+                    android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent">
 
@@ -80,6 +85,7 @@
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/hour_np"
+                    android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent">
 
@@ -95,6 +101,7 @@
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/minute_np"
+                    android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent">
 

@@ -369,4 +369,7 @@
     <string name="set_ordinary_card_warning">Ordinary cards have a lower security level and are subject to copying. Please keep your cards safe.</string>
     <string name="edit_device_name">Modify Device\'s Name</string>
     <string name="life_cycle_not_changed">The life cycle has not changed!</string>
+    <string name="time_is_invalid">Input time is invalid, please re-enter.</string>
+    <string name="set_start_time">Set start date</string>
+    <string name="set_end_time">Set end date</string>
 </resources>
