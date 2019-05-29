@@ -70,19 +70,19 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/y45dp"
-        android:layout_marginStart="@dimen/x33dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/x25dp"
         android:layout_marginTop="@dimen/y23dp"
-        android:gravity="center_vertical"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_start_date"
-            android:layout_width="@dimen/x200dp"
+            android:layout_width="@dimen/x230dp"
             android:layout_height="match_parent"
             android:background="@drawable/box_corners_white"
             android:gravity="center_vertical"
-            android:paddingStart="@dimen/x11dp"
+            android:paddingStart="@dimen/x5dp"
             android:text="@string/_1970_01_01"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
@@ -90,19 +90,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/x20dp"
+            android:layout_marginStart="@dimen/x10dp"
+            android:layout_marginEnd="@dimen/x10dp"
             android:text="@string/to"
             android:textColor="@color/black"
             android:textSize="@dimen/d20sp" />
 
         <TextView
             android:id="@+id/tv_end_date"
-            android:layout_width="@dimen/x200dp"
+            android:layout_width="@dimen/x230dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="@dimen/x20dp"
             android:background="@drawable/box_corners_white"
             android:gravity="center_vertical"
-            android:paddingStart="@dimen/x11dp"
+            android:paddingStart="@dimen/x5dp"
             android:text="@string/_1970_01_01"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />

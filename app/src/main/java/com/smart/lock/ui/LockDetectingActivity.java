@@ -413,12 +413,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mLoadDialog.show();
             }
             if (mMode == SEARCH_LOCK) {
-                mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
-                mLoadDialog.show();
-                Bundle bundle = new Bundle();
-                bundle.putString(BleMsg.KEY_BLE_MAC, device.getAddress());
-                mDevice = mBleManagerHelper.getDevice(Device.BLE_SEARCH_DEV_CONNECT, bundle, this);
-                mBleManagerHelper.getBleCardService().connect(mDevice, device.getAddress()); //搜索添加
+                if (DeviceInfoDao.getInstance(this).queryByField(DeviceInfoDao.DEVICE_MAC, device.getAddress()) == null) {
+                    mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
+                    mLoadDialog.show();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(BleMsg.KEY_BLE_MAC, device.getAddress());
+                    mDevice = mBleManagerHelper.getDevice(Device.BLE_SEARCH_DEV_CONNECT, bundle, this);
+                    mBleManagerHelper.getBleCardService().connect(mDevice, device.getAddress()); //搜索添加
+                }else {
+                    ToastUtil.showLong(this, getString(R.string.device_has_been_added));
+                }
             } else
                 mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
         }

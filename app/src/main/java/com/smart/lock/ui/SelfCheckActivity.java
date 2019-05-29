@@ -18,6 +18,7 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.Arrays;
 
@@ -32,6 +33,7 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     private ImageView mNFCIv;
 
     private Button mCheckBtn;
+    private int mBleStatus;
 
     private BleManagerHelper mBleManagerHelper;
 
@@ -82,7 +84,11 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
                 finish();
                 break;
             case R.id.btn_self_check_check:
-                sendCmd19();
+                if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
+                    sendCmd19();
+                }else {
+                    ToastUtil.showLong(this,getString(R.string.ble_disconnect));
+                }
                 break;
             default:
                 break;
@@ -91,7 +97,9 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void deviceStateChange(Device device, int state) {
-
+        if (state != Device.BLE_CONNECTED) {
+            DialogUtils.closeDialog(mWaitingDialog);
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -134,11 +142,11 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
         if (mErrorCounter != 0) {
             ((TextView) findViewById(R.id.tv_self_check_tips)).setText(
                     mErrorCounter + getString(R.string.exception) + "," +
-                    (3 - mErrorCounter) + getString(R.string.one_normal));
+                            (3 - mErrorCounter) + getString(R.string.one_normal));
         } else {
             ((TextView) findViewById(R.id.tv_self_check_tips)).setText(getString(R.string.all_parts_are_working_properly));
         }
-        mWaitingDialog.cancel();
+        DialogUtils.closeDialog(mWaitingDialog);
     }
 
     @Override
