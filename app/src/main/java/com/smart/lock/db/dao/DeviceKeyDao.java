@@ -90,7 +90,7 @@ public class DeviceKeyDao {
     public void deleteUserKey(Object userId, Object nodeId) {
         ArrayList<DeviceKey> list = null;
         try {
-            list = (ArrayList<DeviceKey>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId).query();
+            list = (ArrayList<DeviceKey>) dao.queryBuilder().where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).query();
             if (list != null) {
                 for (DeviceKey bean : list) {
                     dao.delete(bean);

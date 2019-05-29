@@ -51,10 +51,6 @@ public class BleCardService {
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
 
-    private static final int STATE_DISCONNECTED = 0;
-    private static final int STATE_CONNECTING = 1;
-    private static final int STATE_CONNECTED = 2;
-
     /**
      * 蓝牙提供者
      */
@@ -170,7 +166,6 @@ public class BleCardService {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
-                    Log.d(TAG, "onCharacteristicRead() " + characteristic.getValue());
                 }
             }
         }
@@ -278,7 +273,6 @@ public class BleCardService {
         }
 
         final BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(address);
-        Log.d(TAG, "remoteDevice : " + remoteDevice.getAddress());
         if (device == null) {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
@@ -330,10 +324,7 @@ public class BleCardService {
      * resources are released properly.
      */
     public void close() {
-
-        Log.w(TAG, "mBluetoothGatt closed");
         mBluetoothDeviceAddress = null;
-        Log.w(TAG, "mBluetoothGatt : " + (mBluetoothGatt == null));
         if (mBluetoothGatt != null) {
             mBluetoothGatt.close();
             mBluetoothGatt = null;

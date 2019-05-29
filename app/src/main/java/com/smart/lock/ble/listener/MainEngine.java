@@ -690,12 +690,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     StringUtil.exchange(nodeIdBuf);
                     String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
                     String bleMac = StringUtil.bytesToHexString(bleMacBuf);
-                    LogUtil.d(TAG, "bleMac = " + bleMac);
 
                     String time = StringUtil.bytesToHexString(timeBuf);
                     String randCode = StringUtil.bytesToHexString(randCodeBuf);
                     DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
-                    LogUtil.d(TAG, "nodeId = " + nodeId);
 
                     mDevInfo.setActivitedTime(Long.parseLong(time, 16));
                     mDevInfo.setConnectType(false);
@@ -760,7 +758,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         String auth = setAuthCode(authTime);
 //                        mDevInfo.setMixUnlock(userInfo[8]);
 //                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
-                        LogUtil.d(TAG, "mDefaultUser : " + mDefaultUser.toString());
                         mDefaultUser.setAuthCode((auth.equals("0")) ? null : auth);
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);
@@ -810,7 +807,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
             nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
             StringUtil.exchange(nodeIdBuf);
-            LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
             System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
 
             byte[] bleMacBuf = new byte[6];
@@ -818,7 +814,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             if (StringUtil.checkNotNull(bleMac)) {
                 bleMacBuf = StringUtil.hexStringToBytes(bleMac.replace(":", ""));
                 System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
-                LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
             }
 
             byte[] randCodeBuf = new byte[10];
@@ -826,13 +821,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             if (StringUtil.checkNotNull(randCode)) {
                 randCodeBuf = StringUtil.hexStringToBytes(randCode);
                 System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
-                LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
             }
 
             System.arraycopy(authTime, 0, authCode, 26, 4);
-
-            LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
-
         }
 
         return StringUtil.bytesToHexString(authCode);

@@ -313,11 +313,13 @@ public class HomeFragment extends BaseFragment implements
                 mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                 refreshView(BATTER_UNKNOW);
                 if (mDefaultDevice != null) {
-                    LogUtil.d(TAG, "mDefaultDevice = " + mDefaultDevice.toString());
                     mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-                    LogUtil.d(TAG, "mDefaultUser = " + (mDefaultUser == null));
                     if (mDefaultUser != null) {
                         mNodeId = mDefaultDevice.getDeviceNodeId();
+                        if (mDefaultUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                            mMyGridView.setNumColumns(3);
+                        } else
+                            mMyGridView.setNumColumns(2);
                         mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission());
                         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                         mMyGridView.setAdapter(mLockAdapter);
@@ -351,6 +353,10 @@ public class HomeFragment extends BaseFragment implements
                 }
                 if (mDefaultDevice != null && mDefaultUser != null) {
                     mNodeId = mDefaultDevice.getDeviceNodeId();
+                    if (mDefaultUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                        mMyGridView.setNumColumns(3);
+                    } else
+                        mMyGridView.setNumColumns(2);
                     mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
@@ -368,11 +374,11 @@ public class HomeFragment extends BaseFragment implements
                 mAdapter.notifyDataSetChanged();
                 break;
             case BATTER_FULL:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_100);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
                 mEqTv.setText(R.string.battery_100);
                 break;
             case BATTER_LOW:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_10);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_10);
                 mEqTv.setText(R.string.battery_10);
                 break;
             case BATTER_UNKNOW:
@@ -380,7 +386,7 @@ public class HomeFragment extends BaseFragment implements
                 mShowTimeTv.setVisibility(View.GONE);
                 if (mDefaultDevice != null)
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
-                mEqIv.setBackgroundResource(R.mipmap.lock_manager_battery_unknow);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_gray);
                 mEqTv.setText(R.string.battery_unknow);
                 break;
             default:
@@ -401,33 +407,33 @@ public class HomeFragment extends BaseFragment implements
         mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(System.currentTimeMillis() / 1000), "MM-dd HH:mm"));
         switch (battery / 10) {
             case 0:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_10);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_10);
                 break;
             case 1:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_10);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_10);
                 break;
             case 2:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_20);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_20);
                 break;
             case 3:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_30);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_30);
                 break;
             case 4:
             case 5:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_50);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_50);
                 break;
             case 6:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_60);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_60);
                 break;
             case 7:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_70);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_70);
                 break;
             case 8:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_80);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_80);
                 break;
             case 9:
             case 10:
-                mEqIv.setBackgroundResource(R.mipmap.ic_battery_100);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
                 break;
             default:
                 refreshView(BATTER_UNKNOW);
@@ -449,7 +455,6 @@ public class HomeFragment extends BaseFragment implements
         if (mDefaultDevice == null || !newDeviceInfo.getBleMac().equals(mDefaultDevice.getBleMac())) {
             mDefaultDevice = newDeviceInfo;
         }
-        LogUtil.d(TAG, "mDefaultDevice : " + mDefaultDevice.toString());
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         if (mDefaultUser == null) {
             LogUtil.e(TAG, "mDefaultUser is null! ");
@@ -457,7 +462,6 @@ public class HomeFragment extends BaseFragment implements
         }
 
         mLockNameTv.setText(mDefaultDevice.getDeviceName());
-        LogUtil.d(TAG, "default ble : " + mDefaultDevice.getBleMac());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
             if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
@@ -483,8 +487,6 @@ public class HomeFragment extends BaseFragment implements
 
     public void onDestroy() {
         super.onDestroy();
-        LogUtil.d(TAG, "onDestroy");
-
         mBleManagerHelper.removeUiListener(this);
     }
 

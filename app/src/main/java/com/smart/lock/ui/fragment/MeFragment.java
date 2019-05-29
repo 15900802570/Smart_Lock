@@ -3,14 +3,20 @@ package com.smart.lock.ui.fragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialog;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -30,6 +36,7 @@ import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
@@ -60,7 +67,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
 
     private BottomSheetDialog mBottomSheetDialog; //头像选择
     private Dialog mEditorNameDialog;
+    private static final int REQUEST_CAPTURE = 100;
+    private static final int REQUEST_CROP_PHOTO = 102;
 
+    //调用照相机返回图片文件
+    private File tempFile;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -222,6 +233,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 break;
             case R.id.me_center_head_photo:
 //                mBottomSheetDialog.show();
+
                 break;
             case R.id.camera_shot_tv:
                 Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -244,6 +256,33 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             default:
                 break;
         }
+    }
+
+    /**
+     * 根据Uri返回文件绝对路径
+     * 兼容了file:///开头的 和 content://开头的情况
+     */
+    public static String getRealFilePathFromUri(final Context context, final Uri uri) {
+        if (null == uri) return null;
+        final String scheme = uri.getScheme();
+        String data = null;
+        if (scheme == null)
+            data = uri.getPath();
+        else if (ContentResolver.SCHEME_FILE.equals(scheme)) {
+            data = uri.getPath();
+        } else if (ContentResolver.SCHEME_CONTENT.equals(scheme)) {
+            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.ImageColumns.DATA}, null, null, null);
+            if (null != cursor) {
+                if (cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+                    if (index > -1) {
+                        data = cursor.getString(index);
+                    }
+                }
+                cursor.close();
+            }
+        }
+        return data;
     }
 
     private AlertDialog showEditDialog(final Context context, String msg) {
@@ -302,5 +341,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
     }
+
 
 }

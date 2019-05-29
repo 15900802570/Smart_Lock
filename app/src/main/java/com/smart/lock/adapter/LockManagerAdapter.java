@@ -21,10 +21,12 @@ public class LockManagerAdapter extends BaseAdapter {
     private GridView mGridView;
     private ArrayList<Integer> mIcons = new ArrayList();
     private ArrayList<Integer> mNames = new ArrayList();
+    private int mPermission;
 
-    public LockManagerAdapter(Context context, GridView gridView,int permission) {
+    public LockManagerAdapter(Context context, GridView gridView, int permission) {
         mContext = context;
         mGridView = gridView;
+        mPermission = permission;
 
         mNames.add(Integer.valueOf(R.string.password_manager));
         mIcons.add(Integer.valueOf(R.mipmap.icon_password));
@@ -38,7 +40,7 @@ public class LockManagerAdapter extends BaseAdapter {
         mNames.add(Integer.valueOf(R.string.event_manager));
         mIcons.add(Integer.valueOf(R.mipmap.icon_events));
 
-        if(permission == ConstantUtil.DEVICE_MASTER) {
+        if (permission == ConstantUtil.DEVICE_MASTER) {
             mNames.add(Integer.valueOf(R.string.token_manager));
             mIcons.add(Integer.valueOf(R.mipmap.icon_temporarypassword));
 
@@ -65,13 +67,18 @@ public class LockManagerAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewGroup.LayoutParams layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 2);
+        ViewGroup.LayoutParams layoutParams;
+        if (mPermission == ConstantUtil.DEVICE_MASTER) {
+            layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 3, mGridView.getHeight() / 2);
+        } else
+            layoutParams = new AbsListView.LayoutParams(mGridView.getWidth() / 2, mGridView.getHeight() / 2);
+
         View inflate = View.inflate(mContext, R.layout.item_lock_manager, null);
         inflate.setLayoutParams(layoutParams);
         View findViewById = inflate.findViewById(R.id.grid_item);
         ImageView imageView = inflate.findViewById(R.id.image);
-        ((TextView) inflate.findViewById(R.id.content)).setText(((Integer) mNames.get(position)).intValue());
-        imageView.setBackgroundResource(((Integer) mIcons.get(position)).intValue());
+        ((TextView) inflate.findViewById(R.id.content)).setText((mNames.get(position)).intValue());
+        imageView.setBackgroundResource((mIcons.get(position)).intValue());
         findViewById.setTag(mIcons.get(position));
         return inflate;
     }

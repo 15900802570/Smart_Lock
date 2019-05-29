@@ -45,7 +45,6 @@ public class BleCmd1AParse implements BleCommandParse {
 
         byte key = buf[0];
         byte[] status = Arrays.copyOfRange(buf, 1, 5);
-        LogUtil.d("SelfCheck",Arrays.toString(buf) );
         return MessageCreator.getCmd1AMessage(getParseKey(), key ,status);
     }
 

@@ -186,7 +186,7 @@ public class DeviceLogDao {
     public ArrayList<DeviceLog> queryUserLog(Object nodeId, Object userId) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
         try {
-            list = (ArrayList<DeviceLog>) dao.queryBuilder().orderBy("log_time", false).where().eq("node_id", nodeId).and().eq("user_id", userId).query();
+            list = (ArrayList<DeviceLog>) dao.queryBuilder().orderBy("log_time", false).where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).query();
             if (list != null) {
                 return list;
             }

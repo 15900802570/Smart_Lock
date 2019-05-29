@@ -500,12 +500,10 @@ public class BleProvider {
                         // 获取事务监听器
                         ClientTransaction ct = (ClientTransaction) removeBleMsgListener(m.getKey());
                         if (ct != null) {
-                            Log.i(TAG, "ct : " + ct.getMessage().toString());
                             Serializable serializable = ct.getMessage().getData().getSerializable(BleMsg.KEY_SERIALIZABLE);
                             // 停止定时器
                             ct.halt();
                             if (serializable != null) {
-                                LogUtil.d(TAG, "serializable = " + serializable.toString());
                                 m.getData().putSerializable(BleMsg.KEY_SERIALIZABLE, serializable);
                             } else {
                                 Log.i(TAG,
@@ -544,12 +542,6 @@ public class BleProvider {
      * @param bleMsgListener 回调监听器
      */
     private void dispatchMessage(Message msg, BleMessageListener bleMsgListener) {
-        if (debug) {
-            Log.d(TAG, "listener key : " + bleMsgListener.getListenerKey()
-                    + " transactionBleMsgListenerMap size : "
-                    + transactionBleMsgListenerMap.size());
-        }
-        LogUtil.d(TAG, "bleMsgListener instanceof ct:" + (bleMsgListener instanceof ClientTransaction));
         if (mCt != null) {
             bleMsgListener.onReceive(msg, mCt.getTimer());
         } else

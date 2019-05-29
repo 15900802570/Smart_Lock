@@ -1,6 +1,8 @@
 package com.smart.lock.ble.parser;
 
+import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -94,6 +96,25 @@ public class BleOtaPacketParser implements BleCommandParse {
         this.fillIndex(packet, index);
         int crc = this.crc16(packet);
         this.fillCrc(packet, crc);
+
+        byte[] aesBuf = new byte[16];
+        System.arraycopy(packet, 0, aesBuf, 0, 16);
+        byte[] fillBuf = new byte[4];
+        System.arraycopy(packet, 16, fillBuf, 0, 4);
+
+        byte[] buf = new byte[16];
+        try {
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(aesBuf, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Encode(aesBuf, buf, MessageCreator.m256AK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.arraycopy(buf, 0, packet, 0, 16);
+        System.arraycopy(fillBuf, 0, packet, 16, 4);
+
         LogUtil.d("ota packet ---> index : " + index + " total : " + this.total + " crc : " + crc + " content : " + StringUtil.bytesToHexString(packet, ":"));
         return packet;
     }

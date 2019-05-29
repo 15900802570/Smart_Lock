@@ -46,54 +46,7 @@ public class BaseApplication extends Application {
         mBleManagerHelper = BleManagerHelper.getInstance(mContext);
         mDevice = Device.getInstance(this);
 //        startLoop();
-//        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
-//            @Override
-//            public void onActivityCreated(Activity activity, Bundle bundle) {
-//
-//            }
-//
-//            @Override
-//            public synchronized void onActivityStarted(Activity activity) {
-//                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到前台");
-//                synchronized (mStateLock) {
-//                    if (mTimer != null && mActive) {
-//                        mActive = false;
-//                        mTimer.cancel();
-//                        mTimer = null;
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onActivityResumed(Activity activity) {
-//
-//            }
-//
-//            @Override
-//            public void onActivityPaused(Activity activity) {
-//
-//            }
-//
-//            @Override
-//            public synchronized void onActivityStopped(Activity activity) {
-//                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到后台");
-//                synchronized (mStateLock) {
-//                    if (!mActive) {
-//                        startLoop();
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
-//
-//            }
-//
-//            @Override
-//            public void onActivityDestroyed(Activity activity) {
-//
-//            }
-//        });
+        onBackGroundListener();
     }
 
     public BleManagerHelper getmBleManagerHelper() {
@@ -136,11 +89,60 @@ public class BaseApplication extends Application {
                     mDevice.setBackGroundConnect(true);
                     mBleManagerHelper.getBleCardService().disconnect();
                     mDevice.setState(Device.BLE_DISCONNECTED);
-                    LogUtil.d(TAG, "mDevice.getState() : " + mDevice.getState());
                 }
             }
         }, MLOOP_INTERVAL_SECS * 1000);
     }
 
+    private void onBackGroundListener() {
+        registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityCreated(Activity activity, Bundle bundle) {
+
+            }
+
+            @Override
+            public synchronized void onActivityStarted(Activity activity) {
+                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到前台");
+                synchronized (mStateLock) {
+                    if (mTimer != null && mActive) {
+                        mActive = false;
+                        mTimer.cancel();
+                        mTimer = null;
+                    }
+                }
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) {
+
+            }
+
+            @Override
+            public void onActivityPaused(Activity activity) {
+
+            }
+
+            @Override
+            public synchronized void onActivityStopped(Activity activity) {
+                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到后台");
+                synchronized (mStateLock) {
+                    if (!mActive) {
+                        startLoop();
+                    }
+                }
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+
+            }
+        });
+    }
 
 }
