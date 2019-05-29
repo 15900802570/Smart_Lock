@@ -368,4 +368,5 @@
     <string name="add_user_full">Add failed,user full</string>
     <string name="set_ordinary_card_warning">Ordinary cards have a lower security level and are subject to copying. Please keep your cards safe.</string>
     <string name="edit_device_name">Modify Device\'s Name</string>
+    <string name="life_cycle_not_changed">The life cycle has not changed!</string>
 </resources>

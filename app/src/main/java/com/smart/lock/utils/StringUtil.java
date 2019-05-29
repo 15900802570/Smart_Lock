@@ -552,25 +552,27 @@ public class StringUtil {
     public static int checkTempUserStatus(Context context, DeviceUser tempUser) {
         ArrayList<DeviceKey> keys = DeviceKeyDao.getInstance(context).queryUserDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId());
         if (!keys.isEmpty()) { //判断是否有开锁信息
-            if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
-                tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-            } else {
-                try {
-                    Date now = new Date(System.currentTimeMillis());
-                    Date begin = new Date(DateTimeUtil.dateToStampDay(tempUser.getLcBegin()));
-                    Date end = new Date(DateTimeUtil.dateToStampDay(tempUser.getLcEnd()));
-                    LogUtil.d(TAG, "isEffectiveDate(now, begin, end) : " + isEffectiveDate(now, begin, end));
-                    if (!isEffectiveDate(now, begin, end)) { //判断当前时间在生命周期以内
-                        tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
-                    } else {
-                        tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+            if (tempUser.getUserStatus() == ConstantUtil.USER_ENABLE) {
+                if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
+                    tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                } else {
+                    try {
+                        Date now = new Date(System.currentTimeMillis());
+                        Date begin = new Date(DateTimeUtil.dateToStampDay(tempUser.getLcBegin()));
+                        Date end = new Date(DateTimeUtil.dateToStampDay(tempUser.getLcEnd()));
+                        LogUtil.d(TAG, "isEffectiveDate(now, begin, end) : " + isEffectiveDate(now, begin, end));
+                        if (!isEffectiveDate(now, begin, end)) { //判断当前时间在生命周期以内
+                            tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                        } else {
+                            tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
-                } catch (ParseException e) {
-                    e.printStackTrace();
                 }
-            }
 
-            DeviceUserDao.getInstance(context).updateDeviceUser(tempUser);
+                DeviceUserDao.getInstance(context).updateDeviceUser(tempUser);
+            }
         }
 
         return tempUser.getUserStatus();

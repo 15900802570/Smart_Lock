@@ -241,10 +241,17 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 }
 
                 if (DateTimeUtil.isDateOneBigger(mStartDate.getText().toString(), mEndDate.getText().toString())) {
+                    if (mStartDate.getText().toString().equals(mTempUser.getLcBegin()) && mEndDate.getText().toString().equals(mTempUser.getLcEnd())){
+                        showMessage(getString(R.string.life_cycle_not_changed));
+                        return;
+                    }
                     if (mDevice.getState() == Device.BLE_CONNECTED) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifyCycle(mStartDate.getText().toString(), mEndDate.getText().toString()));
+                        if (mTempUser.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, mTempUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        }
                     } else {
                         showMessage(getString(R.string.disconnect_ble));
                     }
