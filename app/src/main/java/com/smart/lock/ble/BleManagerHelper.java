@@ -87,7 +87,8 @@ public class BleManagerHelper {
     private DeviceInfo mDefaultDevice; //默认设备
     private DeviceUser mDefaultUser; //默认用户
     private DeviceStatus mDefaultStatus; //用户状态
-//    private Dialog mLoadDialog;
+    //    private Dialog mLoadDialog;
+    private Object mState = new Object();
 
     private DeviceListener mDeviceListener;
 
@@ -100,12 +101,15 @@ public class BleManagerHelper {
                 mDevice.setState(Device.BLE_DISCONNECTED);
                 mBtAdapter.stopLeScan(mLeScanCallback);
             }
-            for (UiListener uiListener : mUiListeners) {
-                uiListener.scanDevFailed();
+            synchronized (mState) {
+                for (UiListener uiListener : mUiListeners) {
+                    uiListener.scanDevFailed();
+                }
+                Intent intent = new Intent();
+                intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
+                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
             }
-            Intent intent = new Intent();
-            intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
-            LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+
         }
     };
 
@@ -242,11 +246,13 @@ public class BleManagerHelper {
     }
 
     public void stopScan() {
-        for (UiListener uiListener : mUiListeners) {
-            uiListener.scanDevFailed();
+        synchronized (mState) {
+            for (UiListener uiListener : mUiListeners) {
+                uiListener.scanDevFailed();
+            }
+            mHandler.removeCallbacks(mRunnable);
+            mBtAdapter.stopLeScan(mLeScanCallback);
         }
-        mHandler.removeCallbacks(mRunnable);
-        mBtAdapter.stopLeScan(mLeScanCallback);
     }
 
     public void addDeviceLintener(DeviceListener listener) {
