@@ -420,7 +420,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     bundle.putString(BleMsg.KEY_BLE_MAC, device.getAddress());
                     mDevice = mBleManagerHelper.getDevice(Device.BLE_SEARCH_DEV_CONNECT, bundle, this);
                     mBleManagerHelper.getBleCardService().connect(mDevice, device.getAddress()); //搜索添加
-                }else {
+                } else {
                     ToastUtil.showLong(this, getString(R.string.device_has_been_added));
                 }
             } else
@@ -460,6 +460,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 if (mDetectingDevice != null) {
                     mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? getString(R.string.lock_default_name) : deviceName));
                     DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
+                    Device connDev = Device.getInstance(mCtx);
+                    connDev.setDisconnectBle(false);
                 }
                 if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                     finish();
@@ -551,7 +553,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "onChange!");
         mDevice = device;
 //        if (mDevice != null && type == BleMsg.USER_PAUSE) {
 //            Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mCtx, getString(R.string.user_pause_contact_admin));

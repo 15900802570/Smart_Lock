@@ -31,36 +31,36 @@
                 android:layout_height="@dimen/y118dp"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/x30dp"
-                android:src="@mipmap/cat" />
+                android:src="@mipmap/head_portrait" />
 
             <TextView
                 android:id="@+id/me_center_head_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/me_center_head_photo"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/y37dp"
-                android:text="@string/no_name"
+                android:layout_toEndOf="@+id/me_center_head_photo"
                 android:gravity="center_vertical"
+                android:text="@string/no_name"
                 android:textColor="@color/black"
-                android:textSize="@dimen/d24sp"/>
+                android:textSize="@dimen/d24sp" />
 
             <ImageView
                 android:id="@+id/me_edit_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/me_center_head_name"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/y37dp"
+                android:layout_toEndOf="@+id/me_center_head_name"
                 android:src="@mipmap/edit"
-                android:visibility="gone"/>
+                android:visibility="gone" />
         </RelativeLayout>
 
         <com.smart.lock.widget.MeDefineView
             android:id="@+id/mc_manage"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/y28dp"/>
+            android:layout_marginTop="@dimen/y28dp" />
 
         <com.smart.lock.widget.MeDefineView
             android:id="@+id/about_us"

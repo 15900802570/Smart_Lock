@@ -39,12 +39,23 @@ public class UserProfile implements Serializable {
     @DatabaseField(columnName = "pass_word")
     public String password;
 
+    @DatabaseField(columnName = "phote_path")
+    public String photoPath;
+
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhotoPath() {
+        return photoPath;
+    }
+
+    public void setPhotoPath(String photoPath) {
+        this.photoPath = photoPath;
     }
 
     public String getUserName() {

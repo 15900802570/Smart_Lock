@@ -261,7 +261,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         Bundle bundle = msg.getData();
         switch (msg.getType()) {
@@ -280,7 +279,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 mHandler.sendMessage(message);
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -304,7 +302,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 break;
             case BleMsg.TYPE_DELETE_LOG_SUCCESS:
                 mDelDeVLog = (DeviceLog) bundle.getSerializable(BleMsg.KEY_SERIALIZABLE);
-                LogUtil.d(TAG, "mDelDeVLog = " + mDelDeVLog.toString() + mEventAdapter.mDeleteLogs.size());
                 if (mDelDeVLog != null) {
                     DeviceLogDao.getInstance(mCtx).delete(mDelDeVLog);
                     int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);

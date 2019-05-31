@@ -15,13 +15,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.BuildConfig;
 import com.smart.lock.R;
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.utils.ConstantUtil;
@@ -313,7 +312,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         // 获取配置的FileProvider的 Content Uri的值
-                        apkUri = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".getPackageName", updateFile);
+                        apkUri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".FileProvider", updateFile);
                     } else {
                         apkUri = Uri.fromFile(updateFile);
                     }
@@ -430,7 +429,8 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             // 获取配置的FileProvider的 Content Uri的值
-            apkUri = FileProvider.getUriForFile(mContext, mContext.getApplicationContext().getPackageName() + ".getPackageName", file);
+            LogUtil.d(TAG, "file : " + file.toString());
+            apkUri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".FileProvider", file);
         } else {
             apkUri = Uri.fromFile(file);
         }

@@ -338,7 +338,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -353,7 +352,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 break;
 
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
         }
 

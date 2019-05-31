@@ -311,7 +311,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);

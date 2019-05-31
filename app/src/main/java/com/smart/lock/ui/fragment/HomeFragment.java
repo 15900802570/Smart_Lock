@@ -123,11 +123,6 @@ public class HomeFragment extends BaseFragment implements
     private boolean mOpenTest = false; // 测试连接的开关
 
     private int mBattery = 0;
-    private int REQUESTCODE = 0;
-    private String[] mExternalPermission = new String[]{
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-    };
 
     private int mImageIds[]; //主界面图片
     private int mImageIdsNor[];
@@ -631,7 +626,7 @@ public class HomeFragment extends BaseFragment implements
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    askForPermission();
+//                    askForPermission();
                 }
             }
 
@@ -659,21 +654,18 @@ public class HomeFragment extends BaseFragment implements
         builder.create().show();
     }
 
-    private void dispatchErrorCode(byte errCode, int type) {
+    /**
+     * 0E消息分发
+     *
+     * @param errCode
+     */
+    private void dispatchOE(byte errCode) {
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
-            case BleMsg.TYPE_REMOTE_UNLOCK_SUCCESS:
-                android.os.Message msg = new android.os.Message();
-                msg.what = OPEN_LOCK_SUCESS;
-                mHandler.sendMessage(msg);
-                break;
             case BleMsg.TYPE_RAND_ERROR:
                 showMessage(getString(R.string.random_error));
                 break;
             case BleMsg.ERR0E_NO_AUTHORITY:
-                if (type == Message.TYPE_BLE_RECEIVER_CMD_2E) {
-                    return;
-                }
                 mDevice.setState(Device.BLE_DISCONNECTED);
                 mBleManagerHelper.getBleCardService().disconnect();
                 showMessage(mCtx.getString(R.string.no_authority));
@@ -684,33 +676,78 @@ public class HomeFragment extends BaseFragment implements
             // 鉴权码失败和用户不存在均视为用户已被删除
             case BleMsg.TYPE_USER_NOT_EXIST:
             case BleMsg.TYPE_AUTH_CODE_ERROR:
-                userHadBeenDelete(type);
+                userHadBeenDelete();
                 break;
             default:
                 break;
         }
     }
 
-    private void userHadBeenDelete(int type) {
-        if (type == Message.TYPE_BLE_RECEIVER_CMD_0E) {
-            if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
-                mBleManagerHelper.getBleCardService().disconnect();
-            if (mAuthErrorCounter++ == 1) {
-                LogUtil.d(TAG, "用户已删除");
-                mAuthErrorCounter = 0;
-                // 删除相关数据
-                if (mDefaultDevice != null) {
-                    DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);
-                    mDefaultDevice = null;
-                    mDefaultUser = null;
+    /**
+     * 1E消息分发
+     *
+     * @param errCode
+     */
+    private void dispatch1E(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_LONG_TIME_NO_DATA:
+                switch (mDevice.getState()) {
+                    case Device.BLE_CONNECTED:
+                        if (mBleManagerHelper.getBleCardService() != null) {
+                            mDevice.setBackGroundConnect(true);
+                            mBleManagerHelper.getBleCardService().disconnect();
+                        }
+                        break;
+                    case Device.BLE_CONNECTION:
+                        if (mBleManagerHelper.getBleCardService() != null) {
+                            mBleManagerHelper.getBleCardService().disconnect();
+                            mBleManagerHelper.stopScan();
+                            mDevice.setBackGroundConnect(true);
+                        }
+                        break;
                 }
-                Device.getInstance(mCtx).halt();
-                mBleManagerHelper.getBleCardService().disconnect();
-                refreshView(UNBIND_DEVICE);
-                DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
-            }
+                break;
+            default:
+                break;
         }
+    }
 
+    /**
+     * 2E消息分发
+     *
+     * @param errCode
+     */
+    private void dispatch2E(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_REMOTE_UNLOCK_SUCCESS:
+                android.os.Message msg = new android.os.Message();
+                msg.what = OPEN_LOCK_SUCESS;
+                mHandler.sendMessage(msg);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void userHadBeenDelete() {
+        if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
+            mBleManagerHelper.getBleCardService().disconnect();
+        if (mAuthErrorCounter++ == 1) {
+            LogUtil.d(TAG, "用户已删除");
+            mAuthErrorCounter = 0;
+            // 删除相关数据
+            if (mDefaultDevice != null) {
+                DtComFunHelper.restoreFactorySettings(mActivity, mDefaultDevice);
+                mDefaultDevice = null;
+                mDefaultUser = null;
+            }
+            Device.getInstance(mCtx).halt();
+            mBleManagerHelper.getBleCardService().disconnect();
+            refreshView(UNBIND_DEVICE);
+            DialogUtils.createTipsDialogWithCancel(mActivity, getString(R.string.the_user_delete_by_admin)).show();
+        }
     }
 
     @Override
@@ -763,7 +800,6 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType() + type);
         mDevice = device;
         if (mDevice != null && type == BleMsg.USER_PAUSE) {
             ToastUtil.showShort(mCtx, mCtx.getString(R.string.user_pause_contact_admin));
@@ -774,10 +810,19 @@ public class HomeFragment extends BaseFragment implements
         }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
+                final byte[] errCode0E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode0E != null)
+                    dispatchOE(errCode0E[3]);
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
+                final byte[] errCode1E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode1E != null)
+                    dispatch1E(errCode1E[3]);
+                break;
             case Message.TYPE_BLE_RECEIVER_CMD_2E:
-                final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
-                if (errCode != null)
-                    dispatchErrorCode(errCode[3], msg.getType());
+                final byte[] errCode2E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode2E != null)
+                    dispatch2E(errCode2E[3]);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
             case Message.TYPE_BLE_RECEIVER_CMD_26:

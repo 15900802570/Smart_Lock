@@ -52,6 +52,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
     private CardManagerAdapter mCardAdapter;
     private String mLockId = null;
     private Context mCtx;
+    private Device mDevice;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +62,16 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
-                if (count >= 0 && count < 1) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
-                } else {
-                    showMessage(getResources().getString(R.string.add_nfc_tips));
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
+                    if (count >= 0 && count < 1) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    } else {
+                        showMessage(getResources().getString(R.string.add_nfc_tips));
+                    }
+                } else showMessage(getString(R.string.ble_disconnect));
                 break;
 
             default:
@@ -101,6 +104,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
+        mDevice = Device.getInstance(mCtx);
         mCardAdapter = new CardManagerAdapter(mCtx);
         mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
@@ -118,7 +122,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         mAddTv.setOnClickListener(this);
     }
 
-    public int getCounter(){
+    public int getCounter() {
         return mCardAdapter.getItemCount();
     }
 
@@ -141,7 +145,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
