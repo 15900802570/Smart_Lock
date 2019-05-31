@@ -70,11 +70,9 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
      * 停止事务，一般由中断程序引起的
      */
     public void halt() {
-        Log.d(TAG, "timer.isActive() = " + timer.isActive());
         if (timer.isActive()) {
             BleMsgProvider.removeBleMsgListener(this);
             timer.halt();
-//            mMessage.recycle();
         }
     }
 

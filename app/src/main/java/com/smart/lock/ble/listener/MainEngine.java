@@ -1,8 +1,5 @@
 package com.smart.lock.ble.listener;
 
-import android.app.Dialog;
-import android.bluetooth.BluetoothGatt;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +24,6 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -69,15 +65,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDeviceKeyDao = DeviceKeyDao.getInstance(context);
         mService.registerDevStateCb(this); //注册设备状态回调
         mHandler = new Handler(this);
-
-//        android.os.Message msg = new android.os.Message();
-//        msg.what = MSG_POLLING_BLE;
-//        mHandler.sendMessageDelayed(msg, 120 * 1000);
     }
 
 
     public static MainEngine getInstance(Context context, BleCardService service) {
-        LogUtil.d(TAG, "instance is " + (mInstance == null));
         if (mInstance == null) {
             synchronized (MainEngine.class) {
                 if (mInstance == null) {
@@ -105,7 +96,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onDisconnected() {
-        LogUtil.d(TAG, "device " + mDevice.toString());
         LogUtil.i(TAG, "onDisconnected : change dev state from : " + mDevice.getState() + " to: " + Device.BLE_DISCONNECTED);
         mDevice.setState(Device.BLE_DISCONNECTED);
         MessageCreator.m128AK = null;
@@ -129,14 +119,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                     return;
                 }
-//                } else if (mDevInfo != null && !defaultDevice.getBleMac().equals(mDevInfo.getBleMac()) && mDevice.isDisconnectBle()) {
-//                    LogUtil.e(TAG, "change default dev to connect!");
-//                    mDevice = Device.getInstance(mCtx);
-//                    mDevice.setConnectType(Device.BLE_OTHER_CONNECT_TYPE);
-//                    mDevice.setDevInfo(defaultDevice);
-//                    mDevice.setState(Device.BLE_DISCONNECTED);
-//                }
-                LogUtil.d(TAG, "mDevice.isDisconnectBle() : " + mDevice.isDisconnectBle());
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     return; //暂停的用户不需要重连
                 }
@@ -167,8 +149,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onGattStateChanged(int state) {
-        LogUtil.i(TAG, "deviceStateChange : state is " + state);
-
         Bundle extra = new Bundle();
         extra.putInt("gatt_state", state);
         sendMessage(MSG_CHANGE_GATT_STATE, extra, 0);
@@ -714,12 +694,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     StringUtil.exchange(nodeIdBuf);
                     String nodeId = StringUtil.bytesToHexString(nodeIdBuf);
                     String bleMac = StringUtil.bytesToHexString(bleMacBuf);
-                    LogUtil.d(TAG, "bleMac = " + bleMac);
 
                     String time = StringUtil.bytesToHexString(timeBuf);
                     String randCode = StringUtil.bytesToHexString(randCodeBuf);
                     DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
-                    LogUtil.d(TAG, "nodeId = " + nodeId);
 
                     mDevInfo.setActivitedTime(Long.parseLong(time, 16));
                     mDevInfo.setConnectType(false);
@@ -784,7 +762,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         String auth = setAuthCode(authTime);
 //                        mDevInfo.setMixUnlock(userInfo[8]);
 //                        mDeviceInfoDao.updateDeviceInfo(mDevInfo);
-                        LogUtil.d(TAG, "mDefaultUser : " + mDefaultUser.toString());
                         mDefaultUser.setAuthCode((auth.equals("0")) ? null : auth);
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);
@@ -834,7 +811,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
             nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
             StringUtil.exchange(nodeIdBuf);
-            LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
             System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
 
             byte[] bleMacBuf = new byte[6];
@@ -842,7 +818,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             if (StringUtil.checkNotNull(bleMac)) {
                 bleMacBuf = StringUtil.hexStringToBytes(bleMac.replace(":", ""));
                 System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
-                LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
             }
 
             byte[] randCodeBuf = new byte[10];
@@ -850,13 +825,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             if (StringUtil.checkNotNull(randCode)) {
                 randCodeBuf = StringUtil.hexStringToBytes(randCode);
                 System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
-                LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
             }
 
             System.arraycopy(authTime, 0, authCode, 26, 4);
-
-            LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
-
         }
 
         return StringUtil.bytesToHexString(authCode);

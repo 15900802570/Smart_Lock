@@ -278,9 +278,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private boolean timeCompare(String startTime, String endTime) {
         SimpleDateFormat CurrentTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String date1 = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH) + "-" + mCalendar.get(Calendar.HOUR_OF_DAY) + " " + startTime + ":00";
-        LogUtil.d(TAG, "date1 = " + date1);
         String date2 = mCalendar.get(Calendar.YEAR) + "-" + mCalendar.get(Calendar.MONTH) + "-" + mCalendar.get(Calendar.HOUR_OF_DAY) + " " + endTime + ":00";
-        LogUtil.d(TAG, "date2 = " + date2);
         try {
 
             Date beginDate = CurrentTime.parse(date1);

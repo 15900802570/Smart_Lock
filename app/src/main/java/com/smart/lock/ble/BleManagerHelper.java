@@ -282,8 +282,7 @@ public class BleManagerHelper {
                     mHandler.removeCallbacks(mRunnable);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {
-                        boolean result = mService.connect(mDevice, device.getAddress());
-                        LogUtil.d(TAG, "result = " + result);
+                       mService.connect(mDevice, device.getAddress());
                     }
                 }
             } else {
@@ -294,8 +293,7 @@ public class BleManagerHelper {
                     mHandler.removeCallbacks(mRunnable);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {
-                        boolean result = mService.connect(mDevice, device.getAddress());
-                        LogUtil.d(TAG, "result = " + result);
+                        mService.connect(mDevice, device.getAddress());
                     }
                 }
             }

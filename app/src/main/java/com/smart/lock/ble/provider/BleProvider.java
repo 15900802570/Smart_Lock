@@ -464,10 +464,8 @@ public class BleProvider {
             LogUtil.d(TAG, "command = " + StringUtil.getBytes(command));
             mPacketLength = (command[1] * 256) + ((command[2] < 0 ? (256 + command[2]) : command[2]) + 5);
 
-            Log.i(TAG, "recvResponse() new cmd length = " + mPacketLength);
-
             if (mPacketLength > INT_SESSION_BUF_MAX_LEN || mPacketLength == 0) {
-                Log.i(TAG, "recvResponse() length is to large.");
+                LogUtil.i(TAG, "recvResponse() length is to large.");
                 return;
             }
 
@@ -502,12 +500,10 @@ public class BleProvider {
                         // 获取事务监听器
                         ClientTransaction ct = (ClientTransaction) removeBleMsgListener(m.getKey());
                         if (ct != null) {
-                            Log.i(TAG, "ct : " + ct.getMessage().toString());
                             Serializable serializable = ct.getMessage().getData().getSerializable(BleMsg.KEY_SERIALIZABLE);
                             // 停止定时器
                             ct.halt();
                             if (serializable != null) {
-                                LogUtil.d(TAG, "serializable = " + serializable.toString());
                                 m.getData().putSerializable(BleMsg.KEY_SERIALIZABLE, serializable);
                             } else {
                                 Log.i(TAG,
@@ -546,12 +542,6 @@ public class BleProvider {
      * @param bleMsgListener 回调监听器
      */
     private void dispatchMessage(Message msg, BleMessageListener bleMsgListener) {
-        if (debug) {
-            Log.d(TAG, "listener key : " + bleMsgListener.getListenerKey()
-                    + " transactionBleMsgListenerMap size : "
-                    + transactionBleMsgListenerMap.size());
-        }
-        LogUtil.d(TAG, "bleMsgListener instanceof ct:" + (bleMsgListener instanceof ClientTransaction));
         if (mCt != null) {
             bleMsgListener.onReceive(msg, mCt.getTimer());
         } else
@@ -756,11 +746,6 @@ public class BleProvider {
         }
         mCheckTimeOut = false;
         mCt = null;
-        if (debug) {
-            Log.d(TAG, "removeBleMsgListener : " + key + " removeBleMsgListener size : "
-                    + transactionBleMsgListenerMap.size());
-        }
-
         return transactionBleMsgListenerMap.remove(key);
     }
 

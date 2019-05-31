@@ -476,9 +476,6 @@ public class Message implements Serializable {
                 msg.next = null;
             }
 
-            if (debug) {
-                Log.d(TAG, "obtain " + msg.hashCode() + " sPoolSize " + sPoolSize);
-            }
             return msg;
         }
     }

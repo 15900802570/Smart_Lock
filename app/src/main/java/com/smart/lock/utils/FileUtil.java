@@ -18,6 +18,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 
@@ -54,6 +55,20 @@ public class FileUtil {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 检查文件是否存在
+     */
+    public static String checkDirPath(String dirPath) {
+        if (TextUtils.isEmpty(dirPath)) {
+            return "";
+        }
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        return dirPath;
     }
 
     /**
@@ -559,10 +574,8 @@ public class FileUtil {
     public static boolean fileExists(String file_path) {
         Log.d(TAG, "fileExists--exists000!!! file_path=" + file_path);
         try {
-            Log.d(TAG, "fileExists--exists111!!! file_path=" + file_path);
             File f = new File(file_path);
             if (f.exists()) {
-                Log.d(TAG, "fileExists--exists!!! file_path=" + file_path);
                 return true;
             }
 

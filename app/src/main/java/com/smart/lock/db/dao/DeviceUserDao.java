@@ -386,7 +386,6 @@ public class DeviceUserDao {
 
         ret = status ^ (userStatus & 0xFFFFFFFF);
 
-        Log.d(TAG, "ret = " + ret);
         synchronized (this) {
             if (ret != 0) {
                 for (int i = (num - 1) * 32; i < 32 * num; i++) {

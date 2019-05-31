@@ -438,7 +438,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         public MemberAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
-            LogUtil.d(TAG, "muserlist size : " + mUserList.size());
             int index = -1;
             for (DeviceUser user : mUserList) {
                 if (user.getUserId() == mDefaultUser.getUserId()) {
@@ -513,7 +512,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 DeviceUser del = mUserList.remove(index);
 
                 boolean result = mDeleteUsers.remove(del);
-                Log.d(TAG, "result = " + result);
                 DeviceUserDao.getInstance(mCtx).delete(del);
                 notifyItemRemoved(index);
             }

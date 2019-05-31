@@ -514,7 +514,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 if (mConnectType == Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    showMessage("set dev info success !");
+                    showMessage("set device info success !");
                 }
                 break;
             default:
@@ -524,7 +524,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void sendFailed(Message msg) {
-        LogUtil.i(TAG, "sendFialed!");
         int exception = msg.getException();
 
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
@@ -576,7 +575,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mHandler.sendMessage(message);
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -584,7 +582,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void scanDevFailed() {
-        LogUtil.i(TAG, "scanDevFialed!");
         if (mDevice != null)
             mDevice.setState(Device.BLE_DISCONNECTED);
         android.os.Message msg = new android.os.Message();
