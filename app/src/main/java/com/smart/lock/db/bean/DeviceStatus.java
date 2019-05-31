@@ -28,6 +28,9 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(columnName = "voice_prompt", defaultValue = "1")
     private boolean voicePrompt;
 
+    @DatabaseField(columnName = "broadcastNormallyOpen", defaultValue = "0")
+    private boolean broadcastNormallyOpen;
+
     @DatabaseField(columnName = "support_m1", defaultValue = "0")
     private boolean m1Support;
 
@@ -127,5 +130,13 @@ public class DeviceStatus implements Serializable{
 
     public void setPowerSavingStartTime(int powerSavingStartTime) {
         this.powerSavingStartTime = powerSavingStartTime;
+    }
+
+    public boolean isBroadcastNormallyOpen() {
+        return broadcastNormallyOpen;
+    }
+
+    public void setBroadcastNormallyOpen(boolean broadcastNormallyOpen) {
+        this.broadcastNormallyOpen = broadcastNormallyOpen;
     }
 }

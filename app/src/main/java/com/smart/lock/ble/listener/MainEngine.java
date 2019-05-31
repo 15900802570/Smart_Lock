@@ -266,6 +266,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             devLog.setKeyName(keyName + String.valueOf(lockId[0]));
 
         LogUtil.d(TAG, "devLog = " + devLog.toString());
+        mDevice.setDisconnectBle(true);
 
         DeviceLogDao.getInstance(mCtx).insert(devLog);
     }
@@ -433,6 +434,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDefaultStatus.setM1Support(true);
                 } else {
                     mDefaultStatus.setM1Support(false);
+                }
+                if ((stStatus & 64) == 64) {    //蓝牙广播
+                    mDefaultStatus.setBroadcastNormallyOpen(true);
+                } else {
+                    mDefaultStatus.setBroadcastNormallyOpen(false);
                 }
                 mDefaultStatus.setRolledBackTime(unLockTime);
                 // 获取省电时间段

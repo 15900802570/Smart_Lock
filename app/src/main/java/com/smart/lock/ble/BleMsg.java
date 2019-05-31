@@ -481,6 +481,8 @@ public class BleMsg {
     public static final byte TYPE_ANTI_PRYING_ALARM_CLOSE = 0x0f;//防撬报警关闭
     public static final byte TYPE_LOCK_LOG_ENABLE = 0x12;//log打印开启
     public static final byte TYPE_LOCK_LOG_UNENABLE = 0x13;//log打印关闭
+    public static final byte TYPE_BLE_NORMAL_OPEN_ENABLE = 0x15;//log打印开启
+    public static final byte TYPE_BLE_NORMAL_OPEN_UNENABLE = 0x16;//log打印关闭
 
     /**
      * msg 0E type

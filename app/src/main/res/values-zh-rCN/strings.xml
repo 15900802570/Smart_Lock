@@ -383,4 +383,6 @@
     <string name="time_is_invalid">输入时间无效，请重新输入</string>
     <string name="set_start_time">设置起始日期</string>
     <string name="set_end_time">设置结束日期</string>
+    <string name="ble_broadcast_normally_open">蓝牙广播常开</string>
+    <string name="checking">正在检测...</string>
 </resources>
