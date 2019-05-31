@@ -52,6 +52,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private ToggleSwitchDefineView mNormallyOpenTs;
     private ToggleSwitchDefineView mVoicePromptTs;
     private ToggleSwitchDefineView mLogEnableTs;
+    private ToggleSwitchDefineView mBroadcastNormallyOpenTs;
 
     private BtnSettingDefineView mSetRolledBackTimeBs;
     private BtnSettingDefineView mSetSupportCardTypeBs;
@@ -115,6 +116,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mNormallyOpenTs = findViewById(R.id.ts_normally_open);
         mVoicePromptTs = findViewById(R.id.ts_voice_prompt);
         mLogEnableTs = findViewById(R.id.ts_log_enable);
+        mBroadcastNormallyOpenTs = findViewById(R.id.ts_broadcast_normally_open);
         mTitleTv = findViewById(R.id.tv_title);
 
         mSetRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
@@ -133,6 +135,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mVoicePromptTs.setDes(getResources().getString(R.string.voice_prompt));
         mLogEnableTs.setDes(getString(R.string.lock_log));
         mLogEnableTs.setVisibility(View.GONE); //测试使用
+        mBroadcastNormallyOpenTs.setDes(getString(R.string.ble_broadcast_normally_open));
 
         mSetRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
         mSetSupportCardTypeBs.setDes(getString(R.string.support_types_of_card));
@@ -192,6 +195,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mCombinationLockTs.setChecked(mDeviceStatus.isCombinationLock());
             mNormallyOpenTs.setChecked(mDeviceStatus.isNormallyOpen());
             mVoicePromptTs.setChecked(mDeviceStatus.isVoicePrompt());
+            mBroadcastNormallyOpenTs.setChecked(mDeviceStatus.isBroadcastNormallyOpen());
 
             mSetTime = mDeviceStatus.getRolledBackTime();
             mSetRolledBackTimeBs.setBtnDes(mSetTime + getResources().getString(R.string.s));
@@ -271,6 +275,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             }
         });
 
+        //蓝牙广播
+        mBroadcastNormallyOpenTs.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doClick(R.string.ble_broadcast_normally_open);
+            }
+        });
+
         //门锁抬头
         mTitleTv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -320,6 +332,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     doClick(R.string.voice_prompt);
                     break;
 
+                case R.id.ts_broadcast_normally_open://蓝牙广播
+                    doClick(R.string.ble_broadcast_normally_open);
+                    break;
+
                 case R.id.bs_rolled_back_time:      //设置回锁时间
                     switch (mSetTime) {
                         case 5:
@@ -361,14 +377,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 case R.id.next_version_info:        //查看版本信息
                     mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
                     break;
-                case R.id.next_self_check:
+                case R.id.next_self_check:       //自检修复
                     Intent selfCheckIntent = new Intent(this, SelfCheckActivity.class);
                     Bundle selfCheckBundle = new Bundle();
                     selfCheckBundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                     selfCheckIntent.putExtras(selfCheckBundle);
                     startActivity(selfCheckIntent);
                     break;
-                case R.id.next_ota_update:
+                case R.id.next_ota_update:     //固件更新
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                         if (!SystemUtils.isNetworkAvailable(this)) {
@@ -452,6 +468,13 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_ENABLE);
                     } else {
                         mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_UNENABLE);
+                    }
+                    break;
+                case R.string.ble_broadcast_normally_open: //蓝牙广播
+                    if (mBroadcastNormallyOpenTs.isChecked()) {
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_ENABLE);
+                    } else {
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_UNENABLE);
                     }
                     break;
             }
@@ -839,6 +862,15 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 break;
             case 0x29:  //log打印设置失败
                 showMessage(getString(R.string.lock_log_set_failed));
+                break;
+            case 0x2f:  //蓝牙广播设备成功
+                if (mDeviceStatus.isBroadcastNormallyOpen()) {
+                    mBroadcastNormallyOpenTs.setChecked(false);
+                    mDeviceStatus.setBroadcastNormallyOpen(false);
+                } else {
+                    mBroadcastNormallyOpenTs.setChecked(true);
+                    mDeviceStatus.setBroadcastNormallyOpen(true);
+                }
                 break;
             default:
                 break;

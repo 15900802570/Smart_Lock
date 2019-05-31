@@ -1,8 +1,5 @@
 package com.smart.lock.ble.listener;
 
-import android.app.Dialog;
-import android.bluetooth.BluetoothGatt;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +24,6 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -249,6 +245,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         else
             devLog.setKeyName(keyName + String.valueOf(lockId[0]));
 
+        LogUtil.d(TAG, "devLog = " + devLog.toString());
+        mDevice.setDisconnectBle(true);
+
         DeviceLogDao.getInstance(mCtx).insert(devLog);
     }
 
@@ -415,6 +414,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDefaultStatus.setM1Support(true);
                 } else {
                     mDefaultStatus.setM1Support(false);
+                }
+                if ((stStatus & 64) == 64) {    //蓝牙广播
+                    mDefaultStatus.setBroadcastNormallyOpen(true);
+                } else {
+                    mDefaultStatus.setBroadcastNormallyOpen(false);
                 }
                 mDefaultStatus.setRolledBackTime(unLockTime);
                 // 获取省电时间段

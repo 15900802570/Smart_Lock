@@ -485,6 +485,8 @@ public class BleMsg {
     public static final byte TYPE_LOCK_LOG_ENABLE = 0x12;//log打印开启
     public static final byte TYPE_LOCK_LOG_UNENABLE = 0x13;//log打印关闭
     public static final byte TYPE_EXIT_OTA_UPDATE = 0x14;//退出ota升级
+    public static final byte TYPE_BLE_NORMAL_OPEN_ENABLE = 0x15;//log打印开启
+    public static final byte TYPE_BLE_NORMAL_OPEN_UNENABLE = 0x16;//log打印关闭
 
     /**
      * msg 0E type
