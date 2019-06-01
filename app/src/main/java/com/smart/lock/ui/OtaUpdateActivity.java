@@ -98,11 +98,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     private ScrollView mVersionUpdate;
 
     /**
-     * 会话秘钥
-     */
-    private byte[] mAK;
-
-    /**
      * 绑定的设备SN
      */
     private String mDeviceSn;
@@ -110,30 +105,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     private DeviceInfo mDefaultDev; //默认设备
 
     /**
-     * handler
-     */
-    private Handler mHandler;
-
-    /**
-     * 搜索状态标识
-     */
-    private boolean mScanning;
-
-    /**
      * OTA更新成功标识
      */
     private boolean mOtaUpdateComplete = false;
-
-    /**
-     * OTA进度状态
-     */
-    private int mState = UART_PROFILE_DISCONNECTED;
-
-
-    /**
-     * 蓝牙未连接
-     */
-    private static final int UART_PROFILE_DISCONNECTED = 21;
 
     /**
      * 版本下载连接
@@ -155,16 +129,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     private TextView mLatestVersion;
 
     /**
-     * scanning for 10 seconds
-     */
-    private static final long SCAN_PERIOD = 10000;
-
-    /**
      * 升级状态
      */
     private TextView mConnetStatus;
-
-    private BluetoothAdapter.LeScanCallback mLeScanCallback = null;
 
     /**
      * 升级文件的路径
@@ -329,7 +296,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
     private void initDate() {
         mDefaultDev = (DeviceInfo) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_DEFAULT_DEVICE);
-        mHandler = new Handler();
         mPb.setProgress(100);
 
         mBleManagerHelper = BleManagerHelper.getInstance(this);

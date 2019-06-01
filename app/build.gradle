@@ -32,6 +32,7 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
     sourceSets { main { assets.srcDirs = ['src/main/assets', 'src/main/assets/'] } }
+    useLibrary 'org.apache.http.legacy'
 }
 
 
@@ -83,4 +84,5 @@ dependencies {
     implementation 'com.contrarywind:Android-PickerView:4.1.7'
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-14'
     implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-14'
+    implementation files('libs/commons-logging-api-1.0.4.jar')
 }

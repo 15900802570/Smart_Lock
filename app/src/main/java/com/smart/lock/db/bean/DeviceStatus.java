@@ -43,6 +43,27 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(columnName = "power_saving_end_time",defaultValue = "700" )
     private int powerSavingEndTime;
 
+    @DatabaseField(columnName = "battery",defaultValue = "0" )
+    private int battery;
+
+    @DatabaseField(columnName = "status_update_time")
+    private long updateTime;
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public int getBattery() {
+        return battery;
+    }
+
+    public void setBattery(int battery) {
+        this.battery = battery;
+    }
 
     public String getDevNodeId() {
         return devNodeId;

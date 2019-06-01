@@ -97,7 +97,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 if (mActivity instanceof AdminFragment.OnFragmentInteractionListener) {
                     ((AdminFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
-
                 break;
             default:
                 break;
@@ -171,6 +170,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mLoadDialog != null && mLoadDialog.isShowing()) {
+                    return;
+                }
                 ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mAdminView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
                 mAdminAdapter.mDeleteUsers.clear();
                 if (isChecked) {
@@ -185,6 +187,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                         deleteUsers.remove(index);
                     }
                     mAdminAdapter.mDeleteUsers.addAll(deleteUsers);
+                    LogUtil.d(TAG, "size ： " + mAdminAdapter.mDeleteUsers.size());
                     mAdminAdapter.chioseALLDelete(true);
                 } else {
                     mTipTv.setText(R.string.all_election);
@@ -333,6 +336,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 DeviceKeyDao.getInstance(mAdminView.getContext()).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
 
                 mAdminAdapter.removeItem(deleteUser);
+                LogUtil.d(TAG, "mAdminAdapter.mDeleteUsers.size() : " + mAdminAdapter.mDeleteUsers.size());
                 if (mAdminAdapter.mDeleteUsers.size() == 0) {
                     showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
                     DialogUtils.closeDialog(mLoadDialog);
@@ -494,8 +498,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             if (index != -1) {
                 DeviceUser del = mUserList.remove(index);
 
-                boolean result = mDeleteUsers.remove(del);
-                Log.d(TAG, "result = " + result);
+                mDeleteUsers.remove(del);
                 DeviceUserDao.getInstance(mAdminView.getContext()).delete(del);
                 notifyItemRemoved(index);
             }
@@ -590,7 +593,17 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                         if (holder.mDeleteCb.isChecked()) {
                             mDeleteUsers.add(userInfo);
                         } else {
-                            mDeleteUsers.remove(userInfo);
+                            int delIndex = -1;
+
+                            for (DeviceUser deleteUser : mDeleteUsers) {
+                                if (deleteUser.getUserId() == userInfo.getUserId()) {
+                                    delIndex = mDeleteUsers.indexOf(deleteUser);
+                                }
+                            }
+
+                            if (delIndex != -1) {
+                                mDeleteUsers.remove(delIndex);
+                            }
                         }
                     }
                 });

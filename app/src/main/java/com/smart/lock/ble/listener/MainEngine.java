@@ -385,6 +385,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             getUserInfo();
 
             if (mDefaultStatus != null) {
+                mDefaultStatus.setBattery(battery);
+                mDefaultStatus.setUpdateTime(System.currentTimeMillis() / 1000);
+
                 if ((stStatus & 1) == 1) {  //常开功能
                     mDefaultStatus.setNormallyOpen(true);
                 } else {

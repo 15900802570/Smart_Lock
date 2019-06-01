@@ -477,7 +477,7 @@ public class BleProvider {
 
         mRspLength += command.length;
 
-        if (mRspLength < mPacketLength) {
+        if (mRspLength < mPacketLength || mPacketLength <= 0) {
             return;
         }
 
@@ -824,7 +824,7 @@ public class BleProvider {
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 
         if (RxService == null) {
-            Log.e(TAG, "RxService is null" );
+            Log.e(TAG, "RxService is null");
             return false;
         }
         BluetoothGattCharacteristic RxChar = null;

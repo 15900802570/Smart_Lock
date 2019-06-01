@@ -566,7 +566,20 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    askForPermission();
+//                    askForPermission();
+                    if (!SystemUtils.isNetworkAvailable(this)) {
+                        ToastUtil.show(this, getString(R.string.plz_open_wifi), Toast.LENGTH_LONG);
+                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                        return;
+                    }
+                    if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                        Intent intent = new Intent(this, OtaUpdateActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
+                    } else
+                        Toast.makeText(this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();
                 }
             }
 

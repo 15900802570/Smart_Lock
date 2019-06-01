@@ -80,7 +80,6 @@ public class BaseApplication extends Application {
         if (mTimer == null) {
             mTimer = new Timer();
         }
-        LogUtil.d(TAG, "mTimer : " + mTimer.hashCode());
         mTimer.schedule(new TimerTask() {
             @Override
             public void run() {

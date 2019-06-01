@@ -63,7 +63,7 @@ public class Message implements Serializable {
     /**
      * 调试日志开关
      */
-    private static final boolean debug = true;
+    private static final boolean debug = false;
     /**
      * 消息类型标签映射表
      */
@@ -417,10 +417,6 @@ public class Message implements Serializable {
             }
 
             clear();
-
-            if (debug) {
-                Log.d(TAG, "recycle " + hashCode() + " sPoolSize : " + sPoolSize);
-            }
         }
     }
 

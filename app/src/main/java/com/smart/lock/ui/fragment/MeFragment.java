@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -80,7 +81,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private static final int REQUEST_TAKE_PHOTO = 100; // 拍照并进行裁剪
     private static final int REQUEST_CROP = 101; // 裁剪后设置图片
     private static final int SCAN_OPEN_PHONE = 102; // 打开图库获取图片并进行裁剪
-    private static final String IMAGE_FILE_NAME = "head.jpg";
+    private static final String IMAGE_FILE_NAME = "head.jpeg";
 
     private Uri imgUri; // 拍照时返回的uri
     private Uri mCutUri;// 图片裁剪时返回的uri
@@ -318,13 +319,14 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             throw new NullPointerException();
         }
         Uri pictureUri;
-        if (Build.VERSION.SDK_INT >= 24) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             pictureUri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".FileProvider", file);
         } else {
             pictureUri = Uri.fromFile(file);
         }
         return pictureUri;
     }
+
 
     private void searchDev() {
         startIntent(LockDetectingActivity.class, null);
@@ -359,7 +361,11 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             switch (requestCode) {
                 // 拍照并进行裁剪
                 case REQUEST_TAKE_PHOTO:
-                    cropPhoto(imgUri, true);
+                    // 以广播方式刷新系统相册，以便能够在相册中找到刚刚所拍摄和裁剪的照片
+                    Intent intentBc = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    intentBc.setData(imgUri);
+                    mMeView.getContext().sendBroadcast(intentBc);
+                    cropPhoto(imgUri);
                     break;
 
                 // 裁剪后设置图片
@@ -373,56 +379,17 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                     break;
                 // 打开图库获取图片并进行裁剪
                 case SCAN_OPEN_PHONE:
-                    cropPhoto(data.getData(), false);
+                    LogUtil.d(TAG, "data.getData() : " + (data.getData() == null ? true : data.getData().toString()));
+                    cropPhoto(data.getData());
                     break;
             }
         }
     }
 
-
-    /**
-     * 小图模式中，保存图片后，设置到视图中
-     */
-    private void setPicToView(Intent data) {
-        LogUtil.d(TAG, "setPicToView : " + (data == null));
-        Bundle extras = data.getExtras();
-        if (extras != null) {
-            Bitmap photo = extras.getParcelable("data"); // 直接获得内存中保存的 bitmap
-            // 创建 smallIcon 文件夹
-            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                String storage = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SmartLock_DT" + File.separator + "smallIcon";
-                File dirFile = new File(storage);
-                if (!dirFile.exists()) {
-                    if (!dirFile.mkdirs()) {
-                    } else {
-                    }
-                }
-                File file = new File(dirFile, System.currentTimeMillis() + ".jpg");
-                // 保存图片
-
-                Uri uri = Uri.fromFile(file);
-                mUserProfile.setPhotoPath(uri.getPath());
-                UserProfileDao.getInstance(mActivity).update(mUserProfile);
-                FileOutputStream outputStream = null;
-                try {
-                    outputStream = new FileOutputStream(file);
-                    photo.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-                    outputStream.flush();
-                    outputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            // 在视图中显示图片
-            mHeadPhoto.setImageBitmap(photo);
-        }
-    }
-
     // 图片裁剪
-    private void cropPhoto(Uri uri, boolean fromCapture) {
+    private void cropPhoto(Uri uri) {
         Intent intent = new Intent("com.android.camera.action.CROP"); //打开系统自带的裁剪图片的intent
-
+        LogUtil.d(TAG, "Uri : " + uri.toString());
 
         // 注意一定要添加该项权限，否则会提示无法裁剪
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -447,25 +414,16 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         // 若为false则表示不返回数据
         intent.putExtra("return-data", false);
 
-        // 指定裁剪完成以后的图片所保存的位置,pic info显示有延时
-        if (fromCapture) {
-            // 如果是使用拍照，那么原先的uri和最终目标的uri一致,注意这里的uri必须是Uri.fromFile生成的
-            mCutUri = Uri.fromFile(imgFile);
-        } else { // 从相册中选择，那么裁剪的图片保存在take_photo中
-            String time = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
-            String fileName = "photo_" + time;
-            File mCutFile = new File(Environment.getExternalStorageDirectory() + File.separator + "SmartLock_DT" + File.separator + "smallIcon", fileName + ".jpeg");
-            if (!mCutFile.getParentFile().exists()) {
-                mCutFile.getParentFile().mkdirs();
-            }
-            mCutUri = Uri.fromFile(mCutFile);
-
+        String time = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
+        String fileName = "photo_" + time;
+        File mCutFile = new File(Environment.getExternalStorageDirectory() + File.separator + "SmartLock_DT" + File.separator + "smallIcon", fileName + ".jpeg");
+        if (!mCutFile.getParentFile().exists()) {
+            mCutFile.getParentFile().mkdirs();
         }
+
+        mCutUri = Uri.fromFile(mCutFile);
+
         intent.putExtra(MediaStore.EXTRA_OUTPUT, mCutUri);
-        // 以广播方式刷新系统相册，以便能够在相册中找到刚刚所拍摄和裁剪的照片
-        Intent intentBc = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        intentBc.setData(uri);
-        mMeView.getContext().sendBroadcast(intentBc);
 
         startActivityForResult(intent, REQUEST_CROP); //设置裁剪参数显示图片至ImageVie
     }

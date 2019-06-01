@@ -90,7 +90,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
-                        mBleManagerHelper.getBleCardService().sendCmd11((byte) 4, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 } else {
                     showMessage(getString(R.string.plz_choise_del_user));
@@ -132,7 +132,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         mIsHint = isVisibleToUser;
-        LogUtil.d(TAG, "mIsHint : " + mIsHint);
     }
 
     @Override
@@ -177,6 +176,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mLoadDialog != null && mLoadDialog.isShowing()) {
+                    return;
+                }
                 ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
                 mTempAdapter.mDeleteUsers.clear();
                 if (isChecked) {
@@ -399,7 +401,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         @Override
         public TempViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
-            SwipeLayout  swipelayout = inflate.findViewById(R.id.item_ll_user);
+            SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
             swipelayout.setClickToClose(true);
             swipelayout.setRightSwipeEnabled(true);
             return new TempViewHoler(inflate);
@@ -577,7 +579,17 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                         if (holder.mDeleteCb.isChecked()) {
                             mDeleteUsers.add(userInfo);
                         } else {
-                            mDeleteUsers.remove(userInfo);
+                            int delIndex = -1;
+
+                            for (DeviceUser deleteUser : mDeleteUsers) {
+                                if (deleteUser.getUserId() == userInfo.getUserId()) {
+                                    delIndex = mDeleteUsers.indexOf(deleteUser);
+                                }
+                            }
+
+                            if (delIndex != -1) {
+                                mDeleteUsers.remove(delIndex);
+                            }
                         }
                     }
                 });
@@ -638,7 +650,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onResume() {
         super.onResume();
-        LogUtil.d(TAG, "mIsHint : " + mIsHint + " onResume");
         if (mIsHint) {
             ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
             for (DeviceUser user : list) {

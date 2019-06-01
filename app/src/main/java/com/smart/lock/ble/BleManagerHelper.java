@@ -126,7 +126,6 @@ public class BleManagerHelper {
     }
 
     public static BleManagerHelper getInstance(Context context) {
-        LogUtil.d(TAG, "instance is " + (instance == null));
         if (instance == null) {
             synchronized (BleManagerHelper.class) {
                 if (instance == null) {
@@ -373,7 +372,6 @@ public class BleManagerHelper {
             LogUtil.e(TAG, "mainEngine is null");
             return;
         }
-        LogUtil.i(TAG, "add uilistenr !");
         mainEngine.addUiListener(uiListener);
     }
 

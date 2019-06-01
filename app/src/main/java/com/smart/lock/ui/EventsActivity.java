@@ -119,14 +119,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         DeviceLogDao.getInstance(this).deleteAll();
 
-        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getString(R.string.data_loading));
-        mLoadDialog.show();
-        if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
-        } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
-        }
-
         mLogs = new ArrayList<>();
         mEventAdapter = new EventsAdapter(this, mLogs);
         mLinearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -152,6 +144,14 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 mEventAdapter.notifyDataSetChanged();
             }
         });
+
+        mLoadDialog = DialogUtils.createLoadingDialog(this, mCtx.getString(R.string.data_loading));
+        mLoadDialog.show();
+        if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
+        } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+        }
 
     }
 
@@ -303,11 +303,14 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             case BleMsg.TYPE_DELETE_LOG_SUCCESS:
                 mDelDeVLog = (DeviceLog) bundle.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (mDelDeVLog != null) {
-                    DeviceLogDao.getInstance(mCtx).delete(mDelDeVLog);
-                    int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
-                    mEventAdapter.mLogList.remove(position);
-                    mEventAdapter.notifyItemRemoved(position);
-                    mEventAdapter.mDeleteLogs.remove(mDelDeVLog);
+//                    DeviceLogDao.getInstance(mCtx).delete(mDelDeVLog);
+//                    int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
+//                    if(position !=-1) {
+//                        mEventAdapter.mLogList.remove(position);
+//                        mEventAdapter.notifyItemRemoved(position);
+//                        mEventAdapter.mDeleteLogs.remove(mDelDeVLog);
+//                    }
+                    mEventAdapter.removeItem(mDelDeVLog);
                 }
 
                 if (mEventAdapter.mDeleteLogs.size() == 0) {
@@ -379,6 +382,34 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             }
         }
 
+        public void removeItem(DeviceLog delLog) {
+
+            int index = -1;
+            int delIndex = -1;
+            for (DeviceLog log : mLogList) {
+                if (log.getLogId() == delLog.getLogId()) {
+                    index = mLogList.indexOf(log);
+                }
+            }
+            if (index != -1) {
+                DeviceLog del = mLogList.remove(index);
+
+                mDeleteLogs.remove(del);
+                DeviceLogDao.getInstance(mCtx).delete(del);
+                notifyItemRemoved(index);
+            }
+
+            for (DeviceLog log : mDeleteLogs) {
+                if (log.getLogId() == delLog.getLogId()) {
+                    delIndex = mDeleteLogs.indexOf(log);
+                }
+            }
+
+            if (delIndex != -1) {
+                mDeleteLogs.remove(delIndex);
+            }
+
+        }
 
         @Override
         public int getItemViewType(int position) {
@@ -420,7 +451,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", logInfo.getNodeId());
                 String logUser = mContext.getString(R.string.administrator);
                 if (user != null) {
-                    LogUtil.d(TAG, "user : " + user.toString());
                     logUser = user.getUserName();
                 } else {
                     if (logInfo.getUserId() == 0) {
@@ -531,6 +561,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     public void onDestroy() {
         super.onDestroy();
         mBleManagerHelper.removeUiListener(this);
+        DialogUtils.closeDialog(mLoadDialog);
     }
 
     @Override

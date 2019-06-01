@@ -257,6 +257,7 @@ public class HomeFragment extends BaseFragment implements
             refreshView(UNBIND_DEVICE);
         } else {
             refreshView(BIND_DEVICE);
+            refreshBattery(-1);
         }
 
         mHandler = new Handler() {
@@ -303,13 +304,14 @@ public class HomeFragment extends BaseFragment implements
     private void refreshView(int status) {
         switch (status) {
             case DEVICE_CONNECTING:
-                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y366dp);
+                if (mNewsVpRL.getLayoutParams() != null)
+                    mNewsVpRL.getLayoutParams().height = (int) mCtx.getResources().getDimension(R.dimen.y366dp);
                 mAddLockLl.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
                 mLockStatusTv.setText(R.string.bt_connecting);
                 mBleConnectIv.setClickable(false);
                 mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
-                refreshView(BATTER_UNKNOW);
+//                refreshView(BATTER_UNKNOW);
                 if (mDefaultDevice != null) {
                     mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                     if (mDefaultUser != null) {
@@ -327,7 +329,9 @@ public class HomeFragment extends BaseFragment implements
                 }
                 break;
             case BIND_DEVICE:
-                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y366dp);
+                if (mNewsVpRL.getLayoutParams() != null)
+                    mNewsVpRL.getLayoutParams().height = (int) mCtx.getResources().getDimension(R.dimen.y366dp);
+
                 mAddLockLl.setVisibility(View.GONE);
                 mLockManagerRl.setVisibility(View.VISIBLE);
 
@@ -341,7 +345,7 @@ public class HomeFragment extends BaseFragment implements
                     mLockStatusTv.setText(R.string.bt_unconnected);
                     mBleConnectIv.setClickable(true);
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth);
-                    refreshView(BATTER_UNKNOW);
+//                    refreshView(BATTER_UNKNOW);
                 }
                 if (mDefaultDevice == null) {
                     mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
@@ -364,7 +368,8 @@ public class HomeFragment extends BaseFragment implements
                 }
                 break;
             case UNBIND_DEVICE:
-                mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
+                if (mNewsVpRL.getLayoutParams() != null)
+                    mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mLockManagerRl.setVisibility(View.GONE);
                 mInstructionBtn.setVisibility(View.GONE);
@@ -399,10 +404,16 @@ public class HomeFragment extends BaseFragment implements
      */
     @SuppressLint("SetTextI18n")
     private void refreshBattery(int battery) {
+        mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+        long updateTime = System.currentTimeMillis() / 1000;
+        if (mDefaultStatus != null && battery == -1) {
+            battery = mDefaultStatus.getBattery();
+            updateTime = mDefaultStatus.getUpdateTime();
+        }
         mUpdateTimeTv.setVisibility(View.VISIBLE);
         mShowTimeTv.setVisibility(View.VISIBLE);
         mEqTv.setText(String.valueOf(battery) + "%");
-        mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(System.currentTimeMillis() / 1000), "MM-dd HH:mm"));
+        mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(updateTime), "MM-dd HH:mm"));
         switch (battery / 10) {
             case 0:
                 mEqIv.setBackgroundResource(R.mipmap.icon_battery_10);
@@ -434,14 +445,13 @@ public class HomeFragment extends BaseFragment implements
                 mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
                 break;
             default:
-                refreshView(BATTER_UNKNOW);
+//                refreshView(BATTER_UNKNOW);
                 break;
         }
     }
 
     public void onResume() {
         super.onResume();
-
         DeviceInfo newDeviceInfo = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
 
         if (newDeviceInfo == null) {

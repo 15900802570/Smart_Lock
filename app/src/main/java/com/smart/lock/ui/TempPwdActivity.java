@@ -340,6 +340,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
         do {
             mRandomNum = new Random().nextInt(100);
         } while (mExistNum.contains(mRandomNum));
+
         return NUMBER_100[mRandomNum];
     }
 

@@ -102,7 +102,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     for (DeviceUser devUser : mMemberAdapter.mDeleteUsers) {
-                        LogUtil.d(TAG, "devUser = " + devUser.getUserId());
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                 } else {
@@ -112,7 +111,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 if (mActivity instanceof MemberFragment.OnFragmentInteractionListener) {
                     ((MemberFragment.OnFragmentInteractionListener) mActivity).changeVisible();
                 }
-
                 break;
             default:
                 break;
@@ -185,6 +183,9 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mLoadDialog != null && mLoadDialog.isShowing()) {
+                    return;
+                }
                 ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
                 mMemberAdapter.mDeleteUsers.clear();
                 if (isChecked) {
@@ -427,7 +428,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
     private class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberViewHoler> {
         private Context mContext;
-        private ArrayList<DeviceUser> mUserList;
+        public ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
         public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
         public boolean mAllDelete = false;
@@ -509,7 +510,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             if (index != -1) {
                 DeviceUser del = mUserList.remove(index);
 
-                boolean result = mDeleteUsers.remove(del);
+                mDeleteUsers.remove(del);
                 DeviceUserDao.getInstance(mCtx).delete(del);
                 notifyItemRemoved(index);
             }
@@ -605,7 +606,17 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                         if (holder.mDeleteCb.isChecked()) {
                             mDeleteUsers.add(userInfo);
                         } else {
-                            mDeleteUsers.remove(userInfo);
+                            int delIndex = -1;
+
+                            for (DeviceUser deleteUser : mDeleteUsers) {
+                                if (deleteUser.getUserId() == userInfo.getUserId()) {
+                                    delIndex = mDeleteUsers.indexOf(deleteUser);
+                                }
+                            }
+
+                            if (delIndex != -1) {
+                                mDeleteUsers.remove(delIndex);
+                            }
                         }
                     }
                 });
