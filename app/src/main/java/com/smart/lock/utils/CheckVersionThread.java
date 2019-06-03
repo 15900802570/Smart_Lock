@@ -130,15 +130,7 @@ public class CheckVersionThread {
      * 当发现已经是最新版本 删除之前的安装包
      */
     private void isNewVersion() {
-        String filePath = "";
-        if (FileUtil.checkSDCard()) {
-            filePath = Environment.getExternalStorageDirectory() + File.separator + "SmartLock_DT"
-                    + File.separator + "app";
-        } else {
-            filePath = mContext.getCacheDir().getAbsolutePath() + File.separator + "SmartLock_DT"
-                    + File.separator + "app";
-        }
-
+        String filePath = FileUtil.createDir(mContext, "app") + File.separator;
         File file = new File(filePath);
         if (file.exists() && file.canWrite() && file.isDirectory()) {
             LogUtil.i("file", "删除已有文件");

@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     protected void onDestroy() {
-        LogUtil.d(TAG, TAG + " onDestroy!");
         super.onDestroy();
         BleManagerHelper.getInstance(this).stopService();
     }

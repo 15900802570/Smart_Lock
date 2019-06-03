@@ -140,7 +140,6 @@ public abstract class BaseFragment extends Fragment {
         }
 
         user.setQrPath(path);
-        Log.d(TAG, "user = " + user.toString());
         DeviceUserDao.getInstance(mActivity).insert(user);
         return user;
     }
@@ -229,7 +228,6 @@ public abstract class BaseFragment extends Fragment {
 
         byte[] timeQr = new byte[4];
         StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeQr);
-        LogUtil.d(TAG, "time is " + (System.currentTimeMillis() / 1000 + 30 * 60));
         System.arraycopy(timeQr, 0, authBuf, 1, 4); //二维码有效时间
 
         System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码

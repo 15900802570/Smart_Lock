@@ -282,7 +282,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        LogUtil.d(TAG, "requestCode : " + requestCode);
         switch (requestCode) {
             case REQUESTCODE:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -389,7 +388,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     // 图片裁剪
     private void cropPhoto(Uri uri) {
         Intent intent = new Intent("com.android.camera.action.CROP"); //打开系统自带的裁剪图片的intent
-        LogUtil.d(TAG, "Uri : " + uri.toString());
 
         // 注意一定要添加该项权限，否则会提示无法裁剪
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

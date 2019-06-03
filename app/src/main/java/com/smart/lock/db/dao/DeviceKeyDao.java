@@ -277,11 +277,11 @@ public class DeviceKeyDao {
                 deviceKey.setUserId(userId);
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 if (type == ConstantUtil.USER_PWD) {
-                    deviceKey.setKeyName(mContext.getResources().getString(R.string.me) + mContext.getResources().getString(R.string.password));
+                    deviceKey.setKeyName( mContext.getResources().getString(R.string.password));
                 } else if (type == ConstantUtil.USER_FINGERPRINT)
-                    deviceKey.setKeyName(mContext.getResources().getString(R.string.me) + mContext.getResources().getString(R.string.fingerprint) + lockId);
+                    deviceKey.setKeyName( mContext.getResources().getString(R.string.fingerprint) + lockId);
                 else if (type == ConstantUtil.USER_NFC)
-                    deviceKey.setKeyName(mContext.getResources().getString(R.string.me) + mContext.getResources().getString(R.string.card));
+                    deviceKey.setKeyName(mContext.getResources().getString(R.string.card));
 
                 deviceKey.setKeyType(type);
                 deviceKey.setLockId(lockId);

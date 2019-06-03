@@ -66,6 +66,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                     int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
                     if (count >= 0 && count < 1) {
                         DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_enter) + mCtx.getResources().getString(R.string.card));
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     } else {
@@ -165,13 +166,12 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 }
 
                 final byte[] lockId = extra.getByteArray(BleMsg.KEY_LOCK_ID);
-                LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
                 mLockId = String.valueOf(lockId[0]);
                 DeviceKey deviceKey = new DeviceKey();
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName(mCtx.getString(R.string.me) + mCtx.getString(R.string.card));
+                deviceKey.setKeyName(mCtx.getString(R.string.card));
                 deviceKey.setKeyType(ConstantUtil.USER_NFC);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
@@ -183,7 +183,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -284,7 +283,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
             final DeviceKey cardInfo = mCardList.get(position);
             if (cardInfo != null) {
-                LogUtil.d(TAG, "cardInfo = " + cardInfo.toString());
                 viewHolder.mNameTv.setText(cardInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.icon_card);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(cardInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
@@ -292,20 +290,26 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
-                        positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
+                            mLoadDialog.show();
+                            positionDelete = position;
+                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
-                        positionModify = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_modify) + mCtx.getResources().getString(R.string.card));
+                            mLoadDialog.show();
+                            positionModify = position;
+                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 

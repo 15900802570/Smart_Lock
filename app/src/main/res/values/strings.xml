@@ -375,4 +375,6 @@
     <string name="ota_back_message">Firmware not upgraded, click Exit again</string>
     <string name="ble_broadcast_normally_open">BLE Broadcast Normally Open</string>
     <string name="checking">Checking...</string>
+    <string name="plz_enter">Please Enter</string>
+    <string name="plz_modify">Please Modify</string>
 </resources>

@@ -73,6 +73,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
                     if (count >= 0 && count < 5) {
                         DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_enter) + mCtx.getResources().getString(R.string.fingerprint));
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     } else {
@@ -184,7 +185,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setDeviceNodeId(mDefaultDevice.getDeviceNodeId());
                 deviceKey.setUserId(mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId());
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
-                deviceKey.setKeyName(mCtx.getResources().getString(R.string.me) + mCtx.getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
+                deviceKey.setKeyName(mCtx.getResources().getString(R.string.fingerprint) + (Integer.parseInt(mLockId)));
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
@@ -328,19 +329,25 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    positionDelete = position;
-                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_FINGERPRINT, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
+                        mLoadDialog.show();
+                        positionDelete = position;
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_FINGERPRINT, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    } else showMessage(getString(R.string.disconnect_ble));
                 }
             });
             viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    positionModify = position;
-                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_FINGERPRINT, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_modify) + mCtx.getResources().getString(R.string.fingerprint));
+                        mLoadDialog.show();
+                        positionModify = position;
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_FINGERPRINT, fpInfo.getUserId(), Byte.parseByte(fpInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    } else showMessage(getString(R.string.disconnect_ble));
                 }
             });
 
@@ -401,8 +408,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume");
-
         mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
         mFpAdapter.notifyDataSetChanged();
     }

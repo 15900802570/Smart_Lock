@@ -68,12 +68,16 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     private void initEvent() {
         mBackIv.setOnClickListener(this);
         mCheckBtn.setOnClickListener(this);
-        sendCmd19();
+        if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
+            sendCmd19();
+        } else {
+            ToastUtil.showLong(this, getString(R.string.ble_disconnect));
+        }
     }
 
     private void sendCmd19() {
         LogUtil.d(TAG, "sendCmd19 0");
-        mBleManagerHelper.getBleCardService().sendCmd19((byte) 0);
+        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
         mWaitingDialog.show();
     }
 
@@ -86,8 +90,8 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
             case R.id.btn_self_check_check:
                 if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
                     sendCmd19();
-                }else {
-                    ToastUtil.showLong(this,getString(R.string.ble_disconnect));
+                } else {
+                    ToastUtil.showLong(this, getString(R.string.ble_disconnect));
                 }
                 break;
             default:

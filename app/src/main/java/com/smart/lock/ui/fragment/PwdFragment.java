@@ -249,7 +249,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
             final DeviceKey pwdInfo = mPwdList.get(position);
             if (pwdInfo != null) {
-                LogUtil.d(TAG, "pwdInfo = " + pwdInfo.toString());
                 viewHolder.mNameTv.setText(pwdInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.icon_pwd);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(pwdInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
@@ -257,21 +256,24 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog.show();
-                        positionDelete = position;
-                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_PASSWORD, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
+                            positionDelete = position;
+                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_DELETE, BleMsg.TYPE_PASSWORD, pwdInfo.getUserId(), Byte.parseByte(pwdInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
                 viewHolder.mModifyLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                        bundle.putSerializable(BleMsg.KEY_MODIFY_DEVICE_KEY, pwdInfo);
-                        bundle.putString(BleMsg.KEY_CMD_TYPE, ConstantUtil.MODIFY);
-                        startIntent(PwdSetActivity.class, bundle);
-
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                            bundle.putSerializable(BleMsg.KEY_MODIFY_DEVICE_KEY, pwdInfo);
+                            bundle.putString(BleMsg.KEY_CMD_TYPE, ConstantUtil.MODIFY);
+                            startIntent(PwdSetActivity.class, bundle);
+                        } else showMessage(getString(R.string.disconnect_ble));
                     }
                 });
 
@@ -336,7 +338,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
     public void onResume() {
         super.onResume();
         ArrayList<DeviceKey> pwdList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD);
-        LogUtil.d(TAG, "pwdList = " + pwdList);
         mPwdAdapter.setDataSource(pwdList);
         mPwdAdapter.notifyDataSetChanged();
     }

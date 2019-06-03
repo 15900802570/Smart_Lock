@@ -66,7 +66,8 @@ public class SystemUtils {
      */
     public static Uri saveImageToGallery(Context context, Bitmap bitmap, String fileName) {
         // 保存图片至指定路径
-        String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SmartLock_DT" + File.separator + "qr";
+        String storePath = FileUtil.createDir(context, "qr");
+
         File appDir = new File(storePath);
         if (!appDir.exists()) {
             appDir.mkdir();

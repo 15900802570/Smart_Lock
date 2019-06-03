@@ -116,7 +116,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
-
+        mDevice = Device.getInstance(this);
         DeviceLogDao.getInstance(this).deleteAll();
 
         mLogs = new ArrayList<>();
@@ -147,12 +147,16 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         mLoadDialog = DialogUtils.createLoadingDialog(this, mCtx.getString(R.string.data_loading));
         mLoadDialog.show();
-        if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
-        } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+        if (mDevice.getState() == Device.BLE_CONNECTED) {
+            if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
+            } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+            }
+        } else {
+            showMessage(getString(R.string.disconnect_ble));
+            finish();
         }
-
     }
 
 
@@ -184,15 +188,19 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
                 break;
             case R.id.del_tv:
-                if (mEventAdapter.mDeleteLogs.size() != 0) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
-                        int logId = devLog.getLogId();
-                        mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_LOG, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mEventAdapter.mDeleteLogs.size() != 0) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
+                        for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
+                            int logId = devLog.getLogId();
+                            mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_LOG, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
+                        }
+                    } else {
+                        showMessage(getString(R.string.plz_choise_del_log));
                     }
                 } else {
-                    showMessage(getString(R.string.plz_choise_del_log));
+                    showMessage(getString(R.string.disconnect_ble));
                 }
                 break;
 

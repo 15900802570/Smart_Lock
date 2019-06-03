@@ -259,7 +259,6 @@ public class HomeFragment extends BaseFragment implements
             refreshView(BIND_DEVICE);
             refreshBattery(-1);
         }
-
         mHandler = new Handler() {
             @Override
             public void handleMessage(android.os.Message msg) {
@@ -404,7 +403,9 @@ public class HomeFragment extends BaseFragment implements
      */
     @SuppressLint("SetTextI18n")
     private void refreshBattery(int battery) {
-        mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+        if (StringUtil.checkNotNull(mNodeId)) {
+            mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+        }
         long updateTime = System.currentTimeMillis() / 1000;
         if (mDefaultStatus != null && battery == -1) {
             battery = mDefaultStatus.getBattery();
@@ -630,7 +631,6 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        LogUtil.d(TAG, "requestCode = " + requestCode);
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUESTCODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

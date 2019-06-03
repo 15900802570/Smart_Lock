@@ -56,6 +56,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
     private Dialog mLoadDialog;//等待框
     private Handler mHandler;
     private String mCmdType; //密码设置类型
+    private Device mDevice;
     /**
      * 蓝牙服务者
      */
@@ -90,8 +91,8 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         if (mCmdType.equals(ConstantUtil.CREATE)) {
             mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
             mNodeId = mDefaultDevice.getDeviceNodeId();
-            mUserNameEt.setText(getString(R.string.me) + getString(R.string.password));
-            mUserNameEt.setSelection((getString(R.string.me) + getString(R.string.password)).length());
+            mUserNameEt.setText(getString(R.string.password));
+            mUserNameEt.setSelection(getString(R.string.password).length());
             mTitleTv.setText(R.string.create_pwd);
         } else {
             mModifyDeviceKey = (DeviceKey) getIntent().getSerializableExtra(BleMsg.KEY_MODIFY_DEVICE_KEY);
@@ -103,6 +104,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
 
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
+        mDevice = Device.getInstance(this);
         mHandler = new Handler();
         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
     }
@@ -149,7 +151,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 mLoadDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_PASSWORD, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
             }
-
         }
     }
 
@@ -158,7 +159,9 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_set_pwd:
-                checkPwd();
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    checkPwd();
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.iv_back:
                 finish();

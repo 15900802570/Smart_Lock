@@ -86,18 +86,20 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_tv:
-                if (mTempAdapter.mDeleteUsers.size() != 0) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
-                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mTempAdapter.mDeleteUsers.size() != 0) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
+                        for (DeviceUser devUser : mTempAdapter.mDeleteUsers) {
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        }
+                    } else {
+                        showMessage(getString(R.string.plz_choise_del_user));
                     }
-                } else {
-                    showMessage(getString(R.string.plz_choise_del_user));
-                }
-                if (mActivity instanceof TempFragment.OnFragmentInteractionListener) {
-                    ((TempFragment.OnFragmentInteractionListener) mActivity).changeVisible();
-                }
+                    if (mActivity instanceof TempFragment.OnFragmentInteractionListener) {
+                        ((TempFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                    }
+                } else showMessage(getString(R.string.disconnect_ble));
                 break;
             default:
                 break;
