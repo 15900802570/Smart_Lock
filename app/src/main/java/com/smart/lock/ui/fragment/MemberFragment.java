@@ -236,7 +236,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -328,7 +327,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 }
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -433,7 +431,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         private Boolean mVisiBle = false;
         public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
         public boolean mAllDelete = false;
-        private SwipeLayout mSwipelayout;
+//        private SwipeLayout mSwipelayout;
 
         public MemberAdapter(Context context) {
             mContext = context;
@@ -453,9 +451,9 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         @Override
         public MemberViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
-            mSwipelayout = inflate.findViewById(R.id.item_ll_user);
-            mSwipelayout.setClickToClose(true);
-            mSwipelayout.setRightSwipeEnabled(true);
+            SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
+            swipelayout.setClickToClose(true);
+            swipelayout.setRightSwipeEnabled(true);
             return new MemberViewHoler(inflate);
         }
 
@@ -535,22 +533,21 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
-                    mSwipelayout.setRightSwipeEnabled(false);
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
+                    holder.mSwipeLayout.setRightSwipeEnabled(false);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
-                    mSwipelayout.setRightSwipeEnabled(true);
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.normal));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.pause));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
-                    mSwipelayout.setRightSwipeEnabled(true);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
                 }
-
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
                 final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
@@ -613,7 +610,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                     }
                 });
 
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {

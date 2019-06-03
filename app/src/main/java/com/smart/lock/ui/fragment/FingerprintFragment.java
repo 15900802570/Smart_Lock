@@ -57,9 +57,8 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     private View mFpView;
     private RecyclerView mListView;
     protected TextView mAddTv;
-
+    private Device mDevice;
     private FpManagerAdapter mFpAdapter;
-    private String mLockId = null;
     private Context mCtx;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -70,14 +69,17 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
-                if (count >= 0 && count < 5) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
-                } else {
-                    showMessage(getResources().getString(R.string.add_fp_tips));
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
+                    if (count >= 0 && count < 5) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
+                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                    } else {
+                        showMessage(getResources().getString(R.string.add_fp_tips));
+                    }
+                } else showMessage(getString(R.string.ble_disconnect));
+
                 break;
 
             default:
@@ -110,6 +112,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
+        mDevice = Device.getInstance(mCtx);
         mFpAdapter = new FpManagerAdapter(mCtx);
         mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
@@ -129,7 +132,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         mAddTv.setOnClickListener(this);
     }
 
-    public int getCounter(){
+    public int getCounter() {
         return mFpAdapter.getItemCount();
     }
 
@@ -157,7 +160,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
@@ -195,7 +197,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -253,7 +254,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
-                LogUtil.e(TAG,msg.getType() + " can't receiver msg!");
+                LogUtil.e(TAG, msg.getType() + " can't receiver msg!");
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);

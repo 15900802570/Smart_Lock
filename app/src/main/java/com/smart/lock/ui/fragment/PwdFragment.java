@@ -50,6 +50,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
     private View mPwdView;
     private RecyclerView mListView;
     protected TextView mAddTv;
+    private Device mDevice;
 
     private PwdManagerAdapter mPwdAdapter;
     private Context mCtx;
@@ -62,16 +63,18 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_add:
-                int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
-                if (count >= 0 && count < 1) {
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                    bundle.putSerializable(BleMsg.KEY_TEMP_USER, mTempUser);
-                    bundle.putString(BleMsg.KEY_CMD_TYPE, ConstantUtil.CREATE);
-                    startIntent(PwdSetActivity.class, bundle);
-                } else {
-                    showMessage(getResources().getString(R.string.add_pwd_tips));
-                }
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
+                    if (count >= 0 && count < 1) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                        bundle.putSerializable(BleMsg.KEY_TEMP_USER, mTempUser);
+                        bundle.putString(BleMsg.KEY_CMD_TYPE, ConstantUtil.CREATE);
+                        startIntent(PwdSetActivity.class, bundle);
+                    } else {
+                        showMessage(getResources().getString(R.string.add_pwd_tips));
+                    }
+                } else showMessage(getString(R.string.ble_disconnect));
                 break;
 
             default:
@@ -104,7 +107,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
         mNodeId = mDefaultDevice.getDeviceNodeId();
         mBleManagerHelper = BleManagerHelper.getInstance(mCtx);
         mBleManagerHelper.addUiListener(this);
-
+        mDevice = Device.getInstance(mCtx);
         mPwdAdapter = new PwdManagerAdapter(mCtx);
         mListView.setLayoutManager(new LinearLayoutManager(mCtx, LinearLayoutManager.VERTICAL, false));
         mListView.setItemAnimator(new DefaultItemAnimator());
@@ -122,7 +125,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
         mAddTv.setOnClickListener(this);
     }
 
-    public int getCounter(){
+    public int getCounter() {
         return mPwdAdapter.getItemCount();
     }
 
@@ -145,7 +148,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         Bundle extra = msg.getData();
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
@@ -154,7 +156,6 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                     dispatchErrorCode(errCode[3]);
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }

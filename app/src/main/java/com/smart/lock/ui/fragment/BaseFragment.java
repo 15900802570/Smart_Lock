@@ -1,5 +1,6 @@
 package com.smart.lock.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -65,9 +66,14 @@ public abstract class BaseFragment extends Fragment {
     protected DeviceInfo mDefaultDevice; //默认设备
     protected DeviceUser mDefaultUser;//当前用户
     protected DeviceUser mTempUser;
-    protected ClientTransaction mCt;
     private Context mCtx;
-
+    protected final int REQUESTCODE = 0;
+    protected final int REQUESTCODE_CROP_PHOTO = 1;
+    protected String[] mExternalPermission = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+    };
     /**
      * 蓝牙
      */
@@ -156,9 +162,7 @@ public abstract class BaseFragment extends Fragment {
             Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
             hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
             //图像数据转换，使用了矩阵转换
-            Log.d(TAG, "authBuf = " + Arrays.toString(authBuf));
             String content = StringUtil.bytesToHexString(authBuf);
-            Log.d(TAG, "content = " + content);
             BitMatrix bitMatrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, w, h, hints);
             int[] pixels = new int[w * h];
             //下面这里按照二维码的算法，逐个生成二维码的图片，
@@ -225,7 +229,7 @@ public abstract class BaseFragment extends Fragment {
 
         byte[] timeQr = new byte[4];
         StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeQr);
-        LogUtil.d(TAG,"time is " + (System.currentTimeMillis() / 1000 + 30 * 60));
+        LogUtil.d(TAG, "time is " + (System.currentTimeMillis() / 1000 + 30 * 60));
         System.arraycopy(timeQr, 0, authBuf, 1, 4); //二维码有效时间
 
         System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码

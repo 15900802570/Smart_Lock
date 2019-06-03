@@ -380,7 +380,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         private Boolean mVisiBle = false;
         public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
         public boolean mAllDelete = false;
-        private SwipeLayout mSwipelayout;
 
         public TempAdapter(Context context) {
             mContext = context;
@@ -400,9 +399,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         @Override
         public TempViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
-            mSwipelayout = inflate.findViewById(R.id.item_ll_user);
-            mSwipelayout.setClickToClose(true);
-            mSwipelayout.setRightSwipeEnabled(true);
+            SwipeLayout  swipelayout = inflate.findViewById(R.id.item_ll_user);
+            swipelayout.setClickToClose(true);
+            swipelayout.setRightSwipeEnabled(true);
             return new TempViewHoler(inflate);
         }
 
@@ -484,20 +483,20 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
-                    mSwipelayout.setRightSwipeEnabled(false);
+                    holder.mSwipeLayout.setRightSwipeEnabled(false);
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.normal));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
-                    mSwipelayout.setRightSwipeEnabled(true);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
-                    mSwipelayout.setRightSwipeEnabled(true);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
                 }
 
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));

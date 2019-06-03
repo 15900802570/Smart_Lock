@@ -55,7 +55,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
     private View mAdminView;
     private RecyclerView mUsersRv;
     private AdminAdapter mAdminAdapter;
-    private LinearLayoutManager mLinerLayoutManager;
     private TextView mAddUserTv;
     private RelativeLayout mSelectDeleteRl;
     private CheckBox mSelectCb;
@@ -222,7 +221,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback : " + msg.getType());
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -313,7 +311,6 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 }
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
 
         }
@@ -419,14 +416,12 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         private Boolean mVisiBle = false;
         public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
         public boolean mAllDelete = false;
-        private SwipeLayout mSwipelayout;
 
         public AdminAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
             int index = -1;
             for (DeviceUser user : mUserList) {
-                LogUtil.d(TAG, "user : " + user.getUserId());
                 if (user.getUserId() == mDefaultUser.getUserId()) {
                     index = mUserList.indexOf(user);
                 }
@@ -440,9 +435,9 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         @Override
         public AdminViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
-            mSwipelayout = inflate.findViewById(R.id.item_ll_user);
-            mSwipelayout.setClickToClose(true);
-            mSwipelayout.setRightSwipeEnabled(true);
+            SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
+            swipelayout.setClickToClose(true);
+            swipelayout.setRightSwipeEnabled(true);
             return new AdminViewHolder(inflate);
         }
 
@@ -524,20 +519,20 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
-                    mSwipelayout.setRightSwipeEnabled(false);
+                    holder.mSwipeLayout.setRightSwipeEnabled(false);
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
                     holder.mUserStateTv.setText(mContext.getString(R.string.normal));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
                     holder.mUserPause.setVisibility(View.VISIBLE);
                     holder.mUserRecovery.setVisibility(View.GONE);
-                    mSwipelayout.setRightSwipeEnabled(true);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
                     holder.mUserStateTv.setText(mContext.getString(R.string.pause));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
                     holder.mUserPause.setVisibility(View.GONE);
                     holder.mUserRecovery.setVisibility(View.VISIBLE);
-                    mSwipelayout.setRightSwipeEnabled(true);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
                 }
                 holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
 

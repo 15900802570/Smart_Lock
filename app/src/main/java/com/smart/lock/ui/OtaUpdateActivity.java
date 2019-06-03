@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
@@ -36,10 +37,12 @@ import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
+import com.smart.lock.utils.ToastUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -168,6 +171,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
      */
     private String mDevicePath;
 
+    //back time
+    private long mBackPressedTime;
     /**
      * DFU状态
      */
@@ -791,9 +796,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     toDownload(true);
                 } else {
                     mConnetStatus.setText(R.string.start_update);
-                    if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
-                        prepareDFU();
-                        mStartBt.setEnabled(false);
+                    if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OTA_UPDATE);
                     } else {
                         showMessage(getString(R.string.plz_reconnect));
                     }
@@ -874,9 +878,31 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mLatestVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
                 checkDevVersion();
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
+
+                break;
             default:
                 break;
 
+        }
+    }
+
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_ALLOW_OTA_UPDATE:
+                prepareDFU();
+                mStartBt.setEnabled(false);
+                break;
+            case BleMsg.TYPE_REFUSE_OTA_UPDATE:
+                mConnetStatus.setText(R.string.device_busy);
+                mStartBt.setEnabled(true);
+                break;
+            default:
+                break;
         }
     }
 
@@ -900,5 +926,19 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         mConnetStatus.setText(R.string.connect_failed);
         mStartBt.setEnabled(true);
         updateDfuReady(Device.DFU_CHAR_DISCONNECTED);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
+            long curTime = SystemClock.uptimeMillis();
+            if (curTime - mBackPressedTime < 3000) {
+                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
+                finish();
+                return;
+            }
+            mBackPressedTime = curTime;
+            ToastUtil.showShort(this, getString(R.string.ota_back_message));
+        }
     }
 }

@@ -66,7 +66,7 @@ public class SystemUtils {
      */
     public static Uri saveImageToGallery(Context context, Bitmap bitmap, String fileName) {
         // 保存图片至指定路径
-        String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SmartLock_DT";
+        String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "SmartLock_DT" + File.separator + "qr";
         File appDir = new File(storePath);
         if (!appDir.exists()) {
             appDir.mkdir();
@@ -108,7 +108,7 @@ public class SystemUtils {
         context.startActivity(intent);
     }
 
-    public static void shareText(Context context, String title, String msg){
+    public static void shareText(Context context, String title, String msg) {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND);
         intent.setType("text/*");//设置分享内容的类型
@@ -176,7 +176,7 @@ public class SystemUtils {
         try {
             ApplicationInfo appInfo = context.getPackageManager().getApplicationInfo(context.getPackageName(),
                     PackageManager.GET_META_DATA);
-            LogUtil.d(TAG,"APP_SN = "+ appInfo.metaData.getString("APP_SN"));
+            LogUtil.d(TAG, "APP_SN = " + appInfo.metaData.getString("APP_SN"));
             value = appInfo.metaData.getString("APP_SN");
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

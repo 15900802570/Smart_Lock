@@ -2,5 +2,5 @@
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <external-path
         name="external_files"
-        path="/SmartLock_DT/app" />
+        path="/SmartLock_DT" />
 </paths>

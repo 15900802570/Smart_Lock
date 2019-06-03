@@ -387,6 +387,9 @@ public class BleMsg {
     public static final byte TYPE_EQUIPMENT_BUSY = 0x25; //设备忙
     public static final byte TYPE_USER_FULL = 0x2B; //用户已满
     public static final byte TYPE_FINGERPRINT_EXIST = 0x2A; //指纹已存在
+    public static final byte TYPE_LONG_TIME_NO_DATA = 0x2C; //长时间无数据交互
+    public static final byte TYPE_ALLOW_OTA_UPDATE = 0x2D; //允许ota升级
+    public static final byte TYPE_REFUSE_OTA_UPDATE = 0x2E; //拒绝ota升级
 
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断
@@ -481,6 +484,7 @@ public class BleMsg {
     public static final byte TYPE_ANTI_PRYING_ALARM_CLOSE = 0x0f;//防撬报警关闭
     public static final byte TYPE_LOCK_LOG_ENABLE = 0x12;//log打印开启
     public static final byte TYPE_LOCK_LOG_UNENABLE = 0x13;//log打印关闭
+    public static final byte TYPE_EXIT_OTA_UPDATE = 0x14;//退出ota升级
     public static final byte TYPE_BLE_NORMAL_OPEN_ENABLE = 0x15;//log打印开启
     public static final byte TYPE_BLE_NORMAL_OPEN_UNENABLE = 0x16;//log打印关闭
 

@@ -669,7 +669,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         Bundle extra = msg.getData();
         switch (msg.getType()) {

@@ -372,6 +372,7 @@
     <string name="time_is_invalid">Input time is invalid, please re-enter.</string>
     <string name="set_start_time">Set start date</string>
     <string name="set_end_time">Set end date</string>
+    <string name="ota_back_message">Firmware not upgraded, click Exit again</string>
     <string name="ble_broadcast_normally_open">BLE Broadcast Normally Open</string>
     <string name="checking">Checking...</string>
 </resources>

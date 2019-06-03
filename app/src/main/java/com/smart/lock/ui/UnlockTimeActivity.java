@@ -540,13 +540,22 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 showTimePickerDialog(TEMP_KEY_THIRD_END_TIME);
                 break;
             case R.id.tv_del_time1:
-                mFirstUnlockTimeLl.setVisibility(View.GONE);
+                if (mSecondUnlockTimeLl.getVisibility() == View.GONE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
+                    showMessage("至少设置一个时间段");
+                } else
+                    mFirstUnlockTimeLl.setVisibility(View.GONE);
                 break;
             case R.id.tv_del_time2:
-                mSecondUnlockTimeLl.setVisibility(View.GONE);
+                if (mFirstUnlockTimeLl.getVisibility() == View.GONE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
+                    showMessage("至少设置一个时间段");
+                } else
+                    mSecondUnlockTimeLl.setVisibility(View.GONE);
                 break;
             case R.id.tv_del_time3:
-                mThirtUnlockTimeLl.setVisibility(View.GONE);
+                if (mFirstUnlockTimeLl.getVisibility() == View.GONE && mSecondUnlockTimeLl.getVisibility() == View.GONE) {
+                    showMessage("至少设置一个时间段");
+                } else
+                    mThirtUnlockTimeLl.setVisibility(View.GONE);
                 break;
 
             case R.id.tv_add_unlock_time:
@@ -602,7 +611,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
-        LogUtil.i(TAG, "dispatchUiCallback!");
         mDevice = device;
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
@@ -611,7 +619,6 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                     dispatchErrorCode(errCode[3]);
                 break;
             default:
-                LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
         }
 
