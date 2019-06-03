@@ -28,6 +28,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="@dimen/x15dp"
+            android:paddingRight="@dimen/x25dp"
             android:onClick="onClick"
             android:src="@mipmap/btn_back" />
     </RelativeLayout>

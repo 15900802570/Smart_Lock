@@ -32,12 +32,10 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
-import com.smart.lock.widget.TimePickerWithDateDefineDialog;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -146,11 +144,6 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
             return false;
         } else {
             int mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
-
-            LogUtil.d(TAG, "mCurTime=" + mCurTime + '\'' + System.currentTimeMillis());
-            LogUtil.d(TAG, "NodeId=" + mNodeId + '\\' +
-                    "                        mMac=" + mMac);
-            LogUtil.d(TAG, "CurrentTimeHEX=" + intToHex(mCurTime));
             Long tempSecret;
             if (mIs128Code) {
                 tempSecret = StringUtil.getCRC32(AES128Encode(intToHex(mCurTime) + "000000000000000000000000",
@@ -160,16 +153,15 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                         StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret() : mSecretList.get(new Random().nextInt(4)))));
             }
             if (mIsOnceForTempPwd) {
-                if (mRandomNum < 10) {
-                    mSecret = "0" + mRandomNum + tempSecret;
-                } else if (mRandomNum < 99) {
-                    mSecret = mRandomNum + String.valueOf(tempSecret);
-                }
+                    if (mRandomNum < 10) {
+                        mSecret = "0" + mRandomNum + tempSecret;
+                    } else if (mRandomNum <= 99) {
+                        mSecret = mRandomNum + String.valueOf(tempSecret);
+                    }
             } else {
                 mSecret = String.valueOf(tempSecret);
             }
             showPwdDialog(mSecret);
-            LogUtil.d(TAG, "mSecret=" + mSecret);
             return true;
         }
     }
@@ -178,16 +170,18 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
      * 存储临时密码
      */
     private void saveTempPwd() {
-        mExistNum.add(mRandomNum);
-        TempPwd lTempPwd = new TempPwd();
-        lTempPwd.setDeviceNodeId(mNodeId);
-        lTempPwd.setRandomNum(mRandomNum);
-        lTempPwd.setPwdCreateTime(System.currentTimeMillis() / 1000);
-        lTempPwd.setTempPwdUser(getResources().getString(R.string.temp_pwd_username));
-        lTempPwd.setTempPwd(String.valueOf(mSecret));
-        TempPwdDao.getInstance(this).insert(lTempPwd);
-        mTempPwdAdapter.addItem(lTempPwd);
-        mTempPwdAdapter.notifyDataSetChanged();
+        if (!mExistNum.contains(mRandomNum) && mSecret != null) {
+            mExistNum.add(mRandomNum);
+            TempPwd lTempPwd = new TempPwd();
+            lTempPwd.setDeviceNodeId(mNodeId);
+            lTempPwd.setRandomNum(mRandomNum);
+            lTempPwd.setPwdCreateTime(System.currentTimeMillis() / 1000);
+            lTempPwd.setTempPwdUser(getResources().getString(R.string.temp_pwd_username));
+            lTempPwd.setTempPwd(String.valueOf(mSecret));
+            TempPwdDao.getInstance(this).insert(lTempPwd);
+            mTempPwdAdapter.addItem(lTempPwd);
+            mTempPwdAdapter.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -326,9 +320,11 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
     private String getRandomSecret() {
         String tempStr = mSecretList.get(new Random().nextInt(4));
         String mRandomStr = createRandomNum();
+        String temp = (tempStr.substring(0, tempStr.length() - 2)) + mRandomStr;
         LogUtil.d(TAG, "tempStr = " + tempStr + "\n" +
-                "mRandomStr = " + mRandomStr + "  :  " + mRandomStr.length());
-        return (tempStr.substring(0, tempStr.length() - 2)) + mRandomStr;
+                "mRandomStr = " + mRandomStr + "  :  " + mRandomStr.length() + "\n"+"str = "+
+                temp);
+        return temp;
     }
 
     /**
