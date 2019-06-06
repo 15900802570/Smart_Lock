@@ -106,6 +106,11 @@ public class ConstantUtil {
 
     public static final String CONFIRM = "confirm";
 
+    public static final String SERIALIZABLE_FP_VERSION_MODEL = "fpVersionModel";
+
+    public static final String SERIALIZABLE_DEV_VERSION_MODEL = "devVersionModel";
+
+
     /**
      * 默认设备标识
      */
@@ -120,6 +125,15 @@ public class ConstantUtil {
      * 智能门锁默认名称
      */
     public static final String LOCK_DEFAULT_NAME = "DTLOCKER";
+
+    /**
+     * 门锁软件版本
+     */
+    public static final String OTA_LOCK_SW_VERSION = "lockSwVersion";
+    /**
+     * 门锁软件版本
+     */
+    public static final String OTA_FP_SW_VERSION = "fingerprintSwVersion";
 
     /**
      * 修改
@@ -203,6 +217,11 @@ public class ConstantUtil {
         String FILENAME = "filename";
         String DEVICE_SN = "deviceSn";
         String EXTENSION = "extension";
+        String DEV_CUR_VER = "devCurVer";
+        String FINGERPRINT = "fingerprint";
+        String FP_TYPE = "fpType";
+        String FP_CUR_VER = "fpCurVer";
+        String FP_CUR_ZONE = "fpCurZone";
     }
 
     public static final String[] HOUR = {

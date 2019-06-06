@@ -143,6 +143,7 @@ public class BleCardService {
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            LogUtil.d(TAG, "mBluetoothGatt Discovered : " + gatt.hashCode());
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 mHandler.removeCallbacks(mRunnable);
 //                for (BluetoothGattService service: gatt.getServices()){
@@ -174,6 +175,7 @@ public class BleCardService {
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
                 mBleProvider.onReceiveBle(characteristic.getValue());
+                LogUtil.d(TAG, "characteristic.getValue() : " + StringUtil.getBytes(characteristic.getValue()));
             }
         }
 
@@ -281,6 +283,7 @@ public class BleCardService {
         // autoConnect
         // parameter to false.
         mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
+        LogUtil.d(TAG, "mBluetoothGatt : " + mBluetoothGatt.hashCode());
         if (null != mBluetoothGatt) {
             mEngine.registerDevice(device);
             mBleProvider = new BleProvider(true, mBluetoothGatt);
@@ -309,7 +312,7 @@ public class BleCardService {
         }
 
         if (mBluetoothGatt != null) {
-            LogUtil.d(TAG, "service disconnect!");
+            LogUtil.d(TAG, "mBluetoothGatt disconnect: " + mBluetoothGatt.hashCode());
             mBluetoothGatt.disconnect();
         }
 
@@ -687,6 +690,25 @@ public class BleCardService {
         bundle.putInt(BleMsg.KEY_LOG_ID, logId);
 
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, delLog);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
+    }
+
+    /**
+     * MSG 37是APK发给智能锁的指纹固件大小。
+     *
+     * @param size 指纹固件大小
+     * @return 是否发送成功
+     */
+    public boolean sendCmd37(int size, int timeOut) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_37);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_37 + "#" + "single");
+        msg.setTimeout(timeOut);
+        Bundle bundle = msg.getData();
+
+        bundle.putInt(BleMsg.KEY_FINGERPRINT_SIZE, size);
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();

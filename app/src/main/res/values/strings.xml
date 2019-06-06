@@ -377,4 +377,11 @@
     <string name="checking">Checking...</string>
     <string name="plz_enter">Please Enter</string>
     <string name="plz_modify">Please Modify</string>
+    <string name="need_not_update">Need Not Update</string>
+    <string name="version_empty">当前没有最新升级文件!</string>
+    <string name="fingerprint_ota_update">Fingerprint OTA Update</string>
+    <string name="ready_new_version">Ready New Version</string>
+    <string name="is_connecting">Connecting，please wait!</string>
+    <string name="fingerprint_firmware">Fingerprint Firmware</string>
+    <string name="rolled_back">Rolled Back,Plase wait</string>
 </resources>

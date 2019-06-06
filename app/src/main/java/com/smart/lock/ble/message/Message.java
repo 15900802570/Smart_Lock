@@ -216,6 +216,11 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_33 = 0x33;
 
     /**
+     * MSG 37是APK发给智能锁的指纹固件大小。
+     */
+    public static final byte TYPE_BLE_SEND_CMD_37 = 0x37;
+
+    /**
      * MSG 3E是智能锁在log传输过程中上报的消息
      */
     public static final byte TYPE_BLE_RECEIVER_CMD_3E = 0x3E;
@@ -229,6 +234,10 @@ public class Message implements Serializable {
      * OTA升级数据
      */
     public static final byte TYPE_BLE_SEND_OTA_DATA = 0x51;
+    /**
+     * 指纹OTA升级数据
+     */
+    public static final byte TYPE_BLE_FP_SEND_OTA_DATA = 0x52;
 
     static {
 

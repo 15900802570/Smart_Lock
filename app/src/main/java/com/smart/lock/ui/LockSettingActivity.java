@@ -393,10 +393,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             return;
                         }
                         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-                            Intent intent = new Intent(this, OtaUpdateActivity.class);
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                            intent.putExtras(bundle);
+                            Intent intent = new Intent(this, CheckOtaActivity.class);
                             startActivity(intent);
                         } else
                             Toast.makeText(this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();

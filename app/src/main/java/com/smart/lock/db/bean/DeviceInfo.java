@@ -46,21 +46,8 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "device_hw_version")
     private String deviceHwVersion;
 
-    public String getDeviceSwVersion() {
-        return deviceSwVersion;
-    }
-
-    public void setDeviceSwVersion(String deviceSwVersion) {
-        this.deviceSwVersion = deviceSwVersion;
-    }
-
-    public String getDeviceHwVersion() {
-        return deviceHwVersion;
-    }
-
-    public void setDeviceHwVersion(String deviceHwVersion) {
-        this.deviceHwVersion = deviceHwVersion;
-    }
+    @DatabaseField(columnName = "fp_sw_version")
+    private String fpSwVersion;
 
     @DatabaseField(columnName = "device_status")
     private String deviceStatus;
@@ -103,6 +90,30 @@ public class DeviceInfo implements Serializable {
 
     @DatabaseField(columnName = "temp_pwd_secret")
     private String tempSecret;
+
+    public String getFpSwVersion() {
+        return fpSwVersion;
+    }
+
+    public void setFpSwVersion(String fpSwVersion) {
+        this.fpSwVersion = fpSwVersion;
+    }
+
+    public String getDeviceSwVersion() {
+        return deviceSwVersion;
+    }
+
+    public void setDeviceSwVersion(String deviceSwVersion) {
+        this.deviceSwVersion = deviceSwVersion;
+    }
+
+    public String getDeviceHwVersion() {
+        return deviceHwVersion;
+    }
+
+    public void setDeviceHwVersion(String deviceHwVersion) {
+        this.deviceHwVersion = deviceHwVersion;
+    }
 
     public int getMixUnlock() {
         return mixUnlock;

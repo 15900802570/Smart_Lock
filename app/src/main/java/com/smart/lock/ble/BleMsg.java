@@ -291,6 +291,11 @@ public class BleMsg {
     public static final String KEY_LOG_ID = "logId";
 
     /**
+     * 指纹固件大小
+     */
+    public static final String KEY_FINGERPRINT_SIZE = "fingerprintSize";
+
+    /**
      * 开锁时段
      */
     public static final String KEY_UNLOCK_IMEI = "unLockTime";
@@ -390,6 +395,11 @@ public class BleMsg {
     public static final byte TYPE_LONG_TIME_NO_DATA = 0x2C; //长时间无数据交互
     public static final byte TYPE_ALLOW_OTA_UPDATE = 0x2D; //允许ota升级
     public static final byte TYPE_REFUSE_OTA_UPDATE = 0x2E; //拒绝ota升级
+    public static final byte TYPE_SET_BROADCAST_NORMALLY_OPEN_SUCCESS = 0x2F; //广播常开设置成功
+    public static final byte TYPE_FINGERPRINT_OTA_UPDATE_SUCCESS = 0x30; //指纹ota升级成功
+    public static final byte TYPE_FINGERPRINT_OTA_UPDATE_FAILED = 0x31; //指纹ota升级失败
+    public static final byte TYPE_REFUSE_FINGERPRINT_OTA_UPDATE = 0x32; //拒绝指纹ota升级
+    public static final byte TYPE_ALLOW_FINGERPRINT_OTA_UPDATE = 0x33; //允许指纹ota升级
 
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断
@@ -455,6 +465,7 @@ public class BleMsg {
     public static final byte TYPE_DELETE_LOG_SUCCESS = 0x01; //删除log成功
     public static final byte TYPE_DELETE_LOG_FAILED = 0x02; //删除log失败
     public static final byte TYPE_NO_AUTHORITY_3E = 0x03;  //无权限
+    public static final byte TYPE_GET_FINGERPRINT_SIZE = 0x04;  //无权限
 
     /**
      * MSG 33 type
@@ -487,6 +498,10 @@ public class BleMsg {
     public static final byte TYPE_EXIT_OTA_UPDATE = 0x14;//退出ota升级
     public static final byte TYPE_BLE_NORMAL_OPEN_ENABLE = 0x15;//log打印开启
     public static final byte TYPE_BLE_NORMAL_OPEN_UNENABLE = 0x16;//log打印关闭
+    public static final byte TYPE_OTA_FINRGERPRINT_UPDATE = 0x17;//指纹ota升级
+    public static final byte TYPE_STOP_OTA_FINRGERPRINT_UPDATE = 0x18;//停止指纹ota升级
+    public static final byte TYPE_CHECK_FINGERPRINT_VERSION = 0x19;//查询指纹ota固件版本
+
 
     /**
      * msg 0E type

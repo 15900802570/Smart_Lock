@@ -67,8 +67,11 @@
                 android:layout_height="match_parent"
                 android:background="@drawable/box_corners_white"
                 android:ellipsize="end"
+                android:isScrollContainer="false"
                 android:paddingStart="@dimen/x16dp"
                 android:singleLine="true"
+                android:maxLines="1"
+                android:maxLength="17"
                 android:textColor="@color/color_text"
                 android:textSize="@dimen/d16sp" />
 

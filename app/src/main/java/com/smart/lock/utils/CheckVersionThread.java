@@ -214,18 +214,18 @@ public class CheckVersionThread {
     private DownloadDialog downloadDialog;
 
     public void toDownload(boolean mastDownload) {
-        if (downloadDialog == null) {
-            downloadDialog = new DownloadDialog(mContext,
-                    mVersionAction.respondData.model, mastDownload);
-            downloadDialog.setHaveBackDownload(isShowLoadDialog);
-            downloadDialog.setOnDownLoadListener(onDownLoadListener);
-        }
-        try {
-            downloadDialog.show();
-        } catch (Exception e) {
-            downloadDialog.cancel();
-            e.printStackTrace();
-        }
+//        if (downloadDialog == null) {
+//            downloadDialog = new DownloadDialog(mContext,
+//                    mVersionAction.respondData.model, mastDownload);
+//            downloadDialog.setHaveBackDownload(isShowLoadDialog);
+//            downloadDialog.setOnDownLoadListener(onDownLoadListener);
+//        }
+//        try {
+//            downloadDialog.show();
+//        } catch (Exception e) {
+//            downloadDialog.cancel();
+//            e.printStackTrace();
+//        }
     }
 
     OnDownLoadListener onDownLoadListener = new OnDownLoadListener() {

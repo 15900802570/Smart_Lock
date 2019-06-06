@@ -33,14 +33,17 @@ public class BleCmd1CParse implements BleCommandParse {
         int swLen = Integer.parseInt(String.valueOf(buf[18]), 10);
         int hwLen = Integer.parseInt(String.valueOf(buf[19]), 10);
         byte[] swVer = new byte[swLen];
-        byte[] hwVer = new byte[hwLen];
-        LogUtil.d(TAG, "swLen = " + swVer + '\n' +
-                "hw_len = " + hwVer);
         System.arraycopy(buf, 0, sn, 0, 18);
         System.arraycopy(buf, 20, swVer, 0, swLen);
-        System.arraycopy(buf, 20 + swLen, hwVer, 0, hwLen);
-
-        LogUtil.d(TAG, "buf = "+ Arrays.toString(buf));
+        byte[] hwVer = new byte[hwLen];
+        LogUtil.d(TAG, "swLen = " + swLen + '\n' +
+                "hw_len = " + hwLen);
+        if (hwLen == 0) {
+            hwVer = null;
+        } else {
+            System.arraycopy(buf, 20 + swLen, hwVer, 0, hwLen);
+        }
+        LogUtil.d(TAG, "buf = " + Arrays.toString(buf));
 
         return MessageCreator.getCmd1CMessage(getParseKey(), sn, swVer, hwVer);
     }

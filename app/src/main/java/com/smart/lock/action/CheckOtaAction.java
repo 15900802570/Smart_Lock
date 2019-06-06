@@ -3,6 +3,7 @@ package com.smart.lock.action;
 
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.ConstantUtil.ParamName;
 import com.smart.lock.utils.LogUtil;
 
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ import java.util.Map;
  * @version 创建时间：2012-8-24 下午5:08:51 说明：
  */
 
-public class CheckVersionAction extends AbstractTransaction {
+public class CheckOtaAction extends AbstractTransaction {
     public static final int NO_NEW_VERSION = 0;
     public static final int SELECT_VERSION_UPDATE = 1;
     public static final int MAST_UPDATE_VERSION = 2;
@@ -27,6 +29,9 @@ public class CheckVersionAction extends AbstractTransaction {
         String deviceSn;
         String devCurVer;
         String extension;
+        String fpType;
+        String fpCurVer;
+        String fpCurZone;
     }
 
     public String getDevCurVer() {
@@ -35,6 +40,30 @@ public class CheckVersionAction extends AbstractTransaction {
 
     public void setDevCurVer(String devCurVer) {
         sendData.devCurVer = devCurVer;
+    }
+
+    public String getFpType() {
+        return sendData.fpType;
+    }
+
+    public void setFpType(String fpType) {
+        sendData.fpType = fpType;
+    }
+
+    public String getFpCurVer() {
+        return sendData.fpCurVer;
+    }
+
+    public void setFpCurVer(String fpCurVer) {
+        sendData.fpCurVer = fpCurVer;
+    }
+
+    public String getFpCurZone() {
+        return sendData.fpCurZone;
+    }
+
+    public void setFpCurZone(String fpCurZone) {
+        sendData.fpCurZone = fpCurZone;
     }
 
     public String getDeviceSn() {
@@ -60,13 +89,13 @@ public class CheckVersionAction extends AbstractTransaction {
     public class CheckVersionRespond {
         public String respCode;
         public String respDesc;
-        public VersionModel model;
+        public ArrayList<VersionModel> models;
 
     }
 
     private static final String XML_TAG = "CheckVersionAction";
 
-    public CheckVersionAction() {
+    public CheckOtaAction() {
         respondData = new CheckVersionRespond();
         sendData = new ClientCheckVersionSend();
     }
@@ -88,7 +117,6 @@ public class CheckVersionAction extends AbstractTransaction {
          */
         String json = null;
         if (inputStream == null) {
-            // json = TestData.creatCheckVersionData();
             respondData.respCode = HttpCodeHelper.ERROR;
             return false;
         } else {
@@ -116,18 +144,41 @@ public class CheckVersionAction extends AbstractTransaction {
             try {
                 respondData.respCode = object.getString(ParamName.RESD_CODE);
                 if (HttpCodeHelper.RESPONSE_SUCCESS.equals(respondData.respCode)) {
-                    VersionModel versionModel = new VersionModel();
-                    versionModel.updateDate = object.getString("updateDate");
-                    versionModel.versionCode = object.getInt("versionCode");
-                    versionModel.versionName = object.getString("version");
-                    versionModel.md5 = object.getString("md5");
-                    versionModel.forceUpdate = object.getBoolean("forceUpdate");
-                    versionModel.extension = object.getString("extension");
-                    versionModel.path = object.getString("path");
-                    versionModel.msg = object.getString("msg");
-                    respondData.model = versionModel;
+                    respondData.models = new ArrayList<>();
+                    JSONObject devObj = null;
+                    if (object.has("device")) {
+                        devObj = object.getJSONObject("device");
+                        if (devObj != null) {
+                            VersionModel versionModel = new VersionModel();
+                            versionModel.type = ConstantUtil.OTA_LOCK_SW_VERSION;
+                            versionModel.fileName = devObj.getString("filename");
+                            versionModel.updateDate = devObj.getString("updateDate");
+                            versionModel.versionCode = devObj.getInt("versionCode");
+                            versionModel.versionName = devObj.getString("version");
+                            versionModel.md5 = devObj.getString("md5");
+                            versionModel.forceUpdate = devObj.getBoolean("forceUpdate");
+                            versionModel.path = devObj.getString("path");
+                            versionModel.msg = devObj.getString("msg");
+                            respondData.models.add(versionModel);
+                        }
+                    }
+                    JSONObject fpObj = null;
+                    if (object.has("fingerprint")) {
+                        fpObj = object.getJSONObject("fingerprint");
+                        if (fpObj != null) {
+                            VersionModel versionModel = new VersionModel();
+                            versionModel.type = ConstantUtil.OTA_FP_SW_VERSION;
+                            versionModel.fileName = fpObj.getString("filename");
+                            versionModel.updateDate = fpObj.getString("updateDate");
+                            versionModel.versionCode = fpObj.getInt("versionCode");
+                            versionModel.versionName = fpObj.getString("version");
+                            versionModel.path = fpObj.getString("path");
+                            versionModel.sha1 = fpObj.getString("sha1");
+                            versionModel.zone = fpObj.getString("zone");
+                            respondData.models.add(versionModel);
+                        }
+                    }
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -139,6 +190,12 @@ public class CheckVersionAction extends AbstractTransaction {
         Map<String, Object> paramCheckVersion = new HashMap<>();
         paramCheckVersion.put(ParamName.DEVICE_SN, sendData.deviceSn);
         paramCheckVersion.put(ParamName.EXTENSION, sendData.extension);
+        paramCheckVersion.put(ParamName.DEV_CUR_VER, sendData.devCurVer);
+        Map<String, Object> fingerprint = new HashMap<>();
+        fingerprint.put(ParamName.FP_TYPE, sendData.fpType);
+        fingerprint.put(ParamName.FP_CUR_VER, sendData.fpCurVer);
+        fingerprint.put(ParamName.FP_CUR_ZONE, sendData.fpCurZone);
+        paramCheckVersion.put(ParamName.FINGERPRINT, fingerprint);
 
         super.initParamData(paramCheckVersion);
         return paramCheckVersion;

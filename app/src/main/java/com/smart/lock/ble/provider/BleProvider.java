@@ -11,6 +11,7 @@ import android.util.SparseIntArray;
 import com.smart.lock.ble.BleCommand;
 import com.smart.lock.ble.creator.BleCmd05Creator;
 import com.smart.lock.ble.creator.BleCmd2DCreator;
+import com.smart.lock.ble.creator.BleCmd37Creator;
 import com.smart.lock.ble.listener.BleMessageListener;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
@@ -459,9 +460,10 @@ public class BleProvider {
      * @see BleMessageListener
      */
     private void parseBle(byte[] command, BleMessageListener bleMsgListener) {
-
+        LogUtil.d(TAG, "command = " + StringUtil.getBytes(command) +
+                "\n" + " mRspLength : " + mRspLength +
+                "\n" + " mPacketLength : " + mPacketLength);
         if (isNewCommand()) {
-            LogUtil.d(TAG, "command = " + StringUtil.getBytes(command));
             mPacketLength = (command[1] * 256) + ((command[2] < 0 ? (256 + command[2]) : command[2]) + 5);
 
             if (mPacketLength > INT_SESSION_BUF_MAX_LEN || mPacketLength == 0) {
@@ -572,8 +574,10 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_2D, new BleCmd2DCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_31, new BleCmd31Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_33, new BleCmd33Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_37, new BleCmd37Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_CMD, new BleCmdOtaDataCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_DATA, new BleCmdOtaDataCreator());
+        bleCreatorMap.put(Message.TYPE_BLE_FP_SEND_OTA_DATA, new BleCmdOtaDataCreator());
 
         // 填充ble指令监听器映射表
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_02, mBleMessageListener);
@@ -782,10 +786,7 @@ public class BleProvider {
     }
 
     public boolean sendPacket(byte[] value) {
-        final UUID RX_SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-        final UUID RX_CHAR_UUID = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-
-        BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
+        BluetoothGattService RxService = mBleGatt.getService(Device.RX_SERVICE_UUID);
 
         try {
             Thread.sleep(20);
@@ -797,7 +798,7 @@ public class BleProvider {
             return false;
         }
 
-        BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(RX_CHAR_UUID);
+        BluetoothGattCharacteristic RxChar = RxService.getCharacteristic(Device.RX_CHAR_UUID);
         if (RxChar == null) {
             LogUtil.e(TAG, "RxChar is null!");
             return false;
@@ -809,15 +810,22 @@ public class BleProvider {
     }
 
     public boolean sendOta(byte[] value, int type) {
-//        final UUID RX_SERVICE_UUID = UUID.fromString("0000ffa0-0000-1000-8000-00805f9b34fb");
-//        final UUID RX_CMD_UUID = UUID.fromString("0000ffa1-0000-1000-8000-00805f9b34fb");
-//        final UUID RX_DATA_UUID = UUID.fromString("0000ffa2-0000-1000-8000-00805f9b34fb");
+        UUID RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
+        UUID RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
+        switch (type) {
+            case Message.TYPE_BLE_FP_SEND_OTA_DATA:
+                RX_SERVICE_UUID = Device.RX_SERVICE_UUID;
+                RX_CMD_UUID = Device.RX_CHAR_UUID;
+                break;
+            case Message.TYPE_BLE_SEND_OTA_DATA:
+                RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
+                RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
+                break;
+        }
 
-        final UUID RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
-        final UUID RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
 
         try {
-            Thread.sleep(20);
+            Thread.sleep(100);
         } catch (InterruptedException ex) {
         }
 

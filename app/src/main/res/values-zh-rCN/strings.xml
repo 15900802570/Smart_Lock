@@ -137,7 +137,7 @@
     <string name="temp_password">*********</string>
     <string name="replicating_success">已复制到剪切板</string>
     <string name="share">分享</string>
-
+    <string name="need_not_update">暂无更新</string>
     <string name="plz_reconnect">设备连接失败,请重新连接！</string>
     <string name="add_password">添加密码</string>
     <string name="add_fingerprint">添加指纹</string>
@@ -292,6 +292,7 @@
     <string name="downloading">正在下载</string>
     <string name="start_update">开始更新</string>
     <string name="new_dev_version">有新的版本可以更新</string>
+    <string name="ready_new_version">已经是最新的版本</string>
     <string name="ready_download">下载准备 </string>
     <string name="device_nodeid">设备编号:</string>
     <string name="download_version">版本下载</string>
@@ -388,4 +389,8 @@
     <string name="checking">正在检测...</string>
     <string name="plz_enter">请录入</string>
     <string name="plz_modify">请修改</string>
+    <string name="fingerprint_ota_update">指纹升级</string>
+    <string name="fingerprint_firmware">指纹固件</string>
+    <string name="is_connecting">正在连接,请稍候</string>
+    <string name="rolled_back">正在回锁,请稍候</string>
 </resources>

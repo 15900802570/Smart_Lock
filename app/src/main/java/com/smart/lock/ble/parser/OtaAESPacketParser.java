@@ -6,7 +6,7 @@ import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
-public class BleOtaPacketParser implements BleCommandParse {
+public class OtaAESPacketParser implements BleCommandParse {
 
     @Override
     public Message parse(byte[] cmd) {

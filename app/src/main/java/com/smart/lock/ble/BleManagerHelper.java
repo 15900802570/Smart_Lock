@@ -26,6 +26,7 @@ import com.smart.lock.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ListIterator;
 
 public class BleManagerHelper {
     private static final String TAG = BleManagerHelper.class.getSimpleName();
@@ -63,10 +64,6 @@ public class BleManagerHelper {
      */
     private boolean mIsConnected = false;
 
-    /**
-     * 0:正常连接模式，1:OTA升级模式，2:设备参数写入
-     */
-    private int mMode = 0;
 
     /**
      * 连接方式 0-扫描二维码 1-普通安全连接,2-设置设备信息
@@ -81,7 +78,7 @@ public class BleManagerHelper {
     private long mStartTime = 0;
     private long mEndTime = 0;
 
-    private static final long SCAN_PERIOD = 30000;
+    private static final long SCAN_PERIOD = 20000;
     private Device mDevice; //蓝牙连接状态实例
 
     private DeviceInfo mDefaultDevice; //默认设备
@@ -96,20 +93,21 @@ public class BleManagerHelper {
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
-            if (mDevice.getState() == Device.BLE_CONNECTION) {
-                mHandler.removeCallbacks(mRunnable);
-                mDevice.setState(Device.BLE_DISCONNECTED);
-                mBtAdapter.stopLeScan(mLeScanCallback);
-            }
             synchronized (mState) {
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.scanDevFailed();
+                if (mDevice.getState() == Device.BLE_CONNECTION) {
+                    mHandler.removeCallbacks(mRunnable);
+                    mDevice.setState(Device.BLE_DISCONNECTED);
+                    mBtAdapter.stopLeScan(mLeScanCallback);
+                }
+
+                ListIterator<UiListener> iterator = mUiListeners.listIterator();
+                while (iterator.hasNext()) {
+                    iterator.next().scanDevFailed();
                 }
                 Intent intent = new Intent();
                 intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
             }
-
         }
     };
 
@@ -281,7 +279,7 @@ public class BleManagerHelper {
                     mHandler.removeCallbacks(mRunnable);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {
-                       mService.connect(mDevice, device.getAddress());
+                        mService.connect(mDevice, device.getAddress());
                     }
                 }
             } else {
@@ -333,34 +331,11 @@ public class BleManagerHelper {
 
     }
 
-    /**
-     * 打开搜索界面
-     */
-    public void startScanDevice() {
-
-        if (!mBtAdapter.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            mContext.startActivity(enableIntent);
-        } else {
-            if (mMode == 0) {
-//                Intent newIntent = new Intent(mContext, DeviceScanActivity.class);
-//                newIntent.putExtra(ConstantUtil.NODE_ID, mNodeId);
-//                mContext.startActivity(newIntent);
-            } else {
-                Intent result = new Intent();
-                result.setAction(BleMsg.STR_RSP_OTA_MODE);
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(result);
-            }
-        }
-
-    }
-
-
     public BleCardService getBleCardService() {
         return mService;
     }
 
-    public void addUiListener(UiListener uiListener) {
+    public synchronized void addUiListener(UiListener uiListener) {
         mUiListeners.add(uiListener);
         if (mService == null) {
             LogUtil.e(TAG, "service is null");
@@ -376,7 +351,7 @@ public class BleManagerHelper {
     }
 
     //移除UI监听
-    public void removeUiListener(UiListener uiListener) {
+    public synchronized void removeUiListener(UiListener uiListener) {
         mUiListeners.remove(uiListener);
         if (mService == null) {
             LogUtil.e(TAG, "service is null");

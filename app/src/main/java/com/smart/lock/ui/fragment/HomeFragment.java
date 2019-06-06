@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -63,6 +64,7 @@ import com.smart.lock.widget.TimePickerWithDateDefineDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.ListIterator;
 import java.util.Objects;
 
 
@@ -131,6 +133,8 @@ public class HomeFragment extends BaseFragment implements
 
     private int mAuthErrorCounter = 0;
 
+    private boolean mIsLockBack = false;
+
     public void onAuthenticationSuccess() {
         refreshView(BIND_DEVICE);
     }
@@ -138,6 +142,13 @@ public class HomeFragment extends BaseFragment implements
     public void onAuthenticationFailed() {
         refreshView(UNBIND_DEVICE);
     }
+
+    private Runnable mRunnable = new Runnable() {
+        public void run() {
+//            mInstructionBtn.setEnabled(true);
+            mIsLockBack = false;
+        }
+    };
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -519,7 +530,6 @@ public class HomeFragment extends BaseFragment implements
                         }
                         break;
                     case Device.BLE_CONNECTED:
-//                        showMessage(mCtx.getString(R.string.bt_connected));
                         if (mBleManagerHelper.getBleCardService() != null) {
                             mDevice.setDisconnectBle(true);
                             mBleManagerHelper.getBleCardService().disconnect();
@@ -531,7 +541,7 @@ public class HomeFragment extends BaseFragment implements
                             mBleManagerHelper.stopScan();
                             mDevice.setDisconnectBle(true);
                         }
-//                        showMessage(mCtx.getString(R.string.bt_connecting));
+//                        showMessage(getString(R.string.is_connecting));
                         break;
                 }
                 break;
@@ -547,12 +557,15 @@ public class HomeFragment extends BaseFragment implements
                 break;
             case R.id.one_click_unlock_ib:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    if (mNodeId.getBytes().length == 15)
-                        mNodeId = "0" + mNodeId;
-                    byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
+                    if (!mIsLockBack) {
+//                        mInstructionBtn.setEnabled(false);
+                        if (mNodeId.getBytes().length == 15)
+                            mNodeId = "0" + mNodeId;
+                        byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
 
-                    StringUtil.exchange(nodeId);
-                    mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
+                        StringUtil.exchange(nodeId);
+                        mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
+                    } else showMessage(getString(R.string.rolled_back));
                 } else if (mDevice.getState() == Device.BLE_CONNECTION)
                     showMessage(mCtx.getString(R.string.bt_connecting));
                 else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
@@ -732,9 +745,12 @@ public class HomeFragment extends BaseFragment implements
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_REMOTE_UNLOCK_SUCCESS:
-                android.os.Message msg = new android.os.Message();
-                msg.what = OPEN_LOCK_SUCESS;
-                mHandler.sendMessage(msg);
+                showMessage(getString(R.string.remote_unlock_success));
+                mIsLockBack = true;
+                mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+                int unLockTime = mDefaultStatus.getRolledBackTime();
+                LogUtil.d(TAG, "unLockTime : " + unLockTime);
+                closeDialog(unLockTime);
                 break;
             default:
                 break;
@@ -881,5 +897,15 @@ public class HomeFragment extends BaseFragment implements
         } else {
             refreshView(UNBIND_DEVICE);
         }
+    }
+
+    /**
+     * 超时提示框
+     *
+     * @param seconds 时间
+     */
+    private void closeDialog(int seconds) {
+        mHandler.removeCallbacks(mRunnable);
+        mHandler.postDelayed(mRunnable, seconds * 1000);
     }
 }

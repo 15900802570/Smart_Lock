@@ -1,14 +1,16 @@
 
 package com.smart.lock.entity;
 
+import java.io.Serializable;
+
 /**
  */
-public class VersionModel {
+public class VersionModel implements Serializable {
 
     // 拓展TYPE，多版本类型下载服务
     public String type;
-    // apk名称
-    public String appName;
+    // 文件名称
+    public String fileName;
     // 内部版本号
     public int versionCode;
     // 无需更新 ，可选更新 ，必须更新
@@ -28,5 +30,11 @@ public class VersionModel {
     public String extension;
     //下载校验
     public String md5;
+
+    //sha码用于检测文件完整性
+    public String sha1;
+
+    //文件分区,与请求zone相反
+    public String zone;
 
 }

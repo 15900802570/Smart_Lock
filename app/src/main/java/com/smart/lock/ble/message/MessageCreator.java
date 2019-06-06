@@ -371,11 +371,12 @@ public class MessageCreator {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
+        if (errCode[3] == 0x04) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_37 + "#" + "single");
+        } else
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
 
-        if (errCode != null && errCode.length != 0) {
-            mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
-        }
+        mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
         return mMessage;
     }
 

@@ -280,6 +280,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             case BleMsg.TYPE_ENTER_OR_MODIFY_PASSWORD_SUCCESS:
                 showMessage(getString(R.string.modify_pwd_success));
                 mModifyDeviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
+                mModifyDeviceKey.setKeyName(mUserNameEt.getText().toString().trim());
                 DeviceKeyDao.getInstance(PwdSetActivity.this).updateDeviceKey(mModifyDeviceKey);
                 finish();
                 break;
