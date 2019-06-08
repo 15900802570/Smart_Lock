@@ -497,7 +497,6 @@ public class BleProvider {
                 Message m = parse.parse(cmdBuf);
 
                 if (m != null) {
-                    Log.d(TAG, "parse m : " + m.toString());
                     if (m.getKey() != null) {
                         // 获取事务监听器
                         ClientTransaction ct = (ClientTransaction) removeBleMsgListener(m.getKey());

@@ -146,8 +146,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         });
 
         mLoadDialog = DialogUtils.createLoadingDialog(this, mCtx.getString(R.string.data_loading));
-        mLoadDialog.show();
+
         if (mDevice.getState() == Device.BLE_CONNECTED) {
+            mLoadDialog.show();
             if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                 mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
             } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
@@ -298,6 +299,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_RECEIVER_LOGS_OVER:
+                DialogUtils.closeDialog(mLoadDialog);
                 if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                     mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
                 } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
@@ -306,18 +308,10 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
                 mEventAdapter.setDataSource(mLogs);
                 mEventAdapter.notifyDataSetChanged();
-                DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_LOG_SUCCESS:
                 mDelDeVLog = (DeviceLog) bundle.getSerializable(BleMsg.KEY_SERIALIZABLE);
                 if (mDelDeVLog != null) {
-//                    DeviceLogDao.getInstance(mCtx).delete(mDelDeVLog);
-//                    int position = mEventAdapter.mLogList.indexOf(mDelDeVLog);
-//                    if(position !=-1) {
-//                        mEventAdapter.mLogList.remove(position);
-//                        mEventAdapter.notifyItemRemoved(position);
-//                        mEventAdapter.mDeleteLogs.remove(mDelDeVLog);
-//                    }
                     mEventAdapter.removeItem(mDelDeVLog);
                 }
 

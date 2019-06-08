@@ -289,15 +289,15 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDeviceSn);
 
             int code = StringUtil.compareFPVersion(mVersionModel.versionName, mDefaultDev.getFpSwVersion());
-//            if (0 == code || code == -1) {
-//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-//            } else {
-//                if (mVersionModel.forceUpdate) {
-//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-//                } else {
+            if (0 == code || code == -1) {
+                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+            } else {
+                if (mVersionModel.forceUpdate) {
+                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                } else {
                     compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-//                }
-//            }
+                }
+            }
         }
     }
 

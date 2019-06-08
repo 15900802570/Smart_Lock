@@ -128,6 +128,11 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
+    <style name="NoAnimationDialog" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@null</item>
+        <item name="android:windowExitAnimation">@null</item>
+    </style>
+
     <style name="radiusButton">
         <item name="android:textSize">18sp</item>
         <item name="android:clickable">true</item>

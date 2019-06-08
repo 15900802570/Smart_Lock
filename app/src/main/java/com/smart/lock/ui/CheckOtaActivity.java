@@ -200,11 +200,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     checkDevVersion();
                 }
 
-//                mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
-//                mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
-//                mLatestVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
-//
-
                 break;
 
             default:

@@ -305,17 +305,17 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             int len = mVersionModel.versionName.length();
             int code = 0;
             int swLen = mDefaultDev.getFpSwVersion().length();
-//            if (len >= 5 && swLen >= 5)
-//                code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
-//            if (0 == code || code == -1) {
-//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-//            } else {
-//                if (mVersionModel.forceUpdate) {
-//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-//                } else {
+            if (len >= 5 && swLen >= 5)
+                code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
+            if (0 == code || code == -1) {
+                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+            } else {
+                if (mVersionModel.forceUpdate) {
+                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                } else {
             compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-//                }
-//            }
+                }
+            }
         }
     }
 
