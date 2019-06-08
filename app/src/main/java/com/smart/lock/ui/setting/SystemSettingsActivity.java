@@ -18,6 +18,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -66,6 +67,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private Dialog mPromptDialog;
 
     private Dialog mFingerprintDialog;
+    private TextView mTitleTv;
 
 
     private boolean mIsFPRequired = false;
@@ -95,6 +97,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private static final int REQUEST_CODE_SCAN = 1;
 
     private ScanQRHelper mScanQRHelper;
+    private int mCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstancesState) {
@@ -113,10 +116,9 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mFingersPrintSwitchLight = mFingersPrintSwitchTv.getIv_switch_light();
         mOpenTestTv = findViewById(R.id.tw_open_test);
         mCheckVersionNv = findViewById(R.id.next_check_version);
-
         mModifyPwdNv = findViewById(R.id.system_set_modify_pwd);
-
         mSetDevInfoNv = findViewById(R.id.next_set_info);
+        mTitleTv = findViewById(R.id.tv_title);
 
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
@@ -128,7 +130,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
-//        mSetDevInfoNv.setVisibility(View.GONE);
+        mSetDevInfoNv.setVisibility(View.GONE);
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -217,6 +219,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 doOnClick(R.id.tw_open_test);
             }
         });
+        mTitleTv.setOnClickListener(this);
     }
 
     @Override
@@ -244,7 +247,16 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             case R.id.system_set_iv_back:
                 finish();
                 break;
-
+            case R.id.tv_title:
+                mCount++;
+                if (mCount >= 5) {
+                    mCount = 0;
+                    if (mSetDevInfoNv.getVisibility() == View.GONE) {
+                        mSetDevInfoNv.setVisibility(View.VISIBLE);
+                        ToastUtil.showShort(this, getString(R.string.open_set_dev_info));
+                    }
+                }
+                break;
             case R.id.system_set_modify_pwd:
                 Intent intent = new Intent(SystemSettingsActivity.this, LockScreenActivity.class);
                 intent.putExtra(ConstantUtil.IS_RETURN, true);

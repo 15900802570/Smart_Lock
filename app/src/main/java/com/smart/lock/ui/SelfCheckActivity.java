@@ -76,7 +76,6 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void sendCmd19() {
-        LogUtil.d(TAG, "sendCmd19 0");
         mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
         mWaitingDialog.show();
     }

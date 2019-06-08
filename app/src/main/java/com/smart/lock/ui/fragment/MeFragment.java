@@ -4,6 +4,7 @@ package com.smart.lock.ui.fragment;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputFilter;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -40,6 +42,7 @@ import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.ui.setting.SystemSettingsActivity;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
@@ -50,6 +53,7 @@ import com.smart.lock.widget.MeDefineView;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -195,7 +199,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String newName = ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                String newName = editText.getText().toString();
                 if (!newName.isEmpty()) {
                     mNameTv.setText(newName);
                     mUserProfile.setUserName(newName);
@@ -335,7 +341,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
      * 判断系统及拍照
      */
     private void imageCapture() {
-        String dir = FileUtil.createDir(mMeView.getContext(), "smallIcon") + File.separator;
+        String dir = FileUtil.createDir(mMeView.getContext(), ConstantUtil.ICON_DIR_NAME) + File.separator;
         imgFile = new File(dir, IMAGE_FILE_NAME);
         imgUri = getUriForFile(mMeView.getContext(), imgFile);
 
@@ -361,9 +367,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 // 拍照并进行裁剪
                 case REQUEST_TAKE_PHOTO:
                     // 以广播方式刷新系统相册，以便能够在相册中找到刚刚所拍摄和裁剪的照片
-                    Intent intentBc = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                    intentBc.setData(imgUri);
-                    mMeView.getContext().sendBroadcast(intentBc);
+                    refreshImage(imgUri);
                     cropPhoto(imgUri);
                     break;
 
@@ -373,12 +377,13 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                     if (bitmap != null) {
                         mHeadPhoto.setImageBitmap(bitmap);
                     }
+                    refreshImage(mCutUri);
                     mUserProfile.setPhotoPath(mCutUri.getPath());
+
                     UserProfileDao.getInstance(mActivity).update(mUserProfile);
                     break;
                 // 打开图库获取图片并进行裁剪
                 case SCAN_OPEN_PHONE:
-                    LogUtil.d(TAG, "data.getData() : " + (data.getData() == null ? true : data.getData().toString()));
                     cropPhoto(data.getData());
                     break;
             }
@@ -387,42 +392,61 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
 
     // 图片裁剪
     private void cropPhoto(Uri uri) {
-        Intent intent = new Intent("com.android.camera.action.CROP"); //打开系统自带的裁剪图片的intent
+        try {
+            String dir = FileUtil.createDir(mMeView.getContext(), "smallIcon") + File.separator;
+            Intent intent = new Intent("com.android.camera.action.CROP"); //打开系统自带的裁剪图片的intent
 
-        // 注意一定要添加该项权限，否则会提示无法裁剪
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            // 注意一定要添加该项权限，否则会提示无法裁剪
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
-        intent.setDataAndType(uri, "image/*");
-        intent.putExtra("scale", true);
+            intent.setDataAndType(uri, "image/*");
+            intent.putExtra("scale", true);
+            intent.putExtra("crop", true);
 
-        // 设置裁剪区域的宽高比例
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
+            // 设置裁剪区域的宽高比例
+            intent.putExtra("aspectX", 1);
+            intent.putExtra("aspectY", 1);
 
-        // 设置裁剪区域的宽度和高度
-        intent.putExtra("outputX", 300);
-        intent.putExtra("outputY", 300);
+            // 设置裁剪区域的宽度和高度
+            intent.putExtra("outputX", 400);
+            intent.putExtra("outputY", 400);
 
-        // 取消人脸识别
-        intent.putExtra("noFaceDetection", true);
-        // 图片输出格式
-        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+            // 取消人脸识别
+            intent.putExtra("noFaceDetection", true);
+            // 图片输出格式
+            intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
 
-        // 若为false则表示不返回数据
-        intent.putExtra("return-data", false);
+            // 若为false则表示不返回数据
+            intent.putExtra("return-data", false);
 
-        String time = new SimpleDateFormat("yyyyMMddHHmmss", Locale.CHINA).format(new Date());
-        String fileName = "photo_" + time;
-        File mCutFile = new File(Environment.getExternalStorageDirectory() + File.separator + "SmartLock_DT" + File.separator + "smallIcon", fileName + ".jpeg");
-        if (!mCutFile.getParentFile().exists()) {
-            mCutFile.getParentFile().mkdirs();
+            String fileName = "photo";
+
+            File mCutFile = new File(dir, fileName + ".jpeg");
+            mCutUri = Uri.fromFile(mCutFile);
+
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, mCutUri);
+
+            startActivityForResult(intent, REQUEST_CROP); //设置裁剪参数显示图片至ImageVie
+        } catch (ActivityNotFoundException anfe) {
+            String errorMessage = anfe.getMessage();
+            LogUtil.e(TAG, "errorMessage : " + errorMessage);
         }
+    }
 
-        mCutUri = Uri.fromFile(mCutFile);
+    private void refreshImage(Uri uri) {
+        if (uri != null) {
+            LogUtil.d(TAG, "uri.getPath() : " + uri.getPath());
+            Intent intentBc = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+            intentBc.setData(uri);
+            mMeView.getContext().sendBroadcast(intentBc);
+        }
+    }
 
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, mCutUri);
-
-        startActivityForResult(intent, REQUEST_CROP); //设置裁剪参数显示图片至ImageVie
+    private void clearFile(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }

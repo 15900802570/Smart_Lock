@@ -4,10 +4,14 @@ package com.smart.lock.utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.Toast;
 
@@ -23,12 +27,14 @@ import com.smart.lock.widget.DownloadDialog.OnDownLoadListener;
 import com.smart.lock.widget.DownloadDialog;
 
 import java.io.File;
+import java.io.IOException;
 
 public class CheckVersionThread {
 
     private static final String TAG = CheckVersionThread.class.getSimpleName();
     private String downloadUrl;
     private String updateMsg;
+    private String mVersionName; //门锁版本
     private CheckVersionAction mVersionAction = null;
     private DialogFactory dialog;
     private Activity mContext;
@@ -73,7 +79,6 @@ public class CheckVersionThread {
         {
             if (isShowLoadDialog) {
                 Toast.makeText(mContext, mContext.getString(R.string.add_card), Toast.LENGTH_LONG).show();
-            } else {
             }
             return;
         }
@@ -102,35 +107,83 @@ public class CheckVersionThread {
                 }
                 downloadUrl = version.path;
                 updateMsg = version.msg;
-                int code = SystemUtils.getversonCode(mContext);
-                if (version.versionCode == code) {
-                    compareVersion(CheckVersionAction.NO_NEW_VERSION);
+                mVersionName = version.versionName;
+
+                String dir = FileUtil.createDir(mContext, ConstantUtil.APP_DIR_NAME) + File.separator;
+                String path = dir + version.fileName;
+
+                File file = new File(path);
+                if (file.exists()) {
+                    updateAppVersion(path);
                 } else {
-//                    String[] unUpdateCode = version.unUpdateCode.split(",");
-//                    for (String temp : unUpdateCode) {
-//                        if (code == Integer.parseInt(temp)) {
-//                            compareVersion(CheckVersionAction.NO_NEW_VERSION);
-//                            return;
-//                        }
-//                    }
-                    if (version.forceUpdate) {
-                        compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                    int code = StringUtil.compareVersion(version.versionName, getLocalVersionName(mContext));
+                    if (0 == code || code == -1) {
+                        compareVersion(CheckVersionAction.NO_NEW_VERSION);
                     } else {
-                        compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+                        if (version.forceUpdate) {
+                            compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                        } else {
+                            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+                        }
                     }
                 }
-
             } else {
                 compareVersion(CheckVersionAction.NO_NEW_VERSION);
             }
         }
     };
 
+    private void updateAppVersion(final String path) {
+        if (dialog != null) {
+            dialog = null;
+            dialog = new DialogFactory(mContext);
+        }
+        dialog.getAlter(mContext.getString(R.string.update_title), /*mContext.getString(R.string.current_version)
+                + getLocalVersionName(mContext) + "\n"
+                + mContext.getString(R.string.update_version)
+                + mVersionName + "\n"
+                +*/ mContext.getString(R.string.check_sd_has_new_version))
+                .setOkButtonText(mContext.getString(R.string.update))
+                .setDownloadCancelable(false)
+                .setButtonVisible(BaseDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
+                .setOkClick(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancelDownLoadDialog();
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        File updateFile = new File(path);
+                        Uri apkUri;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            // 授予文件操作的临时权限,根据需求设定，一般安装只需要READ权限
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            // 获取配置的FileProvider的 Content Uri的值
+                            apkUri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".FileProvider", updateFile);
+                        } else {
+                            apkUri = Uri.fromFile(updateFile);
+                        }
+                        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                        mContext.startActivity(intent);
+                        // nm.cancel(1); //关闭通知
+                        System.exit(0);
+                    }
+                })
+                .setNoButtonText(mContext.getString(R.string.cancel))
+                .setNoClick(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.cancelDownLoadDialog();
+                    }
+                })
+                .show();
+    }
+
     /**
      * 当发现已经是最新版本 删除之前的安装包
      */
     private void isNewVersion() {
-        String filePath = FileUtil.createDir(mContext, "app") + File.separator;
+        String filePath = FileUtil.createDir(mContext, ConstantUtil.APP_DIR_NAME) + File.separator;
         File file = new File(filePath);
         if (file.exists() && file.canWrite() && file.isDirectory()) {
             LogUtil.i("file", "删除已有文件");
@@ -170,9 +223,8 @@ public class CheckVersionThread {
                         dialog = null;
                         dialog = new DialogFactory(mContext);
                     }
-                    dialog.show(mContext.getString(R.string.isnew_version) + "\n" + "当前版本号：" + "\n"
+                    dialog.show(mContext.getString(R.string.isnew_version) + "\n" + mContext.getString(R.string.current_version)
                             + getLocalVersionName(mContext));
-                } else {
                 }
                 isNewVersion();
                 LogUtil.e("version", "当前已经是最新的版本了");
@@ -182,7 +234,11 @@ public class CheckVersionThread {
                     dialog = null;
                     dialog = new DialogFactory(mContext);
                 }
-                dialog.getAlter(mContext.getString(R.string.update_title), updateMsg)
+                dialog.getAlter(mContext.getString(R.string.update_title), /*mContext.getString(R.string.current_version)
+                        + getLocalVersionName(mContext) + "\n"
+                        + mContext.getString(R.string.update_version)
+                        + mVersionName + "\n"
+                        +*/ updateMsg)
                         .setOkButtonText(mContext.getString(R.string.update))
                         .setDownloadCancelable(false)
                         .setButtonVisible(BaseDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
@@ -214,18 +270,18 @@ public class CheckVersionThread {
     private DownloadDialog downloadDialog;
 
     public void toDownload(boolean mastDownload) {
-//        if (downloadDialog == null) {
-//            downloadDialog = new DownloadDialog(mContext,
-//                    mVersionAction.respondData.model, mastDownload);
-//            downloadDialog.setHaveBackDownload(isShowLoadDialog);
-//            downloadDialog.setOnDownLoadListener(onDownLoadListener);
-//        }
-//        try {
-//            downloadDialog.show();
-//        } catch (Exception e) {
-//            downloadDialog.cancel();
-//            e.printStackTrace();
-//        }
+        if (downloadDialog == null) {
+            downloadDialog = new DownloadDialog(mContext,
+                    mVersionAction.respondData.model, mastDownload);
+            downloadDialog.setHaveBackDownload(isShowLoadDialog);
+            downloadDialog.setOnDownLoadListener(onDownLoadListener);
+        }
+        try {
+            downloadDialog.show();
+        } catch (Exception e) {
+            downloadDialog.cancel();
+            e.printStackTrace();
+        }
     }
 
     OnDownLoadListener onDownLoadListener = new OnDownLoadListener() {

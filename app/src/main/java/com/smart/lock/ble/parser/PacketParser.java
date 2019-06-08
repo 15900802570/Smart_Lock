@@ -39,7 +39,6 @@ public class PacketParser implements BleCommandParse {
         System.arraycopy(sha1, 0, this.data, 0, sha1.length);
         System.arraycopy(data, 0, this.data, sha1.length, data.length);
 
-//        this.data = data;
         int length = this.data.length;
         int size = 495;
 
@@ -70,7 +69,6 @@ public class PacketParser implements BleCommandParse {
     }
 
     public byte[] getNextPacket() {
-
         int index = this.getNextPacketIndex();
         byte[] packet = this.getPacket(index);
         this.index = index;
@@ -103,7 +101,7 @@ public class PacketParser implements BleCommandParse {
 
         System.arraycopy(this.data, index * size, packet, 3, packetSize - 5);
 
-        short crc = StringUtil.crc16(packet, 18);
+        short crc = StringUtil.crc16(packet, 498);
         StringUtil.short2Bytes(crc, buf);
         System.arraycopy(buf, 0, packet, 498, 2);
 
@@ -111,30 +109,31 @@ public class PacketParser implements BleCommandParse {
         return packet;
     }
 
-    public byte[] getCheckPacket() {
-        byte[] packet = new byte[16];
-        for (int i = 0; i < 16; i++) {
-            packet[i] = (byte) 0xFF;
+    private byte[] getSendPacket(byte[] val) {
+        byte[] mRspBuf = new byte[20];
+        int mRspRead = 0;
+        int bufLen = 0;
+        if (val.length > 20) {
+
+            bufLen = val.length / 20;
+
+            if (val.length % 20 != 0)
+                bufLen++;
+
+            for (int len = 0; len < bufLen; len++) {
+                mRspRead = len * 20;
+                for (int i = 0; i < 20; i++) {
+                    if ((mRspRead + i) >= val.length) {
+                        break;
+                    }
+                    mRspBuf[i] = val[mRspRead + i];
+                }
+
+            }
+            return mRspBuf;
+        } else {
+            return mRspBuf;
         }
-
-        int index = this.getNextPacketIndex();
-        this.fillIndex(packet, index);
-        int crc = this.crc16(packet);
-        this.fillCrc(packet, crc);
-        LogUtil.d("ota check packet ---> index : " + index + " crc : " + crc + " content : " + StringUtil.bytesToHexString(packet, ":"));
-        return packet;
-    }
-
-    public void fillIndex(byte[] packet, int index) {
-        int offset = 0;
-        packet[offset++] = (byte) (index & 0xFF);
-        packet[offset] = (byte) (index >> 8 & 0xFF);
-    }
-
-    public void fillCrc(byte[] packet, int crc) {
-        int offset = packet.length - 2;
-        packet[offset++] = (byte) (crc & 0xFF);
-        packet[offset] = (byte) (crc >> 8 & 0xFF);
     }
 
     public int crc16(byte[] packet) {

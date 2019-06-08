@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -461,8 +462,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
             if (index != -1) {
                 DeviceUser del = mUserList.remove(index);
 
-                boolean result = mDeleteUsers.remove(del);
-                Log.d(TAG, "result = " + result);
+                mDeleteUsers.remove(del);
                 DeviceUserDao.getInstance(mCtx).delete(del);
                 notifyItemRemoved(index);
             }
@@ -506,11 +506,14 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
                 final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
+                final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+
                 //修改呢称响应事件
                 mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String newName = ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        String newName = editText.getText().toString();
                         if (!newName.isEmpty()) {
                             holder.mNameTv.setText(newName);
                             userInfo.setUserName(newName);
@@ -546,23 +549,19 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                     public void onClick(View v) {
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
                             if (userInfo.getLcBegin() != null && userInfo.getLcEnd() != null) {
-                                try {
-                                    Date now = new Date(System.currentTimeMillis());
-                                    Date begin = new Date(DateTimeUtil.dateToStampDay(userInfo.getLcBegin()));
-                                    Date end = new Date(DateTimeUtil.dateToStampDay(userInfo.getLcEnd()));
-                                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
-                                    LogUtil.d(TAG, "ret : " + ret);
+                                Date now = new Date(System.currentTimeMillis());
+                                Date begin = new Date(Long.valueOf(userInfo.getLcBegin() + "000"));
+                                Date end = new Date(Long.valueOf(userInfo.getLcEnd() + "000"));
+                                boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+                                LogUtil.d(TAG, "ret : " + ret);
 
-                                    if (!ret) {
-                                        showMessage("请设置有效的生命周期后恢复!");
-                                        notifyItemChanged(position);
-                                    } else {
-                                        DialogUtils.closeDialog(mLoadDialog);
-                                        mLoadDialog.show();
-                                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                                    }
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
+                                if (!ret) {
+                                    showMessage("请设置有效的生命周期后恢复!");
+                                    notifyItemChanged(position);
+                                } else {
+                                    DialogUtils.closeDialog(mLoadDialog);
+                                    mLoadDialog.show();
+                                    mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                                 }
                             } else {
                                 DialogUtils.closeDialog(mLoadDialog);
@@ -652,6 +651,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onResume() {
         super.onResume();
+        LogUtil.d(TAG,"onResume : " + mIsHint);
         if (mIsHint) {
             ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
             for (DeviceUser user : list) {

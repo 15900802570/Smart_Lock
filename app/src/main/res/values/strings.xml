@@ -384,4 +384,6 @@
     <string name="is_connecting">Connecting，please wait!</string>
     <string name="fingerprint_firmware">Fingerprint Firmware</string>
     <string name="rolled_back">Rolled Back,Plase wait</string>
+    <string name="check_sd_has_new_version">The latest version was detected</string>
+    <string name="open_set_dev_info">Open device info!</string>
 </resources>

@@ -823,9 +823,8 @@ public class BleProvider {
                 break;
         }
 
-
         try {
-            Thread.sleep(100);
+            Thread.sleep(20);
         } catch (InterruptedException ex) {
         }
 

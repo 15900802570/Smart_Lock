@@ -72,6 +72,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
         mModel = model;
         this.url = ConstantUtil.BASE_URL + model.path;
         this.versionCode = model.versionCode;
+        fileName = model.fileName;
         getPath();
         nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         setCancelable(false);
@@ -286,16 +287,14 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
                 case DOWNLOAD_OK:
                     File downFile = new File(path);
                     if (!downFile.exists()) {
-                        Toast.makeText(mContext, mContext.getString(R.string.download_error),
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, mContext.getString(R.string.download_error), Toast.LENGTH_SHORT).show();
                         cancel();
                         return;
                     }
                     showNotification();
                     downloadSize = 0;
                     fileSize = 0;
-                    Toast.makeText(mContext, mContext.getString(R.string.down_finish),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.down_finish), Toast.LENGTH_SHORT).show();
 
                     // Intent intent1 = new Intent(Intent.ACTION_DELETE);
                     // Uri packageURI =
@@ -323,8 +322,7 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
                     break;
                 case DOWNLOAD_ERROR:
                     isSuccess = false;
-                    Toast.makeText(mContext, mContext.getString(R.string.download_error),
-                            Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, mContext.getString(R.string.download_error), Toast.LENGTH_SHORT).show();
                     downloadSize = 0;
                     fileSize = 0;
                     File file = new File(tempPath);
@@ -351,12 +349,12 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
      * @throws IOException
      */
     private void getPath() {
-        fileName = url.substring(url.lastIndexOf("/") + 1);
         try {
-            String dir = FileUtil.createDir(mContext, "app") + File.separator;
-            path = dir + versionCode + fileName;
+            String dir = FileUtil.createDir(mContext, ConstantUtil.APP_DIR_NAME) + File.separator;
+            path = dir + fileName;
             tempPath = path + ".temp";
-            FileUtil.clearFiles(dir);
+            LogUtil.d(TAG, "path : " + path);
+//            FileUtil.clearFiles(dir);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -397,6 +395,8 @@ public class DownloadDialog extends Dialog implements View.OnClickListener {
         if (file.exists()) {
             sendMessage(DOWNLOAD_OK);
         } else {
+            String dir = FileUtil.createDir(mContext, ConstantUtil.APP_DIR_NAME) + File.separator;
+            FileUtil.clearFiles(dir);
             if (thread == null) {
                 thread = new Thread(new Runnable() {
                     @Override

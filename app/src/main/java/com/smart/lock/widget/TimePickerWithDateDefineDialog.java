@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.utils.DateTimeUtil;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 
 import java.text.ParseException;
@@ -30,6 +31,7 @@ import java.util.Calendar;
 @SuppressLint("ValidFragment")
 public class TimePickerWithDateDefineDialog extends DialogFragment {
 
+    private static final String TAG = TimePickerWithDateDefineDialog.class.getSimpleName();
     private TextView mDialogTitleTv;
     private NumberPicker mYearNp;
     private NumberPicker mMonthNp;
@@ -49,6 +51,7 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
     private int sYear, sMonth, sDay;
 
     private long minTimeStamp;
+    private Calendar mCalendar;
 
     /**
      * 构造函数
@@ -62,6 +65,7 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
     public TimePickerWithDateDefineDialog(Context context, String title, long timeStamp, long minTimeStamp, int requestCode) {
         mActivity = context;
         String timeStr = DateTimeUtil.timeStamp2Date(String.valueOf(timeStamp), "yyyyMMddHHmm");
+        LogUtil.d(TAG,"timeStr : " + timeStr);
         this.mTitleStr = title;
         this.minTimeStamp = minTimeStamp;
         this.mYear = Integer.valueOf(timeStr.substring(0, 4));
@@ -69,10 +73,13 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         this.mDay = Integer.valueOf(timeStr.substring(6, 8));
         this.mHour = Integer.valueOf(timeStr.substring(8, 10));
         this.mMinute = Integer.valueOf(timeStr.substring(10, 12));
-        this.sYear = mYear;
-        this.sMonth = mMonth;
-        this.sDay = mDay;
         this.requestCode = requestCode;
+
+        mCalendar = Calendar.getInstance();
+
+        this.sYear = mCalendar.get(Calendar.YEAR);
+        this.sMonth = mCalendar.get(Calendar.MONTH) + 1;
+        this.sDay = mCalendar.get(Calendar.DAY_OF_MONTH);
     }
 
     @Override
@@ -119,7 +126,8 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         mMinuteNp = mView.findViewById(R.id.minute_np);
         mCancelBtn = mView.findViewById(R.id.time_picker_with_date_dialog_cancel_btn);
         mConfirmBtn = mView.findViewById(R.id.time_picker_with_date_dialog_confirm_btn);
-        Calendar mCalendar = Calendar.getInstance();
+//        mHourNp.setEnabled(false);
+//        mMinuteNp.setEnabled(false);
 
         mYearNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         mMonthNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
@@ -142,7 +150,7 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         judgeMonth();
 
         mDayNp.setFormatter(formatter);
-        mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
+//        mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
         mDayNp.setValue(mDay);
 
 
@@ -331,7 +339,7 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
             mDayNp.setWrapSelectorWheel(true);
             mDayNp.setMinValue(1);
         }
-        mDay = mDayNp.getValue();
+//        mDay = mDayNp.getValue();
 
     }
 

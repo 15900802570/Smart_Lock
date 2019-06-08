@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -252,7 +253,11 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 viewHolder.mNameTv.setText(pwdInfo.getKeyName());
                 viewHolder.mType.setImageResource(R.mipmap.icon_pwd);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(pwdInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
+
                 viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), pwdInfo.getKeyName());
+                final EditText editText =   viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -280,7 +285,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).setText(viewHolder.mNameTv.getText());
+                        editText.setText(viewHolder.mNameTv.getText());
                         viewHolder.mEditorNameDialog.show();
                     }
                 });
@@ -288,7 +293,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 viewHolder.mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String newName = ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        final String newName =  editText.getText().toString();
                         if (!newName.isEmpty()) {
                             viewHolder.mNameTv.setText(newName);
                             pwdInfo.setKeyName(newName);

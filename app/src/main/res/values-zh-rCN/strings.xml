@@ -293,6 +293,7 @@
     <string name="start_update">开始更新</string>
     <string name="new_dev_version">有新的版本可以更新</string>
     <string name="ready_new_version">已经是最新的版本</string>
+    <string name="check_sd_has_new_version">检测到已有最新版本</string>
     <string name="ready_download">下载准备 </string>
     <string name="device_nodeid">设备编号:</string>
     <string name="download_version">版本下载</string>
@@ -321,7 +322,7 @@
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
     <string name="setting_password_for_security">为确保安全，请设置密码</string>
-    <string name="set_user_validity_period">设置用户有效期:</string>
+    <string name="set_user_validity_period">设置用户有效期(以天为单位):</string>
     <string name="man">男</string>
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
@@ -350,7 +351,7 @@
     <string name="_1970_01_01">1970-01-01</string>
     <string name="input_timeout">录入超时</string>
     <string name="setting_dev_info">设置设备信息</string>
-    <string name="plz_set_right_life_cycle">请设置正确的生命周期</string>
+    <string name="plz_set_right_life_cycle">请设置有效的生命周期</string>
     <string name="colon">:</string>
     <string name="software_is_locked">已锁定</string>
     <string name="please_retry">请在</string>
@@ -393,4 +394,6 @@
     <string name="fingerprint_firmware">指纹固件</string>
     <string name="is_connecting">正在连接,请稍候</string>
     <string name="rolled_back">正在回锁,请稍候</string>
+    <string name="open_set_dev_info">设置设备信息已打开!</string>
+
 </resources>

@@ -256,8 +256,9 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
      * @return
      */
     private boolean compareDate(String firstStartTime, String firstEndTime, String secondStartTime, String secondEndTime, String thirtStartTime, String thirtEndTime) {
-
-        if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(firstStartTime, firstEndTime), DateTimeUtil.checkDate(secondStartTime, secondEndTime))) {
+        boolean ret = DateTimeUtil.compareDate(DateTimeUtil.checkDate(firstStartTime, firstEndTime), DateTimeUtil.checkDate(secondStartTime, secondEndTime));
+        LogUtil.d(TAG," ret1 = " + ret);
+        if (ret) {
             return false;
         } else if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(thirtStartTime, thirtEndTime), DateTimeUtil.checkDate(secondStartTime, secondEndTime))) {
             return false;
@@ -304,7 +305,17 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 finish();
                 break;
             case R.id.item_confirm:
-                sendUnlocktime();
+                if (!timeCompare(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString())) {
+                    showMessage("开始时间大于或等于结束时间");
+                    showTimePickerDialog(TEMP_KEY_FIRST_END_TIME);
+                } else if (!timeCompare(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString())) {
+                    showMessage("开始时间大于或等于结束时间");
+                    showTimePickerDialog(TEMP_KEY_SECOND_END_TIME);
+                } else if (!timeCompare(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
+                    showMessage("开始时间大于或等于结束时间");
+                    showTimePickerDialog(TEMP_KEY_SECOND_END_TIME);
+                } else
+                    sendUnlocktime();
                 break;
             default:
                 break;
@@ -317,9 +328,11 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
      */
     private void sendUnlocktime() {
         if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.VISIBLE && mThirtUnlockTimeLl.getVisibility() == View.VISIBLE) {
-            if (!compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+            boolean ret = compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                     mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
+                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString());
+            LogUtil.d(TAG, "ret : " + ret);
+            if (ret) {
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),

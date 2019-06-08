@@ -158,6 +158,7 @@ public class BleCardService {
                 mDevStateCallback.onServicesDiscovered(status);
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
+                disconnect();
             }
         }
 
@@ -181,8 +182,10 @@ public class BleCardService {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.d(TAG, "onCharacteristicWrite() status = " + status);
-            mDevStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS);
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                mDevStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS);
+            } else
+                Log.e(TAG, "write failed, status = " + status);
         }
     };
 

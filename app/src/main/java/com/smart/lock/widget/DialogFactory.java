@@ -167,6 +167,7 @@ public class DialogFactory {
         }
         mDownLoadDialog = new BaseDialog(mContext);
         mDownLoadDialog
+                .setButtonVisible(BaseDialog.DIALOG_OK_BUTTON_VISIBLE)
                 .setOkButtonText(ok)
                 .setOkClick(new OnClickListener() {
 

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -287,6 +288,9 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 viewHolder.mType.setImageResource(R.mipmap.icon_card);
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(cardInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
                 viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), cardInfo.getKeyName());
+                final EditText editText = viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -316,7 +320,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).setText(viewHolder.mNameTv.getText());
+                        editText.setText(viewHolder.mNameTv.getText());
                         viewHolder.mEditorNameDialog.show();
                     }
                 });
@@ -325,7 +329,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 viewHolder.mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String newName = ((EditText) viewHolder.mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        final String newName = editText.getText().toString();
                         if (!newName.isEmpty()) {
                             viewHolder.mNameTv.setText(newName);
                             cardInfo.setKeyName(newName);

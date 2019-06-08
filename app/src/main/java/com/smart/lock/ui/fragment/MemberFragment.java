@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -552,11 +553,14 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
                 final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
+                final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+
                 //修改呢称响应事件
                 mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String newName = ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                        final String newName = editText.getText().toString();
                         if (!newName.isEmpty()) {
                             holder.mNameTv.setText(newName);
                             userInfo.setUserName(newName);
@@ -571,7 +575,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).setText(holder.mNameTv.getText().toString());
+                        editText.setText(holder.mNameTv.getText().toString());
                         mEditorNameDialog.show();
                     }
                 });

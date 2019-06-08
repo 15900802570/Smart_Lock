@@ -493,4 +493,10 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         }
         DialogUtils.closeDialog(mLoadDialog);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LogUtil.d(TAG,"onResume");
+    }
 }

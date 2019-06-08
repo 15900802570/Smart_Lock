@@ -215,13 +215,8 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                     mPb.setProgress(0);
                     mConnetStatus.setText(R.string.new_dev_version);
 
-                    gCmdBytes = FileUtil.loadFirmware(mDevicePath);
-
-                    mOtaParser.set(gCmdBytes, mSha1);
-
                     mStartBt.setEnabled(true);
                     showMessage(getString(R.string.down_finish));
-
                     break;
                 case DOWNLOAD_ERROR:
                     isSuccess = false;
@@ -285,7 +280,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             finish();
         } else {
             mFileName = mVersionModel.fileName;
-            getPath(mVersionModel.versionCode);
+            getPath();
             mDownloadUrl += mVersionModel.path;
             mUpdateMsg.setText(mVersionModel.msg);
             mSha1 = StringUtil.hexStringToBytes(mVersionModel.sha1);
@@ -293,28 +288,19 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mLatestVersion.setText(mVersionModel.versionName);
             mDeviceSnTv.setText(mDeviceSn);
 
-//            String dir = FileUtil.createDir(this, "device") + File.separator;
-//            mDevicePath = dir + "Cry_COS_1_v1.1.7_20190529.bin";
-//            String sha = dir + "Cry_COS_1_v1.1.7_20190529_SHA1.bin";
-//            gCmdBytes = FileUtil.loadFirmware(mDevicePath);
-//            mSha1 = FileUtil.loadFirmware(sha);
-//            mStartBt.setText(R.string.start_update);
-            int len = mVersionModel.versionName.length();
-            int code = 0;
-            int swLen = mDefaultDev.getFpSwVersion().length();
-            if (len >= 5 && swLen >= 5)
-                code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
+            int code = StringUtil.compareFPVersion(mVersionModel.versionName, mDefaultDev.getFpSwVersion());
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
                     compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
+//                }
+//            }
         }
     }
+
 
     /**
      * 得到文件的保存路径
@@ -322,10 +308,10 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
      * @return
      * @throws IOException
      */
-    private void getPath(int versionCode) {
+    private void getPath() {
         try {
-            String dir = FileUtil.createDir(this, "device") + File.separator;
-            mDevicePath = dir + mFileName + "_" + versionCode;
+            String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
+            mDevicePath = dir + mFileName;
 
             tempPath = mDevicePath + ".temp";
 //            FileUtil.clearFiles(dir);
@@ -352,13 +338,20 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     }
 
     public void toDownload(boolean mastDownload) {
-        if (mastDownload) {
-            mStartBt.setEnabled(false);
+        File file = new File(mDevicePath);
+        if (file.exists()) {
+            downloadSize = 0;
+            fileSize = 0;
+            mStartBt.setText(R.string.start_update);
             mPb.setProgress(0);
-            File file = new File(mDevicePath);
-            if (file.exists()) {
-                sendMessage(DOWNLOAD_OK);
-            } else {
+            mConnetStatus.setText(R.string.check_sd_has_new_version);
+
+            mStartBt.setEnabled(true);
+        } else {
+            if (mastDownload) {
+                mStartBt.setEnabled(false);
+                mPb.setProgress(0);
+
                 if (mThread == null) {
                     mThread = new Thread(new Runnable() {
                         @Override
@@ -368,11 +361,11 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                     });
                 }
                 mThread.start();
+            } else {
+                mStartBt.setVisibility(View.VISIBLE);
+                mStartBt.setEnabled(true);
+                mPb.setProgress(0);
             }
-        } else {
-            mStartBt.setVisibility(View.VISIBLE);
-            mStartBt.setEnabled(true);
-            mPb.setProgress(0);
         }
     }
 
@@ -625,12 +618,23 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back_sysset:
-                finish();
+                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
+                    long curTime = SystemClock.uptimeMillis();
+                    if (curTime - mBackPressedTime < 3000) {
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
+                        finish();
+                        return;
+                    }
+                    mBackPressedTime = curTime;
+                    ToastUtil.showShort(this, getString(R.string.ota_back_message));
+                } else finish();
                 break;
             case R.id.version_start:
                 if (mStartBt.getText().toString().trim().equals(getString(R.string.download_version))) {
                     toDownload(true);
                 } else {
+                    gCmdBytes = FileUtil.loadFirmware(mDevicePath);
+                    mOtaParser.set(gCmdBytes, mSha1);
                     mConnetStatus.setText(R.string.start_update);
                     if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
                         mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OTA_FINRGERPRINT_UPDATE);
@@ -644,17 +648,22 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         }
     }
 
+    int i = 0;
+
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
         switch (state) {
             case BluetoothGatt.GATT_SUCCESS:
                 if (bWriteDfuData) {
-                    mPb.setProgress(mOtaParser.getProgress());
-                    if (mOtaParser.hasNextPacket()) {
+                    i++;
+                    LogUtil.d(TAG, "i = " + i);
+                    if ((i == 25) && mOtaParser.hasNextPacket()) {
+                        i = 0;
+                        mPb.setProgress(mOtaParser.getProgress());
                         mConnetStatus.setText(R.string.ota_updating);
                         writeCommandByPosition();
-                    } else { // end of writing command;
+                    } else if (mOtaParser.isLast()) { // end of writing command;
                         endDFU();
                     }
 
@@ -679,9 +688,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                     mStartBt.setText(R.string.start_update);
                     mPb.setProgress(0);
                     mConnetStatus.setText(R.string.new_dev_version);
-                    gCmdBytes = FileUtil.loadFirmware(mDevicePath);
-
-                    mOtaParser.set(gCmdBytes, mSha1);
                     mTvProgress.setText(mOtaParser.getTotal() + " / " + (mOtaParser.getIndex()));
                     mStartBt.setEnabled(true);
                 }
@@ -769,7 +775,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     public void onBackPressed() {
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
             long curTime = SystemClock.uptimeMillis();
-            LogUtil.d(TAG,"mBackPressedTime = " + mBackPressedTime );
+            LogUtil.d(TAG, "mBackPressedTime = " + mBackPressedTime);
             if (curTime - mBackPressedTime < 3000) {
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
                 finish();
@@ -777,6 +783,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             }
             mBackPressedTime = curTime;
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
-        }else finish();
+        } else finish();
     }
 }

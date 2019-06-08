@@ -92,7 +92,7 @@ public class DateTimeUtil {
      */
     public static long dateToStampDay(String s) throws ParseException {
         long res;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         Date date = simpleDateFormat.parse(s);
         res = date.getTime();
         return res;
@@ -951,9 +951,10 @@ public class DateTimeUtil {
         LogUtil.d(TAG, "timeArray1 = " + timeArray1.toString());
         LogUtil.d(TAG, "timeArray2 = " + timeArray2.toString());
         for (int i : timeArray1) {
-            if (timeArray2.contains(i))
+            if (timeArray2.contains(i)) {
                 LogUtil.d(TAG, "i = " + i);
-            return true;
+                return true;
+            }
         }
         return false;
     }

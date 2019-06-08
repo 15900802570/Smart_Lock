@@ -565,6 +565,12 @@ public class HomeFragment extends BaseFragment implements
 
                         StringUtil.exchange(nodeId);
                         mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
+
+                        mIsLockBack = true;
+                        mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+                        int unLockTime = mDefaultStatus.getRolledBackTime();
+                        LogUtil.d(TAG, "unLockTime : " + unLockTime);
+                        closeDialog(unLockTime);
                     } else showMessage(getString(R.string.rolled_back));
                 } else if (mDevice.getState() == Device.BLE_CONNECTION)
                     showMessage(mCtx.getString(R.string.bt_connecting));
@@ -746,11 +752,6 @@ public class HomeFragment extends BaseFragment implements
         switch (errCode) {
             case BleMsg.TYPE_REMOTE_UNLOCK_SUCCESS:
                 showMessage(getString(R.string.remote_unlock_success));
-                mIsLockBack = true;
-                mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
-                int unLockTime = mDefaultStatus.getRolledBackTime();
-                LogUtil.d(TAG, "unLockTime : " + unLockTime);
-                closeDialog(unLockTime);
                 break;
             default:
                 break;

@@ -110,6 +110,16 @@ public class ConstantUtil {
 
     public static final String SERIALIZABLE_DEV_VERSION_MODEL = "devVersionModel";
 
+    public static final String LOCK_DIR_NAME = "SmartLock_DT"; //门锁文件夹
+
+    public static final String APP_DIR_NAME = "app"; //app下载文件夹
+
+    public static final String DEV_DIR_NAME = "device"; //设备下载文件夹
+
+    public static final String QR_DIR_NAME = "qr"; //二维码下载文件夹
+
+    public static final String ICON_DIR_NAME = "icon"; //头像下载文件夹
+
 
     /**
      * 默认设备标识

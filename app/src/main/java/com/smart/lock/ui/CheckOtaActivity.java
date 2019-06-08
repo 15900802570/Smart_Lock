@@ -294,11 +294,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
         public void setDataSource(ArrayList<VersionModel> versionList) {
             mVersionList = versionList;
-            for (VersionModel model : mVersionList) {
-                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
-                    mVersionList.remove(model);
-                }
-            }
+//            for (VersionModel model : mVersionList) {
+//                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
+//                    mVersionList.remove(model);
+//                }
+//            }
         }
 
         public void addItem(VersionModel model) {
@@ -326,9 +326,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.lock);
                     viewHolder.mNameTv.setText(R.string.fingerprint_firmware);
-                    swLen = mDefaultDev.getFpSwVersion().length();
-                    if (len >= 5 && swLen >= 5)
-                        code = StringUtil.compareVersion(model.versionName, mDefaultDev.getFpSwVersion().split("_")[1]);
+                    code = StringUtil.compareFPVersion(model.versionName, mDefaultDev.getFpSwVersion());
+
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.lock);
                     viewHolder.mNameTv.setText(R.string.lock_default_name);
@@ -346,19 +345,22 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 viewHolder.mSwipeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent();
-                        Bundle bundle = new Bundle();
-                        if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
-                            bundle.putSerializable(ConstantUtil.SERIALIZABLE_FP_VERSION_MODEL, model);
-                            intent.putExtras(bundle);
-                            intent.setClass(mContext, FpOtaUpdateActivity.class);
-                        } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
-                            bundle.putSerializable(ConstantUtil.SERIALIZABLE_DEV_VERSION_MODEL, model);
-                            intent.putExtras(bundle);
-                            intent.setClass(mContext, OtaUpdateActivity.class);
-                        }
+                        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                            Intent intent = new Intent();
+                            Bundle bundle = new Bundle();
+                            if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
+                                bundle.putSerializable(ConstantUtil.SERIALIZABLE_FP_VERSION_MODEL, model);
+                                intent.putExtras(bundle);
+                                intent.setClass(mContext, FpOtaUpdateActivity.class);
+                            } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
+                                bundle.putSerializable(ConstantUtil.SERIALIZABLE_DEV_VERSION_MODEL, model);
+                                intent.putExtras(bundle);
+                                intent.setClass(mContext, OtaUpdateActivity.class);
+                            }
+                            mContext.startActivity(intent);
+                        } else
+                            showMessage(getString(R.string.unconnected_device));
 
-                        mContext.startActivity(intent);
                     }
                 });
             }

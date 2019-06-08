@@ -15,6 +15,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.smart.lock.R;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SystemUtils;
 
 
@@ -109,7 +110,7 @@ public class BaseDialog extends Dialog {
      *
      */
     private void setButtonVisible() {
-        int ps = SystemUtils.dipToPx(mContext, 10);
+
         switch (visibleFlag) {
             case DIALOG_NO_BUTTON_VISIBLE:
                 btOk.setVisibility(View.GONE);
@@ -119,10 +120,10 @@ public class BaseDialog extends Dialog {
                 btNo.setVisibility(View.GONE);
                 btOk.setVisibility(View.VISIBLE);
                 LayoutParams btOkLin_ = new LayoutParams(
-                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 0.5f);
-                btOkLin_.setMargins(ps, ps, ps, ps);
+                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1f);
+//                btOkLin_.setMargins(ps, ps, ps, ps);
                 btOk.setLayoutParams(btOkLin_);
-                btOk.setBackgroundResource(R.drawable.gem_long_button);
+                btOk.setBackgroundResource(R.drawable.selector_button_dialog_confirm);
                 break;
             case DIALOG_OK_AND_NO_BUTTON_VISIBLE:
                 btNo.setVisibility(View.VISIBLE);

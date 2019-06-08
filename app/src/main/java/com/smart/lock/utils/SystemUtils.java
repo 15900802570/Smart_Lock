@@ -66,7 +66,7 @@ public class SystemUtils {
      */
     public static Uri saveImageToGallery(Context context, Bitmap bitmap, String fileName) {
         // 保存图片至指定路径
-        String storePath = FileUtil.createDir(context, "qr");
+        String storePath = FileUtil.createDir(context, ConstantUtil.QR_DIR_NAME);
 
         File appDir = new File(storePath);
         if (!appDir.exists()) {
@@ -326,8 +326,7 @@ public class SystemUtils {
     public static int getversonCode(Context context) {
         try {
             PackageManager manager = context.getPackageManager();
-            PackageInfo info = manager.getPackageInfo(context.getPackageName(),
-                    0);
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
 
             return info.versionCode;
         } catch (Exception e) {

@@ -94,7 +94,7 @@ public class FileUtil {
         String filePath;
         if (checkSDCard()) {
             filePath = Environment.getExternalStorageDirectory().getAbsolutePath()
-                    + File.separator + "SmartLock_DT" + File.separator
+                    + File.separator + ConstantUtil.LOCK_DIR_NAME + File.separator
                     + dirName;
         } else {
             filePath = context.getCacheDir().getAbsolutePath() + File.separator

@@ -450,6 +450,28 @@ public class StringUtil {
         }
     }
 
+    //指纹固件版本检测
+    public static int compareFPVersion(String curVer, String devVer) {
+        int code = 0;
+        String[] curVerArray = curVer.split("\\.");
+        String[] devVerVerArray = devVer.split("\\.");
+
+        int fpCurVer = Integer.parseInt(curVerArray[curVerArray.length - 1]);
+        int fpDevVer = Integer.parseInt(curVerArray[devVerVerArray.length - 1]);
+
+        LogUtil.d(TAG,"fpCurVer : " + fpCurVer + " fpDevVer : " + fpDevVer);
+        int ret = fpDevVer - fpCurVer;
+
+        if (ret == 0) {
+            code = 0;
+        } else if (ret > 0) {
+            code = 1;
+        } else {
+            code = -1;
+        }
+        return code;
+    }
+
     public static String getBytes(byte[] bytes) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < bytes.length; i++) {
@@ -552,23 +574,20 @@ public class StringUtil {
     public static int checkTempUserStatus(Context context, DeviceUser tempUser) {
         ArrayList<DeviceKey> keys = DeviceKeyDao.getInstance(context).queryUserDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId());
         if (!keys.isEmpty()) { //判断是否有开锁信息
-            if (tempUser.getUserStatus() == ConstantUtil.USER_ENABLE) {
-                if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
-                    tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+            if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
+                tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
+            } else {
+                Date now = new Date(System.currentTimeMillis());
+                Date begin = new Date(Long.valueOf(tempUser.getLcBegin() + "000"));
+                Date end = new Date(Long.valueOf(tempUser.getLcEnd() + "000"));
+                LogUtil.d(TAG, "isEffectiveDate(now, begin, end) : " + isEffectiveDate(now, begin, end));
+                if (!isEffectiveDate(now, begin, end)) { //判断当前时间在生命周期以内
+                    tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
                 } else {
-                    Date now = new Date(System.currentTimeMillis());
-                    Date begin = new Date(Long.valueOf(tempUser.getLcBegin() + "000"));
-                    Date end = new Date(Long.valueOf(tempUser.getLcEnd() + "000"));
-                    LogUtil.d(TAG, "isEffectiveDate(now, begin, end) : " + isEffectiveDate(now, begin, end));
-                    if (!isEffectiveDate(now, begin, end)) { //判断当前时间在生命周期以内
-                        tempUser.setUserStatus(ConstantUtil.USER_PAUSE);
-                    } else {
-                        tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                    }
+                    tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 }
-
-                DeviceUserDao.getInstance(context).updateDeviceUser(tempUser);
             }
+            DeviceUserDao.getInstance(context).updateDeviceUser(tempUser);
         }
 
         return tempUser.getUserStatus();

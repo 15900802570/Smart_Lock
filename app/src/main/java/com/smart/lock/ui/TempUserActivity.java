@@ -184,6 +184,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     public boolean onOptionsItemSelected(MenuItem item) {
         Bundle bundle = new Bundle();
         mTempUser = DeviceUserDao.getInstance(this).queryUser(mTempUser.getDevNodeId(), mTempUser.getUserId());//更新状态
+        LogUtil.d(TAG, "mTempUser : " + mTempUser.toString());
         bundle.putSerializable(BleMsg.KEY_TEMP_USER, mTempUser);
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -192,13 +193,13 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             case R.id.item_set_unlock_time:
                 if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
                     Date now = new Date(System.currentTimeMillis());
-                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin()+ "000"));
-                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd()+ "000"));
+                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
+                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd() + "000"));
                     boolean ret = StringUtil.isEffectiveDate(now, begin, end);
                     LogUtil.d(TAG, "ret : " + ret);
 
                     if (!ret) {
-                        showMessage("请设置有效的生命周期!");
+                        showMessage(getString(R.string.plz_set_right_life_cycle));
                     } else {
                         startIntent(UnlockTimeActivity.class, bundle, -1);
                     }
@@ -207,16 +208,15 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 }
                 break;
             case R.id.item_set_unlock_key:
-
                 if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
                     Date now = new Date(System.currentTimeMillis());
                     Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
-                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd()+ "000"));
+                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd() + "000"));
                     boolean ret = StringUtil.isEffectiveDate(now, begin, end);
                     LogUtil.d(TAG, "ret : " + ret);
 
                     if (!ret) {
-                        showMessage("请设置有效的生命周期!");
+                        showMessage(getString(R.string.plz_set_right_life_cycle));
                     } else {
                         bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
                         startIntent(DeviceKeyActivity.class, bundle, -1);
@@ -244,6 +244,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
+        mTempUser = DeviceUserDao.getInstance(this).queryUser(mTempUser.getDevNodeId(), mTempUser.getUserId());//更新状态
         switch (v.getId()) {
             case R.id.tv_start_date:
                 try {
@@ -270,17 +271,15 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 }
 
                 if (mStartDate < mEndDate) {
-                    if (mStartDateTv.getText().toString().equals(mTempUser.getLcBegin()) && mEndDateTv.getText().toString().equals(mTempUser.getLcEnd())) {
+
+                    if (checkLifeCycle()) {
                         showMessage(getString(R.string.life_cycle_not_changed));
                         return;
                     }
                     if (mDevice.getState() == Device.BLE_CONNECTED) {
                         DialogUtils.closeDialog(mLoadDialog);
                         mLoadDialog.show();
-                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle(mStartDateTv.getText().toString(), mEndDateTv.getText().toString()));
-                        if (mTempUser.getUserStatus() == ConstantUtil.USER_PAUSE) {
-                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, mTempUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        }
+                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
                     } else {
                         showMessage(getString(R.string.disconnect_ble));
                     }
@@ -295,9 +294,30 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-    private byte[] getLifeCycle(String begin, String end) {
-        byte[] lifeCycle = new byte[8];
 
+    private boolean checkLifeCycle() {
+        boolean ret = false;
+
+        if(StringUtil.checkNotNull(mTempUser.getLcBegin())&& StringUtil.checkNotNull(mTempUser.getLcEnd())) {
+            try {
+                boolean beginCompare = Long.valueOf(mTempUser.getLcBegin()) == (DateTimeUtil.dateToStampDay(mStartDateTv.getText().toString()) / 1000);
+                boolean end = Long.valueOf(mTempUser.getLcEnd()) == (DateTimeUtil.dateToStampDay(mEndDateTv.getText().toString()) / 1000);
+
+                if (beginCompare && end) {
+                    ret = true;
+                }
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        return ret;
+    }
+
+    private byte[] getLifeCycle() {
+        byte[] lifeCycle = new byte[8];
         int beginTime = (int) mStartDate;
         int endTime = (int) mEndDate;
 

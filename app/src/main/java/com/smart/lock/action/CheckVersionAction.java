@@ -120,6 +120,7 @@ public class CheckVersionAction extends AbstractTransaction {
                     versionModel.updateDate = object.getString("updateDate");
                     versionModel.versionCode = object.getInt("versionCode");
                     versionModel.versionName = object.getString("version");
+                    versionModel.fileName = object.getString("filename");
                     versionModel.md5 = object.getString("md5");
                     versionModel.forceUpdate = object.getBoolean("forceUpdate");
                     versionModel.extension = object.getString("extension");
@@ -127,7 +128,6 @@ public class CheckVersionAction extends AbstractTransaction {
                     versionModel.msg = object.getString("msg");
                     respondData.model = versionModel;
                 }
-
             } catch (JSONException e) {
                 e.printStackTrace();
             }
