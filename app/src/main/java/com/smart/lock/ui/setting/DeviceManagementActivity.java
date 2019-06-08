@@ -293,7 +293,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         LogUtil.d(TAG, "type = " + l + '\n' +
                 "count = " + mDevManagementAdapter.getItemCount());
         if (l > mDevManagementAdapter.getItemCount()) {
-            mDevManagementAdapter.addItem(DeviceInfoDao.getInstance(mCtx).getNewDeviceInfo());
+            mDevManagementAdapter.refreshList();
             mDevManagementAdapter.notifyDataSetChanged();
         }
     }

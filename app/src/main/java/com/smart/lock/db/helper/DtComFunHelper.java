@@ -26,7 +26,9 @@ public class DtComFunHelper {
             DeviceUserDao.getInstance(context).deleteByKey(DeviceUserDao.DEVICE_NODE_ID, nodeId);
             TempPwdDao.getInstance(context).deleteByKey(TempPwdDao.DEVICE_NODE_ID, nodeId);
             DeviceInfoDao.getInstance(context).delete(deviceInfo);
-            setNewDefault(context);
+            if (DeviceInfoDao.getInstance(context).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true) == null) {
+                setNewDefault(context);
+            }
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -36,9 +38,10 @@ public class DtComFunHelper {
 
     /**
      * 查询其余设备并且设置为默认设备
+     *
      * @param context Context
      */
-    private static void setNewDefault(Context context){
+    private static void setNewDefault(Context context) {
         DeviceInfo deviceInfo = DeviceInfoDao.getInstance(context).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
         if (deviceInfo != null) {
             deviceInfo.setDeviceDefault(true);
