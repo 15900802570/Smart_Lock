@@ -347,6 +347,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setTempSecret(tempSecret);
         synchronized (this.mStateLock) {
             if (userStatus == ConstantUtil.USER_PAUSE) {
+                if (mDefaultUser != null) {
+                    mDefaultUser.setUserStatus(userStatus);
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(mDefaultUser);
+                }
                 for (UiListener uiListener : mUiListeners) {
                     uiListener.dispatchUiCallback(msg, mDevice, BleMsg.USER_PAUSE);
                 }
@@ -700,7 +704,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                     String time = StringUtil.bytesToHexString(timeBuf);
                     String randCode = StringUtil.bytesToHexString(randCodeBuf);
-                    DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
 
                     mDevInfo.setActivitedTime(Long.parseLong(time, 16));
                     mDevInfo.setConnectType(false);
@@ -709,8 +712,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDevInfo.setBleMac(StringUtil.getMacAdr(bleMac));
                     mDevInfo.setNodeType(ConstantUtil.SMART_LOCK);
                     mDevInfo.setDeviceDate(System.currentTimeMillis() / 1000);
-                    if (defaultDevice != null) mDevInfo.setDeviceDefault(false);
-                    else mDevInfo.setDeviceDefault(true);
+                    DeviceInfoDao.getInstance(mCtx).setNoDefaultDev();
+                    mDevInfo.setDeviceDefault(true);
                     mDevInfo.setDeviceName(mCtx.getString(R.string.lock_default_name));
                     mDevInfo.setDeviceSecret(randCode);
                     mDeviceInfoDao.insert(mDevInfo);

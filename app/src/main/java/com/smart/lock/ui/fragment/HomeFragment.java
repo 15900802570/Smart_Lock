@@ -621,7 +621,11 @@ public class HomeFragment extends BaseFragment implements
                 }
                 break;
             case R.mipmap.icon_temporarypassword:
-                startIntent(TempPwdActivity.class, bundle);
+                if (mDefaultUser.getUserStatus() == ConstantUtil.USER_PAUSE) { //用户被暂停
+                    ToastUtil.showShort(mCtx, mCtx.getString(R.string.user_pause_contact_admin));
+                } else {
+                    startIntent(TempPwdActivity.class, bundle);
+                }
                 break;
             default:
                 break;
