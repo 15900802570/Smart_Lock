@@ -660,6 +660,12 @@ public class HomeFragment extends BaseFragment implements
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
 //                    askForPermission();
+                    Bundle bundle = new Bundle();
+                    if(mDefaultDevice!=null) {
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                        startIntent(UserManagerActivity.class, bundle);
+                    }
+
                 }
             }
 
@@ -788,13 +794,9 @@ public class HomeFragment extends BaseFragment implements
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 if (mDefaultDevice == null) {
-                    android.os.Message msg = new android.os.Message();
-                    msg.what = UNBIND_DEVICE;
-                    mHandler.sendMessage(msg);
+                    sendMessage(UNBIND_DEVICE, null, 0);
                 } else {
-                    android.os.Message msg = new android.os.Message();
-                    msg.what = BIND_DEVICE;
-                    mHandler.sendMessage(msg);
+                    sendMessage(BIND_DEVICE, null, 0);
                 }
                 break;
             case BleMsg.STATE_CONNECTED:
@@ -860,9 +862,9 @@ public class HomeFragment extends BaseFragment implements
                 LogUtil.i(TAG, "receiver 26!");
                 mBattery = mDevice.getBattery(); //获取电池电量
                 mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
-                android.os.Message message = new android.os.Message();
-                message.what = BIND_DEVICE;
-                mHandler.sendMessage(message); //刷新UI
+                if (mDefaultDevice != null) {
+                    sendMessage(BIND_DEVICE, null, 0);
+                }
                 break;
             default:
                 break;
@@ -875,9 +877,7 @@ public class HomeFragment extends BaseFragment implements
         LogUtil.i(TAG, "scanDevFiaed!");
         if (mDevice != null)
             mDevice.setState(Device.BLE_DISCONNECTED);
-        android.os.Message msg = new android.os.Message();
-        msg.what = BleMsg.SCAN_DEV_FIALED;
-        mHandler.sendMessage(msg);
+        sendMessage(BleMsg.SCAN_DEV_FIALED, null, 0);
     }
 
     @Override
@@ -889,9 +889,8 @@ public class HomeFragment extends BaseFragment implements
         if (mDefaultUser == null) return;
         mDevice = device;
         LogUtil.i(TAG, "reConnectBle!");
-        android.os.Message msg = new android.os.Message();
-        msg.what = DEVICE_CONNECTING;
-        mHandler.sendMessage(msg);
+
+        sendMessage(DEVICE_CONNECTING, null, 0);
     }
 
     @Override
@@ -912,5 +911,17 @@ public class HomeFragment extends BaseFragment implements
     private void closeDialog(int seconds) {
         mHandler.removeCallbacks(mRunnable);
         mHandler.postDelayed(mRunnable, seconds * 1000);
+    }
+
+    private void sendMessage(int type, Bundle bundle, long time) {
+        android.os.Message msg = new android.os.Message();
+        if (bundle != null) {
+            msg.setData(bundle);
+        }
+        msg.what = type;
+        if (time != 0) {
+            mHandler.sendMessageDelayed(msg, time);
+        } else mHandler.sendMessage(msg);
+
     }
 }

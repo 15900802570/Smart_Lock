@@ -92,18 +92,18 @@ public class PacketParser implements BleCommandParse {
             packetSize = length;
         }
         packetSize = packetSize + 5;
-        byte[] packet = new byte[500];
+        byte[] packet = new byte[packetSize];
         packet[0] = 0x35;
-        short cmdLen = 495;
+        short cmdLen = (short) (packetSize - 5);
         byte[] buf = new byte[48];
         StringUtil.short2Bytes(cmdLen, buf);
         System.arraycopy(buf, 0, packet, 1, 2);
 
         System.arraycopy(this.data, index * size, packet, 3, packetSize - 5);
 
-        short crc = StringUtil.crc16(packet, 498);
+        short crc = StringUtil.crc16(packet, packetSize - 2);
         StringUtil.short2Bytes(crc, buf);
-        System.arraycopy(buf, 0, packet, 498, 2);
+        System.arraycopy(buf, 0, packet, packetSize -2 , 2);
 
         LogUtil.d("ota packet ---> index : " + index + " total : " + this.total + " content : " + StringUtil.bytesToHexString(packet, ":"));
         return packet;

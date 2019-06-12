@@ -716,4 +716,10 @@ public class BleCardService {
         return ct.request();
     }
 
+    public void cancelCmd(String key) {
+
+        ClientTransaction ct = (ClientTransaction) mBleProvider.removeBleMsgListener(key);
+        LogUtil.d(TAG,"cancel ct : " + ct.toString());
+    }
+
 }

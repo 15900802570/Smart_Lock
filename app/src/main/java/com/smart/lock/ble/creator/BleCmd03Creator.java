@@ -59,6 +59,8 @@ public class BleCmd03Creator implements BleCreator {
         byte[] bleCmd = new byte[21];
         System.arraycopy(cmd, 0, bleCmd, 0, 21);
 
+        LogUtil.d(TAG,"TEST >>> send 03 :" + StringUtil.bytesToHexString(bleCmd));
+
         return bleCmd;
     }
 

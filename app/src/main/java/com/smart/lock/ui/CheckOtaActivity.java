@@ -199,12 +199,10 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
                     checkDevVersion();
                 }
-
                 break;
 
             default:
                 break;
-
         }
     }
 

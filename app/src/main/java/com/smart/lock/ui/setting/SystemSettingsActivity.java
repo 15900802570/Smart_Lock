@@ -458,7 +458,11 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (!shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    askForPermission();
+                    if (!SystemUtils.isNetworkAvailable(this)) {
+                        startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                        ToastUtil.show(this, getString(R.string.plz_open_wifi), Toast.LENGTH_LONG);
+                        return;
+                    }
                 }
             }
         }

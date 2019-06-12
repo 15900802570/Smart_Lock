@@ -54,6 +54,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
     private String mLockId = null;
     private Context mCtx;
     private Device mDevice;
+    private Dialog mCancelDialog;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +68,33 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                     int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_NFC).size();
                     if (count >= 0 && count < 1) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_enter) + mCtx.getResources().getString(R.string.card));
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_input) + mCtx.getResources().getString(R.string.card));
+                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+
+                            @Override
+                            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+                                    LogUtil.d(TAG, "按了返回键");
+                                    mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.card) + getString(R.string.input));
+
+                                    mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+                                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                                            mCancelDialog.cancel();
+                                        }
+                                    });
+                                    if(!mCancelDialog.isShowing()) {
+                                        mCancelDialog.show();
+                                    }
+
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                        });
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     } else {
@@ -133,6 +160,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 DialogUtils.closeDialog(mLoadDialog);
+                DialogUtils.closeDialog(mCancelDialog);
                 showMessage(mCtx.getString(R.string.ble_disconnect));
                 break;
             case BleMsg.STATE_CONNECTED:
@@ -206,6 +234,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
             default:
                 break;
         }
+        DialogUtils.closeDialog(mCancelDialog);
         DialogUtils.closeDialog(mLoadDialog);
     }
 
@@ -310,6 +339,33 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
                             DialogUtils.closeDialog(mLoadDialog);
                             mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_modify) + mCtx.getResources().getString(R.string.card));
+//                            mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+//
+//                                @Override
+//                                public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+//                                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+//                                        LogUtil.d(TAG, "按了返回键");
+//                                        mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.edit) + getString(R.string.card));
+//
+//                                        mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View view) {
+//                                                mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+//                                                mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+//                                                mCancelDialog.cancel();
+//                                            }
+//                                        });
+//                                        if(!mCancelDialog.isShowing()) {
+//                                            mCancelDialog.show();
+//                                        }
+//
+//                                        return true;
+//                                    }
+//                                    return false;
+//                                }
+//
+//                            });
+
                             mLoadDialog.show();
                             positionModify = position;
                             mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
@@ -385,18 +441,6 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
 
         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.data_loading));
 
-        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-
-            @Override
-            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
-                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
-                    LogUtil.d(TAG, "按了返回键");
-                    return true;
-                }
-                return false;
-            }
-
-        });
     }
 
     @Override

@@ -300,7 +300,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             mUpdateMsg.setText(mVersionModel.msg);
             mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
             mLatestVersion.setText(mVersionModel.versionName);
-            mDeviceSnTv.setText(mDeviceSn);
+            mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int len = mVersionModel.versionName.length();
             int code = 0;

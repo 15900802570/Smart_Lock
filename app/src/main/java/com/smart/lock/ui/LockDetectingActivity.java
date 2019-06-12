@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -20,6 +21,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,6 +106,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
      * 连接方式 0-扫描二维码 1-普通安全连接,2-设置设备信息
      */
     private byte mConnectType = Device.BLE_CONNECT_TYPE;
+    private Dialog mCancelDialog;
 
     private Runnable mStopScan = new Runnable() {
         @Override
@@ -128,22 +131,67 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mTipsLl.setVisibility(View.VISIBLE);
                     mScanLockTv.setText(R.string.bt_connect_failed);
                     break;
-                case BleMsg.STATE_DISCONNECTED:
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mScanLockTv.setText(R.string.disconnect_ble);
-                    mRescanLl.setVisibility(View.VISIBLE);
-                    mTipsLl.setVisibility(View.VISIBLE);
-                    mSearchAddDev = false;
-                    break;
                 case BleMsg.REGISTER_SUCCESS:
                     DialogUtils.closeDialog(mLoadDialog);
 
                     if (mMode == SEARCH_LOCK && mSearchAddDev) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_setting));
+//                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+//
+//                            @Override
+//                            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+//                                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+//                                    LogUtil.d(TAG, "按了返回键");
+//                                    mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.create_user));
+//
+//                                    mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View view) {
+//                                            mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+//                                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CANCEL_SCAN_QR, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
+//                                            mCancelDialog.cancel();
+//                                        }
+//                                    });
+//                                    if (!mCancelDialog.isShowing()) {
+//                                        mCancelDialog.show();
+//                                    }
+//
+//                                    return true;
+//                                }
+//                                return false;
+//                            }
+//
+//                        });
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_NO_SCAN_QR_ADD_USER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                     } else if (mDevice != null && mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_key));
+//                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+//
+//                            @Override
+//                            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+//                                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+//                                    LogUtil.d(TAG, "按了返回键");
+//                                    mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.create_user));
+//
+//                                    mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View view) {
+//                                            mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+//                                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CANCEL_SCAN_QR, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
+//                                            mCancelDialog.cancel();
+//                                        }
+//                                    });
+//                                    if (!mCancelDialog.isShowing()) {
+//                                        mCancelDialog.show();
+//                                    }
+//
+//                                    return true;
+//                                }
+//                                return false;
+//                            }
+//
+//                        });
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPE_SCAN_QR_ADD_MASTER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
@@ -159,14 +207,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     mSearchAddDev = false;
                     break;
                 case BleMsg.TYPE_ADD_USER_SUCCESS:
+                    DialogUtils.closeDialog(mLoadDialog);
+                    DialogUtils.closeDialog(mCancelDialog);
                     mTitleTv.setText(R.string.add_lock_success);
                     mSearchingRl.setVisibility(View.GONE);
                     mAddLockSuccessLl.setVisibility(View.VISIBLE);
-                    DialogUtils.closeDialog(mLoadDialog);
                     mSearchAddDev = false;
                     break;
                 case BleMsg.TYPE_ADD_USER_FAILED:
                     DialogUtils.closeDialog(mLoadDialog);
+                    DialogUtils.closeDialog(mCancelDialog);
                     showMessage(mCtx.getString(R.string.add_user_failed));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
@@ -423,10 +473,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 } else {
                     ToastUtil.showLong(this, getString(R.string.device_has_been_added));
                 }
-            } else
+            } else {
                 mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
+            }
         }
-
     }
 
     @Override
@@ -505,9 +555,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mDetectingDevice = device.getDevInfo();
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
-                android.os.Message msg = new android.os.Message();
-                msg.what = BleMsg.STATE_DISCONNECTED;
-                mHandler.sendMessage(msg);
+                DialogUtils.closeDialog(mLoadDialog);
+                DialogUtils.closeDialog(mCancelDialog);
+                mScanLockTv.setText(R.string.disconnect_ble);
+                mRescanLl.setVisibility(View.VISIBLE);
+                mTipsLl.setVisibility(View.VISIBLE);
                 mSearchAddDev = false;
                 break;
             case BleMsg.STATE_CONNECTED:
@@ -535,6 +587,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
                 DialogUtils.closeDialog(mLoadDialog);
+                DialogUtils.closeDialog(mCancelDialog);
                 LogUtil.e(msg.getType() + " can't receiver msg!");
                 if (msg.getType() == Message.TYPE_BLE_SEND_CMD_01 || msg.getType() == Message.TYPE_BLE_SEND_CMD_03) {
                     mBleManagerHelper.getBleCardService().disconnect();
@@ -542,6 +595,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 break;
             case Message.EXCEPTION_SEND_FAIL:
                 DialogUtils.closeDialog(mLoadDialog);
+                DialogUtils.closeDialog(mCancelDialog);
                 LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
                 break;

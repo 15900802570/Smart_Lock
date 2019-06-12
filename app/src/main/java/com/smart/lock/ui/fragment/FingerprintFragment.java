@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +63,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     private Device mDevice;
     private FpManagerAdapter mFpAdapter;
     private Context mCtx;
+    private Dialog mCancelDialog;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +77,33 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                     int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT).size();
                     if (count >= 0 && count < 5) {
                         DialogUtils.closeDialog(mLoadDialog);
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_enter) + mCtx.getResources().getString(R.string.fingerprint));
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_input) + mCtx.getResources().getString(R.string.fingerprint));
+                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+
+                            @Override
+                            public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                                if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+                                    LogUtil.d(TAG, "按了返回键");
+                                    mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.fingerprint) + getString(R.string.input));
+
+                                    mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+                                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                                            mCancelDialog.cancel();
+                                        }
+                                    });
+                                    if(!mCancelDialog.isShowing()) {
+                                        mCancelDialog.show();
+                                    }
+
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                        });
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                     } else {
@@ -422,4 +451,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         super.onDestroy();
         mBleManagerHelper.removeUiListener(this);
     }
+
+
+
 }

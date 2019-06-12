@@ -44,6 +44,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
@@ -283,21 +284,25 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             getPath();
             mDownloadUrl += mVersionModel.path;
             mUpdateMsg.setText(mVersionModel.msg);
+            LogUtil.d(TAG,"mVersionModel.sha1 : " + mVersionModel.sha1);
+
             mSha1 = StringUtil.hexStringToBytes(mVersionModel.sha1);
+            LogUtil.d(TAG,"mSha1 : " + Arrays.toString(mSha1));
             mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
             mLatestVersion.setText(mVersionModel.versionName);
-            mDeviceSnTv.setText(mDeviceSn);
+            mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mVersionModel.versionName, mDefaultDev.getFpSwVersion());
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
+//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                }
+//            }
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
         }
     }
 
