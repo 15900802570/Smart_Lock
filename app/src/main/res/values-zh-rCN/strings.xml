@@ -247,7 +247,7 @@
     <string name="nine_num">9</string>
     <string name="zero_num">0</string>
     <string name="device_has_been_added">设备已存在，请勿重复添加</string>
-    <string name="disconnect_ble_first">请先断开智能锁的所有BLE连接</string>
+    <string name="disconnect_ble_first">未找到智能锁</string>
     <string name="unlock">开锁</string>
     <string name="use">使用</string>
     <string name="open">打开了</string>

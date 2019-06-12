@@ -158,11 +158,13 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         mHourNp.setMinValue(0);
         mHourNp.setValue(mHour);
         mHourNp.setFormatter(formatter);
+        mHourNp.setEnabled(false);
 
         mMinuteNp.setMaxValue(59);
         mMinuteNp.setMinValue(0);
         mMinuteNp.setValue(mHour);
         mMinuteNp.setFormatter(formatter);
+        mMinuteNp.setEnabled(false);
 
         return mView;
     }
