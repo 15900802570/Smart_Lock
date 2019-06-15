@@ -6,6 +6,7 @@ import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
@@ -64,7 +65,7 @@ public class BleCmd21Creator implements BleCreator {
 
         byte[] bleCmd = new byte[21];
         System.arraycopy(cmd, 0, bleCmd, 0, 21);
-
+        LogUtil.d(TAG,"TEST >>> send 21 :" + StringUtil.bytesToHexString(bleCmd));
         return bleCmd;
     }
 

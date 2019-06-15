@@ -400,6 +400,8 @@ public class BleMsg {
     public static final byte TYPE_FINGERPRINT_OTA_UPDATE_FAILED = 0x31; //指纹ota升级失败
     public static final byte TYPE_REFUSE_FINGERPRINT_OTA_UPDATE = 0x32; //拒绝指纹ota升级
     public static final byte TYPE_ALLOW_FINGERPRINT_OTA_UPDATE = 0x33; //允许指纹ota升级
+    public static final byte TYPE_DEV_KEY_REPETITION = 0x34; //密钥重复
+
 
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断

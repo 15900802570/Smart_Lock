@@ -3,6 +3,8 @@ package com.smart.lock.ui.fragment;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -483,7 +485,9 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         @Override
         public void onBindViewHolder(@NonNull final TempViewHoler holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
+
             if (userInfo != null) {
+                holder.mNameTv.setBackgroundDrawable(new ColorDrawable(mContext.getResources().getColor(R.color.white)));
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
@@ -553,7 +557,6 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                                 Date begin = new Date(Long.valueOf(userInfo.getLcBegin() + "000"));
                                 Date end = new Date(Long.valueOf(userInfo.getLcEnd() + "000"));
                                 boolean ret = StringUtil.isEffectiveDate(now, begin, end);
-                                LogUtil.d(TAG, "ret : " + ret);
 
                                 if (!ret) {
                                     showMessage("请设置有效的生命周期后恢复!");

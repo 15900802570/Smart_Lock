@@ -45,7 +45,6 @@ public class BleCmd19Creator implements BleCreator {
 
         cmdBuf[0] = type;
         Arrays.fill(cmdBuf, 1, 16, (byte) 0);
-        LogUtil.d(TAG,"cmd = "+ Arrays.toString(cmdBuf));
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(cmdBuf, buf, MessageCreator.m128AK);
@@ -64,7 +63,6 @@ public class BleCmd19Creator implements BleCreator {
 
         byte[] bleCmd = new byte[21];
         System.arraycopy(cmd, 0, bleCmd, 0, 21);
-        LogUtil.d(TAG,Arrays.toString(bleCmd));
         return bleCmd;
     }
 

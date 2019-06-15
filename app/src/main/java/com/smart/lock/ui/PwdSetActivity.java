@@ -287,6 +287,9 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             case BleMsg.TYPE_DELETE_PASSWORD_SUCCESS:
                 showMessage(getString(R.string.delete_pwd_success));
                 break;
+            case BleMsg.TYPE_DEV_KEY_REPETITION:
+                showMessage(getString(R.string.key_repetition));
+                break;
             default:
                 break;
         }

@@ -312,11 +312,8 @@ public class BleProvider {
     }
 
     private static void clearSession() {
-
         mRspLength = mPacketLength = 0;
-
         Arrays.fill(mRspBuf, 0, INT_SESSION_BUF_MAX_LEN, (byte) 0);
-
     }
 
     /**
@@ -466,14 +463,19 @@ public class BleProvider {
         if (isNewCommand()) {
             mPacketLength = (command[1] * 256) + ((command[2] < 0 ? (256 + command[2]) : command[2]) + 5);
 
-            if (mPacketLength > INT_SESSION_BUF_MAX_LEN || mPacketLength == 0) {
-                LogUtil.i(TAG, "recvResponse() length is to large.");
+            if (mPacketLength > INT_SESSION_BUF_MAX_LEN || mPacketLength <= 0) {
+                LogUtil.e(TAG, "recvResponse length is to large.");
+                clearSession();
                 return;
             }
-
         }
 
         for (int i = 0; i < command.length; i++) {
+            if (mRspLength + i >= INT_SESSION_BUF_MAX_LEN) {
+                clearSession();
+                LogUtil.e(TAG, "max recvResponse length is to large.");
+                return; //防止丢包
+            }
             mRspBuf[mRspLength + i] = command[i];
         }
 
@@ -805,7 +807,6 @@ public class BleProvider {
 
         RxChar.setValue(value);
         boolean result = mBleGatt.writeCharacteristic(RxChar);
-        LogUtil.d(TAG,"RxChar : " + RxChar.getValue());
         return result;
     }
 

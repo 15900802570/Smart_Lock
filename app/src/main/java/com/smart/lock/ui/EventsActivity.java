@@ -132,10 +132,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     mTipTv.setText(R.string.cancel);
-                    for (DeviceLog log : mEventAdapter.mLogList) {
-                        mEventAdapter.mDeleteLogs.add(log);
-                        Log.d(TAG, "add = " + log.getLogId());
-                    }
+                    mEventAdapter.mDeleteLogs.addAll(mEventAdapter.mLogList);
                 } else {
                     mTipTv.setText(R.string.all_election);
                     mEventAdapter.mDeleteLogs.clear();
@@ -299,6 +296,11 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_RECEIVER_LOGS_OVER:
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 DialogUtils.closeDialog(mLoadDialog);
                 if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                     mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);

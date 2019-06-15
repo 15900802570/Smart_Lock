@@ -126,8 +126,6 @@ public class TimePickerWithDateDefineDialog extends DialogFragment {
         mMinuteNp = mView.findViewById(R.id.minute_np);
         mCancelBtn = mView.findViewById(R.id.time_picker_with_date_dialog_cancel_btn);
         mConfirmBtn = mView.findViewById(R.id.time_picker_with_date_dialog_confirm_btn);
-//        mHourNp.setEnabled(false);
-//        mMinuteNp.setEnabled(false);
 
         mYearNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         mMonthNp.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);

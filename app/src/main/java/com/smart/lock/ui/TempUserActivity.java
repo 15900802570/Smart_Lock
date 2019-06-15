@@ -126,6 +126,10 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
     @SuppressLint("SetTextI18n")
     private void initDate() {
+
+        if (StringUtil.checkNotNull(mTempUser.getUserName())) {
+            mEtMome.setText(mTempUser.getUserName());
+        }
         String day = mCalendar.get(Calendar.YEAR) + "-" + (mCalendar.get(Calendar.MONTH) + 1) + "-" + mCalendar.get(Calendar.DAY_OF_MONTH);
         if (mTempUser.getLcBegin() == null) {
             mStartDateTv.setText(day + " 00:00");
@@ -298,7 +302,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
     private boolean checkLifeCycle() {
         boolean ret = false;
 
-        if(StringUtil.checkNotNull(mTempUser.getLcBegin())&& StringUtil.checkNotNull(mTempUser.getLcEnd())) {
+        if (StringUtil.checkNotNull(mTempUser.getLcBegin()) && StringUtil.checkNotNull(mTempUser.getLcEnd())) {
             try {
                 boolean beginCompare = Long.valueOf(mTempUser.getLcBegin()) == (DateTimeUtil.dateToStampDay(mStartDateTv.getText().toString()) / 1000);
                 boolean end = Long.valueOf(mTempUser.getLcEnd()) == (DateTimeUtil.dateToStampDay(mEndDateTv.getText().toString()) / 1000);

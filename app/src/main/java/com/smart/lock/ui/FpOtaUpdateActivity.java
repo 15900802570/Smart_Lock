@@ -284,25 +284,23 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             getPath();
             mDownloadUrl += mVersionModel.path;
             mUpdateMsg.setText(mVersionModel.msg);
-            LogUtil.d(TAG,"mVersionModel.sha1 : " + mVersionModel.sha1);
 
             mSha1 = StringUtil.hexStringToBytes(mVersionModel.sha1);
-            LogUtil.d(TAG,"mSha1 : " + Arrays.toString(mSha1));
+            LogUtil.d(TAG, "mSha1 : " + Arrays.toString(mSha1));
             mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
             mLatestVersion.setText(mVersionModel.versionName);
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mVersionModel.versionName, mDefaultDev.getFpSwVersion());
-//            if (0 == code || code == -1) {
-//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-//            } else {
-//                if (mVersionModel.forceUpdate) {
-//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-//                } else {
-//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-//                }
-//            }
-            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+            if (0 == code || code == -1) {
+                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+            } else {
+                if (mVersionModel.forceUpdate) {
+                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                } else {
+                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+                }
+            }
         }
     }
 
@@ -587,11 +585,10 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 bWriteDfuData = true;
                 break;
             case TAG_OTA_END:
-                mConnetStatus.setText(R.string.ota_complete);
+                mConnetStatus.setText(R.string.dfu_end_waiting);
                 mTvProgress.setText(mOtaParser.getTotal() + " / " + (mOtaParser.getIndex() + 1));
                 bWriteDfuData = false;
                 break;
-
         }
     }
 
@@ -626,7 +623,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
                     long curTime = SystemClock.uptimeMillis();
                     if (curTime - mBackPressedTime < 3000) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
+                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
                         finish();
                         return;
                     }
@@ -662,7 +659,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             case BluetoothGatt.GATT_SUCCESS:
                 if (bWriteDfuData) {
                     i++;
-                    LogUtil.d(TAG, "i = " + i);
                     if ((i == 25) && mOtaParser.hasNextPacket()) {
                         i = 0;
                         mPb.setProgress(mOtaParser.getProgress());
@@ -678,8 +674,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 if (mOtaParser.hasNextPacket()) {
                     bWriteDfuData = false;
                     mConnetStatus.setText(R.string.ota_file_dan);
-                } else
-                    mConnetStatus.setText(R.string.dfu_end_waiting);
+                }
                 break;
             case BleMsg.STATE_CONNECTED:
 
@@ -735,11 +730,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 mStartBt.setEnabled(true);
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_SUCCESS:
-                if (mOtaParser.hasNextPacket()) {
-                    bWriteDfuData = false;
-                    mConnetStatus.setText(R.string.ota_file_dan);
-                } else
-                    mConnetStatus.setText(R.string.dfu_end_waiting);
+                mConnetStatus.setText(R.string.ota_complete);
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_FAILED:
                 bWriteDfuData = false;
@@ -782,7 +773,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             long curTime = SystemClock.uptimeMillis();
             LogUtil.d(TAG, "mBackPressedTime = " + mBackPressedTime);
             if (curTime - mBackPressedTime < 3000) {
-                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
+                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
                 finish();
                 return;
             }

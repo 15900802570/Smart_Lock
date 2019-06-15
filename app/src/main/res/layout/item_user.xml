@@ -63,6 +63,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="0.0dip"
                             android:layout_marginStart="@dimen/x23dp"
+                            android:background="@color/white"
                             android:paddingTop="@dimen/y20dp"
                             android:layout_weight="1.0"
                             tools:ignore="NestedWeights">
@@ -79,12 +80,9 @@
                                 android:layout_height="match_parent"
                                 android:layout_marginStart="@dimen/x15dp"
                                 android:layout_toEndOf="@+id/iv_man"
-                                android:background="@drawable/edit_bg"
+                                android:background="@color/white"
                                 android:gravity="top"
                                 android:ellipsize="end"
-                                android:focusable="true"
-                                android:focusableInTouchMode="true"
-                                android:singleLine="true"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/d18sp" />
 

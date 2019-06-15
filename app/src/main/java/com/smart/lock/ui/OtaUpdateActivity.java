@@ -313,7 +313,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 if (mVersionModel.forceUpdate) {
                     compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
                 } else {
-            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
                 }
             }
         }

@@ -107,6 +107,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     private void initDate() {
         mBleManagerHelper = BleManagerHelper.getInstance(this);
+        LogUtil.d(TAG, "uiListener is contains!~");
         mBleManagerHelper.addUiListener(this);
         mDevice = Device.getInstance(this);
         mDefaultDev = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
@@ -215,7 +216,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             String fpSwVersion = mDefaultDev.getFpSwVersion();
             String[] fpSw = fpSwVersion.split("\\.");
             String ret = fpSw[fpSw.length - 2];
-            mVersionAction.setFpType(fpSwVersion.split("_")[0]);
+            mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
+//            mVersionAction.setFpType("DMTTEST");
             mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
 
             mVersionAction.setFpCurZone(ret);
@@ -273,6 +275,12 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mBleManagerHelper.removeUiListener(this);
+    }
+
     private void showMessage(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
@@ -316,11 +324,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             if (model != null) {
                 int len = model.versionName.length();
                 int code = 0;
+                viewHolder.mType.setVisibility(View.GONE);
                 if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.lock);
                     viewHolder.mNameTv.setText(R.string.fingerprint_firmware);
                     code = StringUtil.compareFPVersion(model.versionName, mDefaultDev.getFpSwVersion());
-
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.lock);
                     viewHolder.mNameTv.setText(R.string.lock_default_name);

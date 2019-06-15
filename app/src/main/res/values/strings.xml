@@ -388,4 +388,6 @@
     <string name="open_set_dev_info">Open device info!</string>
     <string name="cancel_warning">Is Cancel</string>
     <string name="input">Input</string>
+    <string name="key_repetition">Key Repetition</string>
+    <string name="fp_restart">Plaese wait 3s for fingerpint firmware restart</string>
 </resources>

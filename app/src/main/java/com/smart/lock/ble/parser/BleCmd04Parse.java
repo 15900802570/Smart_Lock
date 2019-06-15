@@ -25,7 +25,7 @@ public class BleCmd04Parse implements BleCommandParse {
 
     @Override
     public Message parse(byte[] cmd) {
-
+        LogUtil.d(TAG,"TEST >>> receiver 04 :" + StringUtil.bytesToHexString(cmd));
         //计算命令长度
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);

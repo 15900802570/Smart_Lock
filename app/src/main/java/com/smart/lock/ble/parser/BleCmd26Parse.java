@@ -24,7 +24,7 @@ public class BleCmd26Parse implements BleCommandParse {
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
 
-        byte[] buf = new byte[32];
+        byte[] buf = new byte[packetLen - 5];
 
         try {
             if (MessageCreator.mIs128Code)
@@ -35,7 +35,7 @@ public class BleCmd26Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
-        return MessageCreator.getCmd26Message(getParseKey(),buf);
+        return MessageCreator.getCmd26Message(getParseKey(), buf);
     }
 
     @Override
@@ -43,4 +43,4 @@ public class BleCmd26Parse implements BleCommandParse {
         return Message.TYPE_BLE_RECEIVER_CMD_26;
     }
 
-   }
+}

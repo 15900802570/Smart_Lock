@@ -276,24 +276,19 @@ public class HomeFragment extends BaseFragment implements
 
                 switch (msg.what) {
                     case BIND_DEVICE:
-                        LogUtil.i(TAG, "BIND_DEVICE !");
                         refreshView(BIND_DEVICE);
                         break;
                     case UNBIND_DEVICE:
-                        LogUtil.i(TAG, "UNBIND_DEVICE !");
                         refreshView(UNBIND_DEVICE);
                         break;
                     case DEVICE_CONNECTING:
-                        LogUtil.i(TAG, "DEVICE_CONNECTING !");
                         refreshView(DEVICE_CONNECTING);
                         break;
                     case OPEN_LOCK_SUCESS:
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        if (!mDevice.isDisconnectBle()) {
-                            showMessage(getString(R.string.retry_connect));
-                        }
+                        showMessage(getString(R.string.retry_connect));
                         if (mDefaultDevice != null) {
                             refreshView(BIND_DEVICE);
                         } else {
@@ -661,7 +656,7 @@ public class HomeFragment extends BaseFragment implements
                         || !shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
 //                    askForPermission();
                     Bundle bundle = new Bundle();
-                    if(mDefaultDevice!=null) {
+                    if (mDefaultDevice != null) {
                         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                         startIntent(UserManagerActivity.class, bundle);
                     }

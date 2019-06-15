@@ -231,6 +231,9 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 showMessage(mCtx.getResources().getString(R.string.delete_nfc_success));
                 mCardAdapter.removeItem(mCardAdapter.positionDelete);
                 break;
+            case BleMsg.TYPE_DEV_KEY_REPETITION:
+                showMessage(getString(R.string.key_repetition));
+                break;
             default:
                 break;
         }

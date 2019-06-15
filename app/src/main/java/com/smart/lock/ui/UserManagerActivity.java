@@ -40,7 +40,10 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
         AdminFragment.OnFragmentInteractionListener,
@@ -332,6 +335,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 }
                 DeviceUser tempUser = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                LogUtil.d(TAG,"length : " +userInfo.length +" userInfo : "+ StringUtil.bytesToHexString(userInfo, ":"));
 
                 if (userInfo != null) {
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
@@ -361,6 +365,12 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
                     byte[] thTsEnd = new byte[4];
                     System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
+
+                    byte[] lcTsBegin = new byte[4];
+                    System.arraycopy(userInfo, 32, lcTsBegin, 0, 4); //生命周期开始时间
+
+                    byte[] lcTsEnd = new byte[4];
+                    System.arraycopy(userInfo, 36, lcTsEnd, 0, 4); //生命周期结束时间
 
                     String stBegin = StringUtil.byte2Int(stTsBegin);
                     if (!stBegin.equals("0000")) {
@@ -392,12 +402,24 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                         tempUser.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
                     }
 
+                    String lcBegin = StringUtil.byte2Int(lcTsBegin);
+                    String lcEnd = StringUtil.byte2Int(lcTsEnd);
+
+                    if (!lcBegin.equals("0000")) {
+                        tempUser.setLcBegin(lcBegin);
+                    }
+                    if (!lcEnd.equals("0000")) {
+                        tempUser.setThTsEnd(lcEnd);
+                    }
+
                     LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
                             "stEnd : " + stEnd + "\n" +
                             "ndBegin : " + ndBegin + "\n" +
                             "ndEnd : " + ndEnd + "\n" +
                             "thBegin : " + thBegin + "\n" +
-                            "thEnd : " + thEnd + "\n");
+                            "thEnd : " + thEnd + "\n" +
+                            "lcBegin : " + lcBegin + "\n" +
+                            "lcEnd : " + lcEnd + "\n");
                     LogUtil.d(TAG, "tempUser : " + tempUser.toString());
                     DeviceUserDao.getInstance(this).updateDeviceUser(tempUser);
                 }
@@ -497,6 +519,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onResume() {
         super.onResume();
-        LogUtil.d(TAG,"onResume");
+        LogUtil.d(TAG, "onResume");
     }
 }

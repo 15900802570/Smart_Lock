@@ -306,6 +306,7 @@
     <string name="dfu_end_waiting">请等待门锁重启，大约需要6秒</string>
     <string name="ota_complete">升级成功!</string>
     <string name="ota_file_dan">升级文件不完整，请重试</string>
+    <string name="fp_restart">请等待指纹模块重启，大约需要3秒</string>
 
     <string name="search_failed">搜索失败</string>
     <string name="secure_connection">正在建立安全连接</string>
@@ -397,4 +398,5 @@
     <string name="open_set_dev_info">设置设备信息已打开!</string>
     <string name="cancel_warning">是否取消</string>
     <string name="input">录入</string>
+    <string name="key_repetition">密钥重复</string>
 </resources>

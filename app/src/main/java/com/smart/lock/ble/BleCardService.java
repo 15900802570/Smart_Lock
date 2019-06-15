@@ -107,7 +107,6 @@ public class BleCardService {
     public static BleCardService getInstance(Context context) {
         if (context instanceof UiListener) {
             mUiListeners.add((UiListener) context);
-            LogUtil.i(TAG, "UiListener size : " + mUiListeners.size());
         }
         synchronized (BleCardService.class) {
             if (mInstance == null) {

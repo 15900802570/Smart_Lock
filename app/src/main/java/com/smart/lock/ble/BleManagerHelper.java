@@ -336,6 +336,10 @@ public class BleManagerHelper {
     }
 
     public synchronized void addUiListener(UiListener uiListener) {
+        if (mUiListeners.contains(uiListener)){
+            LogUtil.d(TAG,"uiListener is contains!~");
+            return;
+        }
         mUiListeners.add(uiListener);
         if (mService == null) {
             LogUtil.e(TAG, "service is null");
