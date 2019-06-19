@@ -715,6 +715,21 @@ public class BleCardService {
         return ct.request();
     }
 
+    /**
+     * MSG 51阈值测试。
+     *
+     * @return 是否发送成功
+     */
+    public boolean sendCmd61(int timeOut) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_61);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_61 + "#" + "single");
+        msg.setTimeout(timeOut);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
+    }
+
     public void cancelCmd(String key) {
 
         ClientTransaction ct = (ClientTransaction) mBleProvider.removeBleMsgListener(key);

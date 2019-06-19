@@ -12,6 +12,7 @@ import com.smart.lock.ble.BleCommand;
 import com.smart.lock.ble.creator.BleCmd05Creator;
 import com.smart.lock.ble.creator.BleCmd2DCreator;
 import com.smart.lock.ble.creator.BleCmd37Creator;
+import com.smart.lock.ble.creator.BleCmd61Creator;
 import com.smart.lock.ble.listener.BleMessageListener;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.ClientTransaction;
@@ -45,6 +46,7 @@ import com.smart.lock.ble.parser.BleCmd26Parse;
 import com.smart.lock.ble.parser.BleCmd2EParse;
 import com.smart.lock.ble.parser.BleCmd32Parse;
 import com.smart.lock.ble.parser.BleCmd3EParse;
+import com.smart.lock.ble.parser.BleCmd62Parse;
 import com.smart.lock.ble.parser.BleCommandParse;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.LogUtil;
@@ -488,6 +490,11 @@ public class BleProvider {
         byte[] cmdBuf = new byte[mPacketLength];
         System.arraycopy(mRspBuf, 0, cmdBuf, 0, mPacketLength);
 
+        if (!checkCrc(cmdBuf)) {
+            LogUtil.e(TAG, "crc error!");
+            return;
+        }
+
         clearSession();
 
         try {
@@ -529,6 +536,19 @@ public class BleProvider {
                 Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
+    }
+
+    private boolean checkCrc(byte[] cmd) {
+        int packetLen = cmd.length;
+        byte[] ik = Arrays.copyOfRange(cmd, packetLen - 2, packetLen);
+        short revCrc = StringUtil.byte2short(ik);
+
+        byte[] revCmd = Arrays.copyOfRange(cmd, 0, packetLen - 2);
+        short crc = StringUtil.crc16(revCmd, revCmd.length);
+
+        LogUtil.d(TAG, "revCrc : " + revCrc + " ,crc : " + crc);
+
+        return (revCrc == crc);
     }
 
     private boolean isNewCommand() {
@@ -576,6 +596,7 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_31, new BleCmd31Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_33, new BleCmd33Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_37, new BleCmd37Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_61, new BleCmd61Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_CMD, new BleCmdOtaDataCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_DATA, new BleCmdOtaDataCreator());
         bleCreatorMap.put(Message.TYPE_BLE_FP_SEND_OTA_DATA, new BleCmdOtaDataCreator());
@@ -594,6 +615,7 @@ public class BleProvider {
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_26, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_32, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_3E, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_62, mBleMessageListener);
 
         //填充ble指令接收器映射表
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_0E, new BleCmd0EParse());
@@ -609,6 +631,7 @@ public class BleProvider {
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_2E, new BleCmd2EParse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_32, new BleCmd32Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_3E, new BleCmd3EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_62, new BleCmd62Parse());
     }
 
     /**

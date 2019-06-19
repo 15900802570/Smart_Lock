@@ -239,6 +239,17 @@ public class Message implements Serializable {
      */
     public static final byte TYPE_BLE_FP_SEND_OTA_DATA = 0x52;
 
+    /**
+     * 61测试阈值
+     */
+    public static final byte TYPE_BLE_SEND_CMD_61 = 0x61;
+
+
+    /**
+     * 621测试阈值
+     */
+    public static final byte TYPE_BLE_RECEIVER_CMD_62 = 0x62;
+
     static {
 
         // 初始化消息类型标签映射表

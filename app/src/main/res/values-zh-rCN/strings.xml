@@ -293,7 +293,7 @@
     <string name="start_update">开始更新</string>
     <string name="new_dev_version">有新的版本可以更新</string>
     <string name="ready_new_version">已经是最新的版本</string>
-    <string name="check_sd_has_new_version">检测到已有最新版本</string>
+    <string name="check_sd_has_new_version">检查到已有最新版本</string>
     <string name="ready_download">下载准备 </string>
     <string name="device_nodeid">设备编号:</string>
     <string name="download_version">版本下载</string>
@@ -316,9 +316,9 @@
     <string name="not_regenerate_temp_pwd">有效临时密码最多生成30组，请稍后再试</string>
     <string name="dev_default">默认</string>
 
-    <string name="check_app_version">检测更新</string>
+    <string name="check_app_version">检查更新</string>
     <string name="after_down">后台下载 </string>
-    <string name="checking_version">检测版本中 </string>
+    <string name="checking_version">检查版本中 </string>
     <string name="plz_open_wifi">请打开WIFI </string>
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
@@ -376,7 +376,7 @@
     <string name="nfc">卡片</string>
     <string name="all_parts_are_working_properly">所有器件工作正常</string>
     <string name="repair">修复</string>
-    <string name="check">检测</string>
+    <string name="check">检查</string>
     <string name="exception">项异常</string>
     <string name="one_normal">项正常</string>
     <string name="two_or_more_unlocking_keys_must_be_set">开启组合开锁后必须设置两组及以上开锁密钥</string>
@@ -388,7 +388,7 @@
     <string name="set_start_time">设置起始日期</string>
     <string name="set_end_time">设置结束日期</string>
     <string name="ble_broadcast_normally_open">蓝牙广播常开</string>
-    <string name="checking">正在检测...</string>
+    <string name="checking">正在检查...</string>
     <string name="plz_input">请录入</string>
     <string name="plz_modify">请修改</string>
     <string name="fingerprint_ota_update">指纹升级</string>
@@ -399,4 +399,5 @@
     <string name="cancel_warning">是否取消</string>
     <string name="input">录入</string>
     <string name="key_repetition">密钥重复</string>
+    <string name="sn_warning">不支持该设备!</string>
 </resources>

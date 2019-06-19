@@ -24,14 +24,7 @@ public class BleCmd16Parse implements BleCommandParse {
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
 
-        byte[] ik = Arrays.copyOfRange(cmd, packetLen - 2, packetLen);
-
-//        if (mCrc != byte2short(ik)) {
-//            Log.d(TAG, "ik = " + ik);
-//            notifyData(BleMsg.STR_RSP_IK_ERR);
-//        }
-
-        byte[] buf = new byte[16];
+        byte[] buf = new byte[packetLen - 5];
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);

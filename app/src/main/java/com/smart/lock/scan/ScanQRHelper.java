@@ -131,6 +131,12 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         }
     }
 
+    //验证版本
+    private void compareSn(){
+
+
+    }
+
     private void getDevInfo(byte[] devInfo) {
         byte[] typeBytes = new byte[1];
         byte[] timeBytes = new byte[4];

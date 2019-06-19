@@ -54,6 +54,7 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 
 import java.util.ArrayList;
@@ -634,6 +635,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         }
     }
+
 
     @Override
     public void scanDevFailed() {

@@ -108,7 +108,7 @@ public class NumberPickerView extends NumberPicker {
         }
 
     }
-
+/*
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -175,7 +175,7 @@ public class NumberPickerView extends NumberPicker {
                 mSelectorWheelPaint.setColor(getResources().getColor(R.color.black));
                 mSelectorWheelPaint.setTextSize(getResources().getDimension(R.dimen.d15sp));
             } else {
-                mSelectorWheelPaint.setColor(getResources().getColor(R.color.blue2));
+//                mSelectorWheelPaint.setColor(getResources().getColor(R.color.blue2));
                 mSelectorWheelPaint.setTextSize(getResources().getDimension(R.dimen.d20sp));
             }
 
@@ -206,12 +206,10 @@ public class NumberPickerView extends NumberPicker {
             mSelectionDivider.setBounds(0, topOfBottomDivider, mRight, bottomOfBottomDivider);
             mSelectionDivider.draw(canvas);
         }
-        mInputText.setTextColor(getResources().getColor(R.color.blue2));
+//        mInputText.setTextColor(getResources().getColor(R.color.blue2));
         mInputText.setTextSize(getResources().getDimension(R.dimen.d10sp));
 
     }
-
-
     private void getMyValue() {
         Field[] pickerFields = NumberPicker.class.getDeclaredFields();
         for (Field field : pickerFields) {
@@ -403,5 +401,6 @@ public class NumberPickerView extends NumberPicker {
             }
         }
     }
+     */
 
 }

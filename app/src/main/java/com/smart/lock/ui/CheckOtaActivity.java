@@ -32,10 +32,12 @@ import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -70,6 +72,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private final int RECEIVER_OTA_VERSION = 0;
     private final int VIEW_GONE_CHECK_VERSION = 1;
     private final int EMPTY_VERSION_UPDATE = 2;
+
+    private boolean isHide = false;
 
 
     @SuppressLint("HandlerLeak")
@@ -198,8 +202,14 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 } else {
                     mDefaultDev.setFpSwVersion(swVer);
                     DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
-                    checkDevVersion();
+                    checkDevVersion(true);
                 }
+                break;
+
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
+                final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3]);
                 break;
 
             default:
@@ -207,23 +217,51 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void checkDevVersion() {
+    private void dispatchErrorCode(byte errCode) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_REFUSE_FINGERPRINT_OTA_UPDATE:
+                if (isHide) {
+                    checkDevVersion(false);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null) {
+
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
             mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
-            String fpSwVersion = mDefaultDev.getFpSwVersion();
-            String[] fpSw = fpSwVersion.split("\\.");
-            String ret = fpSw[fpSw.length - 2];
-            mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
+            if (hasFp) {
+                String fpSwVersion = mDefaultDev.getFpSwVersion();
+                String[] fpSw = fpSwVersion.split("\\.");
+                String ret = fpSw[fpSw.length - 2];
+                mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
 //            mVersionAction.setFpType("DMTTEST");
-            mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
+                mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
+                mVersionAction.setFpCurZone(ret);
+            }
 
-            mVersionAction.setFpCurZone(ret);
             mVersionAction.setTransferPayResponse(tCheckDevResponse);
             mVersionAction.transStart(this);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isHide = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isHide = false;
     }
 
     AbstractTransaction.TransferPayResponse tCheckDevResponse = new AbstractTransaction.TransferPayResponse() {
@@ -328,7 +366,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.lock);
                     viewHolder.mNameTv.setText(R.string.fingerprint_firmware);
-                    code = StringUtil.compareFPVersion(model.versionName, mDefaultDev.getFpSwVersion());
+                    code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.lock);
                     viewHolder.mNameTv.setText(R.string.lock_default_name);
@@ -341,6 +379,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
                 } else {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
+                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.red));
                 }
 
                 viewHolder.mSwipeLayout.setOnClickListener(new View.OnClickListener() {

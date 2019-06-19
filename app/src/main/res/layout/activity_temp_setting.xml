@@ -53,6 +53,7 @@
             android:gravity="center_vertical"
             android:paddingStart="@dimen/x11dp"
             android:text="@string/tmp_user"
+            android:maxLength="8"
             android:textColor="#FF555555"
             android:textSize="@dimen/d20sp" />
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleCardService;
@@ -24,8 +25,10 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.SystemUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -654,12 +657,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
             switch (type) {
                 case Message.TYPE_BLE_RECEIVER_CMD_02:
-                    LogUtil.i(TAG, "receiver msg 02,send msg 03!");
-                    final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
-                    if (random != null && random.length != 0) {
-                        mService.sendCmd03(random, BleMsg.INT_DEFAULT_TIMEOUT);
-                    }
+                    parseMsg(message);
                     break;
+//                    LogUtil.i(TAG, "receiver msg 02,send msg 03!");
+//                    final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
+//                    if (random != null && random.length != 0) {
+//                        mService.sendCmd03(random, BleMsg.INT_DEFAULT_TIMEOUT);
+//                    }
+
                 case Message.TYPE_BLE_RECEIVER_CMD_04:
                     registerCallBack(message, extra);
                     break;
@@ -729,6 +734,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 case Message.TYPE_BLE_RECEIVER_CMD_16:
                 case Message.TYPE_BLE_RECEIVER_CMD_0E:
+                case Message.TYPE_BLE_RECEIVER_CMD_62:
                     for (UiListener uiListener : mUiListeners) {
                         uiListener.dispatchUiCallback(message, mDevice, -1);
                     }
@@ -801,6 +807,72 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         } finally {
             message.recycle();
         }
+    }
+
+
+    //解析MSG 02
+    private void parseMsg(Message msg) {
+        Bundle extra = msg.getData();
+        final byte[] random = extra.getByteArray(BleMsg.KEY_RANDOM);
+        final byte[] buf = extra.getByteArray(BleMsg.RECEIVER_DATA);
+
+        LogUtil.d(TAG, "random : " + StringUtil.bytesToHexString(random));
+        LogUtil.d(TAG, "MessageCreator.pwdRandom : " + StringUtil.bytesToHexString(MessageCreator.pwdRandom));
+
+        if (StringUtil.memcmp(random, MessageCreator.pwdRandom, 16)) {
+            byte[] respRandom = new byte[16];
+            byte[] sn = new byte[18];
+            if (buf == null) {
+                return;
+            }
+            System.arraycopy(buf, 16, respRandom, 0, 16);
+            if (MessageCreator.mIs128Code) {
+                if (MessageCreator.m128AK == null) {
+                    MessageCreator.m128AK = new byte[16];
+                }
+                System.arraycopy(buf, 32, MessageCreator.m128AK, 0, 16);
+                System.arraycopy(buf, 48, sn, 0, 18);
+            } else {
+                if (MessageCreator.m256AK == null) {
+                    MessageCreator.m256AK = new byte[32];
+                }
+                System.arraycopy(buf, 32, MessageCreator.m256AK, 0, 32);
+                System.arraycopy(buf, 64, sn, 0, 18);
+            }
+
+            if (compareSn(sn)) {
+                mService.sendCmd03(respRandom, BleMsg.INT_DEFAULT_TIMEOUT);
+            } else {
+                showMessage(mCtx.getString(R.string.sn_warning));
+                if (mDevice.getState() != Device.BLE_DISCONNECTED)
+                    mService.disconnect();
+            }
+        } else {
+            showMessage(mCtx.getString(R.string.random_error));
+            if (mDevice.getState() != Device.BLE_DISCONNECTED)
+                mService.disconnect();
+        }
+    }
+
+    private boolean compareSn(byte[] sn) {
+        boolean ret = false;
+        String devSn = StringUtil.asciiDeBytesToCharString(sn).substring(0, 7);
+        String appSn = SystemUtils.getMetaDataFromApp(mCtx);
+        LogUtil.d(TAG, "devSn : " + devSn + " appSn: " + appSn);
+        if (devSn.equals(appSn)) {
+            ret = true;
+        }
+        return ret;
+    }
+
+
+    /**
+     * 吐司提示
+     *
+     * @param msg 提示信息
+     */
+    protected void showMessage(String msg) {
+        Toast.makeText(mCtx, msg, Toast.LENGTH_SHORT).show();
     }
 
     private String setAuthCode(byte[] authTime) {

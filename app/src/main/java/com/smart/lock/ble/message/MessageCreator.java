@@ -81,7 +81,7 @@ public class MessageCreator {
      * @param random 设备回复的随机数
      * @return
      */
-    public static Message getCmd02Message(byte type, byte[] random) {
+    public static Message getCmd02Message(byte type, byte[] random,byte[] buf) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");
@@ -89,6 +89,10 @@ public class MessageCreator {
 
         if (random != null && random.length != 0) {
             mBundle.putByteArray(BleMsg.KEY_RANDOM, random);
+        }
+
+        if (buf != null && buf.length != 0) {
+            mBundle.putByteArray(BleMsg.RECEIVER_DATA, buf);
         }
         return mMessage;
     }
@@ -220,7 +224,7 @@ public class MessageCreator {
                 || errCode[3] == 0x0b || errCode[3] == 0x0c || errCode[3] == 0x0d
                 || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10
                 || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25
-                || errCode[3] == 0x2A) {
+                || errCode[3] == 0x2A || errCode[3] == BleMsg.TYPE_DEV_KEY_REPETITION) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS ||
                 errCode[3] == BleMsg.TYPE_NO_AUTHORITY_1E) {
@@ -377,6 +381,23 @@ public class MessageCreator {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
 
         mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
+        return mMessage;
+    }
+
+    /**
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_62
+     *
+     * @param type 消息类型
+     * @param pdu  返回字符串
+     * @return
+     */
+    public static Message getCmd62Message(byte type, byte[] pdu) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_61 + "#" + "single");
+
+        mBundle.putByteArray(BleMsg.RECEIVER_DATA, pdu);
         return mMessage;
     }
 

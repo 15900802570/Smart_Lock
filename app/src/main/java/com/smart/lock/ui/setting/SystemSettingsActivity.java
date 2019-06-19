@@ -29,6 +29,7 @@ import com.smart.lock.entity.Device;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
 import com.smart.lock.ui.LockDetectingActivity;
+import com.smart.lock.ui.LpcdTestActivity;
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.CheckVersionThread;
@@ -63,6 +64,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private NextActivityDefineView mModifyPwdNv;
 
     private NextActivityDefineView mSetDevInfoNv;
+
+    private NextActivityDefineView mQueryLpcdNv;
 
     private Dialog mPromptDialog;
 
@@ -119,6 +122,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mModifyPwdNv = findViewById(R.id.system_set_modify_pwd);
         mSetDevInfoNv = findViewById(R.id.next_set_info);
         mTitleTv = findViewById(R.id.tv_title);
+        mQueryLpcdNv = findViewById(R.id.next_query_lpcd);
 
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
@@ -130,7 +134,9 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
+        mQueryLpcdNv.setDes("阈值查询");
         mSetDevInfoNv.setVisibility(View.GONE);
+        mQueryLpcdNv.setVisibility(View.GONE);
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -220,6 +226,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             }
         });
         mTitleTv.setOnClickListener(this);
+        mQueryLpcdNv.setOnClickListener(this);
     }
 
     @Override
@@ -253,7 +260,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     mCount = 0;
                     if (mSetDevInfoNv.getVisibility() == View.GONE) {
                         mSetDevInfoNv.setVisibility(View.VISIBLE);
-                        ToastUtil.showShort(this, getString(R.string.open_set_dev_info));
+                        mQueryLpcdNv.setVisibility(View.VISIBLE);
                     }
                 }
                 break;
@@ -281,6 +288,10 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 break;
             case R.id.next_set_info:
                 mScanQRHelper.scanQr();
+                break;
+            case R.id.next_query_lpcd:
+                Intent lpcdIntent = new Intent(this, LpcdTestActivity.class);
+                startActivity(lpcdIntent);
                 break;
             default:
                 doOnClick(v.getId());

@@ -390,4 +390,5 @@
     <string name="input">Input</string>
     <string name="key_repetition">Key Repetition</string>
     <string name="fp_restart">Plaese wait 3s for fingerpint firmware restart</string>
+    <string name="sn_warning">This device is not supported!</string>
 </resources>

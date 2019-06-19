@@ -287,20 +287,30 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 
             mSha1 = StringUtil.hexStringToBytes(mVersionModel.sha1);
             LogUtil.d(TAG, "mSha1 : " + Arrays.toString(mSha1));
-            mCurrentVersion.setText(mDefaultDev.getDeviceSwVersion().split("_")[1]);
-            mLatestVersion.setText(mVersionModel.versionName);
+
+            String[] curVerArray = mDefaultDev.getFpSwVersion().split("\\.");
+            String[] devVerVerArray = mVersionModel.versionName.split("\\.");
+
+            String surVer = curVerArray[curVerArray.length - 1].trim();
+            String devVer = devVerVerArray[devVerVerArray.length - 1].trim();
+
+            LogUtil.d(TAG, "surVer " + surVer + " devVer : " + devVer);
+
+            mCurrentVersion.setText("v" + surVer);
+            mLatestVersion.setText("v" + devVer);
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
-            int code = StringUtil.compareFPVersion(mVersionModel.versionName, mDefaultDev.getFpSwVersion());
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
+//            int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
+//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                }
+//            }
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
         }
     }
 
@@ -492,6 +502,8 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 mStartBt.setText(R.string.download_version);
                 mStartBt.setEnabled(false);
                 mPb.setProgress(0);
+                mStartBt.setVisibility(View.GONE);
+                mPb.setVisibility(View.GONE);
                 break;
             case 2:
                 break;

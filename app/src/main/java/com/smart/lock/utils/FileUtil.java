@@ -553,13 +553,6 @@ public class FileUtil {
                     gCmdBytes = new byte[length];
                     instream.read(gCmdBytes);
 
-
-                    //String res = Bytes2HexString(gCmdBytes);
-
-                    //Log.d(TAG, "openUpdateFile ------------- instream.getAsciiString():" + res);
-
-                    //editCommandData.setText(res);
-
                     instream.close();
                 }
             } catch (FileNotFoundException e) {

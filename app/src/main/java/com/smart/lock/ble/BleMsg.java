@@ -60,7 +60,7 @@ public class BleMsg {
 
     public static final String OTA_SEND_CMD = "OTA_SEND_CMD";
 
-    public static final String OTA_SEND_DATA = "OTA_SEND_DATA";
+    public static final String RECEIVER_DATA = "revData";
 
 
     public static final int INT_DEFAULT_TIMEOUT = 10;

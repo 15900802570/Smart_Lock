@@ -211,6 +211,5 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         }
         super.onBackPressed();
         finish();
-
     }
 }

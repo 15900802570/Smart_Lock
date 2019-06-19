@@ -24,7 +24,7 @@ public class BleCmd12Parse implements BleCommandParse {
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
 
-        byte[] buf = new byte[64];
+        byte[] buf = new byte[packetLen - 5];
 
         if (MessageCreator.mIs128Code)
             AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);

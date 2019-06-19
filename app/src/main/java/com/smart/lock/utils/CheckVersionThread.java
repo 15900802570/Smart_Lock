@@ -112,14 +112,14 @@ public class CheckVersionThread {
                 String dir = FileUtil.createDir(mContext, ConstantUtil.APP_DIR_NAME) + File.separator;
                 String path = dir + version.fileName;
 
-                File file = new File(path);
-                if (file.exists()) {
-                    updateAppVersion(path);
+                int code = StringUtil.compareVersion(version.versionName, getLocalVersionName(mContext));
+                if (0 == code || code == -1) {
+                    compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
-                    int code = StringUtil.compareVersion(version.versionName, getLocalVersionName(mContext));
-                    if (0 == code || code == -1) {
-                        compareVersion(CheckVersionAction.NO_NEW_VERSION);
-                    } else {
+                    File file = new File(path);
+                    if (file.exists()) {
+                        updateAppVersion(path);
+                    }else {
                         if (version.forceUpdate) {
                             compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
                         } else {
@@ -127,6 +127,7 @@ public class CheckVersionThread {
                         }
                     }
                 }
+
             } else {
                 compareVersion(CheckVersionAction.NO_NEW_VERSION);
             }

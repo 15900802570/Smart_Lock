@@ -195,40 +195,40 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 finish();
                 break;
             case R.id.item_set_unlock_time:
-                if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
-                    Date now = new Date(System.currentTimeMillis());
-                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
-                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd() + "000"));
-                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
-                    LogUtil.d(TAG, "ret : " + ret);
-
-                    if (!ret) {
-                        showMessage(getString(R.string.plz_set_right_life_cycle));
-                    } else {
-                        startIntent(UnlockTimeActivity.class, bundle, -1);
-                    }
-                } else {
+//                if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
+//                    Date now = new Date(System.currentTimeMillis());
+//                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
+//                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd() + "000"));
+//                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+//                    LogUtil.d(TAG, "ret : " + ret);
+//
+//                    if (!ret) {
+//                        showMessage(getString(R.string.plz_set_right_life_cycle));
+//                    } else {
+//                        startIntent(UnlockTimeActivity.class, bundle, -1);
+//                    }
+//                } else {
                     startIntent(UnlockTimeActivity.class, bundle, -1);
-                }
+//                }
                 break;
             case R.id.item_set_unlock_key:
-                if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
-                    Date now = new Date(System.currentTimeMillis());
-                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
-                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd() + "000"));
-                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
-                    LogUtil.d(TAG, "ret : " + ret);
-
-                    if (!ret) {
-                        showMessage(getString(R.string.plz_set_right_life_cycle));
-                    } else {
-                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
-                        startIntent(DeviceKeyActivity.class, bundle, -1);
-                    }
-                } else {
+//                if (mTempUser.getLcBegin() != null && mTempUser.getLcEnd() != null) {
+//                    Date now = new Date(System.currentTimeMillis());
+//                    Date begin = new Date(Long.valueOf(mTempUser.getLcBegin() + "000"));
+//                    Date end = new Date(Long.valueOf(mTempUser.getLcEnd() + "000"));
+//                    boolean ret = StringUtil.isEffectiveDate(now, begin, end);
+//                    LogUtil.d(TAG, "ret : " + ret);
+//
+//                    if (!ret) {
+//                        showMessage(getString(R.string.plz_set_right_life_cycle));
+//                    } else {
+//                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+//                        startIntent(DeviceKeyActivity.class, bundle, -1);
+//                    }
+//                } else {
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
                     startIntent(DeviceKeyActivity.class, bundle, -1);
-                }
+//                }
                 break;
             default:
                 break;
