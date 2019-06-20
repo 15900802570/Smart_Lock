@@ -71,7 +71,7 @@
                 android:paddingStart="@dimen/x16dp"
                 android:singleLine="true"
                 android:maxLines="1"
-                android:maxLength="17"
+                android:maxLength="6"
                 android:textColor="@color/color_text"
                 android:textSize="@dimen/d16sp" />
 

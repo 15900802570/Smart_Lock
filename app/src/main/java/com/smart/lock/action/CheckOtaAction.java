@@ -136,7 +136,7 @@ public class CheckOtaAction extends AbstractTransaction {
         return true;
     }
 
-    void resloveCheckVersionResult(String response) throws JSONException, IOException {
+    private void resloveCheckVersionResult(String response) throws JSONException, IOException {
         JSONObject object = super.processResult(response);
         if (object == null) {
             respondData.respCode = HttpCodeHelper.HTTP_REQUEST_ERROR;

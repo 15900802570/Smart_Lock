@@ -321,7 +321,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(cardInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
                 viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), cardInfo.getKeyName());
                 final EditText editText = viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override

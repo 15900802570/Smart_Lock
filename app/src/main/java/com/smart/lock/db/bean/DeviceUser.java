@@ -21,6 +21,9 @@ public class DeviceUser implements Serializable {
     @DatabaseField(columnName = "user_permission")
     private byte userPermission;
 
+    @DatabaseField(columnName = "active_pause", defaultValue = "false")
+    private boolean activePause;
+
     @DatabaseField(columnName = "user_status")
     private int userStatus;
 
@@ -180,6 +183,22 @@ public class DeviceUser implements Serializable {
         this.createTime = createTime;
     }
 
+    public boolean isActivePause() {
+        return activePause;
+    }
+
+    public void setActivePause(boolean activePause) {
+        this.activePause = activePause;
+    }
+
+    public String getAuthCode() {
+        return authCode;
+    }
+
+    public void setAuthCode(String authCode) {
+        this.authCode = authCode;
+    }
+
     @Override
     public String toString() {
         return "DeviceUser{" +
@@ -187,6 +206,7 @@ public class DeviceUser implements Serializable {
                 ", devNodeId='" + devNodeId + '\'' +
                 ", userId=" + userId +
                 ", userPermission=" + userPermission +
+                ", activePause=" + activePause +
                 ", userStatus=" + userStatus +
                 ", createTime=" + createTime +
                 ", lcBegin='" + lcBegin + '\'' +
@@ -203,12 +223,6 @@ public class DeviceUser implements Serializable {
                 '}';
     }
 
-    public String getAuthCode() {
-        return authCode;
-    }
 
-    public void setAuthCode(String authCode) {
-        this.authCode = authCode;
-    }
 
 }

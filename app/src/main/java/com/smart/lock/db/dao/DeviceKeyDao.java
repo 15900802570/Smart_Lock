@@ -102,6 +102,22 @@ public class DeviceKeyDao {
 
     }
 
+    public void deleteUserKey(Object userId, Object nodeId, Object type) {
+        ArrayList<DeviceKey> list = null;
+        try {
+            list = (ArrayList<DeviceKey>) dao.queryBuilder().where().eq("device_nodeId", nodeId).and().eq("user_id", userId).
+                    and().eq("key_type", type).query();
+            if (list != null) {
+                for (DeviceKey bean : list) {
+                    dao.delete(bean);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public int delete(DeviceKey info) {
         try {
             return dao.delete(info);
@@ -277,9 +293,9 @@ public class DeviceKeyDao {
                 deviceKey.setUserId(userId);
                 deviceKey.setKeyActiveTime(System.currentTimeMillis() / 1000);
                 if (type == ConstantUtil.USER_PWD) {
-                    deviceKey.setKeyName( mContext.getResources().getString(R.string.password));
+                    deviceKey.setKeyName(mContext.getResources().getString(R.string.password));
                 } else if (type == ConstantUtil.USER_FINGERPRINT)
-                    deviceKey.setKeyName( mContext.getResources().getString(R.string.fingerprint) + lockId);
+                    deviceKey.setKeyName(mContext.getResources().getString(R.string.fingerprint) + lockId);
                 else if (type == ConstantUtil.USER_NFC)
                     deviceKey.setKeyName(mContext.getResources().getString(R.string.card));
 

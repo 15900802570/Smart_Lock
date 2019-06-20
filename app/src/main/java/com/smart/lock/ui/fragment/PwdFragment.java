@@ -256,7 +256,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
 
                 viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), pwdInfo.getKeyName());
                 final EditText editText =   viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
                     @Override

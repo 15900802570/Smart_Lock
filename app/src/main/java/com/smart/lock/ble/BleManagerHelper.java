@@ -104,9 +104,9 @@ public class BleManagerHelper {
                 while (iterator.hasNext()) {
                     iterator.next().scanDevFailed();
                 }
-                Intent intent = new Intent();
-                intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
-                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
+//                Intent intent = new Intent();
+//                intent.setAction(BleMsg.STR_RSP_SET_TIMEOUT);
+//                LocalBroadcastManager.getInstance(mContext).sendBroadcast(intent);
             }
         }
     };

@@ -465,7 +465,7 @@ public class BleCardService {
     /**
      * MSG 17
      */
-    public boolean sendCmd17(final byte cmdType, final short userId, int timeOut) {
+    public boolean sendCmd17(final byte cmdType, final short userId, int timeOut,byte keyType) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_17);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
@@ -474,6 +474,10 @@ public class BleCardService {
         Bundle bundle = msg.getData();
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
         bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        DeviceKey deviceKey = new DeviceKey();
+        deviceKey.setKeyType(keyType);
+        bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();

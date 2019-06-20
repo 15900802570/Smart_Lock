@@ -362,13 +362,12 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             if (model != null) {
                 int len = model.versionName.length();
                 int code = 0;
-                viewHolder.mType.setVisibility(View.GONE);
                 if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
-                    viewHolder.mType.setImageResource(R.mipmap.lock);
+                    viewHolder.mType.setImageResource(R.mipmap.ota_fingerprint);
                     viewHolder.mNameTv.setText(R.string.fingerprint_firmware);
                     code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
-                    viewHolder.mType.setImageResource(R.mipmap.lock);
+                    viewHolder.mType.setImageResource(R.mipmap.ota_lock);
                     viewHolder.mNameTv.setText(R.string.lock_default_name);
                     swLen = mDefaultDev.getDeviceSwVersion().length();
                     if (len >= 5 && swLen >= 5)

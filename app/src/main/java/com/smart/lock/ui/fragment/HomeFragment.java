@@ -288,7 +288,9 @@ public class HomeFragment extends BaseFragment implements
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        showMessage(getString(R.string.retry_connect));
+                        if (mDevice != null && !mDevice.isDisconnectBle()) {
+                            showMessage(getString(R.string.retry_connect));
+                        }
                         if (mDefaultDevice != null) {
                             refreshView(BIND_DEVICE);
                         } else {

@@ -287,9 +287,8 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
         }
     }
 
-    private void dispatchErrorCode(byte errCode, DeviceUser user) {
+    private void dispatchErrorCode(byte errCode, Serializable serializable) {
         LogUtil.i(TAG, "errCode : " + errCode);
-
         switch (errCode) {
             case BleMsg.TYPE_ADD_USER_SUCCESS:
                 showMessage(mCtx.getString(R.string.add_user_success));
@@ -300,39 +299,49 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
-                DeviceUser deleteUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
-                mTempAdapter.removeItem(deleteUser);
-                if (mTempAdapter.mDeleteUsers.size() == 0) {
-                    showMessage(mCtx.getString(R.string.delete_user_success));
-                    DialogUtils.closeDialog(mLoadDialog);
-                } else return;
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    DeviceUser deleteUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
+                    DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
+                    mTempAdapter.removeItem(deleteUser);
+                    if (mTempAdapter.mDeleteUsers.size() == 0) {
+                        showMessage(mCtx.getString(R.string.delete_user_success));
+                        DialogUtils.closeDialog(mLoadDialog);
+                    } else return;
+                }
+
                 break;
             case BleMsg.TYPE_DELETE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.delete_user_failed));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_PAUSE_USER_SUCCESS:
-                showMessage(mCtx.getString(R.string.pause_user_success));
-
-                DeviceUser pauseUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
-                DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
-                mTempAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
-                DialogUtils.closeDialog(mLoadDialog);
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    showMessage(mCtx.getString(R.string.pause_user_success));
+                    DeviceUser pauseUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
+                    pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                    pauseUser.setActivePause(true);
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
+                    mTempAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
                 break;
             case BleMsg.TYPE_PAUSE_USER_FAILED:
                 showMessage(mCtx.getString(R.string.pause_user_failed));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_SUCCESS:
-                showMessage(mCtx.getString(R.string.recovery_user_success));
-
-                DeviceUser recoveryUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
-                recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                DeviceUserDao.getInstance(mCtx).updateDeviceUser(recoveryUser);
-                mTempAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
-                DialogUtils.closeDialog(mLoadDialog);
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    showMessage(mCtx.getString(R.string.recovery_user_success));
+                    DeviceUser recoveryUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
+                    recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                    recoveryUser.setActivePause(false);
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(recoveryUser);
+                    mTempAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mCtx.getString(R.string.recovery_user_failed));
@@ -511,7 +520,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
 
                 final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
                 final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
                 //修改呢称响应事件
                 mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
@@ -654,7 +663,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
     @Override
     public void onResume() {
         super.onResume();
-        LogUtil.d(TAG,"onResume : " + mIsHint);
+        LogUtil.d(TAG, "onResume : " + mIsHint);
         if (mIsHint) {
             ArrayList<DeviceUser> list = DeviceUserDao.getInstance(mCtx).queryUsers(mNodeId, ConstantUtil.DEVICE_TEMP);
             for (DeviceUser user : list) {

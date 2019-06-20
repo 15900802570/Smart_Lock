@@ -346,7 +346,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
                 showMessage("时间段重复，请检查！");
             }
         } else if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.VISIBLE && mThirtUnlockTimeLl.getVisibility() == View.GONE) {
-            if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
+            if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
                     DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
@@ -397,7 +397,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             }
         } else if (mSecondUnlockTimeLl.getVisibility() == View.VISIBLE && mThirtUnlockTimeLl.getVisibility() == View.VISIBLE && mFirstUnlockTimeLl.getVisibility() == View.GONE) {
 
-            if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
+            if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
@@ -415,7 +415,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
             }
 
         } else if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE && mThirtUnlockTimeLl.getVisibility() == View.VISIBLE && mSecondUnlockTimeLl.getVisibility() == View.GONE) {
-            if (DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
+            if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {

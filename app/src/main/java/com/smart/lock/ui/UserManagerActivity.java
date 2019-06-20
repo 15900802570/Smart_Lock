@@ -23,6 +23,7 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
@@ -161,21 +162,21 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_PASSWORD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_PASSWORD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_PWD);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_fp:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FINGERPRINT, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FINGERPRINT, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_FINGERPRINT);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_card:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_NFC);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_user:
@@ -317,7 +318,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         mDevice = device;
         Bundle extra = msg.getData();
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short)) {
+        if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short || serializable instanceof DeviceKey)) {
             DialogUtils.closeDialog(mLoadDialog);
             return;
         }
@@ -325,7 +326,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
-                    dispatchErrorCode(errCode[3]);
+                    dispatchErrorCode(errCode[3], serializable);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 short userIdTag = (short) serializable;
@@ -335,7 +336,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 }
                 DeviceUser tempUser = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
-                LogUtil.d(TAG,"length : " +userInfo.length +" userInfo : "+ StringUtil.bytesToHexString(userInfo, ":"));
 
                 if (userInfo != null) {
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
@@ -409,7 +409,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                         tempUser.setLcBegin(lcBegin);
                     }
                     if (!lcEnd.equals("0000")) {
-                        tempUser.setThTsEnd(lcEnd);
+                        tempUser.setLcEnd(lcEnd);
                     }
 
                     LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
@@ -420,10 +420,17 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                             "thEnd : " + thEnd + "\n" +
                             "lcBegin : " + lcBegin + "\n" +
                             "lcEnd : " + lcEnd + "\n");
-                    LogUtil.d(TAG, "tempUser : " + tempUser.toString());
                     DeviceUserDao.getInstance(this).updateDeviceUser(tempUser);
                 }
                 DialogUtils.closeDialog(mLoadDialog);
+
+                for (int i = 0; i < mTitleList.size(); i++) {
+                    BaseFragment framentView = mUserPagerAdapter.getItem(i);
+                    if (framentView instanceof TempFragment) {
+                        TempFragment tempFragment = (TempFragment) framentView;
+                        tempFragment.refreshView();
+                    }
+                }
                 break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
@@ -465,17 +472,36 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
     }
 
-    private void dispatchErrorCode(byte errCode) {
+    private void dispatchErrorCode(byte errCode, Serializable serializable) {
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS:
-                showMessage(getString(R.string.delete_key_success));
+                if (serializable instanceof DeviceKey) {
+                    DeviceKey key = (DeviceKey) serializable;
+                    if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
+                        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+                        for (DeviceUser user : list) {
+                            DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
+                        }
+                    }
+                    showMessage(getString(R.string.delete_key_success));
+                }
                 break;
             case BleMsg.TYPE_GROUP_DELETE_KEY_FAILED:
                 showMessage(getString(R.string.delete_key_failed));
                 break;
             case BleMsg.TYPE_DELETE_FP_SUCCESS:
-                showMessage(getString(R.string.delete_key_success));
+                if (serializable instanceof DeviceKey) {
+                    DeviceKey key = (DeviceKey) serializable;
+                    LogUtil.d(TAG,"key : " + key.toString());
+                    if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
+                        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+                        for (DeviceUser user : list) {
+                            DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
+                        }
+                    }
+                    showMessage(getString(R.string.delete_key_success));
+                }
                 break;
             case BleMsg.TYPE_DELETE_FP_FAILED:
                 showMessage(getString(R.string.delete_key_failed));

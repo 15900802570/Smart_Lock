@@ -200,7 +200,6 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             @Override
             public void onClick(View view) {
                 EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
                 String newName = editText.getText().toString();
                 if (!newName.isEmpty()) {
                     mNameTv.setText(newName);
@@ -243,6 +242,8 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             case R.id.me_center_head_name:
             case R.id.me_edit_name:
                 ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).setText(mNameTv.getText());
+                EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
                 mEditorNameDialog.show();
                 break;
             case R.id.me_center_head_photo:

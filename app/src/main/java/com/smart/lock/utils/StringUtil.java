@@ -459,7 +459,7 @@ public class StringUtil {
         int fpCurVer = Integer.parseInt(curVerArray[curVerArray.length - 1].trim());
         int fpDevVer = Integer.parseInt(devVerVerArray[devVerVerArray.length - 1].trim());
 
-        LogUtil.d(TAG,"fpCurVer : " + fpCurVer + " fpDevVer : " + fpDevVer);
+        LogUtil.d(TAG, "fpCurVer : " + fpCurVer + " fpDevVer : " + fpDevVer);
         int ret = fpDevVer - fpCurVer;
 
         if (ret == 0) {
@@ -573,6 +573,9 @@ public class StringUtil {
 
     public static int checkTempUserStatus(Context context, DeviceUser tempUser) {
         ArrayList<DeviceKey> keys = DeviceKeyDao.getInstance(context).queryUserDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId());
+        if (tempUser.isActivePause()) {
+            return tempUser.getUserStatus();  //主动暂停
+        }
         if (!keys.isEmpty()) { //判断是否有开锁信息
             if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
                 tempUser.setUserStatus(ConstantUtil.USER_ENABLE);

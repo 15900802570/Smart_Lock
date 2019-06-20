@@ -236,10 +236,10 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
-                DeviceUser user = (DeviceUser) serializable;
+
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
-                    dispatchErrorCode(errCode[3], user);
+                    dispatchErrorCode(errCode[3], serializable);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_12:
 
@@ -322,9 +322,8 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
         }
     }
 
-    private void dispatchErrorCode(byte errCode, DeviceUser user) {
+    private void dispatchErrorCode(byte errCode, Serializable serializable) {
         LogUtil.i(TAG, "errCode : " + errCode);
-
         switch (errCode) {
             case BleMsg.TYPE_ADD_USER_SUCCESS:
                 showMessage(mAdminView.getContext().getString(R.string.add_user_success));
@@ -335,40 +334,48 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_DELETE_USER_SUCCESS:
-                DeviceUser deleteUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-                DeviceKeyDao.getInstance(mAdminView.getContext()).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    DeviceUser deleteUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    DeviceKeyDao.getInstance(mAdminView.getContext()).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
 
-                mAdminAdapter.removeItem(deleteUser);
-                LogUtil.d(TAG, "mAdminAdapter.mDeleteUsers.size() : " + mAdminAdapter.mDeleteUsers.size());
-                if (mAdminAdapter.mDeleteUsers.size() == 0) {
-                    showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
-                    DialogUtils.closeDialog(mLoadDialog);
-                } else return;
+                    mAdminAdapter.removeItem(deleteUser);
+                    LogUtil.d(TAG, "mAdminAdapter.mDeleteUsers.size() : " + mAdminAdapter.mDeleteUsers.size());
+                    if (mAdminAdapter.mDeleteUsers.size() == 0) {
+                        showMessage(mAdminView.getContext().getString(R.string.delete_user_success));
+                        DialogUtils.closeDialog(mLoadDialog);
+                    } else return;
+                }
                 break;
             case BleMsg.TYPE_DELETE_USER_FAILED:
                 showMessage(mAdminView.getContext().getString(R.string.delete_user_failed));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_PAUSE_USER_SUCCESS:
-                showMessage(mAdminView.getContext().getString(R.string.pause_user_success));
-                DeviceUser pauseUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-                pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
-                DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(pauseUser);
-                mAdminAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
-                DialogUtils.closeDialog(mLoadDialog);
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    showMessage(mAdminView.getContext().getString(R.string.pause_user_success));
+                    DeviceUser pauseUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                    DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(pauseUser);
+                    mAdminAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
                 break;
             case BleMsg.TYPE_PAUSE_USER_FAILED:
                 showMessage(mAdminView.getContext().getString(R.string.pause_user_failed));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_RECOVERY_USER_SUCCESS:
-                showMessage(mAdminView.getContext().getString(R.string.recovery_user_success));
-
-                DeviceUser recoveryUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
-                recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
-                DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(recoveryUser);
-                mAdminAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
-                DialogUtils.closeDialog(mLoadDialog);
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    showMessage(mAdminView.getContext().getString(R.string.recovery_user_success));
+                    DeviceUser recoveryUser = DeviceUserDao.getInstance(mAdminView.getContext()).queryUser(mNodeId, user.getUserId());
+                    recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                    DeviceUserDao.getInstance(mAdminView.getContext()).updateDeviceUser(recoveryUser);
+                    mAdminAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
                 break;
             case BleMsg.TYPE_RECOVERY_USER_FAILED:
                 showMessage(mAdminView.getContext().getString(R.string.recovery_user_failed));
@@ -545,13 +552,13 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
                 final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
 
                 final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
                 //修改呢称响应事件
                 mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        final String newName =  editText.getText().toString();
+                        final String newName = editText.getText().toString();
                         if (!newName.isEmpty()) {
                             holder.mNameTv.setText(newName);
                             userInfo.setUserName(newName);
