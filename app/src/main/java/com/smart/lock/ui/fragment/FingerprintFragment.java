@@ -94,7 +94,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                                             mCancelDialog.cancel();
                                         }
                                     });
-                                    if(!mCancelDialog.isShowing()) {
+                                    if (!mCancelDialog.isShowing()) {
                                         mCancelDialog.show();
                                     }
 
@@ -219,7 +219,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 deviceKey.setKeyType(ConstantUtil.USER_FINGERPRINT);
                 deviceKey.setLockId(mLockId);
                 DeviceKeyDao.getInstance(mCtx).insert(deviceKey);
-                if (mTempUser != null) {
+                if (mTempUser != null && mTempUser.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
@@ -357,7 +357,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(fpInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
 
             viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), fpInfo.getKeyName());
-            final EditText editText =   viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
+            final EditText editText = viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
             editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
             viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
@@ -388,7 +388,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             viewHolder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                   editText.setText(viewHolder.mNameTv.getText());
+                    editText.setText(viewHolder.mNameTv.getText());
                     viewHolder.mEditorNameDialog.show();
                 }
             });
@@ -396,7 +396,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             viewHolder.mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final String newName =  editText.getText().toString();
+                    final String newName = editText.getText().toString();
                     if (!newName.isEmpty()) {
                         viewHolder.mNameTv.setText(newName);
                         fpInfo.setKeyName(newName);
@@ -451,7 +451,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
         super.onDestroy();
         mBleManagerHelper.removeUiListener(this);
     }
-
 
 
 }

@@ -36,6 +36,7 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.widget.Controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class PwdSetActivity extends BaseActivity implements View.OnClickListener, UiListener {
@@ -222,7 +223,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 deviceKey.setLockId(mLockId);
                 deviceKey.setPwd(mFirstPwdEt.getText().toString().trim());
                 DeviceKeyDao.getInstance(this).insert(deviceKey);
-                if (mTempUser != null) {
+                if (mTempUser != null && mTempUser.getUserStatus() == ConstantUtil.USER_UNENABLE) {
                     mTempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                     DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 }

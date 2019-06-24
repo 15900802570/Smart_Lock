@@ -151,7 +151,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     }
 
     @Override
-    public void onGattStateChanged(int state) {
+    public void onGattStateChanged(int state, int type) {
         Bundle extra = new Bundle();
         extra.putInt("gatt_state", state);
         sendMessage(MSG_CHANGE_GATT_STATE, extra, 0);

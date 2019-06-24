@@ -8,5 +8,5 @@ public interface DeviceStateCallback {
 
     void onServicesDiscovered(int state);
 
-    void onGattStateChanged(int state);
+    void onGattStateChanged(int state,int type);
 }

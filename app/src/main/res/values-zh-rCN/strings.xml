@@ -303,7 +303,7 @@
     <string name="unconnected">未连接</string>
     <string name="connect_ota_mode">正在连接OTA模式</string>
     <string name="connect_ota_success">连接OTA模式成功</string>
-    <string name="dfu_end_waiting">请等待门锁重启，大约需要6秒</string>
+    <string name="dfu_end_waiting">请耐心等待门锁重启</string>
     <string name="ota_complete">升级成功!</string>
     <string name="ota_file_dan">升级文件不完整，请重试</string>
     <string name="fp_restart">请等待指纹模块重启，大约需要3秒</string>

@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -341,6 +342,41 @@ public class SystemUtils {
         WifiInfo info = wifiManager.getConnectionInfo();
 
         return Formatter.formatIpAddress(info.getIpAddress());
+    }
+
+    /**
+     * 刷新MTP，刷新指定文件夹路径下的所有文件（只是根目录下的文件）
+     *
+     * @param context Context
+     * @param dir     文件夹路径
+     */
+    public static void scanMtpAsync(Context context, String dir) {
+        File[] files = new File(dir).listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isFile();
+            }
+        });
+        LogUtil.e("MtpUtils:指定路径下文件:{}",
+                files+"");
+        String[] paths = new String[files.length];
+        for (int co = 0; co < files.length; co++) {
+            paths[co] = files[co].getAbsolutePath();
+            LogUtil.e("MtpUtils:{}", paths[co]+"");
+            scanFileAsync(context, paths[co]);
+        }
+    }
+
+    /**
+     * Intent.ACTION_MEDIA_SCANNER_SCAN_FILE：扫描指定文件
+     *
+     * @param context  Context
+     * @param filePath 文件路径
+     */
+    public static void scanFileAsync(Context context, String filePath) {
+        Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        scanIntent.setData(Uri.fromFile(new File(filePath)));
+        context.sendBroadcast(scanIntent);
     }
 
 }

@@ -47,6 +47,7 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.CustomDialog;
 import com.smart.lock.widget.MeDefineView;
@@ -382,6 +383,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                     mUserProfile.setPhotoPath(mCutUri.getPath());
 
                     UserProfileDao.getInstance(mActivity).update(mUserProfile);
+                    String dir = FileUtil.createDir(mMeView.getContext(), ConstantUtil.ICON_DIR_NAME) + File.separator;
+                    SystemUtils.scanMtpAsync(mMeView.getContext(), dir);
+
                     break;
                 // 打开图库获取图片并进行裁剪
                 case SCAN_OPEN_PHONE:
@@ -394,7 +398,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     // 图片裁剪
     private void cropPhoto(Uri uri) {
         try {
-            String dir = FileUtil.createDir(mMeView.getContext(), "smallIcon") + File.separator;
+            String dir = FileUtil.createDir(mMeView.getContext(), ConstantUtil.ICON_DIR_NAME) + File.separator;
             Intent intent = new Intent("com.android.camera.action.CROP"); //打开系统自带的裁剪图片的intent
 
             // 注意一定要添加该项权限，否则会提示无法裁剪

@@ -122,11 +122,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         mOtaUpdateRv.setItemAnimator(new DefaultItemAnimator());
         mOtaUpdateRv.setAdapter(mOtaAdapter);
         mOtaUpdateRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y10dp)));
-
-        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
-        } else
-            showMessage(getString(R.string.unconnected_device));
     }
 
     private void initEvent() {
@@ -235,6 +230,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
             mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+//            mVersionAction.setDeviceSn("158631011112222333");
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
             if (hasFp) {
@@ -242,7 +238,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 String[] fpSw = fpSwVersion.split("\\.");
                 String ret = fpSw[fpSw.length - 2];
                 mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
-//            mVersionAction.setFpType("DMTTEST");
+//                mVersionAction.setFpType("DMTTEST");
                 mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
                 mVersionAction.setFpCurZone(ret);
             }
@@ -256,6 +252,10 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     protected void onResume() {
         super.onResume();
         isHide = true;
+        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+        } else
+            showMessage(getString(R.string.unconnected_device));
     }
 
     @Override

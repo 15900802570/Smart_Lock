@@ -50,6 +50,7 @@ public class BleCardService {
     private BluetoothAdapter mBluetoothAdapter;
     private String mBluetoothDeviceAddress;
     private BluetoothGatt mBluetoothGatt;
+    private ArrayList<DeviceStateCallback> mDeviceStateCallbackArrayList = new ArrayList<>();
 
     /**
      * 蓝牙提供者
@@ -73,6 +74,10 @@ public class BleCardService {
      */
     public static String mKeyResult = "result";
 
+    public static final int READ = 1000;
+
+    public static final int WRITE = 1002;
+
     /**
      * 蓝牙消息分发器
      */
@@ -81,11 +86,12 @@ public class BleCardService {
 
     private Context mCtx;
     private static BleCardService mInstance;
-    private DeviceStateCallback mDevStateCallback;
 
     private Runnable mRunnable = new Runnable() {
         public void run() {
-            mDevStateCallback.onDisconnected();
+            for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
+                devStateCallback.onDisconnected();
+            }
         }
     };
 
@@ -117,7 +123,11 @@ public class BleCardService {
     }
 
     public void registerDevStateCb(DeviceStateCallback devStateCallback) {
-        mDevStateCallback = devStateCallback;
+        mDeviceStateCallbackArrayList.add(devStateCallback);
+    }
+
+    public void removeDevStateCb(DeviceStateCallback devStateCallback) {
+        mDeviceStateCallbackArrayList.remove(devStateCallback);
     }
 
     // Implements callback methods for GATT events that the app cares about. For example,
@@ -131,12 +141,16 @@ public class BleCardService {
                     LogUtil.d("remote service discovery has been stopped status = " + newState);
                     disconnect();
                 } else closeDialog(10);
-                mDevStateCallback.onConnected(); //成功回调
+                for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
+                    devStateCallback.onConnected(); //成功回调
+                }
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 //                Log.i(TAG, "refresh ble :" + refreshDeviceCache());
                 Log.i(TAG, "Disconnected from GATT server.");
-                mDevStateCallback.onDisconnected();
+                for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
+                    devStateCallback.onDisconnected();
+                }
             }
         }
 
@@ -154,7 +168,9 @@ public class BleCardService {
                 if (mBleProvider != null) {
                     mBleProvider.enableTXNotification();
                 }
-                mDevStateCallback.onServicesDiscovered(status);
+                for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
+                    devStateCallback.onServicesDiscovered(status);
+                }
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
                 disconnect();
@@ -163,17 +179,16 @@ public class BleCardService {
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.w(TAG, "onCharacteristicRead() status = " + status);
-
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
+                for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
+                    devStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS, READ);
                 }
             }
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-            if (Device.TX_CHAR_UUID.equals(characteristic.getUuid())) {
+            if (Device.TX_CHAR_UUID.equals(characteristic.getUuid()) && characteristic.getValue() != null) {
                 mBleProvider.onReceiveBle(characteristic.getValue());
             }
         }
@@ -181,11 +196,15 @@ public class BleCardService {
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                mDevStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS);
+                for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
+                    devStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS, WRITE);
+                }
+
             } else
                 Log.e(TAG, "write failed, status = " + status);
         }
     };
+
 
     /**
      * Clears the internal cache and forces a refresh of the services from the
@@ -465,7 +484,7 @@ public class BleCardService {
     /**
      * MSG 17
      */
-    public boolean sendCmd17(final byte cmdType, final short userId, int timeOut,byte keyType) {
+    public boolean sendCmd17(final byte cmdType, final short userId, int timeOut, byte keyType) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_17);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
@@ -737,7 +756,39 @@ public class BleCardService {
     public void cancelCmd(String key) {
 
         ClientTransaction ct = (ClientTransaction) mBleProvider.removeBleMsgListener(key);
-        LogUtil.d(TAG,"cancel ct : " + ct.toString());
+        LogUtil.d(TAG, "cancel ct : " + ct.toString());
     }
 
+    /**
+     * 发送read指令
+     */
+    public boolean validateOta(int type) {
+
+        UUID RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
+        UUID RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
+        switch (type) {
+            case Message.TYPE_BLE_FP_SEND_OTA_DATA:
+                RX_SERVICE_UUID = Device.RX_SERVICE_UUID;
+                RX_CMD_UUID = Device.RX_CHAR_UUID;
+                break;
+            case Message.TYPE_BLE_SEND_OTA_DATA:
+                RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
+                RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
+                break;
+        }
+
+        BluetoothGattService RxService = mBluetoothGatt.getService(RX_SERVICE_UUID);
+
+        if (RxService == null) {
+            Log.e(TAG, "RxService is null");
+            return false;
+        }
+        BluetoothGattCharacteristic rxChar = RxService.getCharacteristic(RX_CMD_UUID);
+
+        if (rxChar == null) {
+            return false;
+        }
+
+        return mBluetoothGatt.readCharacteristic(rxChar);
+    }
 }

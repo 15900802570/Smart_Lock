@@ -437,6 +437,10 @@ public class Message implements Serializable {
             }
 
             clear();
+
+            if (debug) {
+                Log.d(TAG, "recycle " + hashCode() + " sPoolSize : " + sPoolSize);
+            }
         }
     }
 
@@ -454,6 +458,10 @@ public class Message implements Serializable {
      */
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public void setCallback() {
+
     }
 
     /**
@@ -492,6 +500,9 @@ public class Message implements Serializable {
                 msg.next = null;
             }
 
+            if (debug) {
+                Log.d(TAG, "obtain " + msg.hashCode() + " sPoolSize " + sPoolSize);
+            }
             return msg;
         }
     }
