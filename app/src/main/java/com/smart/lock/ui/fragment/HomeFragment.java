@@ -53,6 +53,7 @@ import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
+import com.smart.lock.ui.UserManagerActivity2;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -631,7 +632,7 @@ public class HomeFragment extends BaseFragment implements
             case R.mipmap.icon_userguanl:
                 if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    startIntent(UserManagerActivity.class, bundle);
+                    startIntent(UserManagerActivity2.class, bundle);
                 } else {
                     ActivityCompat.requestPermissions(mActivity, mExternalPermission, REQUESTCODE);
                 }
@@ -660,7 +661,7 @@ public class HomeFragment extends BaseFragment implements
                     Bundle bundle = new Bundle();
                     if (mDefaultDevice != null) {
                         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                        startIntent(UserManagerActivity.class, bundle);
+                        startIntent(UserManagerActivity2.class, bundle);
                     }
 
                 }

@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,10 +61,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
      */
     private BleManagerHelper mBleManagerHelper;
     private Device mDevice; //设备信息
-    /**
-     * 绑定的设备SN
-     */
-    private String mDeviceSn;
 
     private DeviceInfo mDefaultDev; //默认设备
     private CheckOtaAction mVersionAction = null;
@@ -72,6 +69,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private final int RECEIVER_OTA_VERSION = 0;
     private final int VIEW_GONE_CHECK_VERSION = 1;
     private final int EMPTY_VERSION_UPDATE = 2;
+
+    private final int CHECK_FP_VERSION = 1001;
 
     private boolean isHide = false;
 
@@ -84,6 +83,9 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             switch (msg.what) {
                 case RECEIVER_OTA_VERSION:
                     refreshView(VIEW_GONE_CHECK_VERSION);
+                    break;
+                case CHECK_FP_VERSION:
+                    checkFpVersion();
                     break;
                 default:
                     break;
@@ -122,6 +124,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         mOtaUpdateRv.setItemAnimator(new DefaultItemAnimator());
         mOtaUpdateRv.setAdapter(mOtaAdapter);
         mOtaUpdateRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y10dp)));
+
+        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+        } else
+            showMessage(getString(R.string.unconnected_device));
     }
 
     private void initEvent() {
@@ -200,7 +207,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     checkDevVersion(true);
                 }
                 break;
-
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
@@ -212,6 +218,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    int fpCount = 0;
+
     private void dispatchErrorCode(byte errCode) {
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
@@ -220,9 +228,31 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     checkDevVersion(false);
                 }
                 break;
+            case BleMsg.TYPE_EQUIPMENT_BUSY:
+                if (isHide) {
+                    if (fpCount < 3) {
+                        fpCount++;
+                        showMessage(getString(R.string.device_busy));
+                        android.os.Message msg = android.os.Message.obtain();
+                        msg.what = CHECK_FP_VERSION;
+                        mHandler.sendMessageDelayed(msg, 5000);
+                    } else {
+                        fpCount = 0;
+                        checkDevVersion(false);
+                    }
+
+                }
+                break;
             default:
                 break;
         }
+    }
+
+    private void checkFpVersion() {
+        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_FINGERPRINT_VERSION);
+        } else
+            showMessage(getString(R.string.unconnected_device));
     }
 
     private void checkDevVersion(boolean hasFp) {
@@ -252,10 +282,17 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     protected void onResume() {
         super.onResume();
         isHide = true;
-        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
-        } else
-            showMessage(getString(R.string.unconnected_device));
+        mDefaultDev = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true); //刷新数据库
+        LogUtil.d(TAG,"mDefaultDev 2: " + mDefaultDev.toString());
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        if (mVersionAction.respondData.models != null && mDefaultDev != null) {
+            mOtaAdapter.setDataSource(mVersionAction.respondData.models);
+            mOtaAdapter.notifyDataSetChanged(); //刷新升级界面
+        }
     }
 
     @Override
@@ -290,7 +327,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         if (time != 0) {
             mHandler.sendMessageDelayed(msg, time);
         } else mHandler.sendMessage(msg);
-
     }
 
     @Override
@@ -358,6 +394,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final VersionModel model = mVersionList.get(position);
+            LogUtil.d(TAG,"mDefaultDev : " + mDefaultDev.toString());
             int swLen = 0;
             if (model != null) {
                 int len = model.versionName.length();
@@ -376,6 +413,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
                 if (0 == code || code == -1) {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
+                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.black));
                 } else {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
                     viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.red));

@@ -159,7 +159,7 @@ public class BleProvider {
     /**
      * 调试开关
      */
-    protected boolean debug = true;
+    protected boolean debug = false;
 
     /**
      * Gatt
@@ -843,6 +843,10 @@ public class BleProvider {
         UUID RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
         switch (type) {
             case Message.TYPE_BLE_FP_SEND_OTA_DATA:
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ex) {
+                }
                 RX_SERVICE_UUID = Device.RX_SERVICE_UUID;
                 RX_CMD_UUID = Device.RX_CHAR_UUID;
                 break;
@@ -855,6 +859,7 @@ public class BleProvider {
                 RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
                 break;
         }
+
 
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 

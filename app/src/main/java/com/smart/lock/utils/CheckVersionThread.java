@@ -66,6 +66,7 @@ public class CheckVersionThread {
         mLoadingDialog.show();
         mVersionAction.setUrl(ConstantUtil.CHECK_APP_VERSION);
         mVersionAction.setDeviceSn(SystemUtils.getMetaDataFromApp(context));
+//        mVersionAction.setDeviceSn("1586301");
         mVersionAction.setExtension(ConstantUtil.APPLICATION);
         mVersionAction.setTransferPayResponse(tcheckAppVerResponse);
     }

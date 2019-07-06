@@ -4,6 +4,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 
@@ -25,7 +26,7 @@ public class BleCmd04Parse implements BleCommandParse {
 
     @Override
     public Message parse(byte[] cmd) {
-        LogUtil.d(TAG,"TEST >>> receiver 04 :" + StringUtil.bytesToHexString(cmd));
+        LogUtil.d(TAG, "TEST >>> receiver 04 :" + StringUtil.bytesToHexString(cmd));
         //计算命令长度
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
@@ -55,16 +56,16 @@ public class BleCmd04Parse implements BleCommandParse {
         System.arraycopy(buf, 19, unLockTime, 0, 1);
         if (mIs128Code) {
             tmpPwdSk = new byte[16 * 4];
-            userState = new byte[100];
+            userState = new byte[ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 64);
-            System.arraycopy(buf, 84, userState, 0, 100);
-            System.arraycopy(buf, 184, powerSave, 0, 8);
+            System.arraycopy(buf, 84, userState, 0, ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM);
+            System.arraycopy(buf, 84 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM, powerSave, 0, 8);
         } else {
             tmpPwdSk = new byte[32 * 4];
-            userState = new byte[100];
+            userState = new byte[ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
-            System.arraycopy(buf, 148, userState, 0, 100);
-            System.arraycopy(buf, 248, powerSave, 0, 8);
+            System.arraycopy(buf, 148, userState, 0, ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM);
+            System.arraycopy(buf, 148 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM, powerSave, 0, 8);
         }
         return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState, powerSave);
     }

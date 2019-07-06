@@ -579,7 +579,7 @@ public class StringUtil {
         if (!keys.isEmpty()) { //判断是否有开锁信息
             if (checkIsNull(tempUser.getLcBegin()) || checkIsNull(tempUser.getLcEnd())) {
                 tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
-            } else {
+            }/* else {
                 Date now = new Date(System.currentTimeMillis());
                 Date begin = new Date(Long.valueOf(tempUser.getLcBegin() + "000"));
                 Date end = new Date(Long.valueOf(tempUser.getLcEnd() + "000"));
@@ -589,7 +589,7 @@ public class StringUtil {
                 } else {
                     tempUser.setUserStatus(ConstantUtil.USER_ENABLE);
                 }
-            }
+            }*/
             DeviceUserDao.getInstance(context).updateDeviceUser(tempUser);
         }
 

@@ -101,8 +101,10 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
                     // 断开老设备
                     if (mDevice != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
-                        mDevice.halt();
                         mBleManagerHelper.getBleCardService().disconnect();
+                        mBleManagerHelper.stopScan();
+                        mDevice.setDisconnectBle(true);
+                        mDevice.halt();
                     }
 
                     startIntent(LockDetectingActivity.class, bundle);
@@ -114,7 +116,26 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 ToastUtil.show(mActivity, mActivity.getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
             }
 
-        } else {
+        }/* else if(content.length() == 12) {
+            mBleMac = content;
+            if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.DEVICE_MAC, mBleMac) == null) {
+                Bundle bundle = new Bundle();
+                bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+
+                // 断开老设备
+                if (mDevice != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
+                    mBleManagerHelper.getBleCardService().disconnect();
+                    mBleManagerHelper.stopScan();
+                    mDevice.setDisconnectBle(true);
+                    mDevice.halt();
+                }
+
+                startIntent(LockDetectingActivity.class, bundle);
+            }else {
+                ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+            }
+
+        }*/else {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.plz_scan_correct_qr));
             alterDialog.show();
             return;
@@ -129,12 +150,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             LogUtil.d(TAG, "devInfo =" + Arrays.toString(devInfo));
             getDevInfo(devInfo);
         }
-    }
-
-    //验证版本
-    private void compareSn(){
-
-
     }
 
     private void getDevInfo(byte[] devInfo) {

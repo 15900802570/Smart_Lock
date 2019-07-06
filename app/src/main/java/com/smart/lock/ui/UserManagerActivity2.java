@@ -33,6 +33,7 @@ import com.smart.lock.ui.fragment.AdminFragment;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.MemberFragment;
 import com.smart.lock.ui.fragment.TempFragment;
+import com.smart.lock.ui.fragment.UsersFragment;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -46,16 +47,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
-        AdminFragment.OnFragmentInteractionListener,
-        TempFragment.OnFragmentInteractionListener {
+public class UserManagerActivity2 extends AppCompatActivity implements View.OnClickListener, UiListener{
     private final static String TAG = UserManagerActivity.class.getSimpleName();
 
-    private TabLayout mUserPermissionTl;
     private NoScrollViewPager mUserPermissionVp;
     private Toolbar mUserSetTb;
     private TextView mTitleTv;
-    private MenuItem mDeleteItem;
     private boolean mDeleteMode = false;
 
     private ArrayList<String> mTitleList;
@@ -75,7 +72,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_manager);
+        setContentView(R.layout.activity_user_manager2);
         initView();
         initData();
         initActionBar();
@@ -84,7 +81,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
     @SuppressLint("WrongViewCast")
     private void initView() {
-        mUserPermissionTl = findViewById(R.id.tl_user_manager);
         mUserPermissionVp = findViewById(R.id.vp_user_manager);
         mUserSetTb = findViewById(R.id.tb_user_set);
         mTitleTv = findViewById(R.id.tv_title);
@@ -106,25 +102,18 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 } else showMessage(getString(R.string.unconnected_device));
             }
         }
-
         mTitleList = new ArrayList<>();
-        mTitleList.add(getString(R.string.administrator));
-        mTitleList.add(getString(R.string.members));
-        mTitleList.add(getString(R.string.tmp_user));
+        mTitleList.add(getString(R.string.permission_manager));
 
         mUsersList = new ArrayList<>();
-        mUsersList.add(new AdminFragment());
-        mUsersList.add(new MemberFragment());
-        mUsersList.add(new TempFragment());
+        mUsersList.add(new UsersFragment());
         mUserPagerAdapter = new UserPagerAdapter(getSupportFragmentManager());
         mUserPermissionVp.setAdapter(mUserPagerAdapter);
-        initTabLayout();
-        mUserPermissionVp.setOffscreenPageLimit(2);
         mUserPermissionVp.setNoScroll(true);
     }
 
     private void initEvent() {
-        mUserPermissionVp.addOnPageChangeListener(this);
+
     }
 
     private void initActionBar() {
@@ -144,7 +133,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.user_manager_setting, menu);
-//        mDeleteItem = menu.findItem(R.id.item_edit);
         return true;
     }
 
@@ -203,10 +191,10 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
     public void changeVisible() {
         if (mDeleteMode) {
-            mDeleteItem.setTitle(getString(R.string.edit));
+//            mDeleteItem.setTitle(getString(R.string.edit));
             mDeleteMode = false;
         } else {
-            mDeleteItem.setTitle(getString(R.string.edit_back));
+//            mDeleteItem.setTitle(getString(R.string.edit_back));
             mDeleteMode = true;
         }
         BaseFragment framentView = mUserPagerAdapter.getItem(mVpPosition);
@@ -222,48 +210,8 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
         }
     }
 
-    /**
-     * 初始化tb
-     */
-    private void initTabLayout() {
-        mUserPermissionTl.setTabMode(TabLayout.MODE_FIXED);
-        mUserPermissionTl.setSelectedTabIndicatorColor(getResources().getColor(R.color.yellow_selete));
-        mUserPermissionTl.setSelectedTabIndicatorHeight(getResources().getDimensionPixelSize(R.dimen.y5dp));
-        mUserPermissionTl.setupWithViewPager(mUserPermissionVp);
-    }
-
     @Override
     public void onClick(View v) {
-
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        mVpPosition = position;
-        mDeleteItem.setTitle(getString(R.string.edit));
-        mDeleteMode = false;
-        for (int i = 0; i < mTitleList.size(); i++) {
-            BaseFragment framentView = mUserPagerAdapter.getItem(i);
-            if (framentView instanceof AdminFragment) {
-                AdminFragment adminFragment = (AdminFragment) framentView;
-                adminFragment.selectDelete(false);
-            } else if (framentView instanceof MemberFragment) {
-                MemberFragment mumberFragment = (MemberFragment) framentView;
-                mumberFragment.selectDelete(false);
-            } else if (framentView instanceof TempFragment) {
-                TempFragment tempFragment = (TempFragment) framentView;
-                tempFragment.selectDelete(false);
-            }
-        }
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
 
     }
 
@@ -424,7 +372,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                 }
                 DialogUtils.closeDialog(mLoadDialog);
 
-                for (int i = 0; i < mTitleList.size(); i++) {
+                for (int i = 0; i < mUsersList.size(); i++) {
                     BaseFragment framentView = mUserPagerAdapter.getItem(i);
                     if (framentView instanceof TempFragment) {
                         TempFragment tempFragment = (TempFragment) framentView;
@@ -472,7 +420,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void dispatchErrorCode(byte errCode, Serializable serializable) {
-        LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS:
                 if (serializable instanceof DeviceKey) {
@@ -492,7 +439,6 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
             case BleMsg.TYPE_DELETE_FP_SUCCESS:
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;
-                    LogUtil.d(TAG,"key : " + key.toString());
                     if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
                         ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
                         for (DeviceUser user : list) {
@@ -515,7 +461,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                     }
                 }
 
-                for (int i = 0; i < mTitleList.size(); i++) {
+                for (int i = 0; i < mUsersList.size(); i++) {
                     BaseFragment framentView = mUserPagerAdapter.getItem(i);
                     if (framentView instanceof AdminFragment) {
                         AdminFragment adminFragment = (AdminFragment) framentView;
@@ -542,6 +488,5 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     @Override
     protected void onResume() {
         super.onResume();
-        LogUtil.d(TAG, "onResume");
     }
 }

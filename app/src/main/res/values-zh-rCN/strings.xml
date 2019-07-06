@@ -21,7 +21,8 @@
     <string name="lock_manager">门锁管理</string>
     <string name="me">我的</string>
     <string name="back_message">再次点击退出 智能门锁</string>
-    <string name="ota_back_message">固件未升级完成,再次点击退出</string>
+    <string name="back_warning">再次点击退出 当前界面</string>
+    <string name="ota_back_message">固件未升级完成,请勿退出</string>
     <string name="bt_state">蓝牙状态:</string>
     <string name="bt_unconnected">未连接</string>
     <string name="unconnected_device">未连接设备</string>
@@ -42,6 +43,7 @@
     <string name="token_manager">临时密码</string>
     <string name="event_manager">门锁事件</string>
     <string name="ble_instruction">一键开锁</string>
+    <string name="user_setting">用户设置</string>
 
     <string name="about_us">关于我们</string>
     <string name="system_setting">系统设置</string>
@@ -183,6 +185,7 @@
     <string name="title_activity_login2">登录</string>
     <string name="dummy_button">虚拟按钮</string>
     <string name="title_activity_base_fp">BaseFPActivity</string>
+    <string name="anomalous_event">异常事件</string>
 
     <string name="del_all_pwd">删除所有密码</string>
     <string name="del_all_fp">删除所有指纹</string>
@@ -222,7 +225,7 @@
     <string name="software_version">软件版本</string>
     <string name="hardware_version">硬件版本</string>
     <string name="modify_note_name">请修改备注名</string>
-    <string name="set_unlock_time">设置开锁时段</string>
+    <string name="set_unlock_time">开锁时段</string>
     <string name="set_unlock_key">设置开锁信息</string>
     <string name="note_name">备注:</string>
     <string name="add_unlock_time">添加时段</string>
@@ -323,7 +326,7 @@
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
     <string name="setting_password_for_security">为确保安全，请设置密码</string>
-    <string name="set_user_validity_period">设置用户有效期(以天为单位):</string>
+    <string name="set_user_validity_period">用户有效期(以天为单位):</string>
     <string name="man">男</string>
     <string name="woman">女</string>
     <string name="edit_back">退出</string>

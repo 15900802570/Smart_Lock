@@ -529,6 +529,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public boolean handleMessage(android.os.Message msg) {
+
         switch (msg.what) {
             case RUN_ON_UI_THREAD:
                 Message message = (Message) msg.getData().getSerializable(MSG_RECEIVER);
@@ -638,7 +639,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             default:
                 break;
         }
-
         return true;
     }
 
@@ -912,7 +912,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     }
 
     private void sendMessage(int type, Bundle bundle, long time) {
-        android.os.Message msg = new android.os.Message();
+        android.os.Message msg = android.os.Message.obtain();
         if (bundle != null) {
             msg.setData(bundle);
         }
@@ -920,6 +920,5 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         if (time != 0) {
             mHandler.sendMessageDelayed(msg, time);
         } else mHandler.sendMessage(msg);
-
     }
 }

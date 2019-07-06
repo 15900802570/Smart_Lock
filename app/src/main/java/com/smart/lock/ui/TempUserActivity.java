@@ -378,7 +378,6 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             default:
                 break;
         }
-
     }
 
     @Override
@@ -451,6 +450,5 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
 
         LogUtil.d(TAG, "startTime = " + mStartDate + '\n' +
                 "endTime = " + mEndDate);
-
     }
 }

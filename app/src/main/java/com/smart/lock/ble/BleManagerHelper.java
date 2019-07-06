@@ -283,10 +283,9 @@ public class BleManagerHelper {
                     }
                 }
             } else {
-                LogUtil.d(TAG, "mBleMac :" + mBleMac + "\n" +
-                        "device " + device.getAddress());
+                LogUtil.d(TAG, "mBleMac :" + mBleMac + "\n" + "device " + device.getAddress());
                 if (device.getAddress().equals(mBleMac)) {
-                    LogUtil.d(TAG, "dev rssi = " + rssi);
+                    LogUtil.d(TAG,"scanRecord 2: " + StringUtil.bytesToHexString(scanRecord));
                     mHandler.removeCallbacks(mRunnable);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {

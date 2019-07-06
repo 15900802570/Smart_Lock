@@ -197,17 +197,31 @@
 
                 </LinearLayout>
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/dev_list_rv"
+                <com.scwang.smartrefresh.layout.SmartRefreshLayout
+                    android:id="@+id/refreshLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@color/list_view_bg_grey"
-                    android:divider="@null"
-                    android:scrollbarSize="10dp"
-                    android:scrollbarStyle="insideOverlay"
-                    android:scrollbars="vertical" />
+                    android:orientation="vertical">
 
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/dev_list_rv"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/list_view_bg_grey"
+                        android:divider="@null"
+                        android:scrollbarSize="10dp"
+                        android:scrollbarStyle="insideOverlay"
+                        android:scrollbars="vertical" />
+
+                    <com.scwang.smartrefresh.layout.footer.ClassicsFooter
+                        android:id="@+id/loadMore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="gone" />
+                </com.scwang.smartrefresh.layout.SmartRefreshLayout>
             </LinearLayout>
+
 
             <LinearLayout
                 android:id="@+id/ll_tips"

@@ -15,6 +15,7 @@ import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.bean.UserProfile;
 import com.smart.lock.db.bean.TempPwd;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
@@ -25,9 +26,11 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     public static final String DB_NAME = "smart_lock.db";
     public static final int DB_VERSION = 1;
+    private Context mCtx;
 
     public DtDatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        mCtx = context;
     }
 
     @Override
@@ -48,8 +51,26 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource,
                           int oldVersion, int newVersion) {
-        LogUtil.d("MyDatabaseHelper.onUpgrade oldVersion=" + oldVersion + "  newVersion="
-                + newVersion);
+        LogUtil.d("onUpgrade oldVersion=" + oldVersion + "  newVersion=" + newVersion);
+//        try {
+//            String sql1 = "";
+//            for (int i = oldVersion; i < newVersion; i++) {
+//                switch (i) {
+//                    case 1://数据库版本1 升级到 版本2
+//                        //对table 增加字段
+//                        sql1 = "alter table tb_device_key add test VARCHAR";
+//                        getDao(DeviceKey.class).executeRawNoArgs(sql1);
+//                        break;
+//                    case 2://数据库版本2 升级到 版本3
+//                        sql1 = "alter table tb_device_key add height integer";
+//                        getDao(DeviceKey.class).executeRawNoArgs(sql1);
+//                        break;
+//                }
+//            }
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+
     }
 
     private static DtDatabaseHelper instance;

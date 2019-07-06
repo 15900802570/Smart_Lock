@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tb_user_set"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/y81dp"
+        android:background="@color/white"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/AppTheme.ActionBar"
+        app:popupTheme="@style/ToolbarPopupTheme">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="#FF000000"
+            android:textSize="@dimen/d23sp" />
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#FFEEEEEE"/>
+
+    <com.smart.lock.widget.NoScrollViewPager
+        android:id="@+id/vp_user_manager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </com.smart.lock.widget.NoScrollViewPager>
+
+</LinearLayout>

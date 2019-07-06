@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/design_bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/x15dp"
+    android:paddingRight="@dimen/x15dp"
+    android:paddingBottom="@dimen/y15dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/box_corners_white"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/x15dp"
+        android:paddingRight="@dimen/x15dp">
+
+        <TextView
+            android:id="@+id/user_name_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y90dp"
+            android:gravity="center"
+            android:paddingTop="@dimen/y15dp"
+            android:paddingBottom="@dimen/y15dp"
+            android:text="@string/administrator"
+            android:textColor="@color/black_de"
+            android:textSize="@dimen/d20sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp" />
+
+        <TextView
+            android:id="@+id/share_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y80dp"
+            android:gravity="center_vertical"
+            android:onClick="setOnClick"
+            android:paddingLeft="@dimen/x30dp"
+            android:paddingTop="@dimen/y15dp"
+            android:paddingBottom="@dimen/y15dp"
+            android:text="@string/share"
+            android:textColor="@color/black_de"
+            android:textSize="@dimen/d18sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line" />
+
+
+        <TextView
+            android:id="@+id/group_delete_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y80dp"
+            android:gravity="center_vertical"
+            android:onClick="setOnClick"
+            android:paddingLeft="@dimen/x30dp"
+            android:paddingTop="@dimen/y15dp"
+            android:paddingBottom="@dimen/y15dp"
+            android:text="批量删除"
+            android:textColor="@color/black_de"
+            android:textSize="@dimen/d18sp" />
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp" />
+
+        <TextView
+            android:id="@+id/user_setting_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y80dp"
+            android:gravity="center_vertical"
+            android:onClick="setOnClick"
+            android:paddingLeft="@dimen/x30dp"
+            android:paddingTop="@dimen/y15dp"
+            android:paddingBottom="@dimen/y15dp"
+            android:text="用户设置"
+            android:textColor="@color/black_de"
+            android:textSize="@dimen/d18sp" />
+
+    </LinearLayout>
+</LinearLayout>

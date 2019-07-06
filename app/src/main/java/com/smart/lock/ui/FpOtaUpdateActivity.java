@@ -305,16 +305,16 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
-//            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
+//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                }
+//            }
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -496,7 +496,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         handler.sendMessage(m);
     }
 
-
     private void changeView(int action) {
         switch (action) {
             case 0:
@@ -508,8 +507,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 mStartBt.setText(R.string.download_version);
                 mStartBt.setEnabled(false);
                 mPb.setProgress(0);
-                mStartBt.setVisibility(View.GONE);
-                mPb.setVisibility(View.GONE);
                 break;
             case 2:
                 break;
@@ -577,7 +574,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
      */
     private void writeCommandByPosition() {
         mTvProgress.setText(mOtaParser.getProgress() + "%");
-        LogUtil.d(TAG,"index 发送1");
+        LogUtil.d(TAG, "index 发送1");
         if (gCmdBytes != null) {
             byte[] cmd = mOtaParser.getNextPacket();
 
@@ -665,14 +662,14 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         switch (v.getId()) {
             case R.id.iv_back_sysset:
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
-                    long curTime = SystemClock.uptimeMillis();
-                    if (curTime - mBackPressedTime < 3000) {
-                        bWriteDfuData = false;
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
-                        finish();
-                        return;
-                    }
-                    mBackPressedTime = curTime;
+//                    long curTime = SystemClock.uptimeMillis();
+//                    if (curTime - mBackPressedTime < 3000) {
+//                        bWriteDfuData = false;
+//                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
+//                        finish();
+//                        return;
+//                    }
+//                    mBackPressedTime = curTime;
                     ToastUtil.showShort(this, getString(R.string.ota_back_message));
                 } else finish();
                 break;
@@ -702,18 +699,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         mDevice = device;
         switch (state) {
             case BluetoothGatt.GATT_SUCCESS:
-//                if (bWriteDfuData) {
-//                    i++;
-//                    if ((i == 25) && mOtaParser.hasNextPacket()) {
-//                        i = 0;
-//                        mPb.setProgress(mOtaParser.getProgress());
-//                        mConnetStatus.setText(R.string.ota_updating);
-//                        writeCommandByPosition();
-//                    } else if (mOtaParser.isLast()) { // end of writing command;
-//                        endDFU();
-//                    }
-//
-//                }
                 break;
             case BleMsg.STATE_DISCONNECTED:
                 if (mOtaParser.hasNextPacket()) {
@@ -726,6 +711,8 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 break;
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
+                    mDefaultDev.setFpSwVersion(mVersionModel.versionName);
+                    DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
                     mConnetStatus.setText(R.string.ota_complete);
                 } else {
                     downloadSize = 0;
@@ -780,7 +767,12 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_FAILED:
                 bWriteDfuData = false;
-                mConnetStatus.setText(R.string.ota_file_dan);
+                if (mOtaParser.hasNextPacket()) {
+                    mConnetStatus.setText(R.string.ota_file_dan);
+                } else {
+                    mConnetStatus.setText(R.string.ota_file_dan);
+                }
+
                 break;
             case BleMsg.TYPE_GET_FINGERPRINT_SIZE:
                 prepareDFU();
@@ -816,16 +808,17 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     @Override
     public void onBackPressed() {
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
-            long curTime = SystemClock.uptimeMillis();
-            LogUtil.d(TAG, "mBackPressedTime = " + mBackPressedTime);
-            if (curTime - mBackPressedTime < 3000) {
-                bWriteDfuData = false;
-                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
-                finish();
-                return;
-            }
-            mBackPressedTime = curTime;
+//            long curTime = SystemClock.uptimeMillis();
+//            LogUtil.d(TAG, "mBackPressedTime = " + mBackPressedTime);
+//            if (curTime - mBackPressedTime < 3000) {
+//                bWriteDfuData = false;
+//                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
+//                finish();
+//                return;
+//            }
+//            mBackPressedTime = curTime;
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
+
         } else finish();
     }
 }

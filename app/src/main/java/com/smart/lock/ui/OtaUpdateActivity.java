@@ -200,7 +200,6 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     private static final int TAG_OTA_PREPARE = 0;
     private static final int TAG_OTA_START = 1;
     private static final int TAG_OTA_END = 2;
-    private static PowerManager.WakeLock mWakeLock;
 
     private final OtaAESPacketParser mOtaParser = new OtaAESPacketParser();
 
@@ -238,6 +237,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     showMessage(getString(R.string.down_finish));
                     break;
                 case DOWNLOAD_ERROR:
+                    try {
+                        if (mThread != null) {
+                            mThread.interrupt();
+                        }
+                        mThread = null;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     isSuccess = false;
                     showMessage(getString(R.string.download_error));
                     downloadSize = 0;
@@ -603,7 +610,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     private void writeCommandByPosition() {
         mPb.setProgress(mOtaParser.getProgress());
         mTvProgress.setText(mOtaParser.getProgress() + "%");
-        if (mOtaParser.hasNextPacket()) {
+        if (mOtaParser.hasNextPacket() && mBleManagerHelper.getBleCardService() != null) {
             bWriteDfuData = true;
             byte[] cmd = mOtaParser.getNextPacket();
             mBleManagerHelper.getBleCardService().sendCmdOtaData(cmd, Message.TYPE_BLE_SEND_OTA_DATA);
@@ -649,7 +656,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 System.arraycopy(buf, 0, sendData, 0, 16);
                 Arrays.fill(sendData, 16, 20, (byte) 0xFF);
 
-                mBleManagerHelper.getBleCardService().sendCmdOtaData(sendData, Message.TYPE_BLE_SEND_OTA_CMD);
+                mBleManagerHelper.getBleCardService().sendCmdOtaData(sendData, Message.TYPE_BLE_SEND_OTA_DATA);
                 break;
             case TAG_OTA_START:
                 mConnetStatus.setText(R.string.start_update);
@@ -677,7 +684,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 Arrays.fill(sendData, 16, 20, (byte) 0xFF);
 
                 mConnetStatus.setText(R.string.ota_updating);
-                mBleManagerHelper.getBleCardService().sendCmdOtaData(sendData, Message.TYPE_BLE_SEND_OTA_CMD);
+                mBleManagerHelper.getBleCardService().sendCmdOtaData(sendData, Message.TYPE_BLE_SEND_OTA_DATA);
                 break;
             case TAG_OTA_END:
                 mConnetStatus.setText(R.string.ota_complete);
@@ -713,7 +720,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     Arrays.fill(sendData, 16, 20, (byte) 0xFF);
 
                     mConnetStatus.setText(R.string.ota_updating);
-                    mBleManagerHelper.getBleCardService().sendCmdOtaData(sendData, Message.TYPE_BLE_SEND_OTA_CMD);
+                    mBleManagerHelper.getBleCardService().sendCmdOtaData(sendData, Message.TYPE_BLE_SEND_OTA_DATA);
                 }
                 bWriteDfuData = false;
                 break;
@@ -751,14 +758,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         switch (v.getId()) {
             case R.id.iv_back_sysset:
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
-                    long curTime = SystemClock.uptimeMillis();
-                    if (curTime - mBackPressedTime < 3000) {
-                        bWriteDfuData = false;
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
-                        finish();
-                        return;
-                    }
-                    mBackPressedTime = curTime;
+//                    long curTime = SystemClock.uptimeMillis();
+//                    if (curTime - mBackPressedTime < 3000) {
+//                        bWriteDfuData = false;
+//                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
+//                        finish();
+//                        return;
+//                    }
+//                    mBackPressedTime = curTime;
                     ToastUtil.showShort(this, getString(R.string.ota_back_message));
                 } else finish();
                 break;
@@ -794,6 +801,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     mConnetStatus.setText(R.string.ota_file_dan);
                 } else if (mOtaParser.getTotal() != 0) {
                     mConnetStatus.setText(R.string.dfu_end_waiting);
+                } else {
+                    mStartBt.setEnabled(false);
+                    mConnetStatus.setText(R.string.disconnect_ble);
                 }
                 break;
             case BleMsg.STATE_CONNECTED:
@@ -801,6 +811,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 break;
             case BleMsg.GATT_SERVICES_DISCOVERED:
                 if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
+                    mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
+                    DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
                     mConnetStatus.setText(R.string.ota_complete);
                 } else {
                     downloadSize = 0;
@@ -876,14 +888,14 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     @Override
     public void onBackPressed() {
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
-            long curTime = SystemClock.uptimeMillis();
-            if (curTime - mBackPressedTime < 3000) {
-                bWriteDfuData = false;
-                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
-                finish();
-                return;
-            }
-            mBackPressedTime = curTime;
+//            long curTime = SystemClock.uptimeMillis();
+//            if (curTime - mBackPressedTime < 3000) {
+//                bWriteDfuData = false;
+//                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_EXIT_OTA_UPDATE);
+//                finish();
+//                return;
+//            }
+//            mBackPressedTime = curTime;
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
         } else finish();
     }

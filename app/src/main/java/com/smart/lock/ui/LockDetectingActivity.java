@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -37,6 +38,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -100,6 +104,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private int REQUEST_ENABLE_BT = 100;
     private Device mDevice;
     private Context mCtx;
+    private SmartRefreshLayout mRefreshLayout;
 
     //back time
     private long mBackPressedTime;
@@ -265,6 +270,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mScanEmpty = findViewById(R.id.scan_empty);
         mScanDevBar = findViewById(R.id.pb_scan_ble_dev);
         mLine = findViewById(R.id.line);
+
+        mRefreshLayout = findViewById(R.id.refreshLayout);
+        mRefreshLayout.setEnableRefresh(false);
     }
 
     private void initDate() {
@@ -284,8 +292,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDevList.setAdapter(mBleAdapter);
             }
             mBleMac = StringUtil.getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
-            mSn = extras.getString(BleMsg.KEY_NODE_SN);
-            mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
+//            mSn = extras.getString(BleMsg.KEY_NODE_SN);
+//            mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
             mDevice = mBleManagerHelper.getDevice(mConnectType, extras, this);
         } else {
             mMode = SEARCH_LOCK;
@@ -327,6 +335,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mBackIv.setOnClickListener(this);
         mConfirmBtn.setOnClickListener(this);
         mRemarkEt.setOnClickListener(this);
+        mRefreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+                refreshLayout.finishRefresh(5000/*,false*/);//传入false表示刷新失败
+                Log.d(TAG, "setOnRefreshListener");
+            }
+
+        });
     }
 
     /**
@@ -406,6 +422,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -413,7 +430,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                         detectDevice(device);
                     } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
                         if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
-                            Log.d(TAG, "device.getName() = " + device.getName());
                             addDevice(device);
                         }
                     }
@@ -664,6 +680,11 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
         private Context mContext;
         public ArrayList<BluetoothDevice> mBluetoothDevList;
+        public static final int TYPE_HEADER = 0;  //说明是带有Header的
+        public static final int TYPE_FOOTER = 1;  //说明是带有Footer的
+        public static final int TYPE_NORMAL = 2;  //说明是不带有header和footer的
+        private View mHeaderView;
+        private View mFooterView;
 
         public BleAdapter(Context context, ArrayList<BluetoothDevice> devList) {
             mContext = context;
@@ -685,6 +706,12 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            if (mHeaderView != null && viewType == TYPE_HEADER) {
+                return new ViewHolder(mHeaderView);
+            }
+            if (mFooterView != null && viewType == TYPE_FOOTER) {
+                return new ViewHolder(mFooterView);
+            }
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dev, parent, false);
             SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev);
             swipeLayout.setClickToClose(false);
@@ -694,33 +721,58 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
-            final BluetoothDevice dev = mBluetoothDevList.get(position);
-            if (dev != null) {
-                viewHolder.mDevName.setText(dev.getName());
-                viewHolder.mDevMac.setText(dev.getAddress());
+            if (getItemViewType(position) == TYPE_NORMAL) {
+                final BluetoothDevice dev = mBluetoothDevList.get(position);
+                if (dev != null) {
+                    viewHolder.mDevName.setText(dev.getName());
+                    viewHolder.mDevMac.setText(dev.getAddress());
 
-                viewHolder.mDevContent.setOnClickListener(new View.OnClickListener() {
+                    viewHolder.mDevContent.setOnClickListener(new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        if (!mSearchAddDev) {
-                            if (mScanning) {
-                                scanLeDevice(false);
-                            }
-                            mSearchAddDev = true;
-                            mBleMac = dev.getAddress();
-                            detectDevice(dev);
-                        } else showMessage(getString(R.string.data_loading));
+                        @Override
+                        public void onClick(View v) {
+                            if (!mSearchAddDev) {
+                                if (mScanning) {
+                                    scanLeDevice(false);
+                                }
+                                mSearchAddDev = true;
+                                mBleMac = dev.getAddress();
+                                detectDevice(dev);
+                            } else showMessage(getString(R.string.data_loading));
 
-                    }
-                });
+                        }
+                    });
+                }
             }
+        }
 
+        @Override
+        public int getItemViewType(int position) {
+            if (mHeaderView == null && mFooterView == null) {
+                return TYPE_NORMAL;
+            }
+            if (position == 0) {
+                //第一个item应该加载Header
+                return TYPE_HEADER;
+            }
+            if (position == getItemCount() - 1) {
+                //最后一个,应该加载Footer
+                return TYPE_FOOTER;
+            }
+            return TYPE_NORMAL;
         }
 
         @Override
         public int getItemCount() {
-            return mBluetoothDevList.size();
+            if (mHeaderView == null && mFooterView == null) {
+                return mBluetoothDevList.size();
+            } else if (mHeaderView == null && mFooterView != null) {
+                return mBluetoothDevList.size() + 1;
+            } else if (mHeaderView != null && mFooterView == null) {
+                return mBluetoothDevList.size() + 1;
+            } else {
+                return mBluetoothDevList.size() + 2;
+            }
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -739,16 +791,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDevContent = itemView.findViewById(R.id.ll_content);
             }
         }
-
-    }
-
-    public void onBackPressed() {
-        long curTime = SystemClock.uptimeMillis();
-        if (curTime - mBackPressedTime < 3000) {
-            finish();
-            return;
-        }
-        mBackPressedTime = curTime;
     }
 
     @Override

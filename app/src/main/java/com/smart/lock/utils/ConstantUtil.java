@@ -5,7 +5,8 @@ import java.util.Set;
 
 public class ConstantUtil {
 
-    public static String BASE_URL = "https://api.dttsh.cn";
+    //    public static String BASE_URL = "https://api.dttsh.cn";
+    public static String BASE_URL = "http://118.31.62.126:8093";
     public static final String CHECK_FIRMWARE_VERSION = BASE_URL + "/api/v1.0/firmware/update";
     public static final String CHECK_APP_VERSION = BASE_URL + "/api/v1.0/application/update";
     /**
@@ -213,12 +214,21 @@ public class ConstantUtil {
     public static final byte USER_TEMP_PWD = 0x08;
 
     /**
+     * 组合开锁
+     */
+    public static final byte USER_COMBINATION_LOCK = 0x09;
+
+    /**
      *
      */
     public static final int INVALID_POWER_SAVE_TIME = Integer.MAX_VALUE;
 
     public static final String APPLICATION = "apk";
     public static final String BIN_EXTENSION = "bin";
+
+    public static final int ADMIN_USR_NUM = 5; //管理员个数
+    public static final int COMMON_USR_NUM = 90;//普通用户个数
+    public static final int TMP_USR_NUM = 5;//临时用户个数
 
     public interface ParamName {
         String RESULT = "result";

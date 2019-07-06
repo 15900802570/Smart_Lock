@@ -241,7 +241,6 @@ public abstract class BaseFragment extends Fragment {
         }
 
         String path = createQRcodeImage(buf, user.getUserPermission());
-        Log.d(TAG, "path = " + path);
         if (path != null) {
             user.setQrPath(path);
             DeviceUserDao.getInstance(mActivity).updateDeviceUser(user);
@@ -251,7 +250,6 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected void setAuthCode(byte[] authTime, DeviceInfo info, DeviceUser user) {
-        LogUtil.d(TAG, "user : " + user.toString());
         byte[] authCode = new byte[30];
         if (StringUtil.checkNotNull(info.getDeviceNodeId())) {
             byte[] userId = new byte[2];
@@ -265,7 +263,6 @@ public abstract class BaseFragment extends Fragment {
             }
             nodeIdBuf = StringUtil.hexStringToBytes(nodeId);
             StringUtil.exchange(nodeIdBuf);
-            LogUtil.d(TAG, "nodeIdBuf = " + Arrays.toString(nodeIdBuf));
             System.arraycopy(nodeIdBuf, 0, authCode, 2, 8);
 
             byte[] bleMacBuf = new byte[6];
@@ -273,7 +270,6 @@ public abstract class BaseFragment extends Fragment {
             if (StringUtil.checkNotNull(bleMac)) {
                 bleMacBuf = StringUtil.hexStringToBytes(bleMac.replace(":", ""));
                 System.arraycopy(bleMacBuf, 0, authCode, 10, 6);
-                LogUtil.d(TAG, "macBuf = " + Arrays.toString(bleMacBuf));
             }
 
             byte[] randCodeBuf = new byte[10];
@@ -281,12 +277,10 @@ public abstract class BaseFragment extends Fragment {
             if (StringUtil.checkNotNull(randCode)) {
                 randCodeBuf = StringUtil.hexStringToBytes(randCode);
                 System.arraycopy(randCodeBuf, 0, authCode, 16, 10);
-                LogUtil.d(TAG, "randCodeBuf = " + Arrays.toString(randCodeBuf));
             }
 
             System.arraycopy(authTime, 0, authCode, 26, 4);
 
-            LogUtil.d(TAG, "authCode = " + Arrays.toString(authCode));
             user.setAuthCode(StringUtil.bytesToHexString(authCode));
             DeviceUserDao.getInstance(mActivity).updateDeviceUser(user);
         }

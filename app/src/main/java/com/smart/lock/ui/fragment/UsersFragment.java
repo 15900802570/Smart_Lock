@@ -1,0 +1,820 @@
+package com.smart.lock.ui.fragment;
+
+import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Vibrator;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.daimajia.swipe.SwipeLayout;
+import com.smart.lock.R;
+import com.smart.lock.ble.AES_ECB_PKCS7;
+import com.smart.lock.ble.BleManagerHelper;
+import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
+import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.db.bean.DeviceUser;
+import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.entity.Device;
+import com.smart.lock.ui.DeviceKeyActivity;
+import com.smart.lock.ui.TempUserActivity;
+import com.smart.lock.ui.UserSettingActivity;
+import com.smart.lock.ui.login.LockScreenActivity;
+import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.SpacesItemDecoration;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class UsersFragment extends BaseFragment implements View.OnClickListener, UiListener {
+    private final static String TAG = UsersFragment.class.getSimpleName();
+
+    private View mUserView;
+    private RecyclerView mUsersRv;
+    private UserAdapter mUserAdapter;
+    private TextView mAddUserTv;
+    private RelativeLayout mSelectDeleteRl;
+    private CheckBox mSelectCb;
+    private TextView mTipTv;
+    private TextView mDeleteTv;
+    private Device mDevice;
+    private Boolean mIsHint = false;
+    private BottomSheetDialog mFunctionDialog; //功能选择
+    private BottomSheetDialog mCreateUserDialog; //创建用户选择
+
+    private TextView mShareTv;
+    private TextView mGroupDeleteTv;
+    private TextView mUserSettingTv;
+    private TextView mUserNameTv;
+
+    private TextView mCreateAdminTv;
+    private TextView mCreateMembersTv;
+    private TextView mCreateCancelTv;
+    private View mLine;
+    private TextView mDeleteCancelTV;
+
+    private DeviceUser mSettingUser;
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_add:
+                mCreateUserDialog.show();
+                break;
+            case R.id.del_tv:
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mUserAdapter.mDeleteUsers.size() != 0) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
+                        for (DeviceUser devUser : mUserAdapter.mDeleteUsers) {
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, devUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        }
+                    } else {
+                        showMessage(getString(R.string.plz_choise_del_user));
+                    }
+
+                    if (mActivity instanceof UsersFragment.OnFragmentInteractionListener) {
+                        ((UsersFragment.OnFragmentInteractionListener) mActivity).changeVisible();
+                    }
+                } else showMessage(getString(R.string.disconnect_ble));
+                break;
+            case R.id.share_tv:
+                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                    mBleManagerHelper.getBleCardService().sendCmd25(mSettingUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(mUserView.getContext().getString(R.string.unconnected_device));
+                mFunctionDialog.cancel();
+                break;
+            case R.id.group_delete_tv:
+                selectDelete(true);
+                mFunctionDialog.cancel();
+                break;
+            case R.id.del_cancel:
+                selectDelete(false);
+                break;
+            case R.id.user_setting_tv:
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(BleMsg.KEY_TEMP_USER, mSettingUser);
+                startIntent(UserSettingActivity.class, bundle);
+                mFunctionDialog.cancel();
+                break;
+            case R.id.create_admin_tv:
+                ArrayList<DeviceUser> admins = DeviceUserDao.getInstance(mUserView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+                if (admins != null && admins.size() >= ConstantUtil.ADMIN_USR_NUM) {
+                    showMessage(mUserView.getContext().getResources().getString(R.string.administrator) + mUserView.getContext().getResources().getString(R.string.add_user_tips));
+                    mCreateUserDialog.cancel();
+                    return;
+                }
+
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
+                    mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CONNECT_ADD_MASTER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
+                break;
+            case R.id.create_members_tv:
+                ArrayList<DeviceUser> members = DeviceUserDao.getInstance(mUserView.getContext()).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
+                if (members != null && members.size() >= ConstantUtil.COMMON_USR_NUM) {
+                    showMessage(mUserView.getContext().getResources().getString(R.string.members) + mUserView.getContext().getResources().getString(R.string.add_user_tips));
+                    mCreateUserDialog.cancel();
+                    return;
+                }
+
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
+                    mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_CONNECT_ADD_MUMBER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
+                break;
+            case R.id.create_cancel:
+                mCreateUserDialog.cancel();
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 调用UserManagerActivity中的函数
+     */
+    public interface OnFragmentInteractionListener {
+        void changeVisible();
+    }
+
+    public void selectDelete(boolean choise) {
+        if (choise) {
+            mSelectDeleteRl.setVisibility(View.VISIBLE);
+            mAddUserTv.setVisibility(View.GONE);
+        } else {
+            mAddUserTv.setVisibility(View.VISIBLE);
+            mSelectDeleteRl.setVisibility(View.GONE);
+        }
+        mSelectCb.setChecked(false);
+        mUserAdapter.chioseALLDelete(false);
+        mUserAdapter.chioseItemDelete(choise);
+        mUserAdapter.notifyDataSetChanged();
+    }
+
+    public void refreshView() {
+        mUserAdapter.setDataSource();
+        mUserAdapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public View initView() {
+        mUserView = View.inflate(mActivity, R.layout.fragment_user_manager, null);
+        mUsersRv = mUserView.findViewById(R.id.rv_users);
+        mAddUserTv = mUserView.findViewById(R.id.tv_add);
+        mSelectDeleteRl = mUserView.findViewById(R.id.rl_select_delete);
+        mSelectCb = mUserView.findViewById(R.id.cb_selete_user);
+        mDeleteTv = mUserView.findViewById(R.id.del_tv);
+        mTipTv = mUserView.findViewById(R.id.tv_tips);
+        mFunctionDialog = DialogUtils.createBottomSheetDialog(mUserView.getContext(), R.layout.bottom_sheet_user_function, R.id.design_bottom_sheet);
+        mCreateUserDialog = DialogUtils.createBottomSheetDialog(mUserView.getContext(), R.layout.bottom_create_user, R.id.design_bottom_sheet);
+        mShareTv = mFunctionDialog.findViewById(R.id.share_tv);
+        mGroupDeleteTv = mFunctionDialog.findViewById(R.id.group_delete_tv);
+        mUserSettingTv = mFunctionDialog.findViewById(R.id.user_setting_tv);
+        mUserNameTv = mFunctionDialog.findViewById(R.id.user_name_tv);
+        mLine = mFunctionDialog.findViewById(R.id.line);
+        mCreateAdminTv = mCreateUserDialog.findViewById(R.id.create_admin_tv);
+        mCreateMembersTv = mCreateUserDialog.findViewById(R.id.create_members_tv);
+        mCreateCancelTv = mCreateUserDialog.findViewById(R.id.create_cancel);
+        mDeleteCancelTV = mUserView.findViewById(R.id.del_cancel);
+        return mUserView;
+    }
+
+    public void initDate() {
+        mDefaultDevice = DeviceInfoDao.getInstance(mUserView.getContext()).queryFirstData("device_default", true);
+        mNodeId = mDefaultDevice.getDeviceNodeId();
+        mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+        mBleManagerHelper = BleManagerHelper.getInstance(mUserView.getContext());
+        mBleManagerHelper.addUiListener(this);
+        mDevice = Device.getInstance(mUserView.getContext());
+        mUserAdapter = new UserAdapter(mUserView.getContext());
+        LinearLayoutManager mLinerLayoutManager = new LinearLayoutManager(mUserView.getContext(), LinearLayoutManager.VERTICAL, false);
+        mUsersRv.setLayoutManager(mLinerLayoutManager);
+        mUsersRv.setItemAnimator(new DefaultItemAnimator());
+        mUsersRv.setAdapter(mUserAdapter);
+        mUsersRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y5dp)));
+
+        mAddUserTv.setText(R.string.create_user);
+        mSelectDeleteRl.setVisibility(View.GONE);
+
+        mLoadDialog = DialogUtils.createLoadingDialog(mUserView.getContext(), getResources().getString(R.string.data_loading));
+
+        initEvent();
+    }
+
+    private void initEvent() {
+        mAddUserTv.setOnClickListener(this);
+        mSelectCb.setOnClickListener(this);
+        mDeleteTv.setOnClickListener(this);
+        mUserSettingTv.setOnClickListener(this);
+        mGroupDeleteTv.setOnClickListener(this);
+        mShareTv.setOnClickListener(this);
+        mCreateAdminTv.setOnClickListener(this);
+        mCreateMembersTv.setOnClickListener(this);
+        mCreateCancelTv.setOnClickListener(this);
+        mDeleteCancelTV.setOnClickListener(this);
+
+        mSelectCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mLoadDialog != null && mLoadDialog.isShowing()) {
+                    return;
+                }
+                ArrayList<DeviceUser> deleteUsers = DeviceUserDao.getInstance(mUserView.getContext()).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+                mUserAdapter.mDeleteUsers.clear();
+                if (isChecked) {
+                    mTipTv.setText(R.string.cancel);
+                    int index = -1;
+                    for (DeviceUser user : deleteUsers) {
+                        if (user.getUserId() == mDefaultUser.getUserId()) {
+                            index = deleteUsers.indexOf(user);
+                        }
+                    }
+                    if (index != -1) {
+                        deleteUsers.remove(index);
+                    }
+                    mUserAdapter.mDeleteUsers.addAll(deleteUsers);
+                    mUserAdapter.chioseALLDelete(true);
+                } else {
+                    mTipTv.setText(R.string.all_election);
+                    mUserAdapter.chioseALLDelete(false);
+                }
+                mUserAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        mIsHint = isVisibleToUser;
+        super.setUserVisibleHint(isVisibleToUser);
+
+    }
+
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(mUserView.getContext().getString(R.string.ble_disconnect));
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        mDevice = device;
+        Bundle extra = msg.getData();
+        Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+        if (!mIsHint || serializable == null) {
+            DialogUtils.closeDialog(mLoadDialog);
+            return;
+        }
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
+
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null)
+                    dispatchErrorCode(errCode[3], serializable);
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_12:
+
+                byte[] buf = new byte[64];
+                byte[] authBuf = new byte[64];
+                authBuf[0] = 0x01;
+
+                byte[] authCode = extra.getByteArray(BleMsg.KEY_AUTH_CODE);
+                if (authCode == null) return;
+
+                byte[] userIdBuf = new byte[2];
+
+                System.arraycopy(authCode, 0, userIdBuf, 0, 2);
+
+                Short userId = Short.parseShort(StringUtil.bytesToHexString(userIdBuf), 16);
+
+//                byte[] timeQr = new byte[4];
+//                StringUtil.int2Bytes((int) (System.currentTimeMillis() / 1000 + 30 * 60), timeQr);
+//                System.arraycopy(timeQr, 0, authBuf, 1, 4); //二维码有效时间
+//
+//                System.arraycopy(authCode, 0, authBuf, 5, 30); //鉴权码
+//
+//                Arrays.fill(authBuf, 35, 64, (byte) 0x1d); //补充字节
+//
+//                try {
+//                    AES_ECB_PKCS7.AES256Encode(authBuf, buf, MessageCreator.mQrSecret);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//                String path = createQRcodeImage(buf, ConstantUtil.DEVICE_MASTER);
+//                if (path != null) {
+                DeviceUser deviceUser = createDeviceUser(userId, null, StringUtil.bytesToHexString(authCode));
+
+                if (deviceUser != null) {
+                    mUserAdapter.addItem(deviceUser);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
+//                }
+                mCreateUserDialog.cancel();
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                short userIdTag = (short) serializable;
+                if (userIdTag <= 0 || userIdTag > 100) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    return;
+                }
+                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                if (userInfo != null) {
+                    byte[] authTime = new byte[4];
+                    System.arraycopy(userInfo, 8, authTime, 0, 4);
+
+                    DeviceUser devUser = DeviceUserDao.getInstance(mUserView.getContext()).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                    setAuthCode(authTime, mDefaultDevice, devUser);
+
+                    String qrPath = devUser.getQrPath();
+                    if (StringUtil.checkNotNull(qrPath)) {
+                        String qrName = StringUtil.getFileName(qrPath);
+                        if (System.currentTimeMillis() - Long.parseLong(qrName) <= 30 * 60 * 60) {
+                            Log.d(TAG, "qrName = " + qrName);
+                            displayImage(qrPath);
+                        } else {
+                            File delQr = new File(qrPath);
+                            boolean result = delQr.delete();
+                            if (result) {
+                                mUserView.getContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + qrPath)));
+                            }
+                            String newPath = createQr(devUser);
+                            Log.d(TAG, "newPath = " + newPath);
+                        }
+
+                    } else {
+                        String newPath = createQr(devUser);
+                        Log.d(TAG, "newPath = " + newPath);
+                    }
+                }
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    private void dispatchErrorCode(byte errCode, Serializable serializable) {
+        LogUtil.i(TAG, "errCode : " + errCode);
+        switch (errCode) {
+            case BleMsg.TYPE_ADD_USER_SUCCESS:
+                showMessage(mUserView.getContext().getString(R.string.add_user_success));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_ADD_USER_FAILED:
+                showMessage(mUserView.getContext().getString(R.string.add_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_DELETE_USER_SUCCESS:
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    DeviceUser deleteUser = DeviceUserDao.getInstance(mUserView.getContext()).queryUser(mNodeId, user.getUserId());
+                    DeviceKeyDao.getInstance(mUserView.getContext()).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
+
+                    mUserAdapter.removeItem(deleteUser);
+                    if (mUserAdapter.mDeleteUsers.size() == 0) {
+                        showMessage(mUserView.getContext().getString(R.string.delete_user_success));
+                        selectDelete(false);
+                        DialogUtils.closeDialog(mLoadDialog);
+                    } else return;
+                }
+                break;
+            case BleMsg.TYPE_DELETE_USER_FAILED:
+                showMessage(mUserView.getContext().getString(R.string.delete_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_PAUSE_USER_SUCCESS:
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    showMessage(mUserView.getContext().getString(R.string.pause_user_success));
+                    DeviceUser pauseUser = DeviceUserDao.getInstance(mUserView.getContext()).queryUser(mNodeId, user.getUserId());
+                    pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                    DeviceUserDao.getInstance(mUserView.getContext()).updateDeviceUser(pauseUser);
+                    mUserAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
+                break;
+            case BleMsg.TYPE_PAUSE_USER_FAILED:
+                showMessage(mUserView.getContext().getString(R.string.pause_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_RECOVERY_USER_SUCCESS:
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    showMessage(mUserView.getContext().getString(R.string.recovery_user_success));
+                    DeviceUser recoveryUser = DeviceUserDao.getInstance(mUserView.getContext()).queryUser(mNodeId, user.getUserId());
+                    recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                    DeviceUserDao.getInstance(mUserView.getContext()).updateDeviceUser(recoveryUser);
+                    mUserAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
+                    DialogUtils.closeDialog(mLoadDialog);
+                }
+                break;
+            case BleMsg.TYPE_RECOVERY_USER_FAILED:
+                showMessage(mUserView.getContext().getString(R.string.recovery_user_failed));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_USER_FULL:
+                showMessage(mUserView.getContext().getString(R.string.add_user_full));
+                DialogUtils.closeDialog(mLoadDialog);
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+        mDevice = device;
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+        int exception = msg.getException();
+        switch (exception) {
+            case Message.EXCEPTION_TIMEOUT:
+                DialogUtils.closeDialog(mLoadDialog);
+                LogUtil.e(msg.getType() + " can't receiver msg!");
+                break;
+            case Message.EXCEPTION_SEND_FAIL:
+                DialogUtils.closeDialog(mLoadDialog);
+                LogUtil.e(msg.getType() + " send failed!");
+                LogUtil.e(TAG, "msg exception : " + msg.toString());
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFailed() {
+
+    }
+
+    private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+        private Context mContext;
+        private ArrayList<DeviceUser> mUserList;
+        private Boolean mVisiBle = false;
+        public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
+        public boolean mAllDelete = false;
+
+        public UserAdapter(Context context) {
+            mContext = context;
+            mUserList = DeviceUserDao.getInstance(mUserView.getContext()).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+            int index = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId() == mDefaultUser.getUserId()) {
+                    index = mUserList.indexOf(user);
+                }
+            }
+            if (index != -1) {
+                mUserList.remove(index);
+            }
+        }
+
+        @NonNull
+        @Override
+        public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
+            SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
+            swipelayout.setClickToClose(true);
+            swipelayout.setRightSwipeEnabled(true);
+            return new UserViewHolder(inflate);
+        }
+
+        public void setDataSource() {
+            mUserList = DeviceUserDao.getInstance(mContext).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MASTER);
+            int index = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId() == mDefaultUser.getUserId()) {
+                    index = mUserList.indexOf(user);
+                }
+            }
+            if (index != -1) {
+                mUserList.remove(index);
+            }
+        }
+
+        public void chioseItemDelete(boolean visible) {
+            mVisiBle = visible;
+        }
+
+
+        public void chioseALLDelete(boolean allDelete) {
+            mAllDelete = allDelete;
+        }
+
+        public void changeUserState(DeviceUser changeUser, int state) {
+            int index = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId() == changeUser.getUserId()) {
+                    index = mUserList.indexOf(user);
+                    user.setUserStatus(state);
+                    if (index != -1) {
+                        notifyItemChanged(index);
+                    }
+                }
+            }
+        }
+
+        public void addItem(DeviceUser user) {
+            mUserList.add(mUserList.size(), user);
+            notifyItemInserted(mUserList.size());
+        }
+
+        public void removeItem(DeviceUser delUser) {
+
+            int index = -1;
+            int delIndex = -1;
+            for (DeviceUser user : mUserList) {
+                if (user.getUserId() == delUser.getUserId()) {
+                    index = mUserList.indexOf(user);
+                }
+            }
+            if (index != -1) {
+                DeviceUser del = mUserList.remove(index);
+
+                mDeleteUsers.remove(del);
+                DeviceUserDao.getInstance(mUserView.getContext()).delete(del);
+                notifyItemRemoved(index);
+            }
+
+            for (DeviceUser deleteUser : mDeleteUsers) {
+                if (deleteUser.getUserId() == delUser.getUserId()) {
+                    delIndex = mDeleteUsers.indexOf(deleteUser);
+                }
+            }
+
+            if (delIndex != -1) {
+                mDeleteUsers.remove(delIndex);
+            }
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onBindViewHolder(@NonNull final UserViewHolder holder, final int position) {
+            final DeviceUser userInfo = mUserList.get(position);
+            if (userInfo != null) {
+                holder.mNameTv.setText(userInfo.getUserName());
+                if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
+                    holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
+                    holder.mSwipeLayout.setRightSwipeEnabled(false);
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
+                    holder.mUserStateTv.setText(mContext.getString(R.string.normal));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
+                    holder.mUserPause.setVisibility(View.VISIBLE);
+                    holder.mUserRecovery.setVisibility(View.GONE);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
+                } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                    holder.mUserStateTv.setText(mContext.getString(R.string.pause));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
+                    holder.mUserPause.setVisibility(View.GONE);
+                    holder.mUserRecovery.setVisibility(View.VISIBLE);
+                    holder.mSwipeLayout.setRightSwipeEnabled(true);
+                }
+                if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
+                    holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
+                else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
+                    holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+
+                final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
+
+                final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
+
+                //修改呢称响应事件
+                mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final String newName = editText.getText().toString();
+                        if (!newName.isEmpty()) {
+                            holder.mNameTv.setText(newName);
+                            userInfo.setUserName(newName);
+                            DeviceUserDao.getInstance(mContext).updateDeviceUser(userInfo);
+                        } else {
+                            ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
+                        }
+                        mEditorNameDialog.dismiss();
+                    }
+                });
+
+                holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        editText.setText(holder.mNameTv.getText().toString());
+                        mEditorNameDialog.show();
+                    }
+                });
+
+                holder.mUserPause.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(getString(R.string.disconnect_ble));
+                    }
+                });
+
+                holder.mUserRecovery.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mDevice.getState() == Device.BLE_CONNECTED) {
+                            DialogUtils.closeDialog(mLoadDialog);
+                            mLoadDialog.show();
+                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else showMessage(getString(R.string.disconnect_ble));
+                    }
+                });
+
+
+                holder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (holder.mDeleteCb.isChecked()) {
+                            mDeleteUsers.add(userInfo);
+                        } else {
+                            int delIndex = -1;
+
+                            for (DeviceUser deleteUser : mDeleteUsers) {
+                                if (deleteUser.getUserId() == userInfo.getUserId()) {
+                                    delIndex = mDeleteUsers.indexOf(deleteUser);
+                                }
+                            }
+
+                            if (delIndex != -1) {
+                                mDeleteUsers.remove(delIndex);
+                            }
+                        }
+                    }
+                });
+
+                holder.mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
+
+                    @Override
+                    public boolean onLongClick(View v) {
+                        shakes();
+                        mSettingUser = userInfo;
+                        mUserNameTv.setText(userInfo.getUserName());
+                        if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                            mUserSettingTv.setVisibility(View.GONE);
+                            mLine.setVisibility(View.GONE);
+                        } else {
+                            mUserSettingTv.setVisibility(View.VISIBLE);
+                            mLine.setVisibility(View.VISIBLE);
+                        }
+                        mFunctionDialog.show();
+                        return true;
+                    }
+                });
+
+                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
+                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                        startIntent(DeviceKeyActivity.class, bundle, -1);
+                    }
+                });
+
+                if (mVisiBle)
+                    holder.mDeleteRl.setVisibility(View.VISIBLE);
+                else
+                    holder.mDeleteRl.setVisibility(View.GONE);
+
+                holder.mDeleteCb.setChecked(mAllDelete);
+            }
+        }
+
+        /**
+         * 震动
+         */
+        private void shakes() {
+            Vibrator vibrator = (Vibrator) mUserView.getContext().getSystemService(LockScreenActivity.VIBRATOR_SERVICE);
+            if (vibrator != null) {
+                vibrator.vibrate(300);
+            }
+        }
+
+        @Override
+        public void onViewAttachedToWindow(@NonNull UserViewHolder holder) {
+            super.onViewAttachedToWindow(holder);
+            holder.mNameTv.setEnabled(false);
+            holder.mNameTv.setEnabled(true);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mUserList.size();
+        }
+
+        class UserViewHolder extends RecyclerView.ViewHolder {
+            RelativeLayout mDeleteRl;
+            TextView mUserStateTv;
+            ImageButton mEditIbtn;
+            SwipeLayout mSwipeLayout;
+            TextView mNameTv;
+            TextView mUserNumberTv;
+            LinearLayout mUserRecovery;
+            LinearLayout mUserPause;
+            CheckBox mDeleteCb;
+            LinearLayout mUserContent;
+
+            UserViewHolder(View itemView) {
+                super(itemView);
+                mNameTv = itemView.findViewById(R.id.tv_username);
+                mDeleteRl = itemView.findViewById(R.id.rl_delete);
+                mUserStateTv = itemView.findViewById(R.id.tv_status);
+                mEditIbtn = itemView.findViewById(R.id.ib_edit);
+                mSwipeLayout = (SwipeLayout) itemView;
+                mUserNumberTv = itemView.findViewById(R.id.tv_user_number);
+                mUserRecovery = itemView.findViewById(R.id.ll_recovey);
+                mUserPause = itemView.findViewById(R.id.ll_pause);
+                mDeleteCb = itemView.findViewById(R.id.delete_locked);
+                mUserContent = itemView.findViewById(R.id.ll_content);
+            }
+        }
+    }
+
+    /**
+     * 新界面
+     *
+     * @param cls    新Activity
+     * @param bundle 数据包
+     */
+    protected void startIntent(Class<?> cls, Bundle bundle, int flag) {
+        Intent intent = new Intent();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        if (flag != -1)
+            intent.addFlags(flag);
+        intent.setClass(mUserView.getContext(), cls);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mBleManagerHelper.removeUiListener(this);
+    }
+}

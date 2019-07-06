@@ -106,7 +106,6 @@ public class DeviceUserDao {
         }
     }
 
-
     public synchronized int delete(DeviceUser info) {
         try {
             if (info.getQrPath() != null) {
@@ -318,9 +317,9 @@ public class DeviceUserDao {
                 if (userId > 0 && userId <= 5) { //管理员编号
                     index = userId - 1;
                 } else if (userId > 100 && userId <= 200) { //普通用户
-                    index = userId - 91;
+                    index = userId -  (101 - (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM));
                 } else if (userId > 200 && userId <= 300) { //临时用户
-                    index = userId - 196;
+                    index = userId - (201 - (ConstantUtil.ADMIN_USR_NUM));
                 }
                 synchronized (this) {
                     indexs.add(index);
@@ -355,9 +354,9 @@ public class DeviceUserDao {
                 if (id > 0 && id <= 5) { //管理员编号
                     index = id - 1;
                 } else if (id > 100 && id <= 200) { //普通用户
-                    index = id - 91;
+                    index = id - (101 - (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM)); //91
                 } else if (id > 200 && id <= 300) { //临时用户
-                    index = id - 196;
+                    index = id - (201 - (ConstantUtil.ADMIN_USR_NUM)); //196
                 }
 
                 if (index >= status.length) {
@@ -391,12 +390,12 @@ public class DeviceUserDao {
                 for (int i = (num - 1) * 32; i < 32 * num; i++) {
                     tmp = ret & (1 << i);
                     if (tmp != 0) {
-                        if (i < 5) { //管理员
+                        if (i < ConstantUtil.ADMIN_USR_NUM) { //管理员
                             diffIds.add((short) (i + 1));
-                        } else if (i < 10) {
-                            diffIds.add((short) (i + 196));
-                        } else {
-                            diffIds.add((short) (i + 91));
+                        } else if (i < (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM)) {
+                            diffIds.add((short) (i + (201 - (ConstantUtil.ADMIN_USR_NUM))));
+                        } else if (i < (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM + ConstantUtil.COMMON_USR_NUM)) {
+                            diffIds.add((short) (i + (101 - (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM))));
                         }
                     }
 

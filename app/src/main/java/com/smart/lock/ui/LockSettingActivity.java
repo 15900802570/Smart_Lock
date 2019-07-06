@@ -162,7 +162,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         try {
             mDefaultDevice = (DeviceInfo) getIntent().getSerializableExtra(BleMsg.KEY_DEFAULT_DEVICE);
             mUserID = getIntent().getShortExtra(BleMsg.KEY_USER_ID, (short) 101);
-            LogUtil.d(TAG, "Default = " + mDefaultDevice);
             mBleManagerHelper = BleManagerHelper.getInstance(this);
             mBleManagerHelper.addUiListener(this);
             mDevice = Device.getInstance(this);
@@ -693,16 +692,18 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 }
                 String sn = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_NODE_SN));
                 String swVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_SW_VER));
-                String hwVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_HW_VER));
-                LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
-                        "HW VERSION = " + hwVer + '\n' +
-                        "SN = " + sn);
-                mDefaultDevice.setDeviceSn(sn);
-                mDefaultDevice.setDeviceSwVersion(swVer);
-                mDefaultDevice.setDeviceHwVersion(hwVer);
-                DeviceInfoDao.getInstance(LockSettingActivity.this).updateDeviceInfo(mDefaultDevice);
-                Intent mIntent = new Intent(LockSettingActivity.this, VersionInfoActivity.class);
-                startActivity(mIntent);
+                if (extra.getByteArray(BleMsg.KEY_HW_VER) != null) {
+                    String hwVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_HW_VER));
+                    LogUtil.d(TAG, "SW VERSION = " + swVer + '\n' +
+                            "HW VERSION = " + hwVer + '\n' +
+                            "SN = " + sn);
+                    mDefaultDevice.setDeviceSn(sn);
+                    mDefaultDevice.setDeviceSwVersion(swVer);
+                    mDefaultDevice.setDeviceHwVersion(hwVer);
+                    DeviceInfoDao.getInstance(LockSettingActivity.this).updateDeviceInfo(mDefaultDevice);
+                    Intent mIntent = new Intent(LockSettingActivity.this, VersionInfoActivity.class);
+                    startActivity(mIntent);
+                }
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_2E:
                 final byte[] errCode2E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);

@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,7 +56,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     private static final String TAG = "EventsActivity";
 
     private EventsAdapter mEventAdapter;
-    private LinearLayoutManager mLinearManager;
     /**
      * 日志集合
      */
@@ -121,7 +121,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         mLogs = new ArrayList<>();
         mEventAdapter = new EventsAdapter(this, mLogs);
-        mLinearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        LinearLayoutManager mLinearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mListView.setLayoutManager(mLinearManager);
         mListView.setItemAnimator(new DefaultItemAnimator());
         mListView.setAdapter(mEventAdapter);
@@ -451,32 +451,44 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         public void onBindViewHolder(final MyViewHolder viewHolder, final int position) {
             if (getItemViewType(position) == TYPE_NORMAL) {
                 final DeviceLog logInfo = mLogList.get(position);
-                DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
-                DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", logInfo.getNodeId());
-                String logUser = mContext.getString(R.string.administrator);
-                if (user != null) {
-                    logUser = user.getUserName();
+                if (logInfo.getUserId() == 0 && Integer.parseInt(logInfo.getLockId()) == -3) {
+                    viewHolder.mEventIv.setImageResource(R.mipmap.icon_warning_log);
+                    viewHolder.mEventType.setText(R.string.anomalous_event);
+                    viewHolder.mEventType.setTextColor(getResources().getColor(R.color.red));
+                    viewHolder.mEventInfo.setText("门锁多次验证失败");
                 } else {
-                    if (logInfo.getUserId() == 0) {
-                        logUser = mContext.getString(R.string.administrator);
-                    } else if (logInfo.getUserId() < 99) { //管理员编号
-                        logUser = mContext.getString(R.string.administrator) + logInfo.getUserId();
-                    } else if (logInfo.getUserId() >= 100 && logInfo.getUserId() < 200) { //普通用户
-                        logUser = mContext.getString(R.string.members) + logInfo.getUserId();
-                    } else if (logInfo.getUserId() >= 200 && logInfo.getUserId() < 300) { //临时用户
-                        logUser = mContext.getString(R.string.tmp_user) + logInfo.getUserId();
+                    viewHolder.mEventIv.setImageResource(R.mipmap.icon_event);
+                    viewHolder.mEventType.setText(R.string.unlock_event);
+                    viewHolder.mEventType.setTextColor(getResources().getColor(R.color.color_text));
+                    DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
+                    DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", logInfo.getNodeId());
+                    String logUser = mContext.getString(R.string.administrator);
+                    if (user != null) {
+                        logUser = user.getUserName();
+                    } else {
+                        if (logInfo.getUserId() == 0) {
+                            logUser = mContext.getString(R.string.administrator);
+                        } else if (logInfo.getUserId() < 99) { //管理员编号
+                            logUser = mContext.getString(R.string.administrator) + logInfo.getUserId();
+                        } else if (logInfo.getUserId() >= 100 && logInfo.getUserId() < 200) { //普通用户
+                            logUser = mContext.getString(R.string.members) + logInfo.getUserId();
+                        } else if (logInfo.getUserId() >= 200 && logInfo.getUserId() < 300) { //临时用户
+                            logUser = mContext.getString(R.string.tmp_user) + logInfo.getUserId();
+                        }
                     }
-                }
-                if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.card) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                    viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
-                } else if (logInfo.getLogType() == ConstantUtil.USER_TEMP_PWD) {
-                    viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
+                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
+                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
+                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.card) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
+                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    } else if (logInfo.getLogType() == ConstantUtil.USER_TEMP_PWD) {
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    } else if (logInfo.getLogType() == ConstantUtil.USER_COMBINATION_LOCK) {
+                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.combination_lock) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                    }
                 }
 
                 viewHolder.mTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(logInfo.getLogTime()), "yyyy-MM-dd HH:mm:ss"));
@@ -485,10 +497,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     @Override
                     public void onClick(View v) {
                         if (viewHolder.mDeleteCb.isChecked()) {
-                            Log.d(TAG, "add logid : " + logInfo.getLogId() + " position = " + position);
                             mDeleteLogs.add(logInfo);
                         } else {
-                            Log.d(TAG, "remove logid = " + logInfo.getLogId() + " position = " + position);
                             mDeleteLogs.remove(logInfo);
                         }
                     }
@@ -500,13 +510,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     viewHolder.mDeleteRl.setVisibility(View.GONE);
 
                 viewHolder.mDeleteCb.setChecked(mAllDelete);
-            } else if (getItemViewType(position) == TYPE_HEADER) {
 
-                return;
-            } else {
-                return;
             }
-
         }
 
         @Override
@@ -540,6 +545,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             TextView mTime;
             CheckBox mDeleteCb;
             RelativeLayout mDeleteRl;
+            ImageView mEventIv;
 
             public MyViewHolder(View itemView) {
                 super(itemView);
@@ -549,6 +555,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 if (itemView == mFooterView) {
                     return;
                 }
+                mEventIv = itemView.findViewById(R.id.iv_event);
                 mSwipeLayout = (SwipeLayout) itemView;
                 mEventInfo = itemView.findViewById(R.id.tv_event_info);
                 mEventType = itemView.findViewById(R.id.tv_type);

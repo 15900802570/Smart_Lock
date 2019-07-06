@@ -287,6 +287,8 @@ public class BleCardService {
         // Previously connected device. Try to reconnect.
         if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+            disconnect();
+
             if (mBluetoothGatt.connect()) {
                 return true;
             } else {
@@ -299,14 +301,12 @@ public class BleCardService {
             Log.w(TAG, "Device not found.  Unable to connect.");
             return false;
         }
-        // We want to directly connect to the device, so we are setting the
-        // autoConnect
-        // parameter to false.
+
         mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
         LogUtil.d(TAG, "mBluetoothGatt : " + mBluetoothGatt.hashCode());
         if (null != mBluetoothGatt) {
             mEngine.registerDevice(device);
-            mBleProvider = new BleProvider(true, mBluetoothGatt);
+            mBleProvider = new BleProvider(false, mBluetoothGatt);
             mBleProvider.registerMessageCallBack(mEngine);
 
             mBleReceiver = new BleReceiver(mBleProvider);
