@@ -343,6 +343,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             }
 
         });
+        int count = (int) DeviceInfoDao.getInstance(mCtx).queryCount();
+
+        for (int i = 1; i <= count + 2; i++) {
+            if (DeviceInfoDao.getInstance(mCtx).queryByField(DeviceInfoDao.DEVICE_NAME, getString(R.string.lock_default_name) + i) == null) {
+                mRemarkEt.setHint(getString(R.string.lock_default_name) + i);
+                break;
+            }
+        }
     }
 
     /**
@@ -422,7 +430,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -430,6 +437,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                         detectDevice(device);
                     } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
                         if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                            Log.d(TAG, "device.getName() = " + device.getName());
                             addDevice(device);
                         }
                     }
@@ -525,7 +533,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             case R.id.btn_confirm:
                 String deviceName = mRemarkEt.getText().toString().trim();
                 if (mDetectingDevice != null) {
-                    mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? getString(R.string.lock_default_name) : deviceName));
+                    mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? mRemarkEt.getHint().toString() : deviceName));
                     DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
                     Device connDev = Device.getInstance(mCtx);
                     connDev.setDisconnectBle(false);
@@ -680,11 +688,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
         private Context mContext;
         public ArrayList<BluetoothDevice> mBluetoothDevList;
-        public static final int TYPE_HEADER = 0;  //说明是带有Header的
-        public static final int TYPE_FOOTER = 1;  //说明是带有Footer的
-        public static final int TYPE_NORMAL = 2;  //说明是不带有header和footer的
-        private View mHeaderView;
-        private View mFooterView;
 
         public BleAdapter(Context context, ArrayList<BluetoothDevice> devList) {
             mContext = context;
@@ -706,12 +709,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            if (mHeaderView != null && viewType == TYPE_HEADER) {
-                return new ViewHolder(mHeaderView);
-            }
-            if (mFooterView != null && viewType == TYPE_FOOTER) {
-                return new ViewHolder(mFooterView);
-            }
             View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dev, parent, false);
             SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev);
             swipeLayout.setClickToClose(false);
@@ -721,58 +718,33 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         @Override
         public void onBindViewHolder(final ViewHolder viewHolder, final int position) {
-            if (getItemViewType(position) == TYPE_NORMAL) {
-                final BluetoothDevice dev = mBluetoothDevList.get(position);
-                if (dev != null) {
-                    viewHolder.mDevName.setText(dev.getName());
-                    viewHolder.mDevMac.setText(dev.getAddress());
+            final BluetoothDevice dev = mBluetoothDevList.get(position);
+            if (dev != null) {
+                viewHolder.mDevName.setText(dev.getName());
+                viewHolder.mDevMac.setText(dev.getAddress());
 
-                    viewHolder.mDevContent.setOnClickListener(new View.OnClickListener() {
+                viewHolder.mDevContent.setOnClickListener(new View.OnClickListener() {
 
-                        @Override
-                        public void onClick(View v) {
-                            if (!mSearchAddDev) {
-                                if (mScanning) {
-                                    scanLeDevice(false);
-                                }
-                                mSearchAddDev = true;
-                                mBleMac = dev.getAddress();
-                                detectDevice(dev);
-                            } else showMessage(getString(R.string.data_loading));
+                    @Override
+                    public void onClick(View v) {
+                        if (!mSearchAddDev) {
+                            if (mScanning) {
+                                scanLeDevice(false);
+                            }
+                            mSearchAddDev = true;
+                            mBleMac = dev.getAddress();
+                            detectDevice(dev);
+                        } else showMessage(getString(R.string.data_loading));
 
-                        }
-                    });
-                }
+                    }
+                });
             }
-        }
 
-        @Override
-        public int getItemViewType(int position) {
-            if (mHeaderView == null && mFooterView == null) {
-                return TYPE_NORMAL;
-            }
-            if (position == 0) {
-                //第一个item应该加载Header
-                return TYPE_HEADER;
-            }
-            if (position == getItemCount() - 1) {
-                //最后一个,应该加载Footer
-                return TYPE_FOOTER;
-            }
-            return TYPE_NORMAL;
         }
 
         @Override
         public int getItemCount() {
-            if (mHeaderView == null && mFooterView == null) {
-                return mBluetoothDevList.size();
-            } else if (mHeaderView == null && mFooterView != null) {
-                return mBluetoothDevList.size() + 1;
-            } else if (mHeaderView != null && mFooterView == null) {
-                return mBluetoothDevList.size() + 1;
-            } else {
-                return mBluetoothDevList.size() + 2;
-            }
+            return mBluetoothDevList.size();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
@@ -791,6 +763,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mDevContent = itemView.findViewById(R.id.ll_content);
             }
         }
+
+    }
+
+    public void onBackPressed() {
+        long curTime = SystemClock.uptimeMillis();
+        if (curTime - mBackPressedTime < 3000) {
+            finish();
+            return;
+        }
+        mBackPressedTime = curTime;
     }
 
     @Override

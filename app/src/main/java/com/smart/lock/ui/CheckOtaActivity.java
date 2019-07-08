@@ -405,7 +405,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.ota_lock);
-                    viewHolder.mNameTv.setText(R.string.lock_default_name);
+                    viewHolder.mNameTv.setText(R.string.lock_default_name );
                     swLen = mDefaultDev.getDeviceSwVersion().length();
                     if (len >= 5 && swLen >= 5)
                         code = StringUtil.compareVersion(model.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);

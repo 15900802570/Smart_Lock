@@ -32,6 +32,7 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.CreateTmpPwdDialog;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -51,7 +52,7 @@ import static com.smart.lock.ble.message.MessageCreator.mIs128Code;
 import static com.smart.lock.ble.message.MessageCreator.mIsOnceForTempPwd;
 import static com.smart.lock.utils.ConstantUtil.NUMBER_100;
 
-public class TempPwdActivity extends AppCompatActivity implements View.OnClickListener {
+public class TempPwdActivity extends AppCompatActivity implements View.OnClickListener, CreateTmpPwdDialog.OnCreateTmpPwdListener {
 
     private static String TAG = "TempPwdActivity";
 
@@ -65,6 +66,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
     private RecyclerView mTempPwdListViewRv;
     private Set<Integer> mExistNum = new HashSet<>();
     private int mRandomNum = Integer.MAX_VALUE; // 零时密码随机数，有效值0-99,其他值无效
+    private String mRandomStr = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,10 +125,13 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 if (StringUtil.checkIsNull(mDefaultDevice.getTempSecret())) {
                     Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
                     return;
+                } else {
+                    CreateTmpPwdDialog createTmpPwdDialog = new CreateTmpPwdDialog(1);
+                    createTmpPwdDialog.show(this.getSupportFragmentManager(), "timePicker");
                 }
-                if (createTempPwd()) {
-                    saveTempPwd();
-                }
+//                if (createTempPwd()) {
+//                    saveTempPwd();
+//                }
                 break;
             default:
                 break;
@@ -138,26 +143,24 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
      *
      * @return bool 是否创建成功
      */
-    private boolean createTempPwd() {
-        if (mExistNum.size() >= 30) {
+    private boolean createTempPwd(boolean once, int period) {
+        if (mExistNum.size() >= 20) {
             ToastUtil.showShort(this, R.string.not_regenerate_temp_pwd);
             return false;
         } else {
-            int mCurTime = (int) Math.ceil(System.currentTimeMillis() / 1800000.0) * 1800;
+            int mCurTime = ((int) Math.ceil(System.currentTimeMillis() / 1800000.0) + period - 1) * 1800;
+            LogUtil.d(TAG, "mCurTime = " + mCurTime);
+
             Long tempSecret;
             if (mIs128Code) {
-                tempSecret = StringUtil.getCRC32(AES128Encode(intToHex(mCurTime) + "000000000000000000000000",
-                        StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret() : mSecretList.get(new Random().nextInt(4)))));
+                tempSecret = (long) StringUtil.getCRC16(AES128Encode(intToHex(mCurTime) + "000000000000000000000000",
+                        StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret(once, period) : mSecretList.get(new Random().nextInt(4)))));
             } else {
-                tempSecret = StringUtil.getCRC32(AES256Encode(intToHex(mCurTime) + "000000000000000000000000",
-                        StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret() : mSecretList.get(new Random().nextInt(4)))));
+                tempSecret = (long) StringUtil.getCRC16(AES256Encode(intToHex(mCurTime) + "000000000000000000000000",
+                        StringUtil.hexStringToBytes(mIsOnceForTempPwd ? getRandomSecret(once, period) : mSecretList.get(new Random().nextInt(4)))));
             }
             if (mIsOnceForTempPwd) {
-                    if (mRandomNum < 10) {
-                        mSecret = "0" + mRandomNum + tempSecret;
-                    } else if (mRandomNum <= 99) {
-                        mSecret = mRandomNum + String.valueOf(tempSecret);
-                    }
+                mSecret = getThreeStr(mRandomNum) + tempSecret;
             } else {
                 mSecret = String.valueOf(tempSecret);
             }
@@ -291,17 +294,19 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
         TextView tips = dialog.findViewById(R.id.tips_tv);
         tips.setTextSize(20);
         Button button = dialog.findViewById(R.id.dialog_cancel_btn);
-        button.setText(getText(R.string.click_to_copy));
+        button.setText(getText(R.string.share));
+//        button.setTextColor(getResources().getColor(R.color.green));
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 try {
-                    ClipboardManager clipboardManager = (ClipboardManager) TempPwdActivity.this.
-                            getSystemService(Context.CLIPBOARD_SERVICE);
-
-                    ClipData clipData = ClipData.newPlainText(getResources().getString(R.string.temp_pwd), "*" + string);
-                    clipboardManager.setPrimaryClip(clipData);
-                    Toast.makeText(TempPwdActivity.this, getResources().getString(R.string.replicating_success), Toast.LENGTH_SHORT).show();
+//                    ClipboardManager clipboardManager = (ClipboardManager) TempPwdActivity.this.
+//                            getSystemService(Context.CLIPBOARD_SERVICE);
+//
+//                    ClipData clipData = ClipData.newPlainText(getResources().getString(R.string.temp_pwd), "*" + string);
+//                    clipboardManager.setPrimaryClip(clipData);
+//                    Toast.makeText(TempPwdActivity.this, getResources().getString(R.string.replicating_success), Toast.LENGTH_SHORT).show();
+                    SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share), "*" + string);
 
                 } catch (NullPointerException e) {
                     e.printStackTrace();
@@ -317,12 +322,12 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
      *
      * @return String
      */
-    private String getRandomSecret() {
+    private String getRandomSecret(boolean once, int period) {
         String tempStr = mSecretList.get(new Random().nextInt(4));
-        String mRandomStr = createRandomNum();
-        String temp = (tempStr.substring(0, tempStr.length() - 2)) + mRandomStr;
+        mRandomStr = createRandomNum(once, period);
+        String temp = (tempStr.substring(0, tempStr.length() - 4)) + "0" + mRandomStr;
         LogUtil.d(TAG, "tempStr = " + tempStr + "\n" +
-                "mRandomStr = " + mRandomStr + "  :  " + mRandomStr.length() + "\n"+"str = "+
+                "mRandomStr = " + mRandomStr + "  :  " + mRandomStr.length() + "\n" + "str = " +
                 temp);
         return temp;
     }
@@ -332,12 +337,41 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
      *
      * @return String 00 -- 99
      */
-    private String createRandomNum() {
-        do {
-            mRandomNum = new Random().nextInt(100);
-        } while (mExistNum.contains(mRandomNum));
+    private String createRandomNum(boolean once, int period) {
+        if (once) {
+            do {
+                mRandomNum = Math.abs(new Random().nextInt(40) + 1 + (period - 1) * 40);
+            } while (mExistNum.contains(mRandomNum) || mRandomNum % 2 == 0);
+        } else {
+            do {
+                mRandomNum = Math.abs(new Random().nextInt(40) + 1 + (period - 1) * 40);
+            } while (mExistNum.contains(mRandomNum) || mRandomNum % 2 == 1);
+        }
+        StringBuilder threeStr = new StringBuilder(intToHex(mRandomNum));
+        while (threeStr.length() < 3) {
+            threeStr.insert(0, "0");
+        }
+        return threeStr.toString();
+    }
 
-        return NUMBER_100[mRandomNum];
+    private String getThreeStr(int randomNum) {
+        String str;
+        if (randomNum < 10) {
+            str = "00" + randomNum;
+        } else if (randomNum < 100) {
+            str = "0" + randomNum;
+        } else {
+            str = String.valueOf(randomNum);
+        }
+        return str;
+    }
+
+    @Override
+    public void onCreateTmpPwdConfirm(boolean once, int period, int requestCode) {
+        LogUtil.d(TAG, "one + " + once + '\n' + "period = " + period);
+        if (createTempPwd(once, period)) {
+            saveTempPwd();
+        }
     }
 
     public class TempPwdAdapter extends RecyclerView.Adapter<TempPwdAdapter.MyViewHolder> {

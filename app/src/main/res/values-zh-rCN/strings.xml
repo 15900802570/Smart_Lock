@@ -21,8 +21,7 @@
     <string name="lock_manager">门锁管理</string>
     <string name="me">我的</string>
     <string name="back_message">再次点击退出 智能门锁</string>
-    <string name="back_warning">再次点击退出 当前界面</string>
-    <string name="ota_back_message">固件未升级完成,请勿退出</string>
+    <string name="ota_back_message">固件未升级完成,再次点击退出</string>
     <string name="bt_state">蓝牙状态:</string>
     <string name="bt_unconnected">未连接</string>
     <string name="unconnected_device">未连接设备</string>
@@ -327,7 +326,7 @@
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
     <string name="setting_password_for_security">为确保安全，请设置密码</string>
-    <string name="set_user_validity_period">用户有效期(以天为单位):</string>
+    <string name="set_user_validity_period">有效期(以天为单位):</string>
     <string name="man">男</string>
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
@@ -405,4 +404,5 @@
     <string name="key_repetition">密钥重复</string>
     <string name="sn_warning">不支持该设备</string>
     <string name="sync_data">数据同步中...</string>
+    <string name="create_temp_pwd">创建临时密码</string>
 </resources>

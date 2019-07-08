@@ -396,4 +396,5 @@
     <string name="anomalous_event">Anomalous Event</string>
     <string name="modify">Modify</string>
     <string name="sync_data">Sync Data...</string>
+    <string name="create_temp_pwd">Create Temp Password</string>
 </resources>

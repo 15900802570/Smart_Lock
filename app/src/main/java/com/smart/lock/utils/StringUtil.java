@@ -373,6 +373,25 @@ public class StringUtil {
         return crc32.getValue();
     }
 
+    /**
+     * CRC校验码
+     *
+     * @param bytes 输入字节串
+     * @return long 输出字符
+     */
+    public static int getCRC16(byte[] bytes) {
+//        LogUtil.d(TAG,"CCITT +" + CRC16.CRC16_CCITT(bytes));
+//        LogUtil.d(TAG,"CCITT2 +" + CRC16.CRC16_CCITT_FALSE(bytes));
+//        LogUtil.d(TAG,"CCITT3 +" + CRC16.CRC16_DNP(bytes));
+//        LogUtil.d(TAG,"CCITT4 +" + CRC16.CRC16_IBM(bytes));
+//        LogUtil.d(TAG,"CCITT5 +" + CRC16.CRC16_MAXIM(bytes));
+//        LogUtil.d(TAG,"CCITT6 +" + CRC16.CRC16_MODBUS(bytes));
+//        LogUtil.d(TAG,"CCITT7 +" + CRC16.CRC16_USB(bytes));
+//        LogUtil.d(TAG,"CCITT8 +" + CRC16.CRC16_X25(bytes));
+//        LogUtil.d(TAG,"CCITT9 +" + CRC16.CRC16_XMODEM(bytes));
+        return CRC16.CRC16_CCITT_FALSE(bytes);
+    }
+
     public static String Bytes2HexString(byte[] bytes) {
         final StringBuilder stringBuilder = new StringBuilder(bytes.length);
         for (byte byteChar : bytes) {

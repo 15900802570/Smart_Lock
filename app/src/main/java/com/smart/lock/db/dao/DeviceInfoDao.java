@@ -23,10 +23,12 @@ public class DeviceInfoDao {
     private Context mContext;
     private static DeviceInfoDao instance;
 
+    public static String ID = "id";
     public static String NODE_ID = "device_nodeId";
     public static String DEVICE_DATE = "device_date";
     public static String DEVICE_DEFAULT = "device_default";
     public static String DEVICE_MAC = "ble_mac";
+    public static String DEVICE_NAME = "ble_mac";
 
 
     protected DeviceInfoDao(Context context) {
@@ -231,7 +233,7 @@ public class DeviceInfoDao {
     public ArrayList<DeviceInfo> queryAll() {
         ArrayList<DeviceInfo> list = null;
         try {
-            list = (ArrayList<DeviceInfo>) dao.queryForAll();
+            list = (ArrayList<DeviceInfo>) dao.queryBuilder().orderBy(DeviceInfoDao.ID, true).query();
 
             if (list != null) {
                 return list;

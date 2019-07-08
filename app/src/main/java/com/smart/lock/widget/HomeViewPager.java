@@ -1,19 +1,22 @@
 package com.smart.lock.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-public class NoScrollViewPager extends ViewPager {
+public class HomeViewPager extends ViewPager {
     private boolean noScroll = false;
 
-    public NoScrollViewPager(Context context, AttributeSet attrs) {
+    public HomeViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         // TODO Auto-generated constructor stub
     }
 
-    public NoScrollViewPager(Context context) {
+    public HomeViewPager(Context context) {
         super(context);
     }
 
@@ -29,7 +32,7 @@ public class NoScrollViewPager extends ViewPager {
     @Override
     public boolean onTouchEvent(MotionEvent arg0) {
         /* return false;//super.onTouchEvent(arg0); */
-        switch (arg0.getAction()) {
+        switch(arg0.getAction()){
         }
 
 
@@ -49,6 +52,6 @@ public class NoScrollViewPager extends ViewPager {
     @Override
     public void setCurrentItem(int item) {
         //false 去除滚动效果
-        super.setCurrentItem(item, false);
+        super.setCurrentItem(item,false);
     }
 }

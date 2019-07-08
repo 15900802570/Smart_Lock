@@ -350,4 +350,7 @@ public class DeviceInfo implements Serializable {
                 '}';
     }
 
+    public int getId() {
+        return this.id;
+    }
 }
