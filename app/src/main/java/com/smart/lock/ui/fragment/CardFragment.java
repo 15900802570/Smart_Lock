@@ -342,33 +342,32 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                         if (mDevice.getState() == Device.BLE_CONNECTED) {
                             DialogUtils.closeDialog(mLoadDialog);
                             mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.plz_modify) + mCtx.getResources().getString(R.string.card));
-//                            mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
-//
-//                                @Override
-//                                public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
-//                                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
-//                                        LogUtil.d(TAG, "按了返回键");
-//                                        mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.edit) + getString(R.string.card));
-//
-//                                        mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
-//                                            @Override
-//                                            public void onClick(View view) {
-//                                                mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
-//                                                mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
-//                                                mCancelDialog.cancel();
-//                                            }
-//                                        });
-//                                        if(!mCancelDialog.isShowing()) {
-//                                            mCancelDialog.show();
-//                                        }
-//
-//                                        return true;
-//                                    }
-//                                    return false;
-//                                }
-//
-//                            });
+                            mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
 
+                                @Override
+                                public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                                    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN && i == KeyEvent.KEYCODE_BACK) {
+                                        LogUtil.d(TAG, "按了返回键");
+                                        mCancelDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(mCtx, getString(R.string.cancel_warning) + getString(R.string.card) + getString(R.string.modify));
+
+                                        mCancelDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+                                                mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                                                mCancelDialog.cancel();
+                                            }
+                                        });
+                                        if(!mCancelDialog.isShowing()) {
+                                            mCancelDialog.show();
+                                        }
+
+                                        return true;
+                                    }
+                                    return false;
+                                }
+
+                            });
                             mLoadDialog.show();
                             positionModify = position;
                             mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_CARD, cardInfo.getUserId(), Byte.parseByte(cardInfo.getLockId()), String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);

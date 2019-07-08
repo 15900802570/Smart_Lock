@@ -306,7 +306,7 @@ public class BleCardService {
         LogUtil.d(TAG, "mBluetoothGatt : " + mBluetoothGatt.hashCode());
         if (null != mBluetoothGatt) {
             mEngine.registerDevice(device);
-            mBleProvider = new BleProvider(false, mBluetoothGatt);
+            mBleProvider = new BleProvider(true, mBluetoothGatt);
             mBleProvider.registerMessageCallBack(mEngine);
 
             mBleReceiver = new BleReceiver(mBleProvider);
@@ -754,9 +754,7 @@ public class BleCardService {
     }
 
     public void cancelCmd(String key) {
-
-        ClientTransaction ct = (ClientTransaction) mBleProvider.removeBleMsgListener(key);
-        LogUtil.d(TAG, "cancel ct : " + ct.toString());
+         mBleProvider.removeBleMsgListener(key);
     }
 
     /**

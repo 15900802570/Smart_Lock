@@ -394,4 +394,6 @@
     <string name="back_warning">please put exit again</string>
     <string name="user_setting">User Settings</string>
     <string name="anomalous_event">Anomalous Event</string>
+    <string name="modify">Modify</string>
+    <string name="sync_data">Sync Data...</string>
 </resources>

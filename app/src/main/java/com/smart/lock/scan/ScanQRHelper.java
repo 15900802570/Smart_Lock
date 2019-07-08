@@ -116,9 +116,9 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 ToastUtil.show(mActivity, mActivity.getString(R.string.plz_scan_correct_qr), Toast.LENGTH_LONG);
             }
 
-        }/* else if(content.length() == 12) {
+        } else if (content.length() == 12) {
             mBleMac = content;
-            if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.DEVICE_MAC, mBleMac) == null) {
+            if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.DEVICE_MAC, StringUtil.getMacAdr(mBleMac)) == null) {
                 Bundle bundle = new Bundle();
                 bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
 
@@ -131,11 +131,11 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 }
 
                 startIntent(LockDetectingActivity.class, bundle);
-            }else {
+            } else {
                 ToastUtil.show(mActivity, mActivity.getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
             }
 
-        }*/else {
+        } else {
             Dialog alterDialog = DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.plz_scan_correct_qr));
             alterDialog.show();
             return;

@@ -814,7 +814,7 @@ public class BleProvider {
         mBleGatt.writeDescriptor(descriptor);
     }
 
-    public boolean sendPacket(byte[] value) {
+    private boolean sendPacket(byte[] value) {
         BluetoothGattService RxService = mBleGatt.getService(Device.RX_SERVICE_UUID);
 
         try {
@@ -838,7 +838,7 @@ public class BleProvider {
         return result;
     }
 
-    public boolean sendOta(byte[] value, int type) {
+    private boolean sendOta(byte[] value, int type) {
         UUID RX_SERVICE_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d1912");
         UUID RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
         switch (type) {
@@ -859,7 +859,6 @@ public class BleProvider {
                 RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
                 break;
         }
-
 
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 

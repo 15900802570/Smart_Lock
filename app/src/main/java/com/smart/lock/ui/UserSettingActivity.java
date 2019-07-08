@@ -134,6 +134,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         mDevice = Device.getInstance(this);
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
+        LogUtil.d(TAG,"mTempUser : " + mTempUser.toString());
 
         mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "08:00" : mTempUser.getStTsBegin());
         mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "09:00" : mTempUser.getStTsEnd());
@@ -571,6 +572,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
                 if (!(mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked())) {
                     showMessage(getString(R.string.set_life_cycle_success));
+
                     DialogUtils.closeDialog(mLoadDialog);
                 }
 
@@ -599,6 +601,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     mTempUser.setThTsEnd(null);
                 }
                 DialogUtils.closeDialog(mLoadDialog);
+                mTempUser.setUserName(mEtMome.getText().toString().trim());
                 DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
                 showMessage("设置成功!");
                 break;

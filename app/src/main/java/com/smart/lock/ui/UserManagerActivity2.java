@@ -47,7 +47,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class UserManagerActivity2 extends AppCompatActivity implements View.OnClickListener, UiListener{
+public class UserManagerActivity2 extends AppCompatActivity implements View.OnClickListener, UiListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
 
     private NoScrollViewPager mUserPermissionVp;
@@ -94,14 +94,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
         mBleManagerHelper.addUiListener(this);
 
         mLoadDialog = DialogUtils.createLoadingDialog(this, getString(R.string.data_loading));
-        if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
-            ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
-            for (DeviceUser user : list) {
-                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && user != null) {
-                    mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                } else showMessage(getString(R.string.unconnected_device));
-            }
-        }
+
         mTitleList = new ArrayList<>();
         mTitleList.add(getString(R.string.permission_manager));
 
@@ -276,110 +269,122 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                 if (errCode != null)
                     dispatchErrorCode(errCode[3], serializable);
                 break;
-            case Message.TYPE_BLE_RECEIVER_CMD_26:
-                short userIdTag = (short) serializable;
-                if (userIdTag <= 200 || userIdTag > 301) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    return;
-                }
-                DeviceUser tempUser = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
-                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
-
-                if (userInfo != null) {
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
-
-                    tempUser.setUserStatus(userInfo[0]);
-
-                    byte[] stTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
-
-                    byte[] stTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
-
-                    byte[] ndTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
-
-                    byte[] ndTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
-
-                    byte[] thTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
-
-                    byte[] thTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
-
-                    byte[] lcTsBegin = new byte[4];
-                    System.arraycopy(userInfo, 32, lcTsBegin, 0, 4); //生命周期开始时间
-
-                    byte[] lcTsEnd = new byte[4];
-                    System.arraycopy(userInfo, 36, lcTsEnd, 0, 4); //生命周期结束时间
-
-                    String stBegin = StringUtil.byte2Int(stTsBegin);
-                    if (!stBegin.equals("0000")) {
-                        tempUser.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
-                    }
-
-                    String stEnd = StringUtil.byte2Int(stTsEnd);
-                    if (!stEnd.equals("0000")) {
-                        tempUser.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
-                    }
-
-                    String ndBegin = StringUtil.byte2Int(ndTsBegin);
-                    if (!ndBegin.equals("0000")) {
-                        tempUser.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
-                    }
-
-                    String ndEnd = StringUtil.byte2Int(ndTsEnd);
-                    if (!ndEnd.equals("0000")) {
-                        tempUser.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
-                    }
-
-                    String thBegin = StringUtil.byte2Int(thTsBegin);
-                    if (!thBegin.equals("0000")) {
-                        tempUser.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
-                    }
-
-                    String thEnd = StringUtil.byte2Int(thTsEnd);
-                    if (!thEnd.equals("0000")) {
-                        tempUser.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
-                    }
-
-                    String lcBegin = StringUtil.byte2Int(lcTsBegin);
-                    String lcEnd = StringUtil.byte2Int(lcTsEnd);
-
-                    if (!lcBegin.equals("0000")) {
-                        tempUser.setLcBegin(lcBegin);
-                    }
-                    if (!lcEnd.equals("0000")) {
-                        tempUser.setLcEnd(lcEnd);
-                    }
-
-                    LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
-                            "stEnd : " + stEnd + "\n" +
-                            "ndBegin : " + ndBegin + "\n" +
-                            "ndEnd : " + ndEnd + "\n" +
-                            "thBegin : " + thBegin + "\n" +
-                            "thEnd : " + thEnd + "\n" +
-                            "lcBegin : " + lcBegin + "\n" +
-                            "lcEnd : " + lcEnd + "\n");
-                    DeviceUserDao.getInstance(this).updateDeviceUser(tempUser);
-                }
-                DialogUtils.closeDialog(mLoadDialog);
-
-                for (int i = 0; i < mUsersList.size(); i++) {
-                    BaseFragment framentView = mUserPagerAdapter.getItem(i);
-                    if (framentView instanceof TempFragment) {
-                        TempFragment tempFragment = (TempFragment) framentView;
-                        tempFragment.refreshView();
-                    }
-                }
-                break;
+//            case Message.TYPE_BLE_RECEIVER_CMD_26:
+//                short userIdTag = (short) serializable;
+//                if (userIdTag <= 100 || userIdTag > 201) {
+//                    DialogUtils.closeDialog(mLoadDialog);
+//                    return;
+//                }
+//                DeviceUser user = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+//                byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+//
+//                if (userInfo != null) {
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
+//                    DeviceKeyDao.getInstance(this).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
+//
+//                    user.setUserStatus(userInfo[0]);
+//
+//                    byte[] stTsBegin = new byte[4];
+//                    System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
+//
+//                    byte[] stTsEnd = new byte[4];
+//                    System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
+//
+//                    byte[] ndTsBegin = new byte[4];
+//                    System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
+//
+//                    byte[] ndTsEnd = new byte[4];
+//                    System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
+//
+//                    byte[] thTsBegin = new byte[4];
+//                    System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
+//
+//                    byte[] thTsEnd = new byte[4];
+//                    System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
+//
+//                    byte[] lcTsBegin = new byte[4];
+//                    System.arraycopy(userInfo, 32, lcTsBegin, 0, 4); //生命周期开始时间
+//
+//                    byte[] lcTsEnd = new byte[4];
+//                    System.arraycopy(userInfo, 36, lcTsEnd, 0, 4); //生命周期结束时间
+//
+//                    String stBegin = StringUtil.byte2Int(stTsBegin);
+//                    if (!stBegin.equals("0000")) {
+//                        user.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
+//                    }
+//
+//                    String stEnd = StringUtil.byte2Int(stTsEnd);
+//                    if (!stEnd.equals("0000")) {
+//                        user.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
+//                    }
+//
+//                    String ndBegin = StringUtil.byte2Int(ndTsBegin);
+//                    if (!ndBegin.equals("0000")) {
+//                        user.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
+//                    }
+//
+//                    String ndEnd = StringUtil.byte2Int(ndTsEnd);
+//                    if (!ndEnd.equals("0000")) {
+//                        user.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
+//                    }
+//
+//                    String thBegin = StringUtil.byte2Int(thTsBegin);
+//                    if (!thBegin.equals("0000")) {
+//                        user.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
+//                    }
+//
+//                    String thEnd = StringUtil.byte2Int(thTsEnd);
+//                    if (!thEnd.equals("0000")) {
+//                        user.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
+//                    }
+//
+//                    String lcBegin = StringUtil.byte2Int(lcTsBegin);
+//                    String lcEnd = StringUtil.byte2Int(lcTsEnd);
+//
+//                    if (!lcBegin.equals("0000")) {
+//                        user.setLcBegin(lcBegin);
+//                    }
+//                    if (!lcEnd.equals("0000")) {
+//                        user.setLcEnd(lcEnd);
+//                    }
+//
+//                    LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
+//                            "stEnd : " + stEnd + "\n" +
+//                            "ndBegin : " + ndBegin + "\n" +
+//                            "ndEnd : " + ndEnd + "\n" +
+//                            "thBegin : " + thBegin + "\n" +
+//                            "thEnd : " + thEnd + "\n" +
+//                            "lcBegin : " + lcBegin + "\n" +
+//                            "lcEnd : " + lcEnd + "\n");
+//                    DeviceUserDao.getInstance(this).updateDeviceUser(user);
+//                }
+//
+//                int index = -1;
+//                for (DeviceUser member : mCheckMembers) {
+//                    if (member.getUserId() == user.getUserId()) {
+//                        index = mCheckMembers.indexOf(member);
+//                    }
+//                }
+//                if (index != -1) {
+//                    mCheckMembers.remove(index);
+//                }
+//                LogUtil.d(TAG,"mCheckMembers.size() : " + mCheckMembers.size());
+//                if (mCheckMembers.size() == 0) {
+//                    DialogUtils.closeDialog(mLoadDialog);
+//                    for (int i = 0; i < mUsersList.size(); i++) {
+//                        BaseFragment framentView = mUserPagerAdapter.getItem(i);
+//                        if (framentView instanceof UsersFragment) {
+//                            UsersFragment usersFragment = (UsersFragment) framentView;
+//                            usersFragment.refreshView();
+//                        }
+//                    }
+//                }
+//                break;
             default:
                 LogUtil.e(TAG, "Message type : " + msg.getType() + " can not be handler");
                 break;
@@ -425,9 +430,12 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;
                     if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
-                        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+                        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+
                         for (DeviceUser user : list) {
-                            DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
+                            if (user.getUserId() != mDefaultDevice.getUserId()) {
+                                DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
+                            }
                         }
                     }
                     showMessage(getString(R.string.delete_key_success));
@@ -440,9 +448,12 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;
                     if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
-                        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
+                        ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
+
                         for (DeviceUser user : list) {
-                            DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
+                            if (user.getUserId() != mDefaultDevice.getUserId()) {
+                                DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
+                            }
                         }
                     }
                     showMessage(getString(R.string.delete_key_success));
@@ -472,7 +483,11 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                     } else if (framentView instanceof TempFragment) {
                         TempFragment tempFragment = (TempFragment) framentView;
                         tempFragment.refreshView();
+                    } else if (framentView instanceof UsersFragment) {
+                        UsersFragment usersFragment = (UsersFragment) framentView;
+                        usersFragment.refreshView();
                     }
+
                 }
                 showMessage(getString(R.string.delete_users_success));
                 break;
