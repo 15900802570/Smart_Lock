@@ -719,7 +719,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDevInfo.setDeviceDate(System.currentTimeMillis() / 1000);
                     DeviceInfoDao.getInstance(mCtx).setNoDefaultDev();
                     mDevInfo.setDeviceDefault(true);
-                    mDevInfo.setDeviceName(mCtx.getString(R.string.lock_default_name));
+                    mDevInfo.setDeviceName(mCtx.getString(R.string.lock_default_name) + String.valueOf(DeviceInfoDao.getInstance(mCtx).queryCount() + 1));
                     mDevInfo.setDeviceSecret(randCode);
                     mDeviceInfoDao.insert(mDevInfo);
 

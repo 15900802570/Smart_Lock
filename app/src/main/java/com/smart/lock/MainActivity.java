@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements
         mHomeFragment = new HomeFragment();
         mPagerList.add(mHomeFragment);
         mPagerList.add(new MeFragment());
-        mTabVg.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+        mTabVg.setAdapter(new FragmentPagerAdapter(this.getSupportFragmentManager()) {
             public Fragment getItem(int i) {
                 return mPagerList.get(i);
             }

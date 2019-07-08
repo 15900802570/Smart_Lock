@@ -400,4 +400,5 @@
     <string name="input">录入</string>
     <string name="key_repetition">密钥重复</string>
     <string name="sn_warning">不支持该设备</string>
+    <string name="create_temp_pwd">创建临时密码</string>
 </resources>

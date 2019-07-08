@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialog_create_tmp_pwd_ll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/x19dp"
+    android:paddingRight="@dimen/x19dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/create_temp_pwd_dialog_title_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x78dp"
+            android:background="@drawable/box_corners_dialog_title_radius_13"
+            android:gravity="center"
+            android:text="@string/friend_tip_title"
+            android:textColor="@color/white"
+            android:textSize="@dimen/d22sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x280dp"
+            android:background="@color/white"
+            android:gravity="center"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="有效次数："
+                    android:textSize="@dimen/d19sp"
+                    android:gravity="center"
+                    android:background="@color/white"
+                    android:textColor="@color/black"/>
+                <!--<com.smart.lock.widget.NumberPickerView-->
+                    <!--android:id="@+id/temp_pwd_num"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:background="@color/white">-->
+
+
+                <!--</com.smart.lock.widget.NumberPickerView>-->
+                <!--<android.support.v7.widget.AppCompatCheckBox-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--/>-->
+                <!--<CheckBox-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:verticalScrollbarPosition="defaultPosition"/>-->
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:text="次"-->
+                    <!--android:textSize="@dimen/d19sp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:background="@color/white"-->
+                    <!--android:textColor="@color/black"/>-->
+                <RadioGroup
+                    android:id="@+id/temp_pwd_rg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <RadioButton
+                        android:id="@+id/temp_pwd_rg_one"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="单次"/>
+                    <RadioButton
+                        android:id="@+id/temp_pwd_rg_more"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="多次"/>
+                </RadioGroup>
+            </LinearLayout>
+            <!--<ImageView-->
+                <!--android:layout_weight="1.87"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:gravity="center"-->
+                <!--android:src="@drawable/ic_line"-->
+                <!--/>-->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="有效时长："
+                    android:textSize="@dimen/d19sp"
+                    android:gravity="center"
+                    android:textColor="@color/black"/>
+
+                <com.smart.lock.widget.NumberPickerView
+                    android:id="@+id/temp_pwd_period"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@color/white">
+
+                </com.smart.lock.widget.NumberPickerView>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="小时"
+                    android:textSize="@dimen/d19sp"
+                    android:gravity="center"
+                    android:textColor="@color/black"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/x82dp"
+        android:background="@drawable/box_corners_dialog_btn_radius_13"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/x34dp"
+        android:paddingRight="@dimen/x34dp">
+
+        <Button
+            android:id="@+id/create_temp_pwd_dialog_confirm_btn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x61dp"
+            android:layout_marginEnd="@dimen/x14dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_button_dialog_confirm"
+            android:gravity="center"
+            android:text="@string/confirm"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/create_temp_pwd_dialog_cancel_btn"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/x61dp"
+            android:layout_marginStart="@dimen/x14dp"
+            android:layout_weight="1"
+            android:background="@drawable/selector_button_dialog_cancel"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+</LinearLayout>

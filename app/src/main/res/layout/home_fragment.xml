@@ -141,220 +141,228 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/ll_lock_manager"
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/ll_lock_manager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@+id/rl_news_vp"-->
+        <!--android:layout_marginTop="@dimen/y_70dp"-->
+        <!--android:background="@drawable/box_corners_homepage"-->
+        <!--android:paddingLeft="@dimen/x18dp"-->
+        <!--android:paddingRight="@dimen/x18dp"-->
+        <!--android:visibility="visible">-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/ll_management"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/y154dp"-->
+            <!--android:background="@drawable/box_corners_homepage_white"-->
+            <!--android:gravity="center"-->
+            <!--android:orientation="vertical"-->
+            <!--android:paddingTop="@dimen/y5dp"-->
+            <!--android:paddingBottom="@dimen/y5dp">-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:paddingLeft="@dimen/x10dp">-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:layout_weight="0.9"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<ImageView-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:src="@mipmap/icon_lock_nor" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_lock_name"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:paddingLeft="5dp"-->
+                        <!--android:layout_weight="0.3"-->
+                        <!--android:text="门锁名称"-->
+                        <!--android:maxLines="2"-->
+                        <!--android:textColor="#3D3D3D"-->
+                        <!--android:textSize="@dimen/d17sp" />-->
+                <!--</LinearLayout>-->
+
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/ll_status"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="left"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:onClick="onClick"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<ImageView-->
+                        <!--android:id="@+id/iv_connect"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:src="@mipmap/icon_bluetooth_nor" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_status"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:gravity="left"-->
+                        <!--android:layout_weight="0.3"-->
+                        <!--android:text="@string/bt_reconnect"-->
+                        <!--android:textSize="@dimen/d17sp"-->
+                        <!--android:textColor="#3D3D3D" />-->
+                <!--</LinearLayout>-->
+
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/ll_setting"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:layout_weight="1.2"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<ImageView-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:background="@color/transparent"-->
+                        <!--android:src="@mipmap/icon_setting_nor" />-->
+
+                    <!--<TextView-->
+
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:paddingLeft="5dp"-->
+                        <!--android:layout_weight="0.3"-->
+                        <!--android:text="@string/bt_setting"-->
+                        <!--android:textColor="#3D3D3D"-->
+                        <!--android:textSize="@dimen/d17sp" />-->
+                <!--</LinearLayout>-->
+
+            <!--</LinearLayout>-->
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_weight="1"-->
+                <!--android:orientation="horizontal"-->
+                <!--android:paddingLeft="20dp">-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:layout_weight="1"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<ImageView-->
+                        <!--android:id="@+id/iv_electric_quantity"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:background="@mipmap/icon_battery_nor" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_electric_quantity"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_weight="0.3"-->
+                        <!--android:gravity="center"-->
+                        <!--android:text="100%"-->
+                        <!--android:textColor="#828282"-->
+                        <!--android:textSize="15sp" />-->
+                <!--</LinearLayout>-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_weight="1.3" />-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_gravity="left"-->
+                    <!--android:layout_weight="0.6"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_update"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:layout_weight="1"-->
+                        <!--android:text="更新于:"-->
+                        <!--android:textColor="#828282"-->
+                        <!--android:textSize="15sp" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/tv_update_time"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_gravity="center"-->
+                        <!--android:gravity="left"-->
+                        <!--android:layout_weight="0.4"-->
+                        <!--android:text="02-01 12:20"-->
+                        <!--android:textColor="#828282"-->
+                        <!--android:paddingLeft="@dimen/x25dp"-->
+                        <!--android:lines="1"-->
+                        <!--android:textSize="15sp" />-->
+                <!--</LinearLayout>-->
+
+            <!--</LinearLayout>-->
+
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/ll_gv_lock"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_below="@+id/ll_management"-->
+            <!--android:paddingTop="@dimen/y25dp">-->
+
+            <!--<com.smart.lock.widget.MyGridView-->
+                <!--android:id="@+id/gv_lock"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="@dimen/y245dp"-->
+                <!--android:background="@drawable/box_corners_homepage_white"-->
+                <!--android:gravity="center"-->
+                <!--android:numColumns="3"-->
+                <!--android:scrollbars="none"-->
+                <!--android:stretchMode="columnWidth"-->
+                <!--android:verticalSpacing="@dimen/y1dp"-->
+                <!--android:paddingRight="@dimen/x15dp"-->
+                <!--android:paddingLeft="@dimen/x15dp"-->
+                <!--android:paddingBottom="@dimen/y5dp"-->
+                <!--app:cardCornerRadius="@dimen/y6dp" />-->
+        <!--</LinearLayout>-->
+
+    <!--</RelativeLayout>-->
+    <com.smart.lock.widget.NoScrollViewPager
+        android:id="@+id/server_viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_news_vp"
-        android:layout_marginTop="@dimen/y_70dp"
-        android:background="@drawable/box_corners_homepage"
-        android:paddingLeft="@dimen/x18dp"
-        android:paddingRight="@dimen/x18dp"
-        android:visibility="visible">
+        android:layout_marginTop="@dimen/y_70dp">
 
-        <LinearLayout
-            android:id="@+id/ll_management"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/y154dp"
-            android:background="@drawable/box_corners_homepage_white"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingTop="@dimen/y5dp"
-            android:paddingBottom="@dimen/y5dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:paddingLeft="@dimen/x10dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="0.9"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:background="@color/transparent"
-                        android:src="@mipmap/icon_lock_nor" />
-
-                    <TextView
-                        android:id="@+id/tv_lock_name"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:paddingLeft="5dp"
-                        android:layout_weight="0.3"
-                        android:text="门锁名称"
-                        android:maxLines="2"
-                        android:textColor="#3D3D3D"
-                        android:textSize="@dimen/d17sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_status"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="left"
-                    android:layout_weight="1"
-                    android:onClick="onClick"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:id="@+id/iv_connect"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:background="@color/transparent"
-                        android:src="@mipmap/icon_bluetooth_nor" />
-
-                    <TextView
-                        android:id="@+id/tv_status"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="left"
-                        android:layout_weight="0.3"
-                        android:text="@string/bt_reconnect"
-                        android:textSize="@dimen/d17sp"
-                        android:textColor="#3D3D3D" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_setting"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1.2"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:background="@color/transparent"
-                        android:src="@mipmap/icon_setting_nor" />
-
-                    <TextView
-
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:paddingLeft="5dp"
-                        android:layout_weight="0.3"
-                        android:text="@string/bt_setting"
-                        android:textColor="#3D3D3D"
-                        android:textSize="@dimen/d17sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:paddingLeft="20dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:id="@+id/iv_electric_quantity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:background="@mipmap/icon_battery_nor" />
-
-                    <TextView
-                        android:id="@+id/tv_electric_quantity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="0.3"
-                        android:gravity="center"
-                        android:text="100%"
-                        android:textColor="#828282"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1.3" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="left"
-                    android:layout_weight="0.6"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/tv_update"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_weight="1"
-                        android:text="更新于:"
-                        android:textColor="#828282"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:id="@+id/tv_update_time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:gravity="left"
-                        android:layout_weight="0.4"
-                        android:text="02-01 12:20"
-                        android:textColor="#828282"
-                        android:paddingLeft="@dimen/x25dp"
-                        android:lines="1"
-                        android:textSize="15sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/ll_gv_lock"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/ll_management"
-            android:paddingTop="@dimen/y25dp">
-
-            <com.smart.lock.widget.MyGridView
-                android:id="@+id/gv_lock"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/y245dp"
-                android:background="@drawable/box_corners_homepage_white"
-                android:gravity="center"
-                android:numColumns="3"
-                android:scrollbars="none"
-                android:stretchMode="columnWidth"
-                android:verticalSpacing="@dimen/y1dp"
-                android:paddingRight="@dimen/x15dp"
-                android:paddingLeft="@dimen/x15dp"
-                android:paddingBottom="@dimen/y5dp"
-                app:cardCornerRadius="@dimen/y6dp" />
-        </LinearLayout>
-
-    </RelativeLayout>
+    </com.smart.lock.widget.NoScrollViewPager>
 </RelativeLayout>

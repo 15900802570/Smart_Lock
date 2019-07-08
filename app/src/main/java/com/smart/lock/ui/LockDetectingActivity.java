@@ -327,6 +327,14 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mBackIv.setOnClickListener(this);
         mConfirmBtn.setOnClickListener(this);
         mRemarkEt.setOnClickListener(this);
+        int count = (int) DeviceInfoDao.getInstance(mCtx).queryCount();
+
+        for (int i = 1; i <= count + 2; i++) {
+            if (DeviceInfoDao.getInstance(mCtx).queryByField(DeviceInfoDao.DEVICE_NAME, getString(R.string.lock_default_name) + i) == null) {
+                mRemarkEt.setHint(getString(R.string.lock_default_name) + i);
+                break;
+            }
+        }
     }
 
     /**
@@ -509,7 +517,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             case R.id.btn_confirm:
                 String deviceName = mRemarkEt.getText().toString().trim();
                 if (mDetectingDevice != null) {
-                    mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? getString(R.string.lock_default_name) : deviceName));
+                    mDetectingDevice.setDeviceName((StringUtil.checkIsNull(deviceName) ? mRemarkEt.getHint().toString() : deviceName));
                     DeviceInfoDao.getInstance(this).updateDeviceInfo(mDetectingDevice);
                     Device connDev = Device.getInstance(mCtx);
                     connDev.setDisconnectBle(false);

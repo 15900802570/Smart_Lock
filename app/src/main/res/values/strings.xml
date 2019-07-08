@@ -391,4 +391,5 @@
     <string name="key_repetition">Key Repetition</string>
     <string name="fp_restart">Plaese wait 3s for fingerpint firmware restart</string>
     <string name="sn_warning">This device is not supported!</string>
+    <string name="create_temp_pwd">Create Temp Password</string>
 </resources>

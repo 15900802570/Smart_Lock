@@ -23,10 +23,12 @@ public class DeviceInfoDao {
     private Context mContext;
     private static DeviceInfoDao instance;
 
+    public static String ID = "id";
     public static String NODE_ID = "device_nodeId";
     public static String DEVICE_DATE = "device_date";
     public static String DEVICE_DEFAULT = "device_default";
     public static String DEVICE_MAC = "ble_mac";
+    public static String DEVICE_NAME = "ble_mac";
 
 
     protected DeviceInfoDao(Context context) {
@@ -93,7 +95,7 @@ public class DeviceInfoDao {
 
     public int delete(DeviceInfo info) {
         try {
-             return dao.delete(info);
+            return dao.delete(info);
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;
@@ -117,14 +119,14 @@ public class DeviceInfoDao {
         return number;
     }
 
-    public DeviceInfo queryByField(String field, String value){
+    public DeviceInfo queryByField(String field, String value) {
         DeviceInfo deviceInfo = null;
         try {
-            deviceInfo = dao.queryBuilder().where().eq(field,value).queryForFirst();
-        }catch (SQLException e){
+            deviceInfo = dao.queryBuilder().where().eq(field, value).queryForFirst();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        LogUtil.d("DAO " +deviceInfo);
+        LogUtil.d("DAO " + deviceInfo);
         return deviceInfo;
     }
 
@@ -165,14 +167,15 @@ public class DeviceInfoDao {
 
     /**
      * 查询最新设备
+     *
      * @return DeviceInfo
      */
-    public DeviceInfo getNewDeviceInfo(){
+    public DeviceInfo getNewDeviceInfo() {
         try {
-            List<DeviceInfo> list = dao.queryBuilder().orderBy(DeviceInfoDao.DEVICE_DATE,false).query();
-            if (list != null){
+            List<DeviceInfo> list = dao.queryBuilder().orderBy(DeviceInfoDao.DEVICE_DATE, false).query();
+            if (list != null) {
                 return list.get(0);
-            }else {
+            } else {
                 return null;
             }
         } catch (SQLException e) {
@@ -230,7 +233,7 @@ public class DeviceInfoDao {
     public ArrayList<DeviceInfo> queryAll() {
         ArrayList<DeviceInfo> list = null;
         try {
-            list = (ArrayList<DeviceInfo>) dao.queryForAll();
+            list = (ArrayList<DeviceInfo>) dao.queryBuilder().orderBy(DeviceInfoDao.ID, true).query();
 
             if (list != null) {
                 return list;
@@ -247,7 +250,7 @@ public class DeviceInfoDao {
             list = (ArrayList<DeviceInfo>) dao.queryForAll();
 
             if (list != null) {
-                for (DeviceInfo info :list){
+                for (DeviceInfo info : list) {
                     info.setDeviceDefault(false);
                     updateDeviceInfo(info);
                 }

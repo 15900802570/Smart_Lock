@@ -132,7 +132,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     }
 
     //验证版本
-    private void compareSn(){
+    private void compareSn() {
 
 
     }
@@ -311,7 +311,15 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         mNewDevice.setDeviceDefault(true);
         mNewDevice.setDeviceSn("");
         mNewDevice.setTempSecret(StringUtil.bytesToHexString(Device.getInstance(mActivity).getTempSecret()));
-        mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name));
+        int count = (int) DeviceInfoDao.getInstance(mActivity).queryCount();
+
+        for (int i = 1; i <= count + 2; i++) {
+            if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.DEVICE_NAME, mActivity.getString(R.string.lock_default_name) + i) == null) {
+                mNewDevice.setDeviceName(mActivity.getResources().getString(R.string.lock_default_name) + i);
+                break;
+            }
+        }
+
         mNewDevice.setDeviceSecret(mRandCode);
         DeviceInfoDao.getInstance(mActivity).insert(mNewDevice);
         return mNewDevice;

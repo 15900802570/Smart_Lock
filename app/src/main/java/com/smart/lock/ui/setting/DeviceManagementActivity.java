@@ -11,9 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -183,7 +185,8 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 mDevList.add(0, deviceInfo);
             }
         }
-        private void refreshList(){
+
+        private void refreshList() {
             mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
         }
 
@@ -216,6 +219,30 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                     myViewHolder.mDefaultFlagIv.setImageResource(R.drawable.ic_select);
                     myViewHolder.mDefaultTv.setVisibility(View.INVISIBLE);
                 }
+
+                myViewHolder.mLockNameTv.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Dialog modifyNameDialog = DialogUtils.createEditorDialog(DeviceManagementActivity.this, getString(R.string.modify_name), deviceInfo.getDeviceName());
+                        ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                        modifyNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                String newName = ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                                if (!newName.isEmpty()) {
+                                    myViewHolder.mLockNameTv.setText(newName);
+                                    deviceInfo.setDeviceName(newName);
+                                    DeviceInfoDao.getInstance(DeviceManagementActivity.this).updateDeviceInfo(deviceInfo);
+                                } else {
+                                    ToastUtil.showLong(DeviceManagementActivity.this, R.string.cannot_be_empty_str);
+                                }
+                                modifyNameDialog.dismiss();
+                            }
+                        });
+                        modifyNameDialog.show();
+
+                    }
+                });
 
                 myViewHolder.mSetDefaultLl.setOnClickListener(new View.OnClickListener() {
                     @Override
