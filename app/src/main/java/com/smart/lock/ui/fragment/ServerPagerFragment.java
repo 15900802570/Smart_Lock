@@ -52,6 +52,7 @@ import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
+import com.smart.lock.ui.UserManagerActivity2;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
@@ -504,7 +505,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             case R.mipmap.icon_userguanl:
                 if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    startIntent(UserManagerActivity.class, bundle);
+                    startIntent(UserManagerActivity2.class, bundle);
                 } else {
                     ActivityCompat.requestPermissions(mActivity, mExternalPermission, REQUESTCODE);
                 }
@@ -518,7 +519,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
             default:
                 break;
-
         }
     }
 

@@ -469,8 +469,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             byte[] macByte = StringUtil.hexStringToBytes(mac);
 
             if (MessageCreator.mIs128Code) {
-                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入IMEI
-                Arrays.fill(MessageCreator.m128SK, 6, 16, (byte) 0);
+                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
+                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
             } else {
                 System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
                 Arrays.fill(MessageCreator.m256SK, 6, 32, (byte) 0);
@@ -499,6 +500,9 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     ToastUtil.showLong(this, getString(R.string.device_has_been_added));
                 }
             } else {
+                DeviceInfo devInfo = new DeviceInfo();
+                devInfo.setBleMac(mac);
+                mDevice.setDevInfo(devInfo);
                 mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
             }
         }

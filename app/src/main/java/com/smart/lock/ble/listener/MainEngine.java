@@ -274,7 +274,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public boolean scanQrRegister() {
         LogUtil.i(TAG, "scan qr register ble!");
         if (mDevInfo == null || mService == null) return false;
-        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", mDevInfo.getUserId(), mDevInfo.getBleMac(), BleMsg.INT_DEFAULT_TIMEOUT);
 
     }
 
@@ -296,7 +296,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
 
             if (StringUtil.checkNotNull(authCode)) {
-                return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, authCode, mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, authCode, mDevInfo.getUserId(), mDevInfo.getBleMac(), BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
                 LogUtil.e(TAG, "authCode = null");
                 return false;
@@ -309,7 +309,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.i(TAG, "search register ble!");
         if (mService == null) return false;
 
-        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", (short) 0, BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
+        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", (short) 0, mDevInfo.getBleMac(), BleMsg.INT_DEFAULT_TIMEOUT); //搜索注册
     }
 
     /**

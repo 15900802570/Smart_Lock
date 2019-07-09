@@ -134,19 +134,60 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         mDevice = Device.getInstance(this);
         mCalendar = Calendar.getInstance();
         mTempUser = (DeviceUser) getIntent().getExtras().getSerializable(BleMsg.KEY_TEMP_USER);
-        LogUtil.d(TAG,"mTempUser : " + mTempUser.toString());
 
-        mFirstStartTime.setText(mTempUser.getStTsBegin() == null ? "08:00" : mTempUser.getStTsBegin());
-        mFirstEndTime.setText(mTempUser.getStTsEnd() == null ? "09:00" : mTempUser.getStTsEnd());
-
-        mSecondStartTime.setText(mTempUser.getNdTsBegin() == null ? "11:00" : mTempUser.getNdTsBegin());
-        mSecondEndTime.setText(mTempUser.getNdTsend() == null ? "12:00" : mTempUser.getNdTsend());
-
-        mThirdStartTime.setText(mTempUser.getThTsBegin() == null ? "17:00" : mTempUser.getThTsBegin());
-        mThirtEndTime.setText(mTempUser.getThTsEnd() == null ? "18:00" : mTempUser.getThTsEnd());
-
+        if (mTempUser.getStTsBegin() == null)
+            mFirstStartTime.setText("08:00");
+        else {
+            mFirstStartTime.setText(mTempUser.getStTsBegin());
+            mUnlockTimeCb1.setChecked(true);
+        }
         mLoadDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.data_loading));
+        initTime();
         initDate();
+    }
+
+    private void initTime() {
+        if (mTempUser.getStTsBegin() == null)
+            mFirstStartTime.setText("08:00");
+        else {
+            mFirstStartTime.setText(mTempUser.getStTsBegin());
+            mUnlockTimeCb1.setChecked(true);
+        }
+
+        if (mTempUser.getStTsEnd() == null)
+            mFirstEndTime.setText("09:00");
+        else {
+            mFirstEndTime.setText(mTempUser.getStTsEnd());
+            mUnlockTimeCb1.setChecked(true);
+        }
+
+        if (mTempUser.getNdTsBegin() == null)
+            mSecondStartTime.setText("11:00");
+        else {
+            mSecondStartTime.setText(mTempUser.getNdTsBegin());
+            mUnlockTimeCb2.setChecked(true);
+        }
+
+        if (mTempUser.getNdTsend() == null)
+            mSecondEndTime.setText("12:00");
+        else {
+            mSecondEndTime.setText(mTempUser.getNdTsend());
+            mUnlockTimeCb2.setChecked(true);
+        }
+
+        if (mTempUser.getThTsBegin() == null)
+            mThirdStartTime.setText("17:00");
+        else {
+            mThirdStartTime.setText(mTempUser.getThTsBegin());
+            mUnlockTimeCb3.setChecked(true);
+        }
+
+        if (mTempUser.getThTsEnd() == null)
+            mThirtEndTime.setText("18:00");
+        else {
+            mThirtEndTime.setText(mTempUser.getThTsEnd());
+            mUnlockTimeCb3.setChecked(true);
+        }
     }
 
     private void initEvent() {
@@ -191,6 +232,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
             }
         } else {
             mStartDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcBegin() + "000").substring(0, 16));
+            mLifeCb.setChecked(true);
             mStartDate = Long.valueOf(mTempUser.getLcBegin());
         }
         if (mTempUser.getLcEnd() == null) {
@@ -201,6 +243,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                 e.printStackTrace();
             }
         } else {
+            mLifeCb.setChecked(true);
             mEndDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcEnd() + "000").substring(0, 16));
             mEndDate = Long.valueOf(mTempUser.getLcEnd());
         }
@@ -299,8 +342,12 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         LogUtil.d(TAG, "requestCode = " + requestCode);
 
         if (value != null) {
-            int hour = value[0];
-            int minuteStr = value[1];
+            String minuteStr = String.valueOf(value[1]).length() > 1 ? String.valueOf(value[1]) : "0" + value[1];
+            String hour = "0";
+            if (value[0] < 10) {
+                hour = "0" + value[0];
+            } else
+                hour = String.valueOf(value[0]);
             switch (requestCode) {
                 case TEMP_KEY_FIRST_START_TIME:
                     mFirstStartTime.setText(hour + getString(R.string.colon) + minuteStr);

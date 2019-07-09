@@ -362,13 +362,14 @@ public class BleCardService {
     /**
      * MSG 01
      */
-    public boolean sendCmd01(byte cmdType, String authCode, short userId, int timeOut) {
+    public boolean sendCmd01(byte cmdType, String authCode, short userId, String mac, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_01);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");
         msg.setTimeout(timeOut);
         Bundle mBundle = msg.getData();
         mBundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        mBundle.putString(BleMsg.KEY_BLE_MAC, mac);
         mBundle.putShort(BleMsg.KEY_USER_ID, userId);
         if (StringUtil.checkNotNull(authCode)) {
             mBundle.putString(BleMsg.KEY_AUTH_CODE, authCode);
@@ -754,7 +755,7 @@ public class BleCardService {
     }
 
     public void cancelCmd(String key) {
-         mBleProvider.removeBleMsgListener(key);
+        mBleProvider.removeBleMsgListener(key);
     }
 
     /**

@@ -193,6 +193,7 @@ public class BleManagerHelper {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
                 devInfo = new DeviceInfo();
                 devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
+                devInfo.setBleMac(mBleMac);
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
@@ -204,6 +205,7 @@ public class BleManagerHelper {
                 if (bundle.getShort(BleMsg.KEY_USER_ID) != 0 && StringUtil.checkNotNull(bundle.getString(BleMsg.KEY_NODE_ID))) {
                     devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
                     devInfo.setDeviceNodeId(bundle.getString(BleMsg.KEY_NODE_ID));
+                    devInfo.setBleMac(mBleMac);
                 }
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
@@ -235,6 +237,7 @@ public class BleManagerHelper {
             default:
                 devInfo = new DeviceInfo();
                 devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
+                devInfo.setBleMac(mBleMac);
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
                 break;
@@ -308,11 +311,13 @@ public class BleManagerHelper {
         byte[] macByte = StringUtil.hexStringToBytes(mac);
 
         if (MessageCreator.mIs128Code) {
-            System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
             byte[] code = new byte[10];
             if (sDevSecret == null || sDevSecret.equals("0")) {
-                Arrays.fill(MessageCreator.m128SK, 6, 16, (byte) 0);
+                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
+                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
             } else {
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
                 code = StringUtil.hexStringToBytes(sDevSecret);
                 System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
             }

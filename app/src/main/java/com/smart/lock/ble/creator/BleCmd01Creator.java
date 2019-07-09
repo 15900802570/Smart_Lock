@@ -3,6 +3,7 @@ package com.smart.lock.ble.creator;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.smart.lock.R;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.message.Message;
@@ -35,13 +36,22 @@ public class BleCmd01Creator implements BleCreator {
         byte type = data.getByte(BleMsg.KEY_CMD_TYPE);
         short userId = data.getShort(BleMsg.KEY_USER_ID);
         String authCode = data.getString(BleMsg.KEY_AUTH_CODE);
+        String mac = data.getString(BleMsg.KEY_BLE_MAC).replace(":", "");
+
+        LogUtil.d(TAG, "sk = " + StringUtil.bytesToHexString(MessageCreator.m128SK, ":"));
+        LogUtil.d(TAG, "mac = " + mac);
+        byte[] macByte = StringUtil.hexStringToBytes(mac);
 
         byte[] authCodeBuf = new byte[30];
 
         if (!authCode.equals("0")) {
             authCodeBuf = StringUtil.hexStringToBytes(authCode);
-        } else Arrays.fill(authCodeBuf, 0, 30, (byte) 0x00);
-
+        } else {
+            System.arraycopy(macByte, 0, authCodeBuf, 0, 6); //写入MAC
+            System.arraycopy(StringUtil.hexStringToBytes("01050806"), 0, authCodeBuf, 6, 4);
+            Arrays.fill(authCodeBuf, 10, 30, (byte) 0x00);
+        }
+        LogUtil.d(TAG, "authCodeBuf = " + StringUtil.bytesToHexString(authCodeBuf, ":"));
         short cmdLen = 66;
         byte[] buf = new byte[48];
 
@@ -98,7 +108,7 @@ public class BleCmd01Creator implements BleCreator {
         System.arraycopy(buf, 0, cmd, 69, 2);
         byte[] bleCmd = new byte[71];
         System.arraycopy(cmd, 0, bleCmd, 0, 71);
-        LogUtil.d(TAG,"TEST >>> send 01 :" + StringUtil.bytesToHexString(bleCmd));
+        LogUtil.d(TAG, "TEST >>> send 01 :" + StringUtil.bytesToHexString(bleCmd));
         return bleCmd;
     }
 

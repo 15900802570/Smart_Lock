@@ -194,6 +194,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         if (choise) {
             mSelectDeleteRl.setVisibility(View.VISIBLE);
             mAddUserTv.setVisibility(View.GONE);
+            mTipTv.setText(R.string.all_election);
         } else {
             mAddUserTv.setVisibility(View.VISIBLE);
             mSelectDeleteRl.setVisibility(View.GONE);
@@ -975,7 +976,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 mUserRecovery = itemView.findViewById(R.id.ll_recovey);
                 mUserPause = itemView.findViewById(R.id.ll_pause);
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
-                mUserContent = itemView.findViewById(R.id.ll_content);
+                mUserContent = itemView.findViewById(R.id.content_ll);
             }
         }
     }

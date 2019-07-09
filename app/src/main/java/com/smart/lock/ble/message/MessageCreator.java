@@ -48,14 +48,16 @@ public class MessageCreator {
         byte[] macByte = StringUtil.hexStringToBytes(mac);
         LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
         if (mIs128Code) {
-            System.arraycopy(macByte, 0, m128SK, 0, 6); //写入MAC
             byte[] code = new byte[10];
             String secretCode = info.getDeviceSecret();
             if (secretCode == null || secretCode.equals("0")) {
-                Arrays.fill(m128SK, 6, 16, (byte) 0);
+                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
+                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
             } else {
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
                 code = StringUtil.hexStringToBytes(secretCode);
-                System.arraycopy(code, 0, m128SK, 6, 10); //写入secretCode
+                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
             }
             LogUtil.d(TAG, "m128SK = " + Arrays.toString(m128SK));
         } else {
