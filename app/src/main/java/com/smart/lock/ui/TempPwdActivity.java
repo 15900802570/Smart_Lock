@@ -107,7 +107,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
         mTempPwdListViewRv.setAdapter(mTempPwdAdapter);
 
         for (TempPwd tempPwd : mTempPwdAdapter.getTempPwdList()) {
-            if (System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime()) < 0) {
+            if (System.currentTimeMillis() / 1000 - DateTimeUtil.getFailureTime(tempPwd.getPwdCreateTime(), tempPwd.getRandomNum()) < 0) {
                 mExistNum.add(tempPwd.getRandomNum());
             }
         }
@@ -164,7 +164,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
             } else {
                 mSecret = String.valueOf(tempSecret);
             }
-            showPwdDialog(mSecret);
+            showPwdDialog(mSecret, true);
             return true;
         }
     }
@@ -289,31 +289,36 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
      *
      * @param string 临时密码
      */
-    private void showPwdDialog(final String string) {
+    private void showPwdDialog(final String string, boolean valid) {
         final Dialog dialog = DialogUtils.createTipsDialogWithCancel(this, "*" + string);
         TextView tips = dialog.findViewById(R.id.tips_tv);
         tips.setTextSize(20);
         Button button = dialog.findViewById(R.id.dialog_cancel_btn);
-        button.setText(getText(R.string.share));
-//        button.setTextColor(getResources().getColor(R.color.green));
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-//                    ClipboardManager clipboardManager = (ClipboardManager) TempPwdActivity.this.
-//                            getSystemService(Context.CLIPBOARD_SERVICE);
-//
-//                    ClipData clipData = ClipData.newPlainText(getResources().getString(R.string.temp_pwd), "*" + string);
-//                    clipboardManager.setPrimaryClip(clipData);
-//                    Toast.makeText(TempPwdActivity.this, getResources().getString(R.string.replicating_success), Toast.LENGTH_SHORT).show();
-                    SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share), "*" + string);
+        if (valid) {
+            button.setText(getText(R.string.share));
+            button.setBackground(getResources().getDrawable(R.drawable.selector_button_dialog_confirm));
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    try {
+                        SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share), "*" + string);
 
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                    dialog.cancel();
                 }
-                dialog.cancel();
-            }
-        });
+            });
+        } else {
+            button.setText(getText(R.string.cancel));
+            button.setBackground(getResources().getDrawable(R.drawable.selector_button_dialog_cancel));
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.cancel();
+                }
+            });
+        }
         dialog.show();
     }
 
@@ -347,7 +352,8 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 mRandomNum = Math.abs(new Random().nextInt(40) + 1 + (period - 1) * 40);
             } while (mExistNum.contains(mRandomNum) || mRandomNum % 2 == 1);
         }
-        StringBuilder threeStr = new StringBuilder(intToHex(mRandomNum));
+        StringBuilder threeStr = new StringBuilder(Integer.toHexString(mRandomNum));
+        LogUtil.d(TAG, "str = " + threeStr);
         while (threeStr.length() < 3) {
             threeStr.insert(0, "0");
         }
@@ -414,9 +420,10 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
             final TempPwd tempPwdInfo = mTempPwdList.get(position);
             long failureTime;
             final String tempPwd;
+            final boolean valid;
             if (tempPwdInfo != null) {
                 tempPwd = tempPwdInfo.getTempPwd();
-                failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime());
+                failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime(), tempPwdInfo.getRandomNum());
                 viewHolder.mTempPwdTv.setText(
                         tempPwd.substring(0, 3) +
                                 getResources().getString(R.string.temp_password) +
@@ -425,7 +432,8 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 viewHolder.mTempPwdFailureTimeTv.setText(DateTimeUtil.timeStamp2Date(
                         String.valueOf(failureTime),
                         "yyyy-MM-dd HH:mm"));
-                if (System.currentTimeMillis() / 1000 - failureTime >= 0) {
+                valid = (System.currentTimeMillis() / 1000 - failureTime >= 0) ? false : true;
+                if (!valid) {
 //                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_invalid));
 //                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.red));
                     viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_invalid);
@@ -438,10 +446,20 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                     viewHolder.mDelete.setVisibility(View.GONE);
                     viewHolder.mShare.setVisibility(View.VISIBLE);
                 }
+                if (tempPwdInfo.getRandomNum() % 2 == 0) {
+                    viewHolder.mTempPwdCheckNumTv.setText("多次");
+                } else {
+                    viewHolder.mTempPwdCheckNumTv.setText("单次");
+                }
+                if (valid) {
+                    viewHolder.mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.blue2));
+                } else {
+                    viewHolder.mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.gray1));
+                }
                 viewHolder.mTempPwdLl.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showPwdDialog(String.valueOf(tempPwdInfo.getTempPwd()));
+                        showPwdDialog(String.valueOf(tempPwdInfo.getTempPwd()), valid);
                     }
                 });
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
@@ -474,6 +492,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
             SwipeLayout mSwipeLayout;
             private TextView mTempPwdTv;
             private TextView mTempPwdFailureTimeTv;
+            private TextView mTempPwdCheckNumTv;
             private ImageView mTempPwdValidIv;
             private LinearLayout mTempPwdLl;
             private LinearLayout mDelete;
@@ -484,6 +503,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 mSwipeLayout = (SwipeLayout) itemView;
                 mTempPwdValidIv = itemView.findViewById(R.id.iv_temp_pwd_valid);
                 mTempPwdTv = itemView.findViewById(R.id.tv_temp_pwd);
+                mTempPwdCheckNumTv = itemView.findViewById(R.id.temp_pwd_check_num);
                 mTempPwdFailureTimeTv = itemView.findViewById(R.id.tv_temp_pwd_failure_time);
                 mTempPwdLl = itemView.findViewById(R.id.ll_temp_pwd);
                 mDelete = itemView.findViewById(R.id.ll_delete);

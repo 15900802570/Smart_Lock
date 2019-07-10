@@ -758,6 +758,7 @@ public class DateTimeUtil {
     }
 
     /**
+     *
      **/
     public static class MyDate {
         int day;
@@ -936,8 +937,8 @@ public class DateTimeUtil {
     /**
      * 临时密码失效时间计算
      */
-    public static long getFailureTime(long createdTime) {
-        return (long) Math.ceil(createdTime / 1800.0 + 1) * 1800;
+    public static long getFailureTime(long createdTime, int randomNum) {
+        return (long) Math.ceil(createdTime / 1800.0 + 1 + Math.floor(randomNum / 40) * 2) * 1800;
     }
 
     /**

@@ -3,14 +3,19 @@ package com.smart.lock.ui.fp;
 import android.annotation.TargetApi;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
@@ -18,6 +23,8 @@ import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.utils.LogUtil;
+
+import java.util.Objects;
 
 import javax.crypto.Cipher;
 
@@ -43,12 +50,30 @@ public class FingerprintDialogFragment extends DialogFragment {
         mActivity = (BaseFPActivity) getActivity();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Window win = getDialog().getWindow();
+        // 一定要设置Background，如果不设置，window属性设置无效
+        assert win != null;
+        win.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        DisplayMetrics dm = new DisplayMetrics();
+        Objects.requireNonNull(getActivity()).getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+//        WindowManager.LayoutParams params = win.getAttributes();
+//        // 使用ViewGroup.LayoutParams，以便Dialog 宽度充满整个屏幕
+//        params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+//        params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+//        win.setAttributes(params);
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFPM = getContext().getSystemService(FingerprintManager.class);
-        setStyle(DialogFragment.STYLE_NO_TITLE,R.style.Theme_AppCompat_Light_Dialog_Alert);
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.Theme_AppCompat_Light_Dialog_Alert);
 
     }
 
@@ -90,9 +115,9 @@ public class FingerprintDialogFragment extends DialogFragment {
                     @Override
                     public void onAuthenticationError(int errorCode, CharSequence errString) {
                         super.onAuthenticationError(errorCode, errString);
-                        LogUtil.i(TGA, mActivity.getString(R.string.fp_verification_failed)+errorCode);
-                        if(errorCode==FingerprintManager.FINGERPRINT_ERROR_LOCKOUT){
-                            Toast.makeText(mActivity,mActivity.getString(R.string.upper_limit_of_fp_verification_times),Toast.LENGTH_SHORT).show();
+                        LogUtil.i(TGA, mActivity.getString(R.string.fp_verification_failed) + errorCode);
+                        if (errorCode == FingerprintManager.FINGERPRINT_ERROR_LOCKOUT) {
+                            Toast.makeText(mActivity, mActivity.getString(R.string.upper_limit_of_fp_verification_times), Toast.LENGTH_SHORT).show();
                             dismiss();
                             mActivity.onFingerprintAuthenticationError(errorCode);
                         }
@@ -113,6 +138,7 @@ public class FingerprintDialogFragment extends DialogFragment {
                         dismiss();
                         stopFPListening();
                     }
+
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
@@ -124,12 +150,12 @@ public class FingerprintDialogFragment extends DialogFragment {
                 null);
     }
 
-    private void shakes(){
+    private void shakes() {
         Vibrator vibrator = (Vibrator) mActivity.getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null) {
             vibrator.vibrate(300);
         }
-        Animation shake = AnimationUtils.loadAnimation(mActivity,R.anim.shake);
+        Animation shake = AnimationUtils.loadAnimation(mActivity, R.anim.shake);
         mErrorTv.startAnimation(shake);
     }
 

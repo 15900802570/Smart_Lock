@@ -62,7 +62,8 @@
             android:layout_height="@dimen/x57dp"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="@dimen/x57dp"
-            android:paddingEnd="@dimen/x94dp">
+            android:paddingStart="@dimen/x60dp"
+            android:paddingEnd="@dimen/x60dp">
             <!-- 删除按钮 -->
             <TextView
                 android:id="@+id/tv_delete"
@@ -75,6 +76,19 @@
                 android:paddingStart="@dimen/x25dp"
                 android:paddingEnd="@dimen/x25dp"
                 android:text="@string/delete"
+                android:textSize="@dimen/d24sp"
+                android:visibility="gone" />
+            <TextView
+                android:id="@+id/tv_return"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:onClick="doClick"
+                android:paddingStart="@dimen/x25dp"
+                android:paddingEnd="@dimen/x25dp"
+                android:text="@string/_return"
                 android:textSize="@dimen/d24sp"
                 android:visibility="gone" />
         </RelativeLayout>

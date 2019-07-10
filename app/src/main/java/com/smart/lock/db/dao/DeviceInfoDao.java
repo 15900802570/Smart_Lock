@@ -28,7 +28,7 @@ public class DeviceInfoDao {
     public static String DEVICE_DATE = "device_date";
     public static String DEVICE_DEFAULT = "device_default";
     public static String DEVICE_MAC = "ble_mac";
-    public static String DEVICE_NAME = "ble_mac";
+    public static String DEVICE_NAME = "device_name";
 
 
     protected DeviceInfoDao(Context context) {

@@ -37,6 +37,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
 
     private TextView mDeleteTv;
     private TextView mInfoTv; //提示信息
+    private TextView mReturnTv;
 
     private RelativeLayout mKeyNkRl;
     private RelativeLayout mErrorRl;
@@ -113,6 +114,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
         num_pwd4 = findViewById(R.id.num_pwd4);
         mInfoTv = findViewById(R.id.info_tv);//提示信息
         mDeleteTv = findViewById(R.id.tv_delete);
+        mReturnTv = findViewById(R.id.tv_return);
         mKeyNkRl = findViewById(R.id.lock_rl);
         mErrorRl = findViewById(R.id.lock_rl_error);
         mErrorTv = findViewById(R.id.lock_error_tv);
@@ -232,6 +234,8 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
             }
         });
         mDeleteTv.setOnClickListener(this);
+        mReturnTv.setOnClickListener(this);
+        mReturnTv.setVisibility(View.GONE);
     }
 
     /**
@@ -270,6 +274,9 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
             case ConstantUtil.SURE_SETTING_PASSWORD: //确认密码
                 LogUtil.d("确认密码");
                 //判断两次输入的密码是否一致
+                if(notCancel){
+                    mReturnTv.setVisibility(View.VISIBLE);
+                }
                 if (input.equals(fBuffer.toString())) {//一致
                     //保存密码到文件中
                     SharedPreferenceUtil.getInstance(LockScreenActivity.this).initSharedPreferences(LockScreenActivity.this);
@@ -403,6 +410,12 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
             case R.id.tv_delete://删除
                 deleteText();//删除刚刚输入的内容
                 break;
+            case R.id.tv_return:
+                if (type == ConstantUtil.SURE_SETTING_PASSWORD){
+                    type = ConstantUtil.SETTING_PASSWORD;
+                    mInfoTv.setText(getString(R.string.please_input_pwd_first));
+                }
+                break;
         }
     }
 
@@ -435,6 +448,11 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
     public void onBackPressed() {
         if (notCancel) {
             ToastUtil.showLong(this, getString(R.string.setting_password_for_security));
+            if (type == ConstantUtil.SURE_SETTING_PASSWORD){
+                type = ConstantUtil.SETTING_PASSWORD;
+                mInfoTv.setText(getString(R.string.please_input_pwd_first));
+            }
+
         } else {
             super.onBackPressed();
             if (isReturn) {

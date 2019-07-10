@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:state_pressed="true"
-        android:drawable="@color/pressed_true"/>
+        android:state_pressed="true">
+        <shape android:shape="rectangle" >
+            <solid android:color="@color/pressed_true"/>
+            <corners android:bottomLeftRadius="13dp" android:bottomRightRadius="13dp"  />
+        </shape>
+    </item>
     <item
         android:state_pressed="false"
-        android:drawable="@color/pressed_false"/>
+        >
+        <shape android:shape="rectangle" >
+            <solid android:color="@color/pressed_false"/>
+            <corners android:bottomLeftRadius="13dp" android:bottomRightRadius="13dp" />
+        </shape>
+    </item>
+
 </selector>

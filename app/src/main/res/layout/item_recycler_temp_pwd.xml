@@ -92,6 +92,13 @@
                         android:text="2019-02-25 14:19"/>
                 </LinearLayout>
         </LinearLayout>
+        <TextView
+            android:id="@+id/temp_pwd_check_num"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@color/blue2"
+            android:paddingRight="@dimen/x15dp"/>
 
     </LinearLayout>
     </android.support.v7.widget.CardView>
