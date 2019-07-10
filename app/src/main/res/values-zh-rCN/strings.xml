@@ -135,7 +135,7 @@
     <string name="str_is_empty">字符串为空</string>
     <string name="click_to_copy">点击复制</string>
     <string name="temp_pwd_failure_time">失效时间</string>
-    <string name="temp_password">*********</string>
+    <string name="temp_password">***</string>
     <string name="replicating_success">已复制到剪切板</string>
     <string name="share">分享</string>
     <string name="need_not_update">暂无更新</string>
@@ -316,7 +316,7 @@
     <string name="connection_success">已建立安全连接</string>
     <string name="http_version_latest">已是最新版本，无需升级</string>
     <string name="ota_updating">正在升级</string>
-    <string name="not_regenerate_temp_pwd">有效临时密码最多生成30组，请稍后再试</string>
+    <string name="not_regenerate_temp_pwd">有效临时密码最多生成20组，请稍后再试</string>
     <string name="dev_default">默认</string>
 
     <string name="check_app_version">检查更新</string>
@@ -405,4 +405,5 @@
     <string name="sn_warning">不支持该设备</string>
     <string name="sync_data">数据同步中...</string>
     <string name="create_temp_pwd">创建临时密码</string>
+    <string name="_return">返回</string>
 </resources>

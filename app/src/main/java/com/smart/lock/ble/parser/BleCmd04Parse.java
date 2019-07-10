@@ -54,6 +54,7 @@ public class BleCmd04Parse implements BleCommandParse {
         System.arraycopy(buf, 17, userStatus, 0, 1);
         System.arraycopy(buf, 18, stStatus, 0, 1);
         System.arraycopy(buf, 19, unLockTime, 0, 1);
+        LogUtil.d(TAG, "Bytes = " + Arrays.toString(buf)+'\n'+"length = " +buf.length);
         if (mIs128Code) {
             tmpPwdSk = new byte[16 * 4];
             userState = new byte[ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM];

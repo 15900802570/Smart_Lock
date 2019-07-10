@@ -1,36 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/bottom_sheet_select_dev"
+    android:id="@+id/design_bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/transparent"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingBottom="5dp">
+    android:paddingLeft="@dimen/x15dp"
+    android:paddingRight="@dimen/x15dp"
+    android:paddingBottom="@dimen/y15dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/box_corners_white"
         android:orientation="vertical"
-        android:background="@color/list_view_bg_grey">
+        android:paddingLeft="@dimen/x15dp"
+        android:paddingRight="@dimen/x15dp"
+        android:paddingTop="@dimen/x5dp"
+        android:paddingBottom="@dimen/x15dp">
 
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:gravity="center"
-            android:paddingTop="15dp"
-            android:paddingBottom="15dp"
+            android:paddingTop="@dimen/y15dp"
+            android:paddingBottom="@dimen/y15dp"
             android:text="@string/device_management"
             android:textColor="@color/black_de"
-            android:textSize="18sp" />
+            android:textSize="@dimen/d20sp" />
 
         <LinearLayout
             android:id="@+id/refreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/y450dp"
-            android:background="@color/white"
+            android:layout_height="@dimen/y550dp"
+            android:paddingBottom="@dimen/x15dp"
+            android:background="@color/list_view_bg_grey"
             android:orientation="vertical">
 
 
@@ -38,10 +44,10 @@
                 android:id="@+id/list_view_select_dev"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/list_view_bg_grey"
                 android:divider="@null"
                 android:layoutAnimation="@anim/layout_animation_fall_down"
-                android:paddingTop="5.0dip"
+                android:paddingTop="@dimen/x3dp"
+                android:paddingBottom="@dimen/x25dp"
                 android:scrollbarSize="10dp"
                 android:scrollbarStyle="insideOverlay"
                 android:scrollbars="vertical" />

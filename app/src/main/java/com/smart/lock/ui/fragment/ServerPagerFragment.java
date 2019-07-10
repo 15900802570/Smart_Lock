@@ -31,6 +31,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
@@ -84,7 +85,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private Device mDevice;
     private Boolean mIsVisibleToUser = false;
     private LockManagerAdapter mLockAdapter; //gridView adapter
-    private DevManagementAdapter mDevManagementAdapter;
+//    private MainActivity.DevManagementAdapter mDevManagementAdapter;
 
     private Dialog mBottomSheetSelectDev;
 
@@ -191,7 +192,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 super.handleMessage(msg);
             }
         };
-        mDevManagementAdapter = new DevManagementAdapter(mActivity);
     }
 
     /**
@@ -358,7 +358,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
         mLockNameTv.setText(mDefaultDevice.getDeviceName());
         mNodeId = mDefaultDevice.getDeviceNodeId();
-        LogUtil.d(TAG,"mDevice.getState() :::" + mDevice.getState());
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
             if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
                 refreshView(BIND_DEVICE);
@@ -377,13 +376,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         } else
             refreshView(BIND_DEVICE);
 
-        long l = DeviceInfoDao.getInstance(mCtx).queryCount();
-        LogUtil.d(TAG, "type = " + l + '\n' +
-                "count = " + mDevManagementAdapter.getItemCount());
-        if (l > mDevManagementAdapter.getItemCount()) {
-            mDevManagementAdapter.refreshList();
-            mDevManagementAdapter.notifyDataSetChanged();
-        }
     }
 
     public void onPause() {
@@ -464,12 +456,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 }
                 break;
             case R.id.tv_lock_name:
-                mBottomSheetSelectDev = DialogUtils.createBottomSheetDialog(mActivity, R.layout.bottom_sheet_select_device, R.id.bottom_sheet_select_dev);
-                RecyclerView mSelectList = (RecyclerView) mBottomSheetSelectDev.findViewById(R.id.list_view_select_dev);
-                mSelectList.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false));
-                mSelectList.setItemAnimator(new DefaultItemAnimator());
-                mSelectList.setAdapter(mDevManagementAdapter);
-                mBottomSheetSelectDev.show();
+                if (this.getParentFragment() != null) {
+                    ((HomeFragment) getParentFragment()).showDialog();
+                }
                 break;
             default:
                 break;
@@ -589,6 +578,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             case BleMsg.TYPE_USER_NOT_EXIST:
             case BleMsg.TYPE_AUTH_CODE_ERROR:
                 userHadBeenDelete();
+                if (ServerPagerFragment.this.getParentFragment() != null) {
+                    (ServerPagerFragment.this.getParentFragment()).onResume();
+                }
                 break;
             default:
                 break;
@@ -816,120 +808,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 mBleManagerHelper.getBleCardService().disconnect();
                 mIsVisibleToUser = false;
             }
-            mDevManagementAdapter.refreshList();
-            mDevManagementAdapter.notifyDataSetChanged();
+//            mDevManagementAdapter.refreshList();
+//            mDevManagementAdapter.notifyDataSetChanged();
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-            switch (requestCode) {
-                case BleManagerHelper.REQUEST_OPEN_BT_CODE:
-                    LogUtil.d(TAG, "data : " + data.toString());
-                    break;
 
-        }
-    }
-
-    private class DevManagementAdapter extends RecyclerView.Adapter<DevManagementAdapter.MyViewHolder> {
-
-        private Context mContext;
-        private ArrayList<DeviceInfo> mDevList;
-        private DeviceInfo mDefaultInfo;
-        int mDefaultPosition;
-
-        private DevManagementAdapter(Context context) {
-            mContext = context;
-            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
-        }
-
-        private void addItem(DeviceInfo deviceInfo) {
-            if (mDevList.indexOf(deviceInfo) == -1) {
-                mDevList.add(0, deviceInfo);
-            }
-        }
-
-        private void refreshList() {
-            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
-        }
-
-        @NonNull
-        @Override
-        public DevManagementAdapter.MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_select_mangement, viewGroup, false);
-            return new DevManagementAdapter.MyViewHolder(inflate);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull final DevManagementAdapter.MyViewHolder myViewHolder, @SuppressLint("RecyclerView") final int position) {
-            final DeviceInfo deviceInfo = mDevList.get(position);
-            if (deviceInfo != null) {
-                try {
-                    myViewHolder.mLockNameTv.setText(deviceInfo.getDeviceName());
-                    myViewHolder.mLockNumTv.setText(String.valueOf(deviceInfo.getBleMac()));
-                } catch (NullPointerException e) {
-                    LogUtil.d(TAG, deviceInfo.getDeviceName() + "  " + deviceInfo.getDeviceIndex());
-                }
-                if (deviceInfo.getDeviceDefault()) {
-                    myViewHolder.mDefaultFlagIv.setVisibility(View.VISIBLE);
-                    mDefaultInfo = deviceInfo;
-                    mDefaultPosition = position;
-                } else {
-                    myViewHolder.mDefaultFlagIv.setVisibility(View.INVISIBLE);
-                }
-
-                myViewHolder.mSelectDevLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // 判断是否更换默认设备
-
-                        if (!deviceInfo.getDeviceDefault()) {
-                            if (mDefaultInfo == null) {
-                                deviceInfo.setDeviceDefault(true);
-                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
-                            } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
-                                mDefaultInfo.setDeviceDefault(false);
-                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
-                                deviceInfo.setDeviceDefault(true);
-                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
-                                Device.getInstance(mActivity).exchangeConnect(deviceInfo);
-                                mBleManagerHelper.getBleCardService().disconnect();
-                                Device.getInstance(mActivity).setDisconnectBle(false);
-                                LogUtil.d(TAG, "设置为默认设备");
-                            }
-                            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
-                            mDevManagementAdapter.notifyDataSetChanged();
-                            if (ServerPagerFragment.this.getParentFragment() != null) {
-                                ((HomeFragment) ServerPagerFragment.this.getParentFragment()).onSelectDev(deviceInfo);
-                            }
-                        }
-                        mBottomSheetSelectDev.dismiss();
-                    }
-                });
-            }
-        }
-
-        @Override
-        public int getItemCount() {
-            return mDevList.size();
-        }
-
-        class MyViewHolder extends RecyclerView.ViewHolder {
-            private TextView mLockNameTv;
-            private TextView mLockNumTv;
-            private ImageView mDefaultFlagIv;
-            private LinearLayout mSelectDevLl;
-
-
-            private MyViewHolder(View itemView) {
-                super(itemView);
-                mLockNameTv = itemView.findViewById(R.id.tv_dev_management_dev_name);
-                mLockNumTv = itemView.findViewById(R.id.tv_dev_management_dev_num);
-                mDefaultFlagIv = itemView.findViewById(R.id.iv_dev_management_default_flag);
-                mSelectDevLl = itemView.findViewById(R.id.ll_dev_select);
-            }
-        }
-    }
 
 }

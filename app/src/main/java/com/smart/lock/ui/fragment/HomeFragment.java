@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -21,8 +22,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -121,6 +126,9 @@ public class HomeFragment extends BaseFragment implements
 
     private ArrayList<DeviceInfo> deviceInfoArraysList;
 
+    private DevManagementAdapter mDevManagementAdapter;
+    private Dialog mBottomSheetSelectDev;
+
     private boolean mIsLockBack = false;
 
     public void onAuthenticationSuccess() {
@@ -151,6 +159,8 @@ public class HomeFragment extends BaseFragment implements
         mAddLockBt = mHomeView.findViewById(R.id.btn_add_lock);
         mInstructionBtn = mActivity.findViewById(R.id.one_click_unlock_ib);
         mServerPager = mHomeView.findViewById(R.id.server_viewpager);
+        mBottomSheetSelectDev = DialogUtils.createBottomSheetDialog(mActivity, R.layout.bottom_sheet_select_device, R.id.design_bottom_sheet);
+        mDevManagementAdapter = new DevManagementAdapter(mActivity);
         initEvent();
         return mHomeView;
     }
@@ -161,7 +171,8 @@ public class HomeFragment extends BaseFragment implements
         mInstructionBtn.setOnClickListener(this);
         mScanQrIv.setOnClickListener((View.OnClickListener) mActivity);
         mServerPagerList = new ArrayList<>();
-
+        BottomSheetBehavior behavior = BottomSheetBehavior.from(mBottomSheetSelectDev.findViewById(R.id.design_bottom_sheet));
+        behavior.setHideable(false);
         setViewPager();
     }
 
@@ -290,6 +301,8 @@ public class HomeFragment extends BaseFragment implements
                     mServerAdapter.notifyDataSetChanged();
                     mServerPager.setCurrentItem(mServerAdapter.getCurrentItem());
                 }
+                mDevManagementAdapter.refreshList();
+                mDevManagementAdapter.notifyDataSetChanged();
                 break;
             case UNBIND_DEVICE:
                 LogUtil.d(TAG, "onResume Unbind");
@@ -405,4 +418,117 @@ public class HomeFragment extends BaseFragment implements
             }
         }
     }
+
+    public void showDialog() {
+        RecyclerView mSelectList = mBottomSheetSelectDev.findViewById(R.id.list_view_select_dev);
+        assert mSelectList != null;
+        mSelectList.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false));
+        mSelectList.setItemAnimator(new DefaultItemAnimator());
+        long l = DeviceInfoDao.getInstance(mCtx).queryCount();
+        if (l != mDevManagementAdapter.getItemCount()) {
+            mDevManagementAdapter.refreshList();
+            mDevManagementAdapter.notifyDataSetChanged();
+        }
+        mSelectList.setAdapter(mDevManagementAdapter);
+        mBottomSheetSelectDev.show();
+    }
+
+    private class DevManagementAdapter extends RecyclerView.Adapter<DevManagementAdapter.MyViewHolder> {
+
+        private Context mContext;
+        private ArrayList<DeviceInfo> mDevList;
+        private DeviceInfo mDefaultInfo;
+        int mDefaultPosition;
+
+        private DevManagementAdapter(Context context) {
+            mContext = context;
+            mDevList = DeviceInfoDao.getInstance(mActivity).queryAll();
+        }
+
+        private void addItem(DeviceInfo deviceInfo) {
+            if (mDevList.indexOf(deviceInfo) == -1) {
+                mDevList.add(0, deviceInfo);
+            }
+        }
+
+        private void refreshList() {
+            mDevList = DeviceInfoDao.getInstance(mActivity).queryAll();
+        }
+
+        @NonNull
+        @Override
+        public DevManagementAdapter.MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_select_mangement, viewGroup, false);
+            return new DevManagementAdapter.MyViewHolder(inflate);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull final DevManagementAdapter.MyViewHolder myViewHolder, @SuppressLint("RecyclerView") final int position) {
+            final DeviceInfo deviceInfo = mDevList.get(position);
+            if (deviceInfo != null) {
+                try {
+                    myViewHolder.mLockNameTv.setText(deviceInfo.getDeviceName());
+                    myViewHolder.mLockNumTv.setText(String.valueOf(deviceInfo.getBleMac()));
+                } catch (NullPointerException e) {
+                    LogUtil.d(TAG, deviceInfo.getDeviceName() + "  " + deviceInfo.getDeviceIndex());
+                }
+                if (deviceInfo.getDeviceDefault()) {
+                    myViewHolder.mDefaultFlagIv.setVisibility(View.VISIBLE);
+                    mDefaultInfo = deviceInfo;
+                    mDefaultPosition = position;
+                } else {
+                    myViewHolder.mDefaultFlagIv.setVisibility(View.INVISIBLE);
+                }
+
+                myViewHolder.mSelectDevLl.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // 判断是否更换默认设备
+
+                        if (!deviceInfo.getDeviceDefault()) {
+                            if (mDefaultInfo == null) {
+                                deviceInfo.setDeviceDefault(true);
+                                DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
+                            } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
+                                mDefaultInfo.setDeviceDefault(false);
+                                DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(mDefaultInfo);
+                                deviceInfo.setDeviceDefault(true);
+                                DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
+                                Device.getInstance(mActivity).exchangeConnect(deviceInfo);
+//                                mBleManagerHelper.getBleCardService().disconnect();
+                                Device.getInstance(mActivity).setDisconnectBle(false);
+                                LogUtil.d(TAG, "设置为默认设备");
+                            }
+                            mDevList = DeviceInfoDao.getInstance(mActivity).queryAll();
+                            mDevManagementAdapter.notifyDataSetChanged();
+                            onSelectDev(deviceInfo);
+                        }
+                        mBottomSheetSelectDev.dismiss();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mDevList.size();
+        }
+
+        class MyViewHolder extends RecyclerView.ViewHolder {
+            private TextView mLockNameTv;
+            private TextView mLockNumTv;
+            private ImageView mDefaultFlagIv;
+            private LinearLayout mSelectDevLl;
+
+
+            private MyViewHolder(View itemView) {
+                super(itemView);
+                mLockNameTv = itemView.findViewById(R.id.tv_dev_management_dev_name);
+                mLockNumTv = itemView.findViewById(R.id.tv_dev_management_dev_num);
+                mDefaultFlagIv = itemView.findViewById(R.id.iv_dev_management_default_flag);
+                mSelectDevLl = itemView.findViewById(R.id.ll_dev_select);
+            }
+        }
+    }
+
 }

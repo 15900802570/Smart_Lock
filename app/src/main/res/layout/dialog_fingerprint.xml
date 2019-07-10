@@ -1,44 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:id="@+id/ll_fingerprint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:id="@+id/ll_fingerprint">
+    android:background="@color/transparent"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/y30dp"
+    android:paddingEnd="@dimen/y30dp">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:src ="@drawable/ic_fingerprint"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="15dp"
-        android:text="@string/check_fingerprint"/>
-    <TextView
-        android:id="@+id/tv_fingerprint_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="5dp"
-        android:maxLines="1"
-        android:textSize="12sp"
-        android:textColor="@color/red"/>
-    <View
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginTop="10dp"
-        android:background="#ccc"/>
-    <TextView
-        android:id="@+id/tv_fp_cancel"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:gravity="center"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/cancel"
-        android:background="@drawable/selector_button"
-        android:textSize="16sp"/>
+        android:layout_height="match_parent"
+        android:background="@drawable/box_corners_white"
+        android:orientation="vertical">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/y30dp"
+            android:src="@drawable/ic_fingerprint" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/y15dp"
+            android:text="@string/check_fingerprint" />
+
+        <TextView
+            android:id="@+id/tv_fingerprint_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/y5dp"
+            android:maxLines="1"
+            android:textColor="@color/red"
+            android:textSize="@dimen/d12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/transparent"
+            android:paddingStart="@dimen/y1dp"
+            android:paddingEnd="@dimen/y1dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginTop="10dp"
+                android:background="#ccc"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp" />
+
+            <TextView
+                android:id="@+id/tv_fp_cancel"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/selector_button"
+                android:gravity="center"
+                android:text="@string/cancel"
+                android:textSize="@dimen/d16sp" />
+        </LinearLayout>
+    </LinearLayout>
+
 </LinearLayout>

@@ -18,6 +18,7 @@ public class ServerPagerAdapter extends FragmentPagerAdapter {
 
     public ServerPagerAdapter(FragmentManager fragmentManager, Context context, ArrayList<DeviceInfo> deviceInfos) {
         super(fragmentManager);
+        currentItem = Integer.MAX_VALUE;
         mSeverPagerList = new ArrayList<>();
         for (int i = 0; i < deviceInfos.size(); i++) {
             mSeverPagerList.add(new ServerPagerFragment());
@@ -34,6 +35,7 @@ public class ServerPagerAdapter extends FragmentPagerAdapter {
 
     public void updateDevices(Context context, ArrayList<DeviceInfo> deviceInfos) {
         mSeverPagerList = new ArrayList<>();
+        currentItem = Integer.MAX_VALUE;
         for (int i = 0; i < deviceInfos.size(); i++) {
             mSeverPagerList.add(new ServerPagerFragment());
             if (deviceInfos.get(i).getDeviceDefault()) {

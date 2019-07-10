@@ -3,70 +3,79 @@
     android:id="@+id/design_bottom_sheet"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/box_corners_white"
+    android:background="@color/transparent"
     android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingBottom="5dp">
+    android:paddingLeft="@dimen/x15dp"
+    android:paddingRight="@dimen/x15dp"
+    android:paddingBottom="@dimen/y15dp">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:text="@string/support_types_of_card"
-        android:textColor="@color/black_de"
-        android:textSize="18sp" />
+        android:layout_height="match_parent"
+        android:background="@drawable/box_corners_white"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/x15dp"
+        android:paddingRight="@dimen/x15dp">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.2dip"
-        android:background="@color/line"
-        android:paddingLeft="25dp"
-        android:paddingRight="25dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="@string/support_types_of_card"
+            android:textColor="@color/black_de"
+            android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/set_support_safety_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/selector_button_radius_10"
-        android:gravity="center"
-        android:onClick="setOnClick"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:text="@string/safety_card" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.2dip"
-        android:background="@color/line" />
+        <TextView
+            android:id="@+id/set_support_safety_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button_radius_10"
+            android:gravity="center"
+            android:onClick="setOnClick"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="@string/safety_card" />
 
-    <TextView
-        android:id="@+id/set_support_ordinary_card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/selector_button_radius_10"
-        android:gravity="center"
-        android:onClick="setOnClick"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:text="@string/ordinary_card" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.2dip"
-        android:background="@color/line"
-        android:paddingLeft="25dp"
-        android:paddingRight="25dp" />
+        <TextView
+            android:id="@+id/set_support_ordinary_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_button_radius_10"
+            android:gravity="center"
+            android:onClick="setOnClick"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="@string/ordinary_card" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:onClick="setOnClick"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:text="@string/cancel"
-        android:textSize="17sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:onClick="setOnClick"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:text="@string/cancel"
+            android:textSize="17sp" />
+    </LinearLayout>
 </LinearLayout>

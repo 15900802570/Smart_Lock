@@ -389,6 +389,7 @@ public class StringUtil {
 //        LogUtil.d(TAG,"CCITT7 +" + CRC16.CRC16_USB(bytes));
 //        LogUtil.d(TAG,"CCITT8 +" + CRC16.CRC16_X25(bytes));
 //        LogUtil.d(TAG,"CCITT9 +" + CRC16.CRC16_XMODEM(bytes));
+//        LogUtil.d(TAG,"temp = "+ StringUtil.crc16(bytes,bytes.length));
         return CRC16.CRC16_CCITT_FALSE(bytes);
     }
 

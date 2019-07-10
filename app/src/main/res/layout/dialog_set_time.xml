@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:background="@drawable/box_corners_white"
         android:orientation="vertical">
 
         <TextView

@@ -7,7 +7,7 @@
     <string name="not_equals">两次输入的密码不一致,请重新输入！</string>
     <string name="setting_pwd_success">密码设置成功！</string>
     <string name="forget_pwd">忘记密码?</string>
-    <string name="delete">删除</string>
+    <string name="delete">Delete</string>
 
     <string name="home_rd">home</string>
     <string name="me_rd">me</string>
@@ -284,7 +284,7 @@
     <string name="ota_connection">Connecting OTA mode</string>
     <string name="update_version">Updated version:</string>
     <string name="current_version">Current version:</string>
-    <string name="not_regenerate_temp_pwd">A valid temporary password can generate up to 30 groups. Please try again later.</string>
+    <string name="not_regenerate_temp_pwd">A valid temporary password can generate up to 20 groups. Please try again later.</string>
     <string name="dev_default">Default</string>
     <string name="check_app_version">Check Version</string>
     <string name="after_down">after down</string>
@@ -397,4 +397,5 @@
     <string name="modify">Modify</string>
     <string name="sync_data">Sync Data...</string>
     <string name="create_temp_pwd">Create Temp Password</string>
+    <string name="_return">Return</string>
 </resources>
