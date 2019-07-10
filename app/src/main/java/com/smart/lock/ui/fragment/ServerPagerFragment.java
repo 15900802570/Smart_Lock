@@ -336,7 +336,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     public void onResume() {
         super.onResume();
         LogUtil.d(TAG, "ccccc");
-        DeviceInfo newDeviceInfo = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+        DeviceInfo newDeviceInfo = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true);
 
         if (newDeviceInfo == null) {
             mDevice = null;
@@ -801,13 +801,13 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         if (mCurrentIndex) {
             if (isVisibleToUser) {
                 onResume();
+                mBleManagerHelper.addDeviceLintener(this);
                 mIsVisibleToUser = true;
             } else {
                 mBleManagerHelper.getBleCardService().disconnect();
                 mIsVisibleToUser = false;
+                mBleManagerHelper.removeUiListener(this);
             }
-//            mDevManagementAdapter.refreshList();
-//            mDevManagementAdapter.notifyDataSetChanged();
         }
     }
 

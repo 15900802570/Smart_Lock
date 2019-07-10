@@ -294,7 +294,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             } else if (mDevice.getTempAuthCode() != null) {
                 authCode = StringUtil.bytesToHexString(mDevice.getTempAuthCode());
             }
-
+            LogUtil.d(TAG, "authCode = " + authCode);
             if (StringUtil.checkNotNull(authCode)) {
                 return mService.sendCmd01(Device.BLE_OTHER_CONNECT_TYPE, authCode, mDevInfo.getUserId(), mDevInfo.getBleMac(), BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
@@ -377,7 +377,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         long status4 = Long.parseLong(StringUtil.bytesToHexString(buf), 16);
         LogUtil.d(TAG, "status4 = " + status4);
 
-        if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
+        if (mDevInfo != null && StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
@@ -450,8 +450,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
             }
+        } else {
+            return;
         }
-
         mDevice.setState(Device.BLE_CONNECTED);
         synchronized (this.mStateLock) {
             for (UiListener uiListener : mUiListeners) {
