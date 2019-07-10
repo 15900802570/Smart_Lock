@@ -2,6 +2,7 @@ package com.smart.lock.ui.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -357,8 +358,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
         mLockNameTv.setText(mDefaultDevice.getDeviceName());
         mNodeId = mDefaultDevice.getDeviceNodeId();
+        LogUtil.d(TAG,"mDevice.getState() :::" + mDevice.getState());
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
             if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
+                refreshView(BIND_DEVICE);
                 return;
             }
             mDevice.setBackGroundConnect(false);
@@ -815,6 +818,17 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             }
             mDevManagementAdapter.refreshList();
             mDevManagementAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+            switch (requestCode) {
+                case BleManagerHelper.REQUEST_OPEN_BT_CODE:
+                    LogUtil.d(TAG, "data : " + data.toString());
+                    break;
+
         }
     }
 

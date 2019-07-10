@@ -55,30 +55,43 @@
                 android:textSize="@dimen/checkbox_delete_msg_size" />
 
             <TextView
-                android:id="@+id/del_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/x130dp"
-                android:layout_toLeftOf="@+id/del_cancel"
-                android:gravity="center"
-                android:text="@string/delete"
-                android:textColor="#ff555555"
-                android:textSize="@dimen/checkbox_delete_msg_size" />
-
-            <TextView
                 android:id="@+id/del_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                android:background="@mipmap/delete"
                 android:layout_marginRight="@dimen/x40dp"
                 android:gravity="center"
                 android:text="@string/edit_back"
-                android:textColor="#ff555555"
+                android:textColor="#ffbd9744"
                 android:textSize="@dimen/checkbox_delete_msg_size" />
 
         </RelativeLayout>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/ll_del_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="0dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_del_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/y20dp"
+            android:drawableTop="@mipmap/btn_delete_user"
+            android:gravity="center_horizontal"
+            android:text="@string/delete"
+            android:textSize="@dimen/d12sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 

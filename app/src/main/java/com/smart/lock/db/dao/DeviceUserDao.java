@@ -344,7 +344,7 @@ public class DeviceUserDao {
     /**
      * 更新用户状态
      */
-    public void checkUserState(String nodeId, byte[] status) {
+    public synchronized void checkUserState(String nodeId, byte[] status) {
         int index = 0;
         ArrayList<DeviceUser> users = queryDeviceUsers(nodeId);
 

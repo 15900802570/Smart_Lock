@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -91,6 +93,8 @@ public class BleManagerHelper {
 
     private ArrayList<UiListener> mUiListeners = new ArrayList(); //Ui监听集合
 
+    public static final int REQUEST_OPEN_BT_CODE = 100;
+
     private Runnable mRunnable = new Runnable() {
         public void run() {
             synchronized (mState) {
@@ -161,9 +165,15 @@ public class BleManagerHelper {
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(enableIntent);
+            if (mContext instanceof AppCompatActivity) {
+                LogUtil.d(TAG, "isEnabled : " + mBtAdapter.isEnabled());
+                AppCompatActivity activty = (AppCompatActivity) mContext;
+                activty.startActivityForResult(enableIntent, REQUEST_OPEN_BT_CODE);
+            }else {
+                mContext.startActivity(enableIntent);
+            }
+
         } else {
-            LogUtil.d(TAG, "ble state : " + mDevice.getState());
             if (mDevice.getState() == Device.BLE_DISCONNECTED) {
                 mDevice.setState(Device.BLE_CONNECTION);
                 closeDialog((int) (SCAN_PERIOD / 1000));
@@ -288,7 +298,7 @@ public class BleManagerHelper {
             } else {
                 LogUtil.d(TAG, "mBleMac :" + mBleMac + "\n" + "device " + device.getAddress());
                 if (device.getAddress().equals(mBleMac)) {
-                    LogUtil.d(TAG,"scanRecord 2: " + StringUtil.bytesToHexString(scanRecord));
+                    LogUtil.d(TAG, "scanRecord 2: " + StringUtil.bytesToHexString(scanRecord));
                     mHandler.removeCallbacks(mRunnable);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                     if (!mIsConnected && mService != null) {
@@ -340,8 +350,8 @@ public class BleManagerHelper {
     }
 
     public synchronized void addUiListener(UiListener uiListener) {
-        if (mUiListeners.contains(uiListener)){
-            LogUtil.d(TAG,"uiListener is contains!~");
+        if (mUiListeners.contains(uiListener)) {
+            LogUtil.d(TAG, "uiListener is contains!~");
             return;
         }
         mUiListeners.add(uiListener);

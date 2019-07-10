@@ -16,6 +16,7 @@ import android.widget.RadioGroup;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.entity.Device;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
 import com.smart.lock.ui.fragment.BaseFragment;
@@ -51,9 +52,14 @@ public class MainActivity extends AppCompatActivity implements
     private HomeFragment mHomeFragment;
 
     private ScanQRHelper mScanQRHelper;
+    /**
+     * 蓝牙
+     */
+    protected BleManagerHelper mBleManagerHelper;
 
 
     private int mHeight;
+    private Device mDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +88,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void initDate() {
-        BleManagerHelper.getInstance(this);
+        mBleManagerHelper = BleManagerHelper.getInstance(this);
+        mDevice = Device.getInstance(this);
         mPagerList = new ArrayList<>();
         mHomeFragment = new HomeFragment();
         mPagerList.add(mHomeFragment);
@@ -191,7 +198,18 @@ public class MainActivity extends AppCompatActivity implements
                     }
                     break;
             }
+        } else if (resultCode == RESULT_CANCELED) {
+            switch (requestCode) {
+                case BleManagerHelper.REQUEST_OPEN_BT_CODE:
+                    if (mBleManagerHelper.getBleCardService() != null && mDevice != null) {
+                        mDevice.setDisconnectBle(true);
+                        mBleManagerHelper.getBleCardService().disconnect();
+                        LogUtil.d(TAG,"is unenable!");
+                    }
+                    break;
+            }
         }
+
     }
 
     /**

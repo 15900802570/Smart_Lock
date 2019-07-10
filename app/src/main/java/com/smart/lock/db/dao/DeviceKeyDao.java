@@ -46,7 +46,7 @@ public class DeviceKeyDao {
     }
 
 
-    public void insert(DeviceKey DeviceKey) {
+    public synchronized void insert(DeviceKey DeviceKey) {
 
         try {
             dao.create(DeviceKey);
@@ -283,7 +283,7 @@ public class DeviceKeyDao {
      * @param type
      * @param lockId
      */
-    public void checkDeviceKey(Object nodeId, short userId, byte key, byte type, String lockId) {
+    public synchronized void checkDeviceKey(Object nodeId, short userId, byte key, byte type, String lockId) {
         if (key != 0) {
             DeviceKey deviceKey = queryByLockId(nodeId, userId, lockId, type);
             LogUtil.d(TAG, "deviceKey =  " + (deviceKey == null ? true : deviceKey.toString()));

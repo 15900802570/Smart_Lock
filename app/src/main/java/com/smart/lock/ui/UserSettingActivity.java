@@ -33,6 +33,7 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.TimePickerAloneDialog;
 import com.smart.lock.widget.TimePickerDefineDialog;
 import com.smart.lock.widget.TimePickerWithDateDefineDialog;
@@ -43,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 
 public class UserSettingActivity extends BaseActivity implements View.OnClickListener, UiListener, TimePickerWithDateDefineDialog.onTimeAndDatePickerListener, TimePickerAloneDialog.onTimePickerListener {
     private final static String TAG = UserSettingActivity.class.getSimpleName();
@@ -147,47 +149,36 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
     }
 
     private void initTime() {
-        if (mTempUser.getStTsBegin() == null)
+        if ((mTempUser.getStTsBegin() == null && mTempUser.getStTsEnd() == null) || (mTempUser.getStTsBegin().equals("00:00") && mTempUser.getStTsEnd().equals("00:00"))) {
             mFirstStartTime.setText("08:00");
-        else {
-            mFirstStartTime.setText(mTempUser.getStTsBegin());
-            mUnlockTimeCb1.setChecked(true);
-        }
-
-        if (mTempUser.getStTsEnd() == null)
             mFirstEndTime.setText("09:00");
-        else {
+            mUnlockTimeCb1.setChecked(false);
+        } else {
+            mFirstStartTime.setText(mTempUser.getStTsBegin());
             mFirstEndTime.setText(mTempUser.getStTsEnd());
             mUnlockTimeCb1.setChecked(true);
         }
 
-        if (mTempUser.getNdTsBegin() == null)
+        if ((mTempUser.getNdTsBegin() == null && mTempUser.getNdTsend() == null) || (mTempUser.getNdTsBegin().equals("00:00") && mTempUser.getNdTsend().equals("00:00"))) {
             mSecondStartTime.setText("11:00");
-        else {
-            mSecondStartTime.setText(mTempUser.getNdTsBegin());
-            mUnlockTimeCb2.setChecked(true);
-        }
-
-        if (mTempUser.getNdTsend() == null)
             mSecondEndTime.setText("12:00");
-        else {
+            mUnlockTimeCb2.setChecked(false);
+        } else {
+            mSecondStartTime.setText(mTempUser.getNdTsBegin());
             mSecondEndTime.setText(mTempUser.getNdTsend());
             mUnlockTimeCb2.setChecked(true);
         }
 
-        if (mTempUser.getThTsBegin() == null)
+        if ((mTempUser.getThTsBegin() == null && mTempUser.getThTsEnd() == null) || (mTempUser.getThTsBegin().equals("00:00") && mTempUser.getThTsEnd().equals("00:00"))) {
             mThirdStartTime.setText("17:00");
-        else {
-            mThirdStartTime.setText(mTempUser.getThTsBegin());
-            mUnlockTimeCb3.setChecked(true);
-        }
-
-        if (mTempUser.getThTsEnd() == null)
             mThirtEndTime.setText("18:00");
-        else {
+            mUnlockTimeCb3.setChecked(false);
+        } else {
+            mThirdStartTime.setText(mTempUser.getThTsBegin());
             mThirtEndTime.setText(mTempUser.getThTsEnd());
             mUnlockTimeCb3.setChecked(true);
         }
+
     }
 
     private void initEvent() {
@@ -223,30 +214,24 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
             mEtMome.setText(mTempUser.getUserName());
         }
         String day = mCalendar.get(Calendar.YEAR) + "-" + (mCalendar.get(Calendar.MONTH) + 1) + "-" + mCalendar.get(Calendar.DAY_OF_MONTH);
-        if (mTempUser.getLcBegin() == null) {
+        if ((mTempUser.getLcBegin() == null && mTempUser.getLcEnd() == null) || (mTempUser.getLcBegin().equals("0000") && mTempUser.getLcEnd().equals("0000"))) {
             mStartDateTv.setText(day + " 00:00");
-            try {
-                mStartDate = DateTimeUtil.dateToStamp(day + " 00:00:00") / 1000;
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        } else {
-            mStartDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcBegin() + "000").substring(0, 16));
-            mLifeCb.setChecked(true);
-            mStartDate = Long.valueOf(mTempUser.getLcBegin());
-        }
-        if (mTempUser.getLcEnd() == null) {
             mEndDateTv.setText(day + " 23:59");
             try {
+                mStartDate = DateTimeUtil.dateToStamp(day + " 00:00:00") / 1000;
                 mEndDate = DateTimeUtil.dateToStamp(day + " 23:59:00") / 1000;
             } catch (ParseException e) {
                 e.printStackTrace();
             }
+            mLifeCb.setChecked(false);
         } else {
+            mStartDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcBegin() + "000").substring(0, 16));
             mLifeCb.setChecked(true);
+            mStartDate = Long.valueOf(mTempUser.getLcBegin());
             mEndDateTv.setText(DateTimeUtil.stampToDate(mTempUser.getLcEnd() + "000").substring(0, 16));
             mEndDate = Long.valueOf(mTempUser.getLcEnd());
         }
+
     }
 
     private void showTimePickerDialog(final int tag) {
@@ -454,35 +439,40 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     showMessage("备注名不能为空！");
                     return;
                 }
-                if (mLifeCb.isChecked() || mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked()) {
+//                if (mLifeCb.isChecked() || mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked()) {
 
-                    if (mLifeCb.isChecked()) {
-                        if (mStartDate < mEndDate) {
-                            if (checkLifeCycle()) {
-                                showMessage(getString(R.string.life_cycle_not_changed));
-                                return;
-                            }
+//                if (mLifeCb.isChecked()) {
+//                    if (mStartDate < mEndDate) {
+//                        if (checkLifeCycle()) {
+//                            mEndDateTv.setError(getString(R.string.life_cycle_not_changed));
+//                            return;
+//                        }
+//
+//                    } else {
+//                        mEndDateTv.setError("起始日期不能大于或等于结束日期");
+//                        return;
+//                    }
+//                }
+                if (mUnlockTimeCb1.isChecked() && !timeCompare(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString())) {
+                    showMessage("开始时间大于或等于结束时间");
+                    showTimePickerDefineDialog(TEMP_KEY_FIRST_END_TIME);
+                    return;
+                }
 
-                        } else {
-                            showMessage("起始日期不能大于或等于结束日期！");
-                            return;
-                        }
-                    }
+                if (mUnlockTimeCb2.isChecked() && !timeCompare(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString())) {
+                    showMessage("开始时间大于或等于结束时间");
+                    showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
+                    return;
+                }
 
-                    if (mUnlockTimeCb2.isChecked() && !timeCompare(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString())) {
-                        showMessage("开始时间大于或等于结束时间");
-                        showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
-                        return;
-                    }
-
-                    if (mUnlockTimeCb3.isChecked() && !timeCompare(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
-                        showMessage("开始时间大于或等于结束时间");
-                        showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
-                        return;
-                    }
-                    sendUnlocktime();
-                } else
-                    showMessage("请选择需要设置有效期或开锁时段！");
+                if (mUnlockTimeCb3.isChecked() && !timeCompare(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
+                    showMessage("开始时间大于或等于结束时间");
+                    showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
+                    return;
+                }
+                sendUnlocktime();
+//                } else
+//                    showMessage("请选择需要设置有效期或开锁时段！");
 
                 break;
             default:
@@ -512,16 +502,30 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
     private byte[] getLifeCycle() {
         byte[] lifeCycle = new byte[8];
-        int beginTime = (int) mStartDate;
-        int endTime = (int) mEndDate;
 
-        LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
-        byte[] timeBuf = new byte[4];
-        StringUtil.int2Bytes(beginTime, timeBuf);
-        System.arraycopy(timeBuf, 0, lifeCycle, 0, 4);
-        StringUtil.int2Bytes(endTime, timeBuf);
-        System.arraycopy(timeBuf, 0, lifeCycle, 4, 4);
+        if (mLifeCb.isChecked()) {
+            if (mStartDate < mEndDate) {
+                if (checkLifeCycle()) {
+                    showMessage(getString(R.string.life_cycle_not_changed));
+                } else {
+                    int beginTime = (int) mStartDate;
+                    int endTime = (int) mEndDate;
+                    LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
+                    byte[] timeBuf = new byte[4];
+                    StringUtil.int2Bytes(beginTime, timeBuf);
+                    System.arraycopy(timeBuf, 0, lifeCycle, 0, 4);
+                    StringUtil.int2Bytes(endTime, timeBuf);
+                    System.arraycopy(timeBuf, 0, lifeCycle, 4, 4);
+                }
 
+            } else {
+                showMessage("起始日期不能大于或等于结束日期");
+            }
+        } else {
+            Arrays.fill(lifeCycle, 0, lifeCycle.length, (byte) 0x00);
+        }
+
+        LogUtil.d(TAG, "life cycle : " + StringUtil.bytesToHexString(lifeCycle, ":"));
         return lifeCycle;
     }
 
@@ -612,16 +616,23 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS:
-                mTempUser.setLcBegin(String.valueOf(mStartDate));
-                mTempUser.setLcEnd(String.valueOf(mEndDate));
-                mTempUser.setUserName(mEtMome.getText().toString().trim());
+                if (mLifeCb.isChecked()) {
+                    mTempUser.setLcBegin(String.valueOf(mStartDate));
+                    mTempUser.setLcEnd(String.valueOf(mEndDate));
+                } else {
+//                    mTempUser.setLcBegin(String.valueOf(mStartDate));
+//                    mTempUser.setLcEnd(String.valueOf(mEndDate));
+
+                    mTempUser.setLcBegin("0000");
+                    mTempUser.setLcEnd("0000");
+                }
                 DeviceUserDao.getInstance(this).updateDeviceUser(mTempUser);
 
-                if (!(mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked())) {
-                    showMessage(getString(R.string.set_life_cycle_success));
-
-                    DialogUtils.closeDialog(mLoadDialog);
-                }
+//                if (!(mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked())) {
+//                    showMessage(getString(R.string.set_life_cycle_success));
+//
+//                    DialogUtils.closeDialog(mLoadDialog);
+//                }
 
                 break;
 
@@ -630,22 +641,22 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
                     mTempUser.setStTsEnd(mFirstEndTime.getText().toString());
                 } else {
-                    mTempUser.setStTsBegin(null);
-                    mTempUser.setStTsEnd(null);
+                    mTempUser.setStTsBegin("00:00");
+                    mTempUser.setStTsEnd("00:00");
                 }
                 if (mUnlockTimeCb2.isChecked()) {
                     mTempUser.setNdTsBegin(mSecondStartTime.getText().toString());
                     mTempUser.setNdTsend(mSecondEndTime.getText().toString());
                 } else {
-                    mTempUser.setNdTsBegin(null);
-                    mTempUser.setNdTsend(null);
+                    mTempUser.setNdTsBegin("00:00");
+                    mTempUser.setNdTsend("00:00");
                 }
                 if (mUnlockTimeCb3.isChecked()) {
                     mTempUser.setThTsBegin(mThirdStartTime.getText().toString());
                     mTempUser.setThTsEnd(mThirtEndTime.getText().toString());
                 } else {
-                    mTempUser.setThTsBegin(null);
-                    mTempUser.setThTsEnd(null);
+                    mTempUser.setThTsBegin("00:00");
+                    mTempUser.setThTsEnd("00:00");
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 mTempUser.setUserName(mEtMome.getText().toString().trim());
@@ -726,257 +737,258 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
      * 发送时段命令
      */
     private void sendUnlocktime() {
-        if (mLifeCb.isChecked()) {
-            if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
-                boolean ret = compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                        mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString());
-                if (ret) {
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        if (!mLoadDialog.isShowing()) {
-                            mLoadDialog.show();
-                        }
-                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
-            } else if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
-                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
-                        DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
-
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        if (!mLoadDialog.isShowing()) {
-                            mLoadDialog.show();
-                        }
-                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
-                                getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                        mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                        null, null), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
-
-
-            } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+        if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+            boolean ret = compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+                    mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString());
+            if (ret) {
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
                     mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
-                            getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                    null, null,
-                                    null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+                            mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+                            mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
 
-            } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+            } else {
+                showMessage("时间段重复，请检查！");
+            }
+        } else if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+            if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
+                    DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
+
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
                     mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
-                            getUnlockTime(null, null,
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
+                            getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                     mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
                                     null, null), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
 
-            } else if (!mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+            } else {
+                showMessage("时间段重复，请检查！");
+            }
+
+
+        } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                if (!mLoadDialog.isShowing()) {
+                    mLoadDialog.show();
+                }
+                mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+                        getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+                                null, null,
+                                null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+            } else {
+                showMessage(getString(R.string.disconnect_ble));
+            }
+
+        } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                if (!mLoadDialog.isShowing()) {
+                    mLoadDialog.show();
+                }
+                mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+                        getUnlockTime(null, null,
+                                mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+                                null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+            } else {
+                showMessage(getString(R.string.disconnect_ble));
+            }
+
+        } else if (!mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                if (!mLoadDialog.isShowing()) {
+                    mLoadDialog.show();
+                }
+                mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+                        getUnlockTime(null, null,
+                                null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
+            } else {
+                showMessage(getString(R.string.disconnect_ble));
+            }
+        } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+
+            if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
+                    DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
+
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
                     mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(null, null,
-                                    null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
+                                    mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
-            } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
 
-                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
-                        DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
-
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        if (!mLoadDialog.isShowing()) {
-                            mLoadDialog.show();
-                        }
-                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
-                                getUnlockTime(null, null,
-                                        mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
-
-            } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
-                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
-                        DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
-
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        mLoadDialog.show();
-                        mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
-                                getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                        null, null,
-                                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
             } else {
+                showMessage("时间段重复，请检查！");
+            }
+
+        } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+            if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
+                    DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
+
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
-                } else {
-                    showMessage(getString(R.string.disconnect_ble));
-                }
-            }
-        } else {
-
-            if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
-                boolean ret = compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                        mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString());
-                if (ret) {
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        if (!mLoadDialog.isShowing()) {
-                            mLoadDialog.show();
-                        }
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
-            } else if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
-                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
-                        DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
-
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        if (!mLoadDialog.isShowing()) {
-                            mLoadDialog.show();
-                        }
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
-                                getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                        mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                        null, null), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
-
-
-            } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                    }
-                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
                             getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
                                     null, null,
-                                    null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+                                    mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
 
-            } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                    }
-                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
-                            getUnlockTime(null, null,
-                                    mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
-                                    null, null), BleMsg.INT_DEFAULT_TIMEOUT);
-                } else {
-                    showMessage(getString(R.string.disconnect_ble));
-                }
-
-            } else if (!mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    if (!mLoadDialog.isShowing()) {
-                        mLoadDialog.show();
-                    }
-                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
-                            getUnlockTime(null, null,
-                                    null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                } else {
-                    showMessage(getString(R.string.disconnect_ble));
-                }
-            } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
-
-                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
-                        DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
-
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        if (!mLoadDialog.isShowing()) {
-                            mLoadDialog.show();
-                        }
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
-                                getUnlockTime(null, null,
-                                        mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
-
-            } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
-                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
-                        DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
-
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
-                        mLoadDialog.show();
-                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
-                                getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
-                                        null, null,
-                                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
-                    } else {
-                        showMessage(getString(R.string.disconnect_ble));
-                    }
-
-                } else {
-                    showMessage("时间段重复，请检查！");
-                }
+            } else {
+                showMessage("时间段重复，请检查！");
+            }
+        } else {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                DialogUtils.closeDialog(mLoadDialog);
+                mLoadDialog.show();
+                mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
+                mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
+                        getUnlockTime(null, null, null, null, null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+            } else {
+                showMessage(getString(R.string.disconnect_ble));
             }
         }
+//        } else {
+//
+//            if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+//                boolean ret = compareDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+//                        mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+//                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString());
+//                if (ret) {
+//                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                        if (!mLoadDialog.isShowing()) {
+//                            mLoadDialog.show();
+//                        }
+//                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_THREE_UNLOCK_TIME, mTempUser.getUserId(), getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+//                                mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+//                                mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
+//                    } else {
+//                        showMessage(getString(R.string.disconnect_ble));
+//                    }
+//
+//                } else {
+//                    showMessage("时间段重复，请检查！");
+//                }
+//            } else if (mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+//                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
+//                        DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
+//
+//                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                        if (!mLoadDialog.isShowing()) {
+//                            mLoadDialog.show();
+//                        }
+//                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
+//                                getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+//                                        mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+//                                        null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+//                    } else {
+//                        showMessage(getString(R.string.disconnect_ble));
+//                    }
+//
+//                } else {
+//                    showMessage("时间段重复，请检查！");
+//                }
+//
+//
+//            } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+//                if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                    if (!mLoadDialog.isShowing()) {
+//                        mLoadDialog.show();
+//                    }
+//                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+//                            getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+//                                    null, null,
+//                                    null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+//                } else {
+//                    showMessage(getString(R.string.disconnect_ble));
+//                }
+//
+//            } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
+//                if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                    if (!mLoadDialog.isShowing()) {
+//                        mLoadDialog.show();
+//                    }
+//                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+//                            getUnlockTime(null, null,
+//                                    mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString(),
+//                                    null, null), BleMsg.INT_DEFAULT_TIMEOUT);
+//                } else {
+//                    showMessage(getString(R.string.disconnect_ble));
+//                }
+//
+//            } else if (!mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+//                if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                    if (!mLoadDialog.isShowing()) {
+//                        mLoadDialog.show();
+//                    }
+//                    mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_ONE_UNLOCK_TIME, mTempUser.getUserId(),
+//                            getUnlockTime(null, null,
+//                                    null, null, mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
+//                } else {
+//                    showMessage(getString(R.string.disconnect_ble));
+//                }
+//            } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+//
+//                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()),
+//                        DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
+//
+//                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                        if (!mLoadDialog.isShowing()) {
+//                            mLoadDialog.show();
+//                        }
+//                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
+//                                getUnlockTime(null, null,
+//                                        mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+//                                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
+//                    } else {
+//                        showMessage(getString(R.string.disconnect_ble));
+//                    }
+//
+//                } else {
+//                    showMessage("时间段重复，请检查！");
+//                }
+//
+//            } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
+//                if (!DateTimeUtil.compareDate(DateTimeUtil.checkDate(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString()),
+//                        DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
+//
+//                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+//                        mLoadDialog.show();
+//                        mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
+//                                getUnlockTime(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString(),
+//                                        null, null,
+//                                        mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()), BleMsg.INT_DEFAULT_TIMEOUT);
+//                    } else {
+//                        showMessage(getString(R.string.disconnect_ble));
+//                    }
+//
+//                } else {
+//                    showMessage("时间段重复，请检查！");
+//                }
+//            }
+//        }
     }
 
     /**

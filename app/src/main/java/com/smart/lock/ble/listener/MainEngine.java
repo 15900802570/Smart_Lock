@@ -30,8 +30,10 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 public class MainEngine implements BleMessageListener, DeviceStateCallback, Handler.Callback {

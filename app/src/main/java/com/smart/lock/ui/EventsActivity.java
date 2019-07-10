@@ -67,6 +67,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     private int count = 0;
     private Context mCtx;
 
+    private final static int RECEIVER_LOG_TIME_OUT = 5;
+
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
@@ -80,6 +82,24 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     break;
                 case BleMsg.RECEIVER_LOGS:
                     mCountTv.setText(String.valueOf(count));
+                    break;
+                case RECEIVER_LOG_TIME_OUT:
+//                    mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
+                    LogUtil.d(TAG,"receiver log time out!");
+                    DeviceLogDao.getInstance(EventsActivity.this).deleteAll();
+                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+                        mLoadDialog.show();
+                        android.os.Message logMsg = android.os.Message.obtain();
+                        logMsg.what = RECEIVER_LOG_TIME_OUT;
+                        mHandler.sendMessageDelayed(logMsg, 10 * 1000);
+                        if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
+                        } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+                        }
+                    } else {
+                        showMessage(getString(R.string.disconnect_ble));
+                    }
                     break;
                 default:
                     break;
@@ -146,6 +166,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
 
         if (mDevice.getState() == Device.BLE_CONNECTED) {
             mLoadDialog.show();
+            android.os.Message msg = android.os.Message.obtain();
+            msg.what = RECEIVER_LOG_TIME_OUT;
+            mHandler.sendMessageDelayed(msg, 10 * 1000);
             if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                 mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
             } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
@@ -301,6 +324,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
                 DialogUtils.closeDialog(mLoadDialog);
                 if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                     mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);

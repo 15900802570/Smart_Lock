@@ -444,6 +444,9 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
             case BleMsg.TYPE_GROUP_DELETE_KEY_FAILED:
                 showMessage(getString(R.string.delete_key_failed));
                 break;
+            case BleMsg.TYPE_EQUIPMENT_BUSY:
+                showMessage(getResources().getString(R.string.device_busy));
+                break;
             case BleMsg.TYPE_DELETE_FP_SUCCESS:
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;

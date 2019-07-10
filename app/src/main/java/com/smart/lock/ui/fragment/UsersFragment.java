@@ -103,7 +103,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             case R.id.tv_add:
                 mCreateUserDialog.show();
                 break;
-            case R.id.del_tv:
+            case R.id.tv_del_tv:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     if (mUserAdapter.mDeleteUsers.size() != 0) {
                         DialogUtils.closeDialog(mLoadDialog);
@@ -194,8 +194,10 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         if (choise) {
             mSelectDeleteRl.setVisibility(View.VISIBLE);
             mAddUserTv.setVisibility(View.GONE);
+            mDeleteTv.setVisibility(View.VISIBLE);
             mTipTv.setText(R.string.all_election);
         } else {
+            mDeleteTv.setVisibility(View.GONE);
             mAddUserTv.setVisibility(View.VISIBLE);
             mSelectDeleteRl.setVisibility(View.GONE);
         }
@@ -221,7 +223,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         mAddUserTv = mUserView.findViewById(R.id.tv_add);
         mSelectDeleteRl = mUserView.findViewById(R.id.rl_select_delete);
         mSelectCb = mUserView.findViewById(R.id.cb_selete_user);
-        mDeleteTv = mUserView.findViewById(R.id.del_tv);
+        mDeleteTv = mUserView.findViewById(R.id.tv_del_tv);
         mTipTv = mUserView.findViewById(R.id.tv_tips);
         mFunctionDialog = DialogUtils.createBottomSheetDialog(mCtx, R.layout.bottom_sheet_user_function, R.id.design_bottom_sheet);
         mCreateUserDialog = DialogUtils.createBottomSheetDialog(mCtx, R.layout.bottom_create_user, R.id.design_bottom_sheet);
@@ -471,6 +473,8 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             byte[] lcTsEnd = new byte[4];
             System.arraycopy(userInfo, 36, lcTsEnd, 0, 4); //生命周期结束时间
 
+            LogUtil.d(TAG,"lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin,":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd,":")  );
+
             String stBegin = StringUtil.byte2Int(stTsBegin);
             if (!stBegin.equals("0000")) {
                 user.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
@@ -573,6 +577,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     showMessage(mCtx.getString(R.string.pause_user_success));
                     DeviceUser pauseUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                     pauseUser.setUserStatus(ConstantUtil.USER_PAUSE);
+                    pauseUser.setActivePause(true);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(pauseUser);
                     mUserAdapter.changeUserState(pauseUser, ConstantUtil.USER_PAUSE);
                     DialogUtils.closeDialog(mLoadDialog);
@@ -588,6 +593,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     showMessage(mCtx.getString(R.string.recovery_user_success));
                     DeviceUser recoveryUser = DeviceUserDao.getInstance(mCtx).queryUser(mNodeId, user.getUserId());
                     recoveryUser.setUserStatus(ConstantUtil.USER_ENABLE);
+                    recoveryUser.setActivePause(false);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(recoveryUser);
                     mUserAdapter.changeUserState(recoveryUser, ConstantUtil.USER_ENABLE);
                     DialogUtils.closeDialog(mLoadDialog);

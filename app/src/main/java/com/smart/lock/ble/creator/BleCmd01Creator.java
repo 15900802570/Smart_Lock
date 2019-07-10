@@ -111,5 +111,4 @@ public class BleCmd01Creator implements BleCreator {
         LogUtil.d(TAG, "TEST >>> send 01 :" + StringUtil.bytesToHexString(bleCmd));
         return bleCmd;
     }
-
 }

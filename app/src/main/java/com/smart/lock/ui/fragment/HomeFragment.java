@@ -80,7 +80,7 @@ import java.util.Objects;
 
 
 public class HomeFragment extends BaseFragment implements
-        View.OnClickListener, ViewPager.OnPageChangeListener{
+        View.OnClickListener, ViewPager.OnPageChangeListener {
     private static final String TAG = HomeFragment.class.getSimpleName();
     private Toolbar mToolbar;
     private View mHomeView;
@@ -273,7 +273,7 @@ public class HomeFragment extends BaseFragment implements
     /**
      * 刷新显示界面
      */
-    private void refreshView(int status) {
+    public void refreshView(int status) {
         switch (status) {
 
             case BIND_DEVICE:
@@ -393,9 +393,9 @@ public class HomeFragment extends BaseFragment implements
 
     }
 
-//    @Override
+    //    @Override
     public void onSelectDev(DeviceInfo deviceInfo) {
-        LogUtil.d(TAG,"setCurrentItem");
+        LogUtil.d(TAG, "setCurrentItem");
         deviceInfoArraysList = DeviceInfoDao.getInstance(mActivity).queryAll();
         for (int i = 0; i < deviceInfoArraysList.size(); i++) {
             if (deviceInfo.getId() == deviceInfoArraysList.get(i).getId()) {
