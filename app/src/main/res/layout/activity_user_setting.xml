@@ -53,6 +53,7 @@
             android:background="@drawable/box_corners_white"
             android:gravity="center_vertical"
             android:maxLength="8"
+            android:maxLines="1"
             android:paddingStart="@dimen/x11dp"
             android:text="@string/tmp_user"
             android:textColor="#FF555555"

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
@@ -90,8 +91,24 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
     private Context mCtx;
 
     private boolean mShowQR = false;
+    private static final int CHECK_USERS_STATE_TIME_OUT = 100;
 
-    private ArrayList<DeviceUser> mCheckMembers = new ArrayList<>();
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case CHECK_USERS_STATE_TIME_OUT:
+
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    private ArrayList<DeviceUser> mCheckUsers = new ArrayList<>();
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -213,7 +230,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             mUserAdapter.notifyDataSetChanged();
         }
     }
-
 
     @Override
     public View initView() {
@@ -395,14 +411,23 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                 if (userInfo != null) {
                     DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+
                     if (devUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
-                        checKMembers(userInfo, userIdTag);
+                        checKMembers(userInfo, devUser);
+
+                    devUser.setUserStatus(userInfo[0]);
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
+                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
 
                     if (mShowQR) {
                         mShowQR = false;
                         byte[] authTime = new byte[4];
                         System.arraycopy(userInfo, 8, authTime, 0, 4);
-
 
                         setAuthCode(authTime, mDefaultDevice, devUser);
 
@@ -427,6 +452,29 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                             Log.d(TAG, "newPath = " + newPath);
                         }
                     }
+
+                    int index = -1;
+                    for (DeviceUser member : mCheckUsers) {
+                        if (member.getUserId() == devUser.getUserId()) {
+                            index = mCheckUsers.indexOf(member);
+                        }
+                    }
+                    if (index != -1) {
+                        mCheckUsers.remove(index);
+                    }
+                    if (mCheckUsers.size() == 0) {
+                        DialogUtils.closeDialog(mLoadDialog);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (mHandler.hasMessages(CHECK_USERS_STATE_TIME_OUT)) {
+                            mHandler.removeMessages(CHECK_USERS_STATE_TIME_OUT);
+                        }
+                        mUserAdapter.setDataSource();
+                        mUserAdapter.notifyDataSetChanged();
+                    }
                 }
                 break;
             default:
@@ -435,85 +483,77 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         }
     }
 
-    private void checKMembers(byte[] userInfo, short userIdTag) {
-        DeviceUser user = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+    private void checKMembers(byte[] userInfo, DeviceUser user) {
 
         if (userInfo != null) {
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
-            DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
-
-            user.setUserStatus(userInfo[0]);
-
+            LogUtil.e(TAG, "userInfo : " + StringUtil.bytesToHexString(userInfo, ":"));
             byte[] stTsBegin = new byte[4];
-            System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
+            System.arraycopy(userInfo, 12, stTsBegin, 0, 4); //第一起始时间
 
             byte[] stTsEnd = new byte[4];
-            System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
+            System.arraycopy(userInfo, 16, stTsEnd, 0, 4); //第一结束时间
 
             byte[] ndTsBegin = new byte[4];
-            System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
+            System.arraycopy(userInfo, 20, ndTsBegin, 0, 4); //第二起始时间
 
             byte[] ndTsEnd = new byte[4];
-            System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
+            System.arraycopy(userInfo, 24, ndTsEnd, 0, 4); //第二结束时间
 
             byte[] thTsBegin = new byte[4];
-            System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
+            System.arraycopy(userInfo, 28, thTsBegin, 0, 4); //第三结束时间
 
             byte[] thTsEnd = new byte[4];
-            System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
+            System.arraycopy(userInfo, 32, thTsEnd, 0, 4); //第三结束时间
 
             byte[] lcTsBegin = new byte[4];
-            System.arraycopy(userInfo, 32, lcTsBegin, 0, 4); //生命周期开始时间
+            System.arraycopy(userInfo, 36, lcTsBegin, 0, 4); //生命周期开始时间
 
             byte[] lcTsEnd = new byte[4];
-            System.arraycopy(userInfo, 36, lcTsEnd, 0, 4); //生命周期结束时间
+            System.arraycopy(userInfo, 40, lcTsEnd, 0, 4); //生命周期结束时间
 
-            LogUtil.d(TAG,"lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin,":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd,":")  );
+            LogUtil.d(TAG, "lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin, ":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd, ":"));
 
             String stBegin = StringUtil.byte2Int(stTsBegin);
             if (!stBegin.equals("0000")) {
                 user.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
+            } else {
+                user.setStTsBegin("00:00");
             }
 
             String stEnd = StringUtil.byte2Int(stTsEnd);
             if (!stEnd.equals("0000")) {
                 user.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
-            }
+            } else
+                user.setStTsEnd("00:00");
 
             String ndBegin = StringUtil.byte2Int(ndTsBegin);
             if (!ndBegin.equals("0000")) {
                 user.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
-            }
+            } else
+                user.setNdTsBegin("00:00");
 
             String ndEnd = StringUtil.byte2Int(ndTsEnd);
             if (!ndEnd.equals("0000")) {
                 user.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
-            }
+            } else
+                user.setNdTsend("00:00");
 
             String thBegin = StringUtil.byte2Int(thTsBegin);
             if (!thBegin.equals("0000")) {
                 user.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
-            }
+            } else
+                user.setThTsBegin("00:00");
 
             String thEnd = StringUtil.byte2Int(thTsEnd);
             if (!thEnd.equals("0000")) {
                 user.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
-            }
+            } else user.setThTsEnd("00:00");
 
             String lcBegin = StringUtil.byte2Int(lcTsBegin);
             String lcEnd = StringUtil.byte2Int(lcTsEnd);
 
-            if (!lcBegin.equals("0000")) {
-                user.setLcBegin(lcBegin);
-            }
-            if (!lcEnd.equals("0000")) {
-                user.setLcEnd(lcEnd);
-            }
+            user.setLcBegin(lcBegin);
+            user.setLcEnd(lcEnd);
 
             LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
                     "stEnd : " + stEnd + "\n" +
@@ -526,20 +566,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             DeviceUserDao.getInstance(mCtx).updateDeviceUser(user);
         }
 
-        int index = -1;
-        for (DeviceUser member : mCheckMembers) {
-            if (member.getUserId() == user.getUserId()) {
-                index = mCheckMembers.indexOf(member);
-            }
-        }
-        if (index != -1) {
-            mCheckMembers.remove(index);
-        }
-        LogUtil.d(TAG, "mCheckMembers.size() : " + mCheckMembers.size());
-        if (mCheckMembers.size() == 0) {
-            DialogUtils.closeDialog(mLoadDialog);
-            mUserAdapter.notifyDataSetChanged();
-        }
+
     }
 
     private void dispatchErrorCode(byte errCode, Serializable serializable) {
@@ -660,28 +687,26 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             int index = -1;
 
             for (DeviceUser user : mUserList) {
-                if (user.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                    mCheckMembers.add(user);
-                }
-
                 if (user.getUserId() == mDefaultUser.getUserId()) {
                     index = mUserList.indexOf(user);
-                }
+                } else mCheckUsers.add(user);
             }
-            if (mCheckMembers.size() > 0) {
+            if (mCheckUsers.size() > 0) {
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.sync_data));
                 mLoadDialog.show();
+                android.os.Message msg = android.os.Message.obtain();
+                msg.what = CHECK_USERS_STATE_TIME_OUT;
+                mHandler.sendMessageDelayed(msg, 10 * 1000);
             }
-            for (DeviceUser menbers : mCheckMembers) {
+            for (DeviceUser user : mCheckUsers) {
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-                    mBleManagerHelper.getBleCardService().sendCmd25(menbers.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                    mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.unconnected_device));
             }
 
             if (index != -1) {
                 mUserList.remove(index);
-
                 mUserList.add(0, mDefaultUser);
             }
 
@@ -698,7 +723,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         }
 
         public void setDataSource() {
-
             mUserList = DeviceUserDao.getInstance(mCtx).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
             int index = -1;
             for (DeviceUser user : mUserList) {

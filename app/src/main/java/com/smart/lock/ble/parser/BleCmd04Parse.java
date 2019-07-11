@@ -68,6 +68,7 @@ public class BleCmd04Parse implements BleCommandParse {
             System.arraycopy(buf, 148, userState, 0, ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM);
             System.arraycopy(buf, 148 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM, powerSave, 0, 8);
         }
+
         return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState, powerSave);
     }
 
