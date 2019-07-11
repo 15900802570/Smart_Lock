@@ -504,23 +504,15 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         byte[] lifeCycle = new byte[8];
 
         if (mLifeCb.isChecked()) {
-            if (mStartDate < mEndDate) {
-                if (checkLifeCycle()) {
-                    showMessage(getString(R.string.life_cycle_not_changed));
-                } else {
-                    int beginTime = (int) mStartDate;
-                    int endTime = (int) mEndDate;
-                    LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
-                    byte[] timeBuf = new byte[4];
-                    StringUtil.int2Bytes(beginTime, timeBuf);
-                    System.arraycopy(timeBuf, 0, lifeCycle, 0, 4);
-                    StringUtil.int2Bytes(endTime, timeBuf);
-                    System.arraycopy(timeBuf, 0, lifeCycle, 4, 4);
-                }
+            int beginTime = (int) mStartDate;
+            int endTime = (int) mEndDate;
+            LogUtil.d(TAG, "beginTime = " + beginTime + " ;endTime = " + endTime);
+            byte[] timeBuf = new byte[4];
+            StringUtil.int2Bytes(beginTime, timeBuf);
+            System.arraycopy(timeBuf, 0, lifeCycle, 0, 4);
+            StringUtil.int2Bytes(endTime, timeBuf);
+            System.arraycopy(timeBuf, 0, lifeCycle, 4, 4);
 
-            } else {
-                showMessage("起始日期不能大于或等于结束日期");
-            }
         } else {
             Arrays.fill(lifeCycle, 0, lifeCycle.length, (byte) 0x00);
         }
@@ -743,6 +735,18 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString());
             if (ret) {
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mLifeCb.isChecked()) {
+                        if (mStartDate < mEndDate) {
+                            if (checkLifeCycle()) {
+                                showMessage(getString(R.string.life_cycle_not_changed));
+                                return;
+                            }
+                        } else {
+                            showMessage("起始日期不能大于或等于结束日期");
+                            return;
+                        }
+                    }
+
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
@@ -762,6 +766,17 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     DateTimeUtil.checkDate(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString()))) {
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mLifeCb.isChecked()) {
+                        if (mStartDate < mEndDate) {
+                            if (checkLifeCycle()) {
+                                showMessage(getString(R.string.life_cycle_not_changed));
+                                return;
+                            }
+                        } else {
+                            showMessage("起始日期不能大于或等于结束日期");
+                            return;
+                        }
+                    }
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
@@ -781,6 +796,18 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
         } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
+
+                if (mLifeCb.isChecked()) {
+                    if (mStartDate < mEndDate) {
+                        if (checkLifeCycle()) {
+                            showMessage(getString(R.string.life_cycle_not_changed));
+                            return;
+                        }
+                    } else {
+                        showMessage("起始日期不能大于或等于结束日期");
+                        return;
+                    }
+                }
                 if (!mLoadDialog.isShowing()) {
                     mLoadDialog.show();
                 }
@@ -795,6 +822,17 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
         } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
+                if (mLifeCb.isChecked()) {
+                    if (mStartDate < mEndDate) {
+                        if (checkLifeCycle()) {
+                            showMessage(getString(R.string.life_cycle_not_changed));
+                            return;
+                        }
+                    } else {
+                        showMessage("起始日期不能大于或等于结束日期");
+                        return;
+                    }
+                }
                 if (!mLoadDialog.isShowing()) {
                     mLoadDialog.show();
                 }
@@ -809,6 +847,18 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
         } else if (!mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && mUnlockTimeCb3.isChecked()) {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
+
+                if (mLifeCb.isChecked()) {
+                    if (mStartDate < mEndDate) {
+                        if (checkLifeCycle()) {
+                            showMessage(getString(R.string.life_cycle_not_changed));
+                            return;
+                        }
+                    } else {
+                        showMessage("起始日期不能大于或等于结束日期");
+                        return;
+                    }
+                }
                 if (!mLoadDialog.isShowing()) {
                     mLoadDialog.show();
                 }
@@ -825,6 +875,18 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+
+                    if (mLifeCb.isChecked()) {
+                        if (mStartDate < mEndDate) {
+                            if (checkLifeCycle()) {
+                                showMessage(getString(R.string.life_cycle_not_changed));
+                                return;
+                            }
+                        } else {
+                            showMessage("起始日期不能大于或等于结束日期");
+                            return;
+                        }
+                    }
                     if (!mLoadDialog.isShowing()) {
                         mLoadDialog.show();
                     }
@@ -846,6 +908,17 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     DateTimeUtil.checkDate(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString()))) {
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mLifeCb.isChecked()) {
+                        if (mStartDate < mEndDate) {
+                            if (checkLifeCycle()) {
+                                showMessage(getString(R.string.life_cycle_not_changed));
+                                return;
+                            }
+                        } else {
+                            showMessage("起始日期不能大于或等于结束日期");
+                            return;
+                        }
+                    }
                     mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
                     mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
@@ -862,6 +935,18 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         } else {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
                 DialogUtils.closeDialog(mLoadDialog);
+
+                if (mLifeCb.isChecked()) {
+                    if (mStartDate < mEndDate) {
+                        if (checkLifeCycle()) {
+                            showMessage(getString(R.string.life_cycle_not_changed));
+                            return;
+                        }
+                    } else {
+                        showMessage("起始日期不能大于或等于结束日期");
+                        return;
+                    }
+                }
                 mLoadDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd29(mTempUser.getUserId(), getLifeCycle());
                 mBleManagerHelper.getBleCardService().sendCmd1B(BleMsg.TYPE_SET_USER_TWO_UNLOCK_TIME, mTempUser.getUserId(),
