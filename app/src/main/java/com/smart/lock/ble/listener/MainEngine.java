@@ -452,8 +452,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
             }
-        } else {
-            return;
         }
         mDevice.setState(Device.BLE_CONNECTED);
         synchronized (this.mStateLock) {
