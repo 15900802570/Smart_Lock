@@ -463,12 +463,12 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         mCheckUsers.remove(index);
                     }
                     if (mCheckUsers.size() == 0) {
-                        DialogUtils.closeDialog(mLoadDialog);
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        DialogUtils.closeDialog(mLoadDialog);
                         if (mHandler.hasMessages(CHECK_USERS_STATE_TIME_OUT)) {
                             mHandler.removeMessages(CHECK_USERS_STATE_TIME_OUT);
                         }
