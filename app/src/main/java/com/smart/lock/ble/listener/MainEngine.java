@@ -34,6 +34,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.ListIterator;
 import java.util.Objects;
 
 public class MainEngine implements BleMessageListener, DeviceStateCallback, Handler.Callback {
@@ -736,8 +737,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 case Message.TYPE_BLE_RECEIVER_CMD_16:
                 case Message.TYPE_BLE_RECEIVER_CMD_0E:
                 case Message.TYPE_BLE_RECEIVER_CMD_62:
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, -1);
+//                    for (UiListener uiListener : mUiListeners) {
+//                        uiListener.dispatchUiCallback(message, mDevice, -1);
+//                    }
+                    ListIterator<UiListener> iterator = mUiListeners.listIterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().dispatchUiCallback(message, mDevice, -1);
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_18:
@@ -750,8 +755,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_2E:
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, -1);
+//                    for (UiListener uiListener : mUiListeners) {
+//                        uiListener.dispatchUiCallback(message, mDevice, -1);
+//                    }
+                    iterator = mUiListeners.listIterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().dispatchUiCallback(message, mDevice, -1);
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_26:
@@ -790,14 +799,22 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 case Message.TYPE_BLE_RECEIVER_CMD_32:
                     LogUtil.i(TAG, "receiver 32!");
                     receiverLog(extra);
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.RECEIVER_LOGS);
+//                    for (UiListener uiListener : mUiListeners) {
+//                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.RECEIVER_LOGS);
+//                    }
+                    iterator = mUiListeners.listIterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().dispatchUiCallback(message, mDevice, -1);
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_3E:
                     LogUtil.i(TAG, "receiver 3e!");
-                    for (UiListener uiListener : mUiListeners) {
-                        uiListener.dispatchUiCallback(message, mDevice, -1);
+//                    for (UiListener uiListener : mUiListeners) {
+//                        uiListener.dispatchUiCallback(message, mDevice, -1);
+//                    }
+                    iterator = mUiListeners.listIterator();
+                    while (iterator.hasNext()) {
+                        iterator.next().dispatchUiCallback(message, mDevice, -1);
                     }
                     break;
                 default:
