@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
@@ -90,6 +91,22 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
     private Context mCtx;
 
     private boolean mShowQR = false;
+    private static final int CHECK_USERS_STATE_TIME_OUT = 100;
+
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case CHECK_USERS_STATE_TIME_OUT:
+
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     private ArrayList<DeviceUser> mCheckMembers = new ArrayList<>();
 
@@ -403,7 +420,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         byte[] authTime = new byte[4];
                         System.arraycopy(userInfo, 8, authTime, 0, 4);
 
-
                         setAuthCode(authTime, mDefaultDevice, devUser);
 
                         String qrPath = devUser.getQrPath();
@@ -439,6 +455,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         DeviceUser user = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
 
         if (userInfo != null) {
+            LogUtil.e(TAG, "userInfo : " + StringUtil.bytesToHexString(userInfo, ":"));
             DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
             DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
             DeviceKeyDao.getInstance(mCtx).checkDeviceKey(user.getDevNodeId(), user.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
@@ -450,70 +467,72 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             user.setUserStatus(userInfo[0]);
 
             byte[] stTsBegin = new byte[4];
-            System.arraycopy(userInfo, 8, stTsBegin, 0, 4); //第一起始时间
+            System.arraycopy(userInfo, 12, stTsBegin, 0, 4); //第一起始时间
 
             byte[] stTsEnd = new byte[4];
-            System.arraycopy(userInfo, 12, stTsEnd, 0, 4); //第一结束时间
+            System.arraycopy(userInfo, 16, stTsEnd, 0, 4); //第一结束时间
 
             byte[] ndTsBegin = new byte[4];
-            System.arraycopy(userInfo, 16, ndTsBegin, 0, 4); //第二起始时间
+            System.arraycopy(userInfo, 20, ndTsBegin, 0, 4); //第二起始时间
 
             byte[] ndTsEnd = new byte[4];
-            System.arraycopy(userInfo, 20, ndTsEnd, 0, 4); //第二结束时间
+            System.arraycopy(userInfo, 24, ndTsEnd, 0, 4); //第二结束时间
 
             byte[] thTsBegin = new byte[4];
-            System.arraycopy(userInfo, 24, thTsBegin, 0, 4); //第三结束时间
+            System.arraycopy(userInfo, 28, thTsBegin, 0, 4); //第三结束时间
 
             byte[] thTsEnd = new byte[4];
-            System.arraycopy(userInfo, 28, thTsEnd, 0, 4); //第三结束时间
+            System.arraycopy(userInfo, 32, thTsEnd, 0, 4); //第三结束时间
 
             byte[] lcTsBegin = new byte[4];
-            System.arraycopy(userInfo, 32, lcTsBegin, 0, 4); //生命周期开始时间
+            System.arraycopy(userInfo, 36, lcTsBegin, 0, 4); //生命周期开始时间
 
             byte[] lcTsEnd = new byte[4];
-            System.arraycopy(userInfo, 36, lcTsEnd, 0, 4); //生命周期结束时间
+            System.arraycopy(userInfo, 40, lcTsEnd, 0, 4); //生命周期结束时间
 
-            LogUtil.d(TAG,"lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin,":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd,":")  );
+            LogUtil.d(TAG, "lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin, ":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd, ":"));
 
             String stBegin = StringUtil.byte2Int(stTsBegin);
             if (!stBegin.equals("0000")) {
                 user.setStTsBegin(DateTimeUtil.stampToMinute(stBegin + "000"));
+            } else {
+                user.setStTsBegin("00:00");
             }
 
             String stEnd = StringUtil.byte2Int(stTsEnd);
             if (!stEnd.equals("0000")) {
                 user.setStTsEnd(DateTimeUtil.stampToMinute(stEnd + "000"));
-            }
+            } else
+                user.setStTsEnd("00:00");
 
             String ndBegin = StringUtil.byte2Int(ndTsBegin);
             if (!ndBegin.equals("0000")) {
                 user.setNdTsBegin(DateTimeUtil.stampToMinute(ndBegin + "000"));
-            }
+            } else
+                user.setNdTsBegin("00:00");
 
             String ndEnd = StringUtil.byte2Int(ndTsEnd);
             if (!ndEnd.equals("0000")) {
                 user.setNdTsend(DateTimeUtil.stampToMinute(ndEnd + "000"));
-            }
+            } else
+                user.setNdTsend("00:00");
 
             String thBegin = StringUtil.byte2Int(thTsBegin);
             if (!thBegin.equals("0000")) {
                 user.setThTsBegin(DateTimeUtil.stampToMinute(thBegin + "000"));
-            }
+            } else
+                user.setThTsBegin("00:00");
 
             String thEnd = StringUtil.byte2Int(thTsEnd);
             if (!thEnd.equals("0000")) {
                 user.setThTsEnd(DateTimeUtil.stampToMinute(thEnd + "000"));
-            }
+            } else user.setThTsEnd("00:00");
 
             String lcBegin = StringUtil.byte2Int(lcTsBegin);
             String lcEnd = StringUtil.byte2Int(lcTsEnd);
 
-            if (!lcBegin.equals("0000")) {
-                user.setLcBegin(lcBegin);
-            }
-            if (!lcEnd.equals("0000")) {
-                user.setLcEnd(lcEnd);
-            }
+            user.setLcBegin(lcBegin);
+            user.setLcEnd(lcEnd);
 
             LogUtil.d(TAG, "stBegin : " + stBegin + "\n" +
                     "stEnd : " + stEnd + "\n" +
@@ -535,9 +554,17 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         if (index != -1) {
             mCheckMembers.remove(index);
         }
-        LogUtil.d(TAG, "mCheckMembers.size() : " + mCheckMembers.size());
         if (mCheckMembers.size() == 0) {
             DialogUtils.closeDialog(mLoadDialog);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if(mHandler.hasMessages(CHECK_USERS_STATE_TIME_OUT)) {
+                mHandler.removeMessages(CHECK_USERS_STATE_TIME_OUT);
+            }
+            mUserAdapter.setDataSource();
             mUserAdapter.notifyDataSetChanged();
         }
     }
@@ -672,6 +699,9 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.sync_data));
                 mLoadDialog.show();
+                android.os.Message msg = android.os.Message.obtain();
+                msg.what = CHECK_USERS_STATE_TIME_OUT;
+                mHandler.sendMessageDelayed(msg, 10 * 1000);
             }
             for (DeviceUser menbers : mCheckMembers) {
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {

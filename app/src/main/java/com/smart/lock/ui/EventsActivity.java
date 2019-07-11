@@ -85,7 +85,10 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     break;
                 case RECEIVER_LOG_TIME_OUT:
 //                    mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
-                    LogUtil.d(TAG,"receiver log time out!");
+                    if (mHandler.hasMessages(RECEIVER_LOG_TIME_OUT)) {
+                        mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
+                    }
+                    LogUtil.d(TAG, "receiver log time out!");
                     DeviceLogDao.getInstance(EventsActivity.this).deleteAll();
                     if (mDevice.getState() == Device.BLE_CONNECTED) {
                         mLoadDialog.show();
@@ -324,7 +327,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
+                if (mHandler.hasMessages(RECEIVER_LOG_TIME_OUT)) {
+                    mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
+                }
                 DialogUtils.closeDialog(mLoadDialog);
                 if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
                     mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
