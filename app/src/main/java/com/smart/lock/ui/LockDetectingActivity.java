@@ -500,7 +500,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     ToastUtil.showLong(this, getString(R.string.device_has_been_added));
                 }
             } else {
-                if (StringUtil.checkIsNull(mDevice.getDevInfo().getBleMac())) {
+                if (mDevice != null && mDevice.getDevInfo() != null && StringUtil.checkIsNull(mDevice.getDevInfo().getBleMac())) {
                     mDevice.getDevInfo().setBleMac(mac);
                 }
 
