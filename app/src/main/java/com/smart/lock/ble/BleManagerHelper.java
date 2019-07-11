@@ -144,7 +144,7 @@ public class BleManagerHelper {
         Device dev = getDevice(type, bundle, context);
         LogUtil.d(TAG, "dev : " + dev.toString());
         mConnectType = type;
-        mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
+
         if (StringUtil.checkIsNull(mBleMac)) {
             mStartTime = System.currentTimeMillis();
             return;
@@ -195,7 +195,7 @@ public class BleManagerHelper {
         }
         mDevice = Device.getInstance(ctx);
         DeviceInfo devInfo = null;
-
+        mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
         switch (type) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
                 devInfo = new DeviceInfo();

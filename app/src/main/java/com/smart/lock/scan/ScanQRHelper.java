@@ -95,6 +95,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
                 if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, "0" + mNodeId) == null) {
                     Bundle bundle = new Bundle();
+                    bundle.putByte(BleMsg.KEY_BLE_CONNECT_TYPE, Device.BLE_SCAN_QR_CONNECT_TYPE);
                     bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
                     bundle.putString(BleMsg.KEY_NODE_SN, mSn);
                     bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
@@ -121,6 +122,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             if (DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.DEVICE_MAC, StringUtil.getMacAdr(mBleMac)) == null) {
                 Bundle bundle = new Bundle();
                 bundle.putString(BleMsg.KEY_BLE_MAC, mBleMac);
+                bundle.putByte(BleMsg.KEY_BLE_CONNECT_TYPE, Device.BLE_SCAN_QR_CONNECT_TYPE);
 
                 // 断开老设备
                 if (mDevice != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
@@ -213,7 +215,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
                     mDevice.halt();
                     mDevice.setDisconnectBle(true);
-                    LogUtil.d(TAG, "hash code 1: " + mDevice.hashCode());
                     mBleManagerHelper.getBleCardService().disconnect();
                 }
             }

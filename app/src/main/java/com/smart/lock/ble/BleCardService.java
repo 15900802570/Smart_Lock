@@ -289,11 +289,7 @@ public class BleCardService {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             disconnect();
 
-            if (mBluetoothGatt.connect()) {
-                return true;
-            } else {
-                return false;
-            }
+            return mBluetoothGatt.connect();
         }
 
         final BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(address);

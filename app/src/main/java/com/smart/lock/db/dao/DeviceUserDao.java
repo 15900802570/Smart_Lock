@@ -14,6 +14,7 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.helper.DtDatabaseHelper;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 
 import java.io.File;
 import java.sql.SQLException;
@@ -317,7 +318,7 @@ public class DeviceUserDao {
                 if (userId > 0 && userId <= 5) { //管理员编号
                     index = userId - 1;
                 } else if (userId > 100 && userId <= 200) { //普通用户
-                    index = userId -  (101 - (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM));
+                    index = userId - (101 - (ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM));
                 } else if (userId > 200 && userId <= 300) { //临时用户
                     index = userId - (201 - (ConstantUtil.ADMIN_USR_NUM));
                 }
@@ -345,6 +346,7 @@ public class DeviceUserDao {
      * 更新用户状态
      */
     public synchronized void checkUserState(String nodeId, byte[] status) {
+        LogUtil.d(TAG,"status : " + StringUtil.bytesToHexString(status,":"));
         int index = 0;
         ArrayList<DeviceUser> users = queryDeviceUsers(nodeId);
 
@@ -362,6 +364,7 @@ public class DeviceUserDao {
                 if (index >= status.length) {
                     return;
                 }
+                LogUtil.d(TAG, "id : " + id + " index : " + index + " status : " + status[index]);
                 if (status[index] != user.getUserStatus()) {
                     user.setUserStatus(status[index]);
                     updateDeviceUser(user);

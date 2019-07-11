@@ -466,7 +466,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     /**
      * 获取用户信息
      */
-    public void getUserInfo() {
+    private void getUserInfo() {
         LogUtil.i(TAG, "check lock info over! get user info,send msg 25!");
         if (mDevInfo != null) {
             mService.sendCmd25(mDevInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
