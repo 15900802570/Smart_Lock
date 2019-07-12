@@ -199,7 +199,7 @@ public class BleManagerHelper {
         switch (type) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
                 devInfo = new DeviceInfo();
-                devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
+                devInfo.setUserId((short) 0);
                 devInfo.setBleMac(mBleMac);
                 mDevice.setDevInfo(devInfo);
                 mDevice.setConnectType(type);
