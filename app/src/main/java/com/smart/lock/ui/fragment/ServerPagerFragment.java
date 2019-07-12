@@ -71,7 +71,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private View mPagerView;
 
     private MyGridView mMyGridView;
-    private RelativeLayout mLockManagerRl;
     private TextView mLockNameTv;
     private LinearLayout mLockSettingLl;
     private ImageView mEqIv; //电量的图片
@@ -82,6 +81,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private ImageView mBleConnectIv;
     private LinearLayout mDevStatusLl;
     private ImageView mInstructionBtn;
+    private ImageView mIconSelectDevIv;
     private Device mDevice;
     private Boolean mIsVisibleToUser = false;
     private LockManagerAdapter mLockAdapter; //gridView adapter
@@ -117,7 +117,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     public View initView() {
         mPagerView = View.inflate(mActivity, R.layout.server_pager, null);
         mMyGridView = mPagerView.findViewById(R.id.gv_lock);
-        mLockManagerRl = mPagerView.findViewById(R.id.ll_lock_manager);
         mLockNameTv = mPagerView.findViewById(R.id.tv_lock_name);
         mLockSettingLl = mPagerView.findViewById(R.id.ll_setting);
         mEqIv = mPagerView.findViewById(R.id.iv_electric_quantity);
@@ -128,6 +127,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mBleConnectIv = mPagerView.findViewById(R.id.iv_connect);
         mDevStatusLl = mPagerView.findViewById(R.id.ll_status);
         mInstructionBtn = mActivity.findViewById(R.id.one_click_unlock_ib);
+        mIconSelectDevIv = mPagerView.findViewById(R.id.icon_select_dev);
         initEvent();
         LogUtil.d(TAG, "initView");
         return mPagerView;
@@ -201,7 +201,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         switch (status) {
             case DEVICE_CONNECTING:
 
-                mLockManagerRl.setVisibility(View.VISIBLE);
                 mLockStatusTv.setText(R.string.bt_connecting);
                 mBleConnectIv.setClickable(false);
                 mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
@@ -221,7 +220,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 }
                 break;
             case BIND_DEVICE:
-                mLockManagerRl.setVisibility(View.VISIBLE);
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
@@ -252,10 +250,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     mMyGridView.setAdapter(mLockAdapter);
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 }
-                break;
-            case UNBIND_DEVICE:
-
-                mLockManagerRl.setVisibility(View.GONE);
 
                 break;
             case BATTER_FULL:
@@ -456,6 +450,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
             case R.id.tv_lock_name:
                 if (this.getParentFragment() != null) {
+                    mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
                     ((HomeFragment) getParentFragment()).showDialog();
                 }
                 break;
@@ -463,6 +458,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
         }
 
+    }
+
+    public void closedSelectDevDialog(){
+        mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
     }
 
 
