@@ -148,7 +148,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onServicesDiscovered(int status) {
-        LogUtil.i(TAG, "onServicesDiscovered : device connect type is " + mDevice.getConnectType());
+        LogUtil.i(TAG, "onServicesDiscovered : device connect type is " + mDevice.getConnectType() + "\nmac =" + mDevice.getDevInfo().getBleMac());
         mDevice.setState(Device.BLE_CONNECTION);
         sendMessage(MSG_REGISTER, null, 600);
     }
@@ -277,7 +277,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public boolean scanQrRegister() {
         LogUtil.i(TAG, "scan qr register ble!");
         if (mDevInfo == null || mService == null) return false;
-        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", mDevInfo.getUserId(), mDevInfo.getBleMac(), BleMsg.INT_DEFAULT_TIMEOUT);
+        return mService.sendCmd01(Device.BLE_SCAN_QR_CONNECT_TYPE, "0", mDevice.getDevInfo().getUserId(), mDevice.getDevInfo().getBleMac(), BleMsg.INT_DEFAULT_TIMEOUT);
 
     }
 

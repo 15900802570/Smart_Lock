@@ -336,9 +336,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     public void onResume() {
         super.onResume();
-        LogUtil.d(TAG, "ccccc");
         DeviceInfo newDeviceInfo = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true);
-
         if (newDeviceInfo == null) {
             mDevice = null;
             refreshView(UNBIND_DEVICE);
@@ -347,16 +345,16 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             mDevice = Device.getInstance(mActivity);
         }
         // 检测是否有切换默认用户，已MAC地址来判断，用于切换蓝牙连接
-        if (mDefaultDevice == null || !newDeviceInfo.getBleMac().equals(mDefaultDevice.getBleMac())) {
+        if (mDefaultDevice == null || !newDeviceInfo.getBleMac().equals(mDefaultDevice.getBleMac()) || !newDeviceInfo.getDeviceName().equals(mDefaultDevice.getDeviceName())) {
             mDefaultDevice = newDeviceInfo;
         }
+        mLockNameTv.setText(mDefaultDevice.getDeviceName());
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
         if (mDefaultUser == null) {
             LogUtil.e(TAG, "mDefaultUser is null! ");
             return;
         }
 
-        mLockNameTv.setText(mDefaultDevice.getDeviceName());
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
             if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
@@ -421,6 +419,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 //                        showMessage(getString(R.string.is_connecting));
                         break;
                 }
+                refreshView(mDevice.getState());
                 break;
             case R.id.ll_setting:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
@@ -802,17 +801,16 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         super.setUserVisibleHint(isVisibleToUser);
         if (mCurrentIndex) {
             if (isVisibleToUser) {
-                onResume();
-                mBleManagerHelper.addDeviceLintener(this);
                 mIsVisibleToUser = true;
+                onResume();
+                mBleManagerHelper.addUiListener(this);
             } else {
-                mBleManagerHelper.getBleCardService().disconnect();
                 mIsVisibleToUser = false;
+                mBleManagerHelper.getBleCardService().disconnect();
                 mBleManagerHelper.removeUiListener(this);
             }
         }
     }
-
 
 
 }
