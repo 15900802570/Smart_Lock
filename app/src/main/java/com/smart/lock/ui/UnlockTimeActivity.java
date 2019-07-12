@@ -673,7 +673,7 @@ public class UnlockTimeActivity extends AppCompatActivity implements View.OnClic
     private void dispatchErrorCode(byte errCode) {
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
-            case BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS:
+            case BleMsg.TYPE_SET_USER_LIFE_SUCCESS:
                 if (mFirstUnlockTimeLl.getVisibility() == View.VISIBLE) {
                     mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
                     mTempUser.setStTsEnd(mFirstEndTime.getText().toString());

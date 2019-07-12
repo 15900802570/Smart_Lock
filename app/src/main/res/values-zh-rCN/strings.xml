@@ -103,7 +103,7 @@
     <string name="pause_user_failed">暂停用户失败</string>
     <string name="add_user_success">新增用户成功</string>
     <string name="add_user_failed">新增用户失败</string>
-    <string name="add_user_full">用户已满,添加失败</string>
+    <string name="add_user_full">已满,添加失败</string>
     <string name="delete_user_success">删除用户成功</string>
     <string name="delete_user_failed">删除用户失败</string>
     <string name="add_nfc_failed">录入卡片失败</string>
@@ -282,7 +282,7 @@
     <string name="down_alert"> 下载提示 </string>
 
     <string name="recovery_user_success">恢复用户成功</string>
-    <string name="recovery_user_failed">恢复用户失败</string>
+    <string name="recovery_user_failed">恢复用户失败,用户不处于生命周期内</string>
     <string name="delete_key_success">删除开锁信息成功</string>
     <string name="delete_key_failed">群删开锁信息失败</string>
     <string name="delete_users_success">群删用户成功</string>

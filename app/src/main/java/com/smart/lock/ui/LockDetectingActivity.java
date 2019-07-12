@@ -230,7 +230,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     break;
                 case BleMsg.TYPE_USER_FULL:
                     DialogUtils.closeDialog(mLoadDialog);
-                    showMessage(mCtx.getString(R.string.add_user_full));
+                    showMessage(getString(R.string.administrator) + getString(R.string.add_user_full));
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
                     mSearchAddDev = false;

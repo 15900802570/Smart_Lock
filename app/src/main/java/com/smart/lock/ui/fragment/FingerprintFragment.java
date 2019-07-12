@@ -309,9 +309,9 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
 
     public class FpManagerAdapter extends RecyclerView.Adapter<FpManagerAdapter.ViewHolder> {
         private Context mContext;
-        public ArrayList<DeviceKey> mFpList;
-        public int positionDelete = -1;
-        public int positionModify = -1;
+        private ArrayList<DeviceKey> mFpList;
+        private int positionDelete = -1;
+        private int positionModify = -1;
 
         public FpManagerAdapter(Context context) {
             mContext = context;
@@ -390,7 +390,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                                         @Override
                                         public void onClick(View view) {
                                             mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
-                                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_CARD, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
+                                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CANCEL_CREATE, BleMsg.TYPE_FINGERPRINT, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), (byte) 0, String.valueOf(0), BleMsg.INT_DEFAULT_TIMEOUT);
                                             mCancelDialog.cancel();
                                         }
                                     });

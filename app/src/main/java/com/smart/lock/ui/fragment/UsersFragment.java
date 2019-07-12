@@ -153,9 +153,12 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 selectDelete(false);
                 break;
             case R.id.user_setting_tv:
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(BleMsg.KEY_TEMP_USER, mSettingUser);
-                startIntent(UserSettingActivity.class, bundle);
+                if (mSettingUser.getUserStatus() != ConstantUtil.USER_PAUSE) {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(BleMsg.KEY_TEMP_USER, mSettingUser);
+                    startIntent(UserSettingActivity.class, bundle);
+                } else
+                    showMessage("用户已暂停,请恢复后设置");
                 mFunctionDialog.cancel();
                 break;
             case R.id.edit_user_name:
@@ -631,7 +634,17 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             case BleMsg.TYPE_USER_FULL:
-                showMessage(mCtx.getString(R.string.add_user_full));
+                if (serializable instanceof DeviceUser) {
+                    DeviceUser user = (DeviceUser) serializable;
+                    if (user.getUserPermission() == ConstantUtil.DEVICE_MASTER) { //管理员编号
+                        showMessage(getString(R.string.administrator) + getString(R.string.add_user_full));
+                    } else if (user.getUserPermission() == ConstantUtil.DEVICE_MEMBER) { //普通用户
+                        showMessage(getString(R.string.members) + getString(R.string.add_user_full));
+                    } else  { //临时用户
+                        showMessage(getString(R.string.tmp_user) + getString(R.string.add_user_full));
+                    }
+                }
+
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:

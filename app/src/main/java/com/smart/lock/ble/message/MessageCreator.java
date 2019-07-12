@@ -83,7 +83,7 @@ public class MessageCreator {
      * @param random 设备回复的随机数
      * @return
      */
-    public static Message getCmd02Message(byte type, byte[] random,byte[] buf) {
+    public static Message getCmd02Message(byte type, byte[] random, byte[] buf) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");
@@ -228,8 +228,9 @@ public class MessageCreator {
                 || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25
                 || errCode[3] == 0x2A || errCode[3] == BleMsg.TYPE_DEV_KEY_REPETITION) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
-        } else if (errCode[3] == BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS ||
-                errCode[3] == BleMsg.TYPE_NO_AUTHORITY_1E) {
+        } else if (errCode[3] == BleMsg.TYPE_SET_USER_LIFE_SUCCESS ||
+                errCode[3] == BleMsg.TYPE_NO_AUTHORITY_1E ||
+                errCode[3] == BleMsg.TYPE_SET_USER_LIFE_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_1B + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_SUCCESS ||
                 errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_FAILED) {

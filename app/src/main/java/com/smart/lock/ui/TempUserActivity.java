@@ -419,7 +419,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
             case BleMsg.TYPE_NO_AUTHORITY:
                 showMessage(getString(R.string.no_authority));
                 break;
-            case BleMsg.TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS:
+            case BleMsg.TYPE_USER_LIFE_UPDATE_SUCCESS:
                 mTempUser.setLcBegin(String.valueOf(mStartDate));
                 mTempUser.setLcEnd(String.valueOf(mEndDate));
                 mTempUser.setUserName(mEtMome.getText().toString().trim());

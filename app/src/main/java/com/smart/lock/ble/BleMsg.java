@@ -329,11 +329,12 @@ public class BleMsg {
     public static final byte TYPE_REMOTE_UNLOCK_SUCCESS = 0x00; //远程开锁成功
     public static final byte TYPE_RAND_CODE_UPDARE_SUCCESS = 0x01; //动态码更新成功
     public static final byte TYPE_NO_AUTHORITY = 0x02; //无权限
-    public static final byte TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS = 0x03; //无权限
+    public static final byte TYPE_USER_LIFE_UPDATE_SUCCESS = 0x03; //无权限
     public static final byte TYPE_SET_BROADCAST_NAME_SUCCESS = 0x04; //配置广播名成功
     public static final byte TYPE_SET_BROADCAST_NAME_FAILED = 0x05; //配置广播名失败
     public static final byte TYPE_SET_POWER_SAVE_SUCCESS = 0x06; //配置省电时段成功
     public static final byte TYPE_SET_POWER_SAVE_FAILED = 0x07; //配置省电时段失败
+    public static final byte TYPE_USER_LIFE_UPDATE_FAIL = 0x07; //普通用户生命周期设置失败
 
 
     /**
@@ -383,7 +384,7 @@ public class BleMsg {
     public static final byte TYPE_SET_LOCK_CORE_FAILED = 0x1c; //智能锁芯设置失败
     public static final byte TYPE_SET_ANTI_PRYING_ALARM_SUCCESS = 0x1d; //防撬报警设置成功
     public static final byte TYPE_SET_ANTI_PRYING_ALARM_FAILED = 0x1e; //防撬报警设置失败
-    public static final byte TYPE_SET_TEMP_USER_LIFE_SUCCESS = 0x1f; //设置临时用户有效期成功
+    public static final byte TYPE_SET_USER_LIFE_SUCCESS = 0x1f; //设置临时用户有效期成功
     public static final byte TYPE_SET_TEMP_USER_LIFE_FAILED = 0x20; //回锁时间设置成功
     public static final byte TYPE_NO_AUTHORITY_1E = 0x21; //无权限，对于一些需管理员权限才能操作的设置返回的错误
     public static final byte TYPE_RESTORE_FACTORY_SETTINGS_SUCCESS = 0x22; //恢复出厂设置成功
@@ -401,7 +402,7 @@ public class BleMsg {
     public static final byte TYPE_REFUSE_FINGERPRINT_OTA_UPDATE = 0x32; //拒绝指纹ota升级
     public static final byte TYPE_ALLOW_FINGERPRINT_OTA_UPDATE = 0x33; //允许指纹ota升级
     public static final byte TYPE_DEV_KEY_REPETITION = 0x34; //密钥重复
-
+    public static final byte TYPE_SET_USER_LIFE_FAILED = 0x35; //设置用户有效期失败
 
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断

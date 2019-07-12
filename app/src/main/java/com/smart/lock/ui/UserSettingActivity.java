@@ -209,7 +209,6 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
     @SuppressLint("SetTextI18n")
     private void initDate() {
-
         if (StringUtil.checkNotNull(mTempUser.getUserName())) {
             mEtMome.setText(mTempUser.getUserName());
         }
@@ -521,7 +520,6 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         return lifeCycle;
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -540,6 +538,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
                 break;
             case BleMsg.GATT_SERVICES_DISCOVERED:
+
                 break;
             default:
                 break;
@@ -607,7 +606,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                 showMessage(getString(R.string.no_authority));
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
-            case BleMsg.TYPE_TEMP_USER_LIFE_UPDATE_SUCCESS:
+            case BleMsg.TYPE_USER_LIFE_UPDATE_SUCCESS:
                 if (mLifeCb.isChecked()) {
                     mTempUser.setLcBegin(String.valueOf(mStartDate));
                     mTempUser.setLcEnd(String.valueOf(mEndDate));
@@ -628,7 +627,10 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
                 break;
 
-            case BleMsg.TYPE_SET_TEMP_USER_LIFE_SUCCESS:
+            case BleMsg.TYPE_SET_USER_LIFE_FAILED:
+                showMessage("设置失败,用户已暂停!");
+                break;
+            case BleMsg.TYPE_SET_USER_LIFE_SUCCESS:
                 if (mUnlockTimeCb1.isChecked()) {
                     mTempUser.setStTsBegin(mFirstStartTime.getText().toString());
                     mTempUser.setStTsEnd(mFirstEndTime.getText().toString());
@@ -792,7 +794,6 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
             } else {
                 showMessage("时间段重复，请检查！");
             }
-
 
         } else if (mUnlockTimeCb1.isChecked() && !mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
