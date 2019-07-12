@@ -299,6 +299,7 @@ public class HomeFragment extends BaseFragment implements
                 if (deviceInfoArraysList.size() != mServerAdapter.getCount()) {
                     mServerAdapter.updateDevices(mActivity, deviceInfoArraysList);
                     mServerAdapter.notifyDataSetChanged();
+                    LogUtil.d(TAG, "onResume changed\n" + mServerAdapter.getCurrentItem());
                     mServerPager.setCurrentItem(mServerAdapter.getCurrentItem());
                 }
                 mDevManagementAdapter.refreshList();
@@ -311,6 +312,12 @@ public class HomeFragment extends BaseFragment implements
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mServerPager.setVisibility(View.GONE);
                 mInstructionBtn.setVisibility(View.GONE);
+                deviceInfoArraysList = DeviceInfoDao.getInstance(mActivity).queryAll();
+                if (deviceInfoArraysList.size() != mServerAdapter.getCount()) {
+                    mServerAdapter.updateDevices(mActivity, deviceInfoArraysList);
+                    mServerAdapter.notifyDataSetChanged();
+                    mServerPager.setCurrentItem(mServerAdapter.getCurrentItem());
+                }
                 mAdapter.setImageIds(mImageIds);
                 mAdapter.notifyDataSetChanged();
                 break;
@@ -328,9 +335,10 @@ public class HomeFragment extends BaseFragment implements
         if (newDeviceInfo.size() == 0) {
             mDevice = null;
             refreshView(UNBIND_DEVICE);
-            LogUtil.d(TAG, "onResume");
+            LogUtil.d(TAG, "onResume  UNBIND_DEVICE");
         } else {
             refreshView(BIND_DEVICE);
+            LogUtil.d(TAG, "onResume  BIND_DEVICE");
         }
     }
 
@@ -424,13 +432,18 @@ public class HomeFragment extends BaseFragment implements
         assert mSelectList != null;
         mSelectList.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false));
         mSelectList.setItemAnimator(new DefaultItemAnimator());
-        long l = DeviceInfoDao.getInstance(mCtx).queryCount();
-        if (l != mDevManagementAdapter.getItemCount()) {
+        if (DeviceInfoDao.getInstance(mCtx).queryCount() != mDevManagementAdapter.getItemCount()) {
             mDevManagementAdapter.refreshList();
             mDevManagementAdapter.notifyDataSetChanged();
         }
         mSelectList.setAdapter(mDevManagementAdapter);
         mBottomSheetSelectDev.show();
+        mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
+            }
+        });
     }
 
     private class DevManagementAdapter extends RecyclerView.Adapter<DevManagementAdapter.MyViewHolder> {
@@ -495,7 +508,6 @@ public class HomeFragment extends BaseFragment implements
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(mActivity).exchangeConnect(deviceInfo);
-//                                mBleManagerHelper.getBleCardService().disconnect();
                                 Device.getInstance(mActivity).setDisconnectBle(false);
                                 LogUtil.d(TAG, "设置为默认设备");
                             }
@@ -503,6 +515,7 @@ public class HomeFragment extends BaseFragment implements
                             mDevManagementAdapter.notifyDataSetChanged();
                             onSelectDev(deviceInfo);
                         }
+                        ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
                         mBottomSheetSelectDev.dismiss();
                     }
                 });
