@@ -381,6 +381,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.d(TAG, "status4 = " + status4);
 
         if (mDevInfo != null && StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
+            DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 

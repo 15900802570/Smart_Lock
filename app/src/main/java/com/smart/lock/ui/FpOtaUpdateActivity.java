@@ -742,6 +742,25 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                     dispatchErrorCode(errCode[3]);
 
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_04:
+                LogUtil.i(TAG, "receiver 04!");
+                if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
+                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
+                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
+                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+                    }
+                    mConnetStatus.setText(R.string.ota_complete);
+                } else {
+                    downloadSize = 0;
+                    fileSize = 0;
+                    mStartBt.setText(R.string.start_update);
+                    mPb.setProgress(0);
+                    mOtaParser.clear();
+                    mConnetStatus.setText(R.string.new_dev_version);
+                    mTvProgress.setText("0" + "%");
+                    mStartBt.setEnabled(true);
+                }
+                break;
             default:
                 break;
 

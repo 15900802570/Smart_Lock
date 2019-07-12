@@ -52,6 +52,40 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "device_status")
     private String deviceStatus;
 
+    @Override
+    public String toString() {
+        return "DeviceInfo{" +
+                "id=" + id +
+                ", deviceId=" + deviceId +
+                ", deviceName='" + deviceName + '\'' +
+                ", deviceLocation='" + deviceLocation + '\'' +
+                ", deviceType='" + deviceType + '\'' +
+                ", supportNet=" + supportNet +
+                ", deviceDate=" + deviceDate +
+                ", deviceNodeId='" + deviceNodeId + '\'' +
+                ", getewayNodeId='" + getewayNodeId + '\'' +
+                ", deviceSn='" + deviceSn + '\'' +
+                ", deviceSwVersion='" + deviceSwVersion + '\'' +
+                ", deviceHwVersion='" + deviceHwVersion + '\'' +
+                ", fpSwVersion='" + fpSwVersion + '\'' +
+                ", deviceStatus='" + deviceStatus + '\'' +
+                ", activitedTime=" + activitedTime +
+                ", description='" + description + '\'' +
+                ", topic='" + topic + '\'' +
+                ", userId=" + userId +
+                ", deviceDefault=" + deviceDefault +
+                ", productKey='" + productKey + '\'' +
+                ", deviceSecret='" + deviceSecret + '\'' +
+                ", nodeType='" + nodeType + '\'' +
+                ", bleMac='" + bleMac + '\'' +
+                ", unLockTime='" + unLockTime + '\'' +
+                ", mixUnlock=" + mixUnlock +
+                ", lockBattery=" + lockBattery +
+                ", tempSecret='" + tempSecret + '\'' +
+                ", deviceIndex=" + deviceIndex +
+                '}';
+    }
+
     @DatabaseField(columnName = "activited_time")
     private long activitedTime;
 
@@ -315,39 +349,6 @@ public class DeviceInfo implements Serializable {
 
     public void setGetewayNodeId(String getewayNodeId) {
         this.getewayNodeId = getewayNodeId;
-    }
-
-    @Override
-    public String toString() {
-        return "DeviceInfo{" +
-                "id=" + id +
-                ", deviceId=" + deviceId +
-                ", deviceName='" + deviceName + '\'' +
-                ", deviceLocation='" + deviceLocation + '\'' +
-                ", deviceType='" + deviceType + '\'' +
-                ", supportNet=" + supportNet +
-                ", deviceDate=" + deviceDate +
-                ", deviceNodeId='" + deviceNodeId + '\'' +
-                ", getewayNodeId='" + getewayNodeId + '\'' +
-                ", deviceSn='" + deviceSn + '\'' +
-                ", deviceSwVersion='" + deviceSwVersion + '\'' +
-                ", deviceHwVersion='" + deviceHwVersion + '\'' +
-                ", deviceStatus='" + deviceStatus + '\'' +
-                ", activitedTime=" + activitedTime +
-                ", description='" + description + '\'' +
-                ", topic='" + topic + '\'' +
-                ", userId='" + userId + '\'' +
-                ", deviceDefault=" + deviceDefault +
-                ", productKey='" + productKey + '\'' +
-                ", deviceSecret='" + deviceSecret + '\'' +
-                ", nodeType='" + nodeType + '\'' +
-                ", bleMac='" + bleMac + '\'' +
-                ", unLockTime='" + unLockTime + '\'' +
-                ", mixUnlock=" + mixUnlock +
-                ", lockBattery=" + lockBattery +
-                ", tempSecret='" + tempSecret + '\'' +
-                ", deviceIndex=" + deviceIndex +
-                '}';
     }
 
     public int getId() {

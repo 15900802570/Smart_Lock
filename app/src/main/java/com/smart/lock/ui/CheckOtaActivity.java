@@ -283,12 +283,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         super.onResume();
         isHide = true;
         mDefaultDev = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true); //刷新数据库
-        LogUtil.d(TAG,"mDefaultDev 2: " + mDefaultDev.toString());
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        LogUtil.d(TAG, "mDefaultDev 2: " + mDefaultDev.toString());
         if (mVersionAction.respondData.models != null && mDefaultDev != null) {
             mOtaAdapter.setDataSource(mVersionAction.respondData.models);
             mOtaAdapter.notifyDataSetChanged(); //刷新升级界面
@@ -394,7 +389,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final VersionModel model = mVersionList.get(position);
-            LogUtil.d(TAG,"mDefaultDev : " + mDefaultDev.toString());
+            LogUtil.d(TAG, "mDefaultDev : " + mDefaultDev.toString());
             int swLen = 0;
             if (model != null) {
                 int len = model.versionName.length();
@@ -402,13 +397,17 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.ota_fingerprint);
                     viewHolder.mNameTv.setText(R.string.fingerprint_firmware);
-                    code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
+                    if (StringUtil.checkNotNull(mDefaultDev.getFpSwVersion())) {
+                        code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
+                    }
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.ota_lock);
-                    viewHolder.mNameTv.setText(R.string.lock_default_name );
-                    swLen = mDefaultDev.getDeviceSwVersion().length();
-                    if (len >= 5 && swLen >= 5)
-                        code = StringUtil.compareVersion(model.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
+                    viewHolder.mNameTv.setText(R.string.lock_default_name);
+                    if (StringUtil.checkNotNull(mDefaultDev.getDeviceSwVersion())) {
+                        swLen = mDefaultDev.getDeviceSwVersion().length();
+                        if (len >= 5 && swLen >= 5)
+                            code = StringUtil.compareVersion(model.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
+                    }
                 }
 
                 if (0 == code || code == -1) {

@@ -736,8 +736,12 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mBleManagerHelper.removeUiListener(this);
-        mBleManagerHelper.getBleCardService().removeDevStateCb(this);
+        if (mBleManagerHelper != null) {
+            mBleManagerHelper.removeUiListener(this);
+            if (mBleManagerHelper.getBleCardService() != null)
+                mBleManagerHelper.getBleCardService().removeDevStateCb(this);
+        }
+
 
         try {
             if (mThread != null) {
@@ -810,20 +814,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
                 break;
             case BleMsg.GATT_SERVICES_DISCOVERED:
-                if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
-                    mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
-                    DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
-                    mConnetStatus.setText(R.string.ota_complete);
-                } else {
-                    downloadSize = 0;
-                    fileSize = 0;
-                    mStartBt.setText(R.string.start_update);
-                    mPb.setProgress(0);
-                    mOtaParser.clear();
-                    mConnetStatus.setText(R.string.new_dev_version);
-                    mTvProgress.setText("0" + "%");
-                    mStartBt.setEnabled(true);
-                }
+
                 break;
             default:
                 break;
@@ -840,6 +831,25 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
 
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_04:
+                LogUtil.i(TAG, "receiver 04!");
+                if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
+                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
+                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
+                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+                    }
+                    mConnetStatus.setText(R.string.ota_complete);
+                } else {
+                    downloadSize = 0;
+                    fileSize = 0;
+                    mStartBt.setText(R.string.start_update);
+                    mPb.setProgress(0);
+                    mOtaParser.clear();
+                    mConnetStatus.setText(R.string.new_dev_version);
+                    mTvProgress.setText("0" + "%");
+                    mStartBt.setEnabled(true);
+                }
                 break;
             default:
                 break;
@@ -858,6 +868,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mConnetStatus.setText(R.string.device_busy);
                 mStartBt.setEnabled(true);
                 break;
+
             default:
                 break;
         }

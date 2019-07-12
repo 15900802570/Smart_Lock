@@ -236,8 +236,7 @@ public class MessageCreator {
                 errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_13 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS ||
-                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED
-        ) {
+                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
         }
 
