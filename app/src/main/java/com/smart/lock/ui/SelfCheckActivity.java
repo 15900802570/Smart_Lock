@@ -1,6 +1,7 @@
 package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -20,6 +21,7 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 @SuppressLint("Registered")
@@ -33,11 +35,12 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     private ImageView mNFCIv;
 
     private Button mCheckBtn;
-    private int mBleStatus;
+    private Button mRepairBtn;
 
     private BleManagerHelper mBleManagerHelper;
 
-    private Dialog mWaitingDialog;
+    private Dialog mWaitingDialog = null;
+    private Dialog mWaitingDialogWithRepair = null;
 
     private int mErrorCounter = 0;
 
@@ -57,27 +60,40 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
         mFPIv = findViewById(R.id.iv_self_check_fp);
         mNFCIv = findViewById(R.id.iv_self_check_nfc);
         mCheckBtn = findViewById(R.id.btn_self_check_check);
+        mRepairBtn = findViewById(R.id.btn_self_repair);
     }
 
     private void initData() {
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
-        mWaitingDialog = DialogUtils.createLoadingDialog(this, this.getString(R.string.checking));
+        mWaitingDialog = DialogUtils.createLoadingDialog(this, getString(R.string.checking));
+        mWaitingDialogWithRepair = DialogUtils.createLoadingDialog(this, getString(R.string.repair_));
     }
 
     private void initEvent() {
         mBackIv.setOnClickListener(this);
         mCheckBtn.setOnClickListener(this);
+        mRepairBtn.setOnClickListener(this);
+        mRepairBtn.setVisibility(View.GONE);
         if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
-            sendCmd19();
+            sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
         } else {
             ToastUtil.showLong(this, getString(R.string.ble_disconnect));
         }
     }
 
-    private void sendCmd19() {
-        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
-        mWaitingDialog.show();
+    private void sendCmd19(byte type) {
+        LogUtil.d(TAG, Byte.toString(type));
+        mBleManagerHelper.getBleCardService().sendCmd19(type);
+        DialogUtils.closeDialog(mWaitingDialogWithRepair);
+        DialogUtils.closeDialog(mWaitingDialog);
+        if (!this.isFinishing() && type == BleMsg.TYPE_SELF_REPAIR) {
+            if (!mWaitingDialogWithRepair.isShowing())
+                mWaitingDialogWithRepair.show();
+        } else {
+            if (!mWaitingDialog.isShowing())
+                mWaitingDialog.show();
+        }
     }
 
     @Override
@@ -88,7 +104,15 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.btn_self_check_check:
                 if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
-                    sendCmd19();
+                    sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
+                } else {
+                    ToastUtil.showLong(this, getString(R.string.ble_disconnect));
+                }
+                break;
+
+            case R.id.btn_self_repair:
+                if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
+                    sendCmd19(BleMsg.TYPE_SELF_REPAIR);
                 } else {
                     ToastUtil.showLong(this, getString(R.string.ble_disconnect));
                 }
@@ -100,9 +124,26 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        if (state != Device.BLE_CONNECTED) {
-            DialogUtils.closeDialog(mWaitingDialog);
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                DialogUtils.closeDialog(mWaitingDialog);
+                DialogUtils.closeDialog(mWaitingDialogWithRepair);
+                break;
+            case BleMsg.STATE_CONNECTED:
+
+                break;
+            case BleMsg.GATT_SERVICES_DISCOVERED:
+                break;
+            default:
+                break;
         }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mBleManagerHelper.removeUiListener(this);
     }
 
     @SuppressLint("SetTextI18n")
@@ -139,17 +180,27 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
+                final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode != null && errCode[3] == BleMsg.TYPE_SELF_REPAIR_COMPLETE) {
+                    sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
+                }
+                break;
             default:
                 break;
         }
+        DialogUtils.closeDialog(mWaitingDialog);
+        DialogUtils.closeDialog(mWaitingDialogWithRepair);
         if (mErrorCounter != 0) {
             ((TextView) findViewById(R.id.tv_self_check_tips)).setText(
                     mErrorCounter + getString(R.string.exception) + "," +
                             (3 - mErrorCounter) + getString(R.string.one_normal));
+            mRepairBtn.setVisibility(View.VISIBLE);
         } else {
             ((TextView) findViewById(R.id.tv_self_check_tips)).setText(getString(R.string.all_parts_are_working_properly));
+            mRepairBtn.setVisibility(View.GONE);
         }
-        DialogUtils.closeDialog(mWaitingDialog);
+
     }
 
     @Override
@@ -171,4 +222,5 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     public void scanDevFailed() {
 
     }
+
 }

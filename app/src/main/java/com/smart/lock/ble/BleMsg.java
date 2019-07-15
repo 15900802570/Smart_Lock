@@ -403,6 +403,7 @@ public class BleMsg {
     public static final byte TYPE_ALLOW_FINGERPRINT_OTA_UPDATE = 0x33; //允许指纹ota升级
     public static final byte TYPE_DEV_KEY_REPETITION = 0x34; //密钥重复
     public static final byte TYPE_SET_USER_LIFE_FAILED = 0x35; //设置用户有效期失败
+    public static final byte TYPE_SELF_REPAIR_COMPLETE = 0x36; //设备恢复完成（成功或失败需要再次发请求检测一次才知道）
 
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断
@@ -504,6 +505,7 @@ public class BleMsg {
     public static final byte TYPE_OTA_FINRGERPRINT_UPDATE = 0x17;//指纹ota升级
     public static final byte TYPE_STOP_OTA_FINRGERPRINT_UPDATE = 0x18;//停止指纹ota升级
     public static final byte TYPE_CHECK_FINGERPRINT_VERSION = 0x19;//查询指纹ota固件版本
+    public static final byte TYPE_SELF_REPAIR = 0x1A;//开锁设备修复 通过1E回复
 
 
     /**

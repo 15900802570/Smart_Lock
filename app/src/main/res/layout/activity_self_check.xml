@@ -133,14 +133,32 @@
         android:paddingStart="@dimen/x41dp"
         android:paddingTop="@dimen/x66dp"
         android:paddingEnd="@dimen/x41dp"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/btn_self_check_check"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/selector_button_self_check_green"
+            android:background="@drawable/selector_button_self_check_blue"
             android:text="@string/self_check"
+            tools:ignore="ButtonStyle" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/x41dp"
+        android:paddingTop="@dimen/x30dp"
+        android:paddingEnd="@dimen/x41dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_self_repair"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/selector_button_self_repair_green"
+            android:text="@string/self_repair"
             tools:ignore="ButtonStyle" />
     </LinearLayout>
 

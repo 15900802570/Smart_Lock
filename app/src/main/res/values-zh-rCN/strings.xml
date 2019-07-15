@@ -213,7 +213,7 @@
     <string name="normally_open">常开功能</string>
     <string name="rolled_back_time">回锁时间</string>
     <string name="version_info">版本信息</string>
-    <string name="self_check">自检修复</string>
+    <string name="self_check">自检</string>
     <string name="ota_update">固件升级</string>
     <string name="voice_prompt">语音提示</string>
     <string name="set_up_time">设置时间</string>
@@ -406,4 +406,6 @@
     <string name="sync_data">数据同步中...</string>
     <string name="create_temp_pwd">创建临时密码</string>
     <string name="_return">返回</string>
+    <string name="self_repair">修复</string>
+    <string name="repair_">正在修复...</string>
 </resources>

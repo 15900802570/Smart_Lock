@@ -398,4 +398,6 @@
     <string name="sync_data">Sync Data...</string>
     <string name="create_temp_pwd">Create Temp Password</string>
     <string name="_return">Return</string>
+    <string name="self_repair">Self-Repair</string>
+    <string name="repair_">Repair...</string>
 </resources>

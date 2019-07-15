@@ -33,6 +33,7 @@ import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceUserDao;
+import com.smart.lock.ui.SelfCheckActivity;
 import com.smart.lock.widget.CustomDialog;
 
 public class DialogUtils {
@@ -84,6 +85,7 @@ public class DialogUtils {
         TextView tipTextView = (TextView) v.findViewById(R.id.tip_tv);// 提示文字
         tipTextView.setText(msg);// 设置加载信息
 
+        LogUtil.d(TAG, "context instanceof SelfCheckActivity " + (context instanceof SelfCheckActivity));
         Dialog loadingDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
         loadingDialog.setCancelable(true); // 是否可以按“返回键”消失
         loadingDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
@@ -110,7 +112,7 @@ public class DialogUtils {
         LayoutInflater inflater = LayoutInflater.from(context);
         View v = inflater.inflate(R.layout.dialog_warning, null);// 得到加载view
         LinearLayout layout = v.findViewById(R.id.dialog_warning_view);  // 加载布局
-        TextView tipTextView =  v.findViewById(R.id.warning_tip_tv);          // 提示文字
+        TextView tipTextView = v.findViewById(R.id.warning_tip_tv);          // 提示文字
         final Button confirm = v.findViewById(R.id.warning_confirm_btn);
         new CountDownTimer(5000, 1000) {              //确认按键倒计时
             @SuppressLint("SetTextI18n")
