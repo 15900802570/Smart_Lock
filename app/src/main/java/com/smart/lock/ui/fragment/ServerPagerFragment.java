@@ -460,8 +460,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     }
 
-    public void closedSelectDevDialog(){
-        mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
+    public void closedSelectDevDialog() {
+        if (mIconSelectDevIv != null) {
+            mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
+        }
+
     }
 
 
