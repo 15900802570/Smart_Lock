@@ -349,16 +349,16 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             int swLen = mDefaultDev.getDeviceSwVersion().length();
             if (len >= 5 && swLen >= 5)
                 code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
-//            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
+//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                }
+//            }
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
 
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -771,7 +771,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 //                    }
 //                    mBackPressedTime = curTime;
                     ToastUtil.showShort(this, getString(R.string.ota_back_message));
-                } else finish();
+                } else {
+                    setResult(CheckOtaActivity.CHECK_DEV_VERSION);
+                    finish();
+                }
                 break;
             case R.id.version_start:
                 if (mStartBt.getText().toString().trim().equals(getString(R.string.download_version))) {
@@ -835,10 +838,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 LogUtil.i(TAG, "receiver 04!");
                 if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
-                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
-                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
-                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
-                    }
+//                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
+//                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
+//                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+//                    }
                     mConnetStatus.setText(R.string.ota_complete);
                 } else {
                     downloadSize = 0;
@@ -908,7 +911,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 //            }
 //            mBackPressedTime = curTime;
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
-        } else finish();
+        } else {
+            setResult(CheckOtaActivity.CHECK_DEV_VERSION);
+            finish();
+        }
     }
 
     @Override

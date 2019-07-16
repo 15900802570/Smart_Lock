@@ -222,6 +222,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
         switch (errCode) {
             case BleMsg.TYPE_ENTER_OR_MODIFY_NFC_FAILED:
                 showMessage(mCtx.getResources().getString(R.string.add_nfc_failed));
+                mCardAdapter.notifyDataSetChanged();
                 break;
             case BleMsg.TYPE_MODIFY_NFC_SUCCESS:
                 showMessage(mCtx.getResources().getString(R.string.modify_nfc_success));
@@ -233,6 +234,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 break;
             case BleMsg.TYPE_DEV_KEY_REPETITION:
                 showMessage(getString(R.string.key_repetition));
+                mCardAdapter.notifyDataSetChanged();
                 break;
             default:
                 break;

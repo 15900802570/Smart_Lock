@@ -305,16 +305,16 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
-//            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
+//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                }
+//            }
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -671,7 +671,10 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 //                    }
 //                    mBackPressedTime = curTime;
                     ToastUtil.showShort(this, getString(R.string.ota_back_message));
-                } else finish();
+                } else {
+                    setResult(CheckOtaActivity.CHECK_FP_VERSION);
+                    finish();
+                }
                 break;
             case R.id.version_start:
                 if (mStartBt.getText().toString().trim().equals(getString(R.string.download_version))) {
@@ -745,10 +748,10 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 LogUtil.i(TAG, "receiver 04!");
                 if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
-                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
-                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
-                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
-                    }
+//                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
+//                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
+//                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+//                    }
                     mConnetStatus.setText(R.string.ota_complete);
                 } else {
                     downloadSize = 0;
@@ -838,6 +841,9 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 //            mBackPressedTime = curTime;
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
 
-        } else finish();
+        } else {
+            setResult(CheckOtaActivity.CHECK_FP_VERSION);
+            finish();
+        }
     }
 }

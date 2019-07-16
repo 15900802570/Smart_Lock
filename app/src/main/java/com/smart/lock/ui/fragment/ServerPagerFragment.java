@@ -35,6 +35,7 @@ import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
+import com.smart.lock.ble.AutoConnectBle;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.DeviceListener;
@@ -52,6 +53,7 @@ import com.smart.lock.entity.Device;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
 import com.smart.lock.ui.LockSettingActivity;
+import com.smart.lock.ui.LpcdTestActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.ui.UserManagerActivity2;
@@ -177,14 +179,24 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        if (mDevice != null && !mDevice.isDisconnectBle()) {
-                            showMessage(getString(R.string.retry_connect));
-                        }
-                        if (mDefaultDevice != null) {
-                            refreshView(BIND_DEVICE);
-                        } else {
-                            refreshView(UNBIND_DEVICE);
-                        }
+//                        LogUtil.d(TAG,"SCAN_DEV_FIALED 1.");
+//                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
+//                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
+//
+//                        if (devInfo != null) {
+//                            autoConnectBle.autoConnect();
+//                            onResume();
+//
+//                        } else {
+                            if (mDevice != null && !mDevice.isDisconnectBle()) {
+                                showMessage(getString(R.string.retry_connect));
+                            }
+                            if (mDefaultDevice != null) {
+                                refreshView(BIND_DEVICE);
+                            } else {
+                                refreshView(UNBIND_DEVICE);
+                            }
+//                        }
                         break;
                     default:
                         break;
@@ -460,10 +472,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     }
 
-    public void closedSelectDevDialog(){
+    public void closedSelectDevDialog() {
         mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
     }
-
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

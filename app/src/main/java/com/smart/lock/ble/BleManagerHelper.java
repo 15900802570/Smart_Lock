@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -21,6 +22,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.entity.BluetoothDev;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
@@ -95,6 +97,8 @@ public class BleManagerHelper {
 
     public static final int REQUEST_OPEN_BT_CODE = 100;
 
+    private ArrayList<BluetoothDev> mBleDevList;
+
     private Runnable mRunnable = new Runnable() {
         public void run() {
             synchronized (mState) {
@@ -116,6 +120,7 @@ public class BleManagerHelper {
         mContext = context;
         mHandler = new Handler();
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBleDevList = new ArrayList<>();
 
         mService = BleCardService.getInstance(mContext);
         mService.initialize();
@@ -166,7 +171,7 @@ public class BleManagerHelper {
                 LogUtil.d(TAG, "isEnabled : " + mBtAdapter.isEnabled());
                 AppCompatActivity activty = (AppCompatActivity) mContext;
                 activty.startActivityForResult(enableIntent, REQUEST_OPEN_BT_CODE);
-            }else {
+            } else {
                 mContext.startActivity(enableIntent);
             }
 
@@ -174,6 +179,7 @@ public class BleManagerHelper {
             if (mDevice.getState() == Device.BLE_DISCONNECTED) {
                 mDevice.setState(Device.BLE_CONNECTION);
                 closeDialog((int) (SCAN_PERIOD / 1000));
+                mBleDevList.clear();
                 mBtAdapter.startLeScan(mLeScanCallback);
             } else {
                 LogUtil.d(TAG, " mService is null : " + (mService == null));
@@ -182,6 +188,7 @@ public class BleManagerHelper {
                 }
                 mDevice.setState(Device.BLE_CONNECTION);
                 closeDialog((int) (SCAN_PERIOD / 1000));
+                mBleDevList.clear();
                 mBtAdapter.startLeScan(mLeScanCallback);
             }
         }
@@ -272,12 +279,18 @@ public class BleManagerHelper {
         mBtAdapter.stopLeScan(mLeScanCallback);
     }
 
+    public ArrayList<BluetoothDev> getBleDevList() {
+        return mBleDevList;
+    }
+
     /**
      * 蓝牙搜索结果回调
      */
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, final int rssi, final byte[] scanRecord) {
+
+
             if (StringUtil.checkIsNull(mBleMac)) {
                 mHandler.removeCallbacks(mRunnable);
                 mBtAdapter.stopLeScan(mLeScanCallback);
@@ -294,6 +307,22 @@ public class BleManagerHelper {
                 }
             } else {
                 LogUtil.d(TAG, "mBleMac :" + mBleMac + "\n" + "device " + device.getAddress());
+                if (!mBleMac.equals(device.getAddress()) && StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                    BluetoothDev dev = new BluetoothDev();
+                    dev.setDevMac(device.getAddress());
+                    dev.setDevName(device.getName());
+                    dev.setRssi(rssi);
+                    int index = -1;
+                    for (BluetoothDev info : mBleDevList) {
+                        if (info.getDevMac().equals(dev.getDevMac())) {
+                            index = mBleDevList.indexOf(info);
+                        }
+                    }
+
+                    if (index == -1) {
+                        mBleDevList.add(dev);
+                    }
+                }
                 if (device.getAddress().equals(mBleMac)) {
                     LogUtil.d(TAG, "scanRecord 2: " + StringUtil.bytesToHexString(scanRecord));
                     mHandler.removeCallbacks(mRunnable);
@@ -303,10 +332,7 @@ public class BleManagerHelper {
                     }
                 }
             }
-
         }
-
-//        }
     };
 
     /**
