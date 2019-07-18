@@ -408,4 +408,6 @@
     <string name="_return">返回</string>
     <string name="self_repair">修复</string>
     <string name="repair_">正在修复...</string>
+
+    <string name="plz_open_slide">请打开滑盖</string>
 </resources>

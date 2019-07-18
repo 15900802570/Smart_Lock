@@ -383,15 +383,15 @@ public class DeviceUserDao {
         ArrayList<Short> diffIds = new ArrayList<>();
         long ret = 0;
         long tmp = 0;
-        long userStatus = getUserStatus(nodeId, num);
+        long userStatus = getUserStatus(nodeId, num);  //本地用户状态字
         Log.d(TAG, "userStatus = " + userStatus);
 
-        ret = status ^ (userStatus & 0xFFFFFFFF);
+        ret = status ^ (userStatus & 0xFFFFFFFF);  //异或得出差异
 
         synchronized (this) {
             if (ret != 0) {
                 for (int i = (num - 1) * 32; i < 32 * num; i++) {
-                    tmp = ret & (1 << i);
+                    tmp = ret & (1 << i);  //位移得出index指引的数是否为1,1即存在用户。
                     if (tmp != 0) {
                         if (i < ConstantUtil.ADMIN_USR_NUM) { //管理员
                             diffIds.add((short) (i + 1));
@@ -406,7 +406,7 @@ public class DeviceUserDao {
             }
         }
 
-        return diffIds;
+        return diffIds; //返回不同的用户ID。
     }
 
 

@@ -250,6 +250,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
                 }
                 break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
+                break;
             default:
                 break;
         }

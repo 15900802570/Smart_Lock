@@ -51,7 +51,7 @@ public class AutoConnectBle {
             @Override
             public int compare(BluetoothDev o1, BluetoothDev o2) {
 
-                return (o1.getRssi() - o2.getRssi());
+                return (o2.getRssi() - o1.getRssi());
             }
         });
 
@@ -69,11 +69,11 @@ public class AutoConnectBle {
         return devInfo;
     }
 
-    public void autoConnect() {
+    public void autoConnect(DeviceInfo devInfo) {
         DeviceInfoDao.getInstance(mCtx).setNoDefaultDev();
         mBleManagerHelper.getBleCardService().disconnect();
-        getAutoDev().setDeviceDefault(true);
+        devInfo.setDeviceDefault(true);
         Device.getInstance(mCtx).halt();
-        DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(getAutoDev());
+        DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(devInfo);
     }
 }

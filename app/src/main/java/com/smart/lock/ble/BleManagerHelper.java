@@ -82,7 +82,7 @@ public class BleManagerHelper {
     private long mStartTime = 0;
     private long mEndTime = 0;
 
-    private static final long SCAN_PERIOD = 20000;
+    private static final long SCAN_PERIOD = 10000;
     private Device mDevice; //蓝牙连接状态实例
 
     private DeviceInfo mDefaultDevice; //默认设备
@@ -269,12 +269,12 @@ public class BleManagerHelper {
         }
     }
 
-    public void addDeviceLintener(DeviceListener listener) {
+    public void addDeviceListener(DeviceListener listener) {
         mDeviceListener = listener;
     }
 
     public void deleteDefaultDev() {
-        mDeviceListener.deleteDeviceDev();
+        mDeviceListener.deleteDev();
         mHandler.removeCallbacks(mRunnable);
         mBtAdapter.stopLeScan(mLeScanCallback);
     }

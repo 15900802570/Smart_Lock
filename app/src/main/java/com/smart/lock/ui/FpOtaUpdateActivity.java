@@ -334,7 +334,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDevicePath = dir + mFileName;
 
             tempPath = mDevicePath + ".temp";
-//            FileUtil.clearFiles(dir);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -713,19 +712,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 
                 break;
             case BleMsg.GATT_SERVICES_DISCOVERED:
-                if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
-                    mDefaultDev.setFpSwVersion(mVersionModel.versionName);
-                    DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
-                    mConnetStatus.setText(R.string.ota_complete);
-                } else {
-                    downloadSize = 0;
-                    fileSize = 0;
-                    mStartBt.setText(R.string.start_update);
-                    mPb.setProgress(0);
-                    mConnetStatus.setText(R.string.new_dev_version);
-                    mTvProgress.setText(mOtaParser.getProgress() + "%");
-                    mStartBt.setEnabled(true);
-                }
+
                 break;
             default:
                 break;
@@ -752,6 +739,8 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 //                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
 //                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
 //                    }
+                    String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
+                    FileUtil.clearFiles(dir);
                     mConnetStatus.setText(R.string.ota_complete);
                 } else {
                     downloadSize = 0;
@@ -794,11 +783,15 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 } else {
                     mConnetStatus.setText(R.string.ota_file_dan);
                 }
-
                 break;
             case BleMsg.TYPE_GET_FINGERPRINT_SIZE:
                 prepareDFU();
                 mStartBt.setEnabled(false);
+                break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
                 break;
             default:
                 break;

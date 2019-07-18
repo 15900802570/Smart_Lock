@@ -71,7 +71,6 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         switch (v.getId()) {
             case R.id.tv_add:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mCtx).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_MEMBER);
-                LogUtil.d(TAG, "users size : " + users.size());
                 if (users.size() >= 90) {
                     showMessage(mCtx.getResources().getString(R.string.members) + mCtx.getResources().getString(R.string.add_user_tips));
                     return;

@@ -139,7 +139,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     break;
                 case BleMsg.REGISTER_SUCCESS:
                     DialogUtils.closeDialog(mLoadDialog);
-
+                    LogUtil.d(TAG, "mSearchAddDev : " + mSearchAddDev + " mMode : " + mMode);
                     if (mMode == SEARCH_LOCK && mSearchAddDev) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_setting));
 //                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
@@ -465,7 +465,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mTipsLl.setVisibility(View.GONE);
             String mac = device.getAddress().replace(getString(R.string.colon), "");
             mScanLockTv.setText(getString(R.string.checking_security));
-            LogUtil.d(TAG, "mac = " + mac);
             byte[] macByte = StringUtil.hexStringToBytes(mac);
 
             if (MessageCreator.mIs128Code) {
@@ -503,7 +502,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 if (mDevice != null && mDevice.getDevInfo() != null && StringUtil.checkIsNull(mDevice.getDevInfo().getBleMac())) {
                     mDevice.getDevInfo().setBleMac(mac);
                 }
-
                 mBleManagerHelper.getBleCardService().connect(mDevice, mBleMac);
             }
         }
@@ -574,6 +572,15 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 msgFull.what = BleMsg.TYPE_USER_FULL;
                 mHandler.sendMessage(msgFull);
                 break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+                DialogUtils.closeDialog(mLoadDialog);
+                if (mDevice.getState() != Device.BLE_DISCONNECTED)
+                    mBleManagerHelper.getBleCardService().disconnect();
+                mSearchAddDev = false;
+                showMessage(getString(R.string.plz_open_slide));
+                break;
             default:
                 break;
         }
@@ -585,12 +592,20 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         mDetectingDevice = device.getDevInfo();
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
-                DialogUtils.closeDialog(mLoadDialog);
                 DialogUtils.closeDialog(mCancelDialog);
                 mScanLockTv.setText(R.string.disconnect_ble);
                 mRescanLl.setVisibility(View.VISIBLE);
                 mTipsLl.setVisibility(View.VISIBLE);
-                mSearchAddDev = false;
+                LogUtil.d(TAG, "STATE_DISCONNECTED !");
+                Device connDev = Device.getInstance(mCtx);
+                if (!connDev.isDisconnectBle()) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mSearchAddDev = false;
+                }/*else {
+                    mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
+                    mLoadDialog.show();
+                }*/
+
                 break;
             case BleMsg.STATE_CONNECTED:
 
@@ -732,6 +747,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
                     @Override
                     public void onClick(View v) {
+
                         if (!mSearchAddDev) {
                             if (mScanning) {
                                 scanLeDevice(false);

@@ -834,8 +834,8 @@ public class BleProvider {
         }
 
         RxChar.setValue(value);
-        boolean result = mBleGatt.writeCharacteristic(RxChar);
-        return result;
+
+        return mBleGatt.writeCharacteristic(RxChar);
     }
 
     private boolean sendOta(byte[] value, int type) {

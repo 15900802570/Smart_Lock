@@ -400,4 +400,5 @@
     <string name="_return">Return</string>
     <string name="self_repair">Self-Repair</string>
     <string name="repair_">Repair...</string>
+    <string name="plz_open_slide">Please open slide</string>
 </resources>

@@ -154,7 +154,7 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
 
                 byte key = extra.getByte(BleMsg.KEY_TYPE);
                 byte[] status = extra.getByteArray(BleMsg.KEY_STATUS);
-                LogUtil.d(TAG, "key = " + key+ '\n' +
+                LogUtil.d(TAG, "key = " + key + '\n' +
                         "status " + Arrays.toString(status));
                 if (key == 0x00 && status != null) {
                     mErrorCounter = 0;
@@ -182,6 +182,10 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null && errCode[3] == BleMsg.TYPE_SELF_REPAIR_COMPLETE) {
                     sendCmd19(BleMsg.TYPE_DETECTION_LOCK_EQUIPMENT);
+                } else if (errCode != null && errCode[3] == BleMsg.TYPE_OPEN_SLIDE) {
+                    if (mBleManagerHelper.getBleCardService() != null)
+                        mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
+                    ToastUtil.showShort(this, getString(R.string.plz_open_slide));
                 }
                 break;
             default:

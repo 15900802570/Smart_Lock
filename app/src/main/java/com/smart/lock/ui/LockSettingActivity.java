@@ -883,6 +883,13 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mDeviceStatus.setBroadcastNormallyOpen(true);
                 }
                 break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
+                DialogUtils.closeDialog(mWarningDialog);
+                DialogUtils.closeDialog(mWaitingDialog);
+                break;
             default:
                 break;
         }

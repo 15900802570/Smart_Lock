@@ -291,6 +291,12 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             case BleMsg.TYPE_DEV_KEY_REPETITION:
                 showMessage(getString(R.string.key_repetition));
                 break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+                DialogUtils.closeDialog(mLoadDialog);
+                showMessage(getString(R.string.plz_open_slide));
+                break;
             default:
                 break;
         }

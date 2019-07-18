@@ -70,6 +70,7 @@ import java.util.ArrayList;
 
 
 public class ServerPagerFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemClickListener, UiListener, DeviceListener {
+    private final String TAG = ServerPagerFragment.class.getSimpleName();
     private View mPagerView;
 
     private MyGridView mMyGridView;
@@ -151,8 +152,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mCtx = mPagerView.getContext();
 
         mBleManagerHelper = BleManagerHelper.getInstance(mActivity);
-        mBleManagerHelper.addDeviceLintener((DeviceListener) this);
-        mBleManagerHelper.addUiListener((UiListener) this);
+
+        if (mIsVisibleToUser) {
+            mBleManagerHelper.addDeviceListener(this);
+            mBleManagerHelper.addUiListener(this);
+        }
         mDefaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
         mDevice = Device.getInstance(mActivity);
         if (mDefaultDevice == null) {
@@ -179,15 +183,15 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-//                        LogUtil.d(TAG,"SCAN_DEV_FIALED 1.");
-//                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
-//                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
-//
-//                        if (devInfo != null) {
-//                            autoConnectBle.autoConnect();
-//                            onResume();
-//
-//                        } else {
+                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode());
+                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
+                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
+
+                        if (devInfo != null) {
+                            autoConnectBle.autoConnect(devInfo);
+                            ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
+                            onResume();
+                        } else {
                             if (mDevice != null && !mDevice.isDisconnectBle()) {
                                 showMessage(getString(R.string.retry_connect));
                             }
@@ -196,7 +200,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             } else {
                                 refreshView(UNBIND_DEVICE);
                             }
-//                        }
+                        }
+
                         break;
                     default:
                         break;
@@ -771,7 +776,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     }
 
     @Override
-    public void deleteDeviceDev() {
+    public void deleteDev() {
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             refreshView(BIND_DEVICE);
@@ -812,17 +817,21 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if (mCurrentIndex) {
-            if (isVisibleToUser) {
-                mIsVisibleToUser = true;
+
+        if (isVisibleToUser) {
+            mIsVisibleToUser = true;
+            if (mCurrentIndex) {
                 onResume();
                 mBleManagerHelper.addUiListener(this);
-            } else {
-                mIsVisibleToUser = false;
+            }
+        } else {
+            mIsVisibleToUser = false;
+            if (mCurrentIndex) {
                 mBleManagerHelper.getBleCardService().disconnect();
                 mBleManagerHelper.removeUiListener(this);
             }
         }
+
     }
 
 

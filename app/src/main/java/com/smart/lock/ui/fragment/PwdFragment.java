@@ -169,6 +169,11 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 showMessage(getString(R.string.delete_pwd_success));
                 mPwdAdapter.removeItem(mPwdAdapter.positionDelete);
                 break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
+                break;
             default:
                 break;
         }

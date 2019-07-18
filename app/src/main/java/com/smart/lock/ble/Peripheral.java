@@ -2,7 +2,7 @@
  * Copyright (C) 2015 The Telink Bluetooth Light Project
  *
  */
-package com.telink.lt.ble;
+package com.smart.lock.ble;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -16,10 +16,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.StringUtil;
 
-import com.telink.lt.util.Arrays;
-import com.telink.lt.util.TelinkLog;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -117,7 +117,7 @@ public class Peripheral extends BluetoothGattCallback {
                 this.macBytes[i] = (byte) (Integer.parseInt(strArray[i], 16) & 0xFF);
             }
 
-            Arrays.reverse(this.macBytes, 0, length - 1);
+            StringUtil.reverse(this.macBytes, 0, length - 1);
         }
 
         return this.macBytes;
@@ -142,7 +142,7 @@ public class Peripheral extends BluetoothGattCallback {
         synchronized (this.mStateLock) {
             mStartTime = System.currentTimeMillis();
             if (this.mConnState == CONN_STATE_IDLE) {
-                TelinkLog.d("connect " + this.getDeviceName() + " -- "
+                LogUtil.d("connect " + this.getDeviceName() + " -- "
                         + this.getMacAddress());
                 this.mConnState = CONN_STATE_CONNECTING;
                 this.gatt = this.device.connectGatt(context, false, this);
@@ -164,7 +164,7 @@ public class Peripheral extends BluetoothGattCallback {
                 return;
         }
 
-        TelinkLog.d("disconnect " + this.getDeviceName() + " -- "
+        LogUtil.d("disconnect " + this.getDeviceName() + " -- "
                 + this.getMacAddress());
 
         this.clear();
@@ -277,7 +277,7 @@ public class Peripheral extends BluetoothGattCallback {
 
     private void postCommand(CommandContext commandContext) {
 
-        TelinkLog.d("postCommand");
+        LogUtil.d("postCommand");
         this.mInputCommandQueue.add(commandContext);
 
         synchronized (this.mProcessLock) {
@@ -289,7 +289,7 @@ public class Peripheral extends BluetoothGattCallback {
 
     private void processCommand() {
 
-        TelinkLog.d("processing : " + this.processing);
+        LogUtil.d("processing : " + this.processing);
 
         CommandContext commandContext;
         Command.CommandType commandType;
@@ -327,7 +327,7 @@ public class Peripheral extends BluetoothGattCallback {
         Command command = commandContext.command;
         Command.CommandType commandType = command.type;
 
-        TelinkLog.d("processCommand : " + command.toString());
+        LogUtil.d("processCommand : " + command.toString());
 
         switch (commandType) {
             case READ:
@@ -366,7 +366,7 @@ public class Peripheral extends BluetoothGattCallback {
 
     private void commandCompleted() {
 
-        TelinkLog.d("commandCompleted");
+        LogUtil.d("commandCompleted");
 
         synchronized (this.mProcessLock) {
             if (this.processing)
@@ -378,7 +378,7 @@ public class Peripheral extends BluetoothGattCallback {
 
     private void commandSuccess(CommandContext commandContext, Object data) {
 
-        TelinkLog.d("commandSuccess");
+        LogUtil.d("commandSuccess");
 
         if (commandContext != null) {
 
@@ -402,7 +402,7 @@ public class Peripheral extends BluetoothGattCallback {
 
     private void commandError(CommandContext commandContext, String errorMsg) {
 
-        TelinkLog.d("commandError");
+        LogUtil.d("commandError");
 
         if (commandContext != null) {
 
@@ -425,7 +425,7 @@ public class Peripheral extends BluetoothGattCallback {
     }
 
     private boolean commandTimeout(CommandContext commandContext) {
-        TelinkLog.d("commandTimeout");
+        LogUtil.d("commandTimeout");
 
         if (commandContext != null) {
 
@@ -733,7 +733,7 @@ public class Peripheral extends BluetoothGattCallback {
     @Override
     public void onConnectionStateChange(BluetoothGatt gatt, int status,
                                         int newState) {
-        TelinkLog.d("onConnectionStateChange  status :" + status + " state : "
+        LogUtil.d("onConnectionStateChange  status :" + status + " state : "
                 + newState);
 
         mEndTime = System.currentTimeMillis();
@@ -746,7 +746,7 @@ public class Peripheral extends BluetoothGattCallback {
             }
 
             if (this.gatt == null || !this.gatt.discoverServices()) {
-                TelinkLog.d("remote service discovery has been stopped status = "
+                LogUtil.d("remote service discovery has been stopped status = "
                         + newState);
                 this.disconnect();
             } else {
@@ -757,7 +757,7 @@ public class Peripheral extends BluetoothGattCallback {
         } else {
 
             synchronized (this.mStateLock) {
-                TelinkLog.d("Close");
+                LogUtil.d("Close");
 
                 if (this.gatt != null) {
                     this.gatt.close();
@@ -818,7 +818,7 @@ public class Peripheral extends BluetoothGattCallback {
             this.commandError("write characteristic fail");
         }
 
-        TelinkLog.d("onCharacteristicWrite newStatus : " + status);
+        LogUtil.d("onCharacteristicWrite newStatus : " + status);
 
         this.commandCompleted();
     }
@@ -864,9 +864,9 @@ public class Peripheral extends BluetoothGattCallback {
             List<BluetoothGattService> services = gatt.getServices();
             this.mServices = services;
             this.onServicesDiscovered(services);
-            TelinkLog.d("Service discovery success:" + services.size());
+            LogUtil.d("Service discovery success:" + services.size());
         } else {
-            TelinkLog.d("Service discovery failed");
+            LogUtil.d("Service discovery failed");
             this.disconnect();
         }
     }
@@ -888,7 +888,7 @@ public class Peripheral extends BluetoothGattCallback {
     public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
         super.onMtuChanged(gatt, mtu, status);
 
-        TelinkLog.d("mtu changed : " + mtu);
+        LogUtil.d("mtu changed : " + mtu);
     }
 
     @Override

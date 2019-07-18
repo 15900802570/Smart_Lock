@@ -2,10 +2,9 @@
  * Copyright (C) 2015 The Telink Bluetooth Light Project
  *
  */
-package com.telink.lt.ble;
+package com.smart.lock.ble;
 
-
-import com.telink.lt.util.Arrays;
+import com.smart.lock.utils.StringUtil;
 
 import java.util.UUID;
 
@@ -58,7 +57,7 @@ public class Command {
         String d = "";
 
         if (data != null)
-            d = Arrays.bytesToHexString(this.data, ",");
+            d = StringUtil.bytesToHexString(this.data, ",");
 
         return "{ tag : " + this.tag + ", type : " + this.type
                 + " CHARACTERISTIC_UUID :" + characteristicUUID.toString() + " data: " + d + " delay :" + delay + "}";

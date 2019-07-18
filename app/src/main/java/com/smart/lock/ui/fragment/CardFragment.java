@@ -236,6 +236,11 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                 showMessage(getString(R.string.key_repetition));
                 mCardAdapter.notifyDataSetChanged();
                 break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
+                break;
             default:
                 break;
         }

@@ -640,12 +640,17 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         showMessage(getString(R.string.administrator) + getString(R.string.add_user_full));
                     } else if (user.getUserPermission() == ConstantUtil.DEVICE_MEMBER) { //普通用户
                         showMessage(getString(R.string.members) + getString(R.string.add_user_full));
-                    } else  { //临时用户
+                    } else { //临时用户
                         showMessage(getString(R.string.tmp_user) + getString(R.string.add_user_full));
                     }
                 }
 
                 DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
                 break;
             default:
                 break;
@@ -845,16 +850,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             if (userInfo != null) {
                 holder.mEditIbtn.setVisibility(View.GONE);
 
-                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
-                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
-                        startIntent(DeviceKeyActivity.class, bundle, -1);
-                    }
-                });
                 if (userInfo.getUserId() == mDefaultUser.getUserId()) {
                     holder.mNameTv.setText(userInfo.getUserName() + "(我)");
                     holder.mSwipeLayout.setRightSwipeEnabled(false);
@@ -970,7 +966,16 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
                 }
 
+                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
 
+                    @Override
+                    public void onClick(View v) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_TEMP_USER, userInfo);
+                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                        startIntent(DeviceKeyActivity.class, bundle, -1);
+                    }
+                });
             }
         }
 

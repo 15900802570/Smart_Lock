@@ -106,10 +106,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setState(Device.BLE_DISCONNECTED);
         MessageCreator.m128AK = null;
         MessageCreator.m256AK = null;
-        if (mService != null) {
-            mService.disconnect();
-            mService.close();
-        }
+//        if (mService != null) {
+//            mService.disconnect();
+//            mService.close();
+//        }
         switch (mDevice.getConnectType()) {
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
                 sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
@@ -148,7 +148,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     @Override
     public void onServicesDiscovered(int status) {
-        LogUtil.i(TAG, "onServicesDiscovered : device connect type is " + mDevice.getConnectType() + "\nmac =" + mDevice.getDevInfo().getBleMac());
+//        LogUtil.i(TAG, "onServicesDiscovered : device connect type is " + mDevice.getConnectType() + "\nmac =" + mDevice.getDevInfo().getBleMac());
         mDevice.setState(Device.BLE_CONNECTION);
         sendMessage(MSG_REGISTER, null, 600);
     }
@@ -340,7 +340,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
         byte[] powerSave = StringUtil.bytesReverse(Objects.requireNonNull(bundle.getByteArray(BleMsg.KEY_POWER_SAVE))); // 字节翻转，结束时间在前
         LogUtil.d(TAG, "battery = " + battery + "\n" + "userStatus = " + userStatus + "\n" + " stStatus = " + stStatus + "\n" + " unLockTime = " + unLockTime);
-        LogUtil.d(TAG, "syncUsers = " + Arrays.toString(syncUsers));
+        LogUtil.d(TAG, "syncUsers = " + StringUtil.bytesToHexString(syncUsers, ":"));
         LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
         LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
         LogUtil.d(TAG, "powerSave = " + Arrays.toString(powerSave));
@@ -490,13 +490,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         ArrayList<DeviceUser> users = DeviceUserDao.getInstance(mCtx).queryDeviceUsers(mDevInfo.getDeviceNodeId());
         if (!userIds.isEmpty()) {
             for (DeviceUser user : users) {
-                if (userIds.contains(user.getUserId())) {
+                if (userIds.contains(user.getUserId())) { //数据库是否包含不同的userid，如果包含表示门锁没有该userId,删除对应的用户
                     DeviceUserDao.getInstance(mCtx).delete(user);
                     userIds.remove((Short) user.getUserId());
                 }
             }
             for (Short userId : userIds) {
-                createDeviceUser(userId, null, null);
+                createDeviceUser(userId, null, null); //其余不同则创建对应的用户
             }
         }
     }

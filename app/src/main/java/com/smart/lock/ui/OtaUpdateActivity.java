@@ -377,7 +377,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             mDevicePath = dir + mFileName;
 
             tempPath = mDevicePath + ".temp";
-//            FileUtil.clearFiles(dir);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -842,6 +842,8 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 //                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
 //                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
 //                    }
+                    String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
+                    FileUtil.clearFiles(dir);
                     mConnetStatus.setText(R.string.ota_complete);
                 } else {
                     downloadSize = 0;
@@ -871,7 +873,11 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mConnetStatus.setText(R.string.device_busy);
                 mStartBt.setEnabled(true);
                 break;
-
+            case BleMsg.TYPE_OPEN_SLIDE:
+                if (mBleManagerHelper.getBleCardService() != null)
+                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
+                showMessage(getString(R.string.plz_open_slide));
+                break;
             default:
                 break;
         }

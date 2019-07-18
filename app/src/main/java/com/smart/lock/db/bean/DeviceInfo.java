@@ -52,40 +52,6 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "device_status")
     private String deviceStatus;
 
-    @Override
-    public String toString() {
-        return "DeviceInfo{" +
-                "id=" + id +
-                ", deviceId=" + deviceId +
-                ", deviceName='" + deviceName + '\'' +
-                ", deviceLocation='" + deviceLocation + '\'' +
-                ", deviceType='" + deviceType + '\'' +
-                ", supportNet=" + supportNet +
-                ", deviceDate=" + deviceDate +
-                ", deviceNodeId='" + deviceNodeId + '\'' +
-                ", getewayNodeId='" + getewayNodeId + '\'' +
-                ", deviceSn='" + deviceSn + '\'' +
-                ", deviceSwVersion='" + deviceSwVersion + '\'' +
-                ", deviceHwVersion='" + deviceHwVersion + '\'' +
-                ", fpSwVersion='" + fpSwVersion + '\'' +
-                ", deviceStatus='" + deviceStatus + '\'' +
-                ", activitedTime=" + activitedTime +
-                ", description='" + description + '\'' +
-                ", topic='" + topic + '\'' +
-                ", userId=" + userId +
-                ", deviceDefault=" + deviceDefault +
-                ", productKey='" + productKey + '\'' +
-                ", deviceSecret='" + deviceSecret + '\'' +
-                ", nodeType='" + nodeType + '\'' +
-                ", bleMac='" + bleMac + '\'' +
-                ", unLockTime='" + unLockTime + '\'' +
-                ", mixUnlock=" + mixUnlock +
-                ", lockBattery=" + lockBattery +
-                ", tempSecret='" + tempSecret + '\'' +
-                ", deviceIndex=" + deviceIndex +
-                '}';
-    }
-
     @DatabaseField(columnName = "activited_time")
     private long activitedTime;
 
@@ -124,6 +90,12 @@ public class DeviceInfo implements Serializable {
 
     @DatabaseField(columnName = "temp_pwd_secret")
     private String tempSecret;
+
+    /**
+     * 设备显示优先级
+     */
+    @DatabaseField(columnName = "device_index")
+    private int deviceIndex;
 
     public String getFpSwVersion() {
         return fpSwVersion;
@@ -257,11 +229,6 @@ public class DeviceInfo implements Serializable {
         this.deviceStatus = deviceStatus;
     }
 
-    /**
-     * 设备显示优先级
-     */
-    @DatabaseField(columnName = "device_index")
-    private int deviceIndex;
 
     public long getActivitedTime() {
         return activitedTime;
@@ -353,5 +320,39 @@ public class DeviceInfo implements Serializable {
 
     public int getId() {
         return this.id;
+    }
+
+    @Override
+    public String toString() {
+        return "DeviceInfo{" +
+                "id=" + id +
+                ", deviceId=" + deviceId +
+                ", deviceName='" + deviceName + '\'' +
+                ", deviceLocation='" + deviceLocation + '\'' +
+                ", deviceType='" + deviceType + '\'' +
+                ", supportNet=" + supportNet +
+                ", deviceDate=" + deviceDate +
+                ", deviceNodeId='" + deviceNodeId + '\'' +
+                ", getewayNodeId='" + getewayNodeId + '\'' +
+                ", deviceSn='" + deviceSn + '\'' +
+                ", deviceSwVersion='" + deviceSwVersion + '\'' +
+                ", deviceHwVersion='" + deviceHwVersion + '\'' +
+                ", fpSwVersion='" + fpSwVersion + '\'' +
+                ", deviceStatus='" + deviceStatus + '\'' +
+                ", activitedTime=" + activitedTime +
+                ", description='" + description + '\'' +
+                ", topic='" + topic + '\'' +
+                ", userId=" + userId +
+                ", deviceDefault=" + deviceDefault +
+                ", productKey='" + productKey + '\'' +
+                ", deviceSecret='" + deviceSecret + '\'' +
+                ", nodeType='" + nodeType + '\'' +
+                ", bleMac='" + bleMac + '\'' +
+                ", unLockTime='" + unLockTime + '\'' +
+                ", mixUnlock=" + mixUnlock +
+                ", lockBattery=" + lockBattery +
+                ", tempSecret='" + tempSecret + '\'' +
+                ", deviceIndex=" + deviceIndex +
+                '}';
     }
 }
