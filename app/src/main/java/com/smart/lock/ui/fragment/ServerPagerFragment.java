@@ -338,6 +338,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     public void onResume() {
         super.onResume();
+        assert getParentFragment() != null;
+        if (mIsVisibleToUser) {
+            ((HomeFragment) getParentFragment()).setOnSelectDialogCancelListener(this);
+            mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
+        }
         DeviceInfo newDeviceInfo = DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true);
         if (newDeviceInfo == null) {
             mDevice = null;
@@ -458,7 +463,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
             case R.id.tv_lock_name:
                 if (this.getParentFragment() != null) {
-//                    mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
+                    mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
                     ((HomeFragment) getParentFragment()).showDialog();
                 }
                 break;
@@ -469,16 +474,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     }
 
     public void closedSelectDevDialog() {
-        LogUtil.d(TAG, "Close"+"\n HashCode = "+this.hashCode());
         if (this.mIconSelectDevIv != null) {
             this.mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
-        } else if (mPagerView != null) {
-            mIconSelectDevIv = mPagerView.findViewById(R.id.icon_select_dev);
-            mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
-        }else {
-            LogUtil.d(TAG, "Close2");
         }
-
     }
 
 
