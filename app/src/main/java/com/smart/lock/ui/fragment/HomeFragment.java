@@ -6,81 +6,44 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ServerPagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.listener.DeviceListener;
-import com.smart.lock.ble.listener.UiListener;
-import com.smart.lock.ble.message.Message;
-import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceStatusDao;
-import com.smart.lock.db.dao.DeviceUserDao;
-import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
-import com.smart.lock.scan.ScanQRResultInterface;
-import com.smart.lock.ui.DeviceKeyActivity;
-import com.smart.lock.ui.EventsActivity;
-import com.smart.lock.ui.LockSettingActivity;
-import com.smart.lock.ui.TempPwdActivity;
-import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.ui.UserManagerActivity2;
-import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
-import com.smart.lock.utils.ToastUtil;
-import com.smart.lock.widget.MyGridView;
 import com.smart.lock.widget.NoScrollViewPager;
-import com.smart.lock.widget.TimePickerWithDateDefineDialog;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 
 
@@ -401,12 +364,15 @@ public class HomeFragment extends BaseFragment implements
     @Override
     public void onPageSelected(int i) {
         DeviceInfoDao.getInstance(mActivity).setNoDefaultDev();
-        mBleManagerHelper.getBleCardService().disconnect();
         deviceInfoArraysList = DeviceInfoDao.getInstance(mActivity).queryAll();
         deviceInfoArraysList.get(i).setDeviceDefault(true);
-        Device.getInstance(mActivity).halt();
         DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfoArraysList.get(i));
-
+        mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
+            }
+        });
     }
 
     @Override
@@ -420,9 +386,9 @@ public class HomeFragment extends BaseFragment implements
         deviceInfoArraysList = DeviceInfoDao.getInstance(mActivity).queryAll();
         for (int i = 0; i < deviceInfoArraysList.size(); i++) {
             if (deviceInfo.getId() == deviceInfoArraysList.get(i).getId()) {
+                mServerAdapter.updateDevices(mActivity, deviceInfoArraysList);
                 mServerAdapter.notifyDataSetChanged();
                 mServerPager.setCurrentItem(i);
-                break;
             }
         }
     }
@@ -436,12 +402,6 @@ public class HomeFragment extends BaseFragment implements
         mDevManagementAdapter.notifyDataSetChanged();
         mSelectList.setAdapter(mDevManagementAdapter);
         mBottomSheetSelectDev.show();
-        mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
-            }
-        });
     }
 
     private class DevManagementAdapter extends RecyclerView.Adapter<DevManagementAdapter.MyViewHolder> {
@@ -495,7 +455,7 @@ public class HomeFragment extends BaseFragment implements
                     @Override
                     public void onClick(View v) {
                         // 判断是否更换默认设备
-
+                       HomeFragment.this.mBottomSheetSelectDev.cancel();
                         if (!deviceInfo.getDeviceDefault()) {
                             if (mDefaultInfo == null) {
                                 deviceInfo.setDeviceDefault(true);
@@ -506,16 +466,15 @@ public class HomeFragment extends BaseFragment implements
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(mActivity).exchangeConnect(deviceInfo);
-                                Device.getInstance(mActivity).setDisconnectBle(false);
+                                mBleManagerHelper.getBleCardService().disconnect();
                                 LogUtil.d(TAG, "设置为默认设备");
                             }
                             mDevList = DeviceInfoDao.getInstance(mActivity).queryAll();
                             mDevManagementAdapter.notifyDataSetChanged();
                             onSelectDev(deviceInfo);
+                            Device.getInstance(mActivity).setDisconnectBle(false);
                         }
-                        Device.getInstance(mActivity).setDisconnectBle(true);
-                        ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
-                        mBottomSheetSelectDev.dismiss();
+
                     }
                 });
             }
