@@ -432,10 +432,8 @@ public class HomeFragment extends BaseFragment implements
         assert mSelectList != null;
         mSelectList.setLayoutManager(new LinearLayoutManager(mActivity, LinearLayoutManager.VERTICAL, false));
         mSelectList.setItemAnimator(new DefaultItemAnimator());
-        if (DeviceInfoDao.getInstance(mCtx).queryCount() != mDevManagementAdapter.getItemCount()) {
-            mDevManagementAdapter.refreshList();
-            mDevManagementAdapter.notifyDataSetChanged();
-        }
+        mDevManagementAdapter.refreshList();
+        mDevManagementAdapter.notifyDataSetChanged();
         mSelectList.setAdapter(mDevManagementAdapter);
         mBottomSheetSelectDev.show();
         mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -515,6 +513,7 @@ public class HomeFragment extends BaseFragment implements
                             mDevManagementAdapter.notifyDataSetChanged();
                             onSelectDev(deviceInfo);
                         }
+                        Device.getInstance(mActivity).setDisconnectBle(true);
                         ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
                         mBottomSheetSelectDev.dismiss();
                     }

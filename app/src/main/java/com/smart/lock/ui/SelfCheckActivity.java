@@ -1,7 +1,6 @@
 package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,7 +20,6 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.ToastUtil;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 @SuppressLint("Registered")
@@ -156,7 +154,7 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
 
                 byte key = extra.getByte(BleMsg.KEY_TYPE);
                 byte[] status = extra.getByteArray(BleMsg.KEY_STATUS);
-                LogUtil.d(TAG, "key = " + String.valueOf(key) + '\n' +
+                LogUtil.d(TAG, "key = " + key+ '\n' +
                         "status " + Arrays.toString(status));
                 if (key == 0x00 && status != null) {
                     mErrorCounter = 0;
