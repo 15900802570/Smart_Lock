@@ -71,7 +71,7 @@ public class AutoConnectBle {
 
     public void autoConnect(DeviceInfo devInfo) {
         DeviceInfoDao.getInstance(mCtx).setNoDefaultDev();
-        mBleManagerHelper.getBleCardService().disconnect();
+//        mBleManagerHelper.getBleCardService().disconnect();
         devInfo.setDeviceDefault(true);
         Device.getInstance(mCtx).halt();
         DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(devInfo);

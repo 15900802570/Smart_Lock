@@ -272,7 +272,7 @@ public class BleCardService {
      * callback.
      */
     public boolean connect(Device device, String address) {
-
+        LogUtil.d(TAG, "test connect !!!");
         if (mBluetoothAdapter == null || address == null) {
             Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
             return false;
@@ -287,7 +287,7 @@ public class BleCardService {
         // Previously connected device. Try to reconnect.
         if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            disconnect();
+//            disconnect();
 
             return mBluetoothGatt.connect();
         }
@@ -322,6 +322,7 @@ public class BleCardService {
      * callback.
      */
     public void disconnect() {
+        LogUtil.d(TAG, "test disconnect !!!");
         if (mBluetoothAdapter == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
@@ -331,7 +332,7 @@ public class BleCardService {
             LogUtil.d(TAG, "mBluetoothGatt disconnect: " + mBluetoothGatt.hashCode());
             mBluetoothGatt.disconnect();
         }
-
+        close();
     }
 
     public MainEngine getMainEngine() {
@@ -343,6 +344,7 @@ public class BleCardService {
      * resources are released properly.
      */
     public void close() {
+        LogUtil.d(TAG, "disconnect !!!222");
         mBluetoothDeviceAddress = null;
         if (mBluetoothGatt != null) {
             mBluetoothGatt.close();

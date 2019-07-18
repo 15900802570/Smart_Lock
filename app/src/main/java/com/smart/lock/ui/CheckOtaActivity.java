@@ -328,7 +328,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 sendMessage(RECEIVER_OTA_VERSION, null, 0);
                 mOtaAdapter.setDataSource(mVersionAction.respondData.models);
                 mOtaAdapter.notifyDataSetChanged();
-            }
+            } else refreshView(EMPTY_VERSION_UPDATE);
         }
     };
 

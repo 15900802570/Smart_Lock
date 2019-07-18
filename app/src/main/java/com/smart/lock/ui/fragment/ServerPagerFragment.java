@@ -169,15 +169,15 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-//                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode());
-//                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
-//                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
-//
-//                        if (devInfo != null) {
-//                            autoConnectBle.autoConnect(devInfo);
-//                            ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
-//                            onResume();
-//                        } else {
+                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode());
+                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
+                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
+
+                        if (devInfo != null) {
+                            autoConnectBle.autoConnect(devInfo);
+                            ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
+                            onResume();
+                        } else {
                             if (mDevice != null && !mDevice.isDisconnectBle()) {
                                 showMessage(getString(R.string.retry_connect));
                             }
@@ -186,7 +186,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             } else {
                                 refreshView(UNBIND_DEVICE);
                             }
-//                        }
+                        }
 
                         break;
                     default:
@@ -414,9 +414,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         break;
                     case Device.BLE_CONNECTION:
                         if (mBleManagerHelper.getBleCardService() != null) {
+                            mDevice.setDisconnectBle(true);
                             mBleManagerHelper.getBleCardService().disconnect();
                             mBleManagerHelper.stopScan();
-                            mDevice.setDisconnectBle(true);
                         }
 //                        showMessage(getString(R.string.is_connecting));
                         break;
@@ -774,7 +774,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     }
 
     @Override
-    public void deleteDeviceDev() {
+    public void deleteDev() {
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             refreshView(BIND_DEVICE);
@@ -831,6 +831,5 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             }
         }
     }
-
 
 }

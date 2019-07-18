@@ -562,23 +562,22 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 sendMessage(MSG_POLLING_BLE, null, 120 * 1000);
                 break;
             case MSG_RECONNCT_BLE:
-                LogUtil.i(TAG, "reconnect device");
                 if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     LogUtil.e(TAG, "the service or dev is null!");
-                    if (mService ==null){
-                        LogUtil.d(TAG,"mService");
+                    if (mService == null) {
+                        LogUtil.d(TAG, "mService");
                     }
-                    if (mDevice ==null){
-                        LogUtil.d(TAG,"mDevice");
+                    if (mDevice == null) {
+                        LogUtil.d(TAG, "mDevice");
                     }
-                    if (mDevInfo ==null){
-                        LogUtil.d(TAG,"mDevInfo");
+                    if (mDevInfo == null) {
+                        LogUtil.d(TAG, "mDevInfo");
                     }
-                    if(mDevice.isDisconnectBle()){
-                        LogUtil.d(TAG,"true");
+                    if (mDevice.isDisconnectBle()) {
+                        LogUtil.d(TAG, "true");
                     }
-                    if(mDevice.isBackGroundConnect()){
-                        LogUtil.d(TAG,"Back true");
+                    if (mDevice.isBackGroundConnect()) {
+                        LogUtil.d(TAG, "Back true");
                     }
                     break;
                 }
@@ -587,7 +586,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     LogUtil.e(TAG, "suarch dev!");
                     break;
                 }
-
+                LogUtil.i(TAG, "test reconnect device" + "mDevInfo.getBleMac() : " + mDevInfo.getBleMac());
                 if (mDevice.getState() == Device.BLE_DISCONNECTED) { //设备状态不是非连接，不需要自动连接
                     boolean connect = mService.connect(mDevice, mDevInfo.getBleMac());
                     if (connect) mDevice.setState(Device.BLE_CONNECTION);

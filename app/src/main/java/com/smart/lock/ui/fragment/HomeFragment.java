@@ -459,6 +459,7 @@ public class HomeFragment extends BaseFragment implements
                        HomeFragment.this.mBottomSheetSelectDev.cancel();
                         if (!deviceInfo.getDeviceDefault()) {
                             if (mDefaultInfo == null) {
+                                LogUtil.d(TAG, "设置为默认设备222");
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                             } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
@@ -467,7 +468,7 @@ public class HomeFragment extends BaseFragment implements
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(mActivity).exchangeConnect(deviceInfo);
-                                mBleManagerHelper.getBleCardService().disconnect();
+//                                mBleManagerHelper.getBleCardService().disconnect();
                                 LogUtil.d(TAG, "设置为默认设备");
                             }
                             mDevList = DeviceInfoDao.getInstance(mActivity).queryAll();
