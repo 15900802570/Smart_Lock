@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -367,17 +368,19 @@ public class HomeFragment extends BaseFragment implements
         deviceInfoArraysList = DeviceInfoDao.getInstance(mActivity).queryAll();
         deviceInfoArraysList.get(i).setDeviceDefault(true);
         DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfoArraysList.get(i));
-        mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                ((ServerPagerFragment) (mServerAdapter.getItem(mServerPager.getCurrentItem()))).closedSelectDevDialog();
-            }
-        });
     }
 
     @Override
     public void onPageScrollStateChanged(int i) {
 
+    }
+    public void setOnSelectDialogCancelListener(final ServerPagerFragment fragment){
+        mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                fragment.closedSelectDevDialog();
+            }
+        });
     }
 
     //    @Override
