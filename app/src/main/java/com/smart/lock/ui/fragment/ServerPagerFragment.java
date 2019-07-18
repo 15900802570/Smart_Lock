@@ -183,15 +183,15 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode());
-                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
-                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
-
-                        if (devInfo != null) {
-                            autoConnectBle.autoConnect(devInfo);
-                            ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
-                            onResume();
-                        } else {
+//                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode());
+//                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
+//                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
+//
+//                        if (devInfo != null) {
+//                            autoConnectBle.autoConnect(devInfo);
+//                            ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
+//                            onResume();
+//                        } else {
                             if (mDevice != null && !mDevice.isDisconnectBle()) {
                                 showMessage(getString(R.string.retry_connect));
                             }
@@ -200,7 +200,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             } else {
                                 refreshView(UNBIND_DEVICE);
                             }
-                        }
+//                        }
 
                         break;
                     default:
