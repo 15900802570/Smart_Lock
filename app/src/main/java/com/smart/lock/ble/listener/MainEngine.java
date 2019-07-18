@@ -565,6 +565,21 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 LogUtil.i(TAG, "reconnect device");
                 if (mService == null || mDevice == null || mDevInfo == null || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     LogUtil.e(TAG, "the service or dev is null!");
+                    if (mService ==null){
+                        LogUtil.d(TAG,"mService");
+                    }
+                    if (mDevice ==null){
+                        LogUtil.d(TAG,"mDevice");
+                    }
+                    if (mDevInfo ==null){
+                        LogUtil.d(TAG,"mDevInfo");
+                    }
+                    if(mDevice.isDisconnectBle()){
+                        LogUtil.d(TAG,"true");
+                    }
+                    if(mDevice.isBackGroundConnect()){
+                        LogUtil.d(TAG,"Back true");
+                    }
                     break;
                 }
 

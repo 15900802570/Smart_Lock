@@ -1,5 +1,7 @@
 package com.smart.lock.utils;
 
+import android.util.ArrayMap;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -265,10 +267,6 @@ public class ConstantUtil {
             "40", "41", "42", "43", "44", "45", "46", "47", "48", "49", "4A", "4B", "4C", "4D", "4E", "4F",
             "50", "51", "52", "53", "54", "55", "56", "57", "58", "59", "5A", "5B", "5C", "5D", "5E", "5F",
             "60", "61", "62", "63", "64", "65", "66", "67", "68", "69", "6A", "6B", "6C", "6D", "6E", "6F",
-    };
-
-    public static final String[] TEMP_PWD_NUMBERS = {
-            "单", "多"
     };
 
     public static final String[] TEMP_PWD_PERIOD = {

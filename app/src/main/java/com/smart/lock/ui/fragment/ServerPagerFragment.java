@@ -2,7 +2,6 @@ package com.smart.lock.ui.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,22 +15,12 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.InputFilter;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.daimajia.swipe.SwipeLayout;
-import com.smart.lock.MainActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
 import com.smart.lock.adapter.ViewPagerAdapter;
@@ -57,7 +46,6 @@ import com.smart.lock.ui.LpcdTestActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.ui.UserManagerActivity2;
-import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
@@ -65,8 +53,6 @@ import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.MyGridView;
-
-import java.util.ArrayList;
 
 
 public class ServerPagerFragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemClickListener, UiListener, DeviceListener {
@@ -215,6 +201,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
      * 刷新显示界面
      */
     private void refreshView(int status) {
+        LogUtil.d(TAG, "status = " + status);
         switch (status) {
             case DEVICE_CONNECTING:
 
@@ -244,6 +231,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                     mBattery = mDevice.getBattery();
                     refreshBattery(mBattery);
+                } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+                    mLockStatusTv.setText(R.string.bt_connecting);
+                    mBleConnectIv.setClickable(false);
+                    mBleConnectIv.setImageResource(R.mipmap.icon_bluetooth_nor);
                 } else {
                     mLockStatusTv.setText(R.string.bt_unconnected);
                     mBleConnectIv.setClickable(true);
@@ -467,7 +458,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
             case R.id.tv_lock_name:
                 if (this.getParentFragment() != null) {
-                    mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
+//                    mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
                     ((HomeFragment) getParentFragment()).showDialog();
                 }
                 break;
@@ -478,11 +469,18 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     }
 
     public void closedSelectDevDialog() {
-        if (mIconSelectDevIv != null) {
+        LogUtil.d(TAG, "Close"+"\n HashCode = "+this.hashCode());
+        if (this.mIconSelectDevIv != null) {
+            this.mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
+        } else if (mPagerView != null) {
+            mIconSelectDevIv = mPagerView.findViewById(R.id.icon_select_dev);
             mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev);
+        }else {
+            LogUtil.d(TAG, "Close2");
         }
 
     }
+
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -776,7 +774,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     }
 
     @Override
-    public void deleteDev() {
+    public void deleteDeviceDev() {
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         if (mDefaultDevice != null) {
             refreshView(BIND_DEVICE);
@@ -827,11 +825,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         } else {
             mIsVisibleToUser = false;
             if (mCurrentIndex) {
+                mDevice.halt();
                 mBleManagerHelper.getBleCardService().disconnect();
                 mBleManagerHelper.removeUiListener(this);
             }
         }
-
     }
 
 
