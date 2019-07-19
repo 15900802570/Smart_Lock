@@ -76,4 +76,5 @@ public class AutoConnectBle {
         Device.getInstance(mCtx).halt();
         DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(devInfo);
     }
+
 }

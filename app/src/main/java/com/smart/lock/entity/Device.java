@@ -198,7 +198,6 @@ public class Device {
     @Override
     public String toString() {
         return "Device{" +
-                "mContext=" + mContext +
                 ", mDisconnectBle=" + mDisconnectBle +
                 ", mBackGroundConnect=" + mBackGroundConnect +
                 ", connectType=" + connectType +

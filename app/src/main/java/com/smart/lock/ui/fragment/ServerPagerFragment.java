@@ -338,6 +338,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     public void onResume() {
         super.onResume();
+        LogUtil.d(TAG, "ddd : onResume");
         assert getParentFragment() != null;
         if (mIsVisibleToUser) {
             ((HomeFragment) getParentFragment()).setOnSelectDialogCancelListener(this);
@@ -426,7 +427,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 //                        showMessage(getString(R.string.is_connecting));
                         break;
                 }
-                refreshView(mDevice.getState());
+//                refreshView(mDevice.getState());
                 break;
             case R.id.ll_setting:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
@@ -813,7 +814,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-
+        LogUtil.d(TAG, "ddd : isVisibleToUser " + isVisibleToUser);
         if (isVisibleToUser) {
             mIsVisibleToUser = true;
             if (mCurrentIndex) {

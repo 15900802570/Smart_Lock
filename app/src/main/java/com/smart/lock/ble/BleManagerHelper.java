@@ -113,6 +113,8 @@ public class BleManagerHelper {
                     iterator.next().scanDevFailed();
                 }
             }
+
+            mBtAdapter.startDiscovery();
         }
     };
 

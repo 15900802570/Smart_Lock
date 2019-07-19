@@ -298,7 +298,7 @@ public class BleCardService {
             return false;
         }
 
-        mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
+        mBluetoothGatt = remoteDevice.connectGatt(mCtx, true, mGattCallback);
         LogUtil.d(TAG, "mBluetoothGatt : " + mBluetoothGatt.hashCode());
         if (null != mBluetoothGatt) {
             mEngine.registerDevice(device);

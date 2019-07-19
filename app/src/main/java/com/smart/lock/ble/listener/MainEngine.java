@@ -128,7 +128,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     return; //暂停的用户不需要重连
                 }
-                sendMessage(MSG_RECONNCT_BLE, null, 8 * 1000);
+//                sendMessage(MSG_RECONNCT_BLE, null, 8 * 1000);
                 break;
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
                 sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
@@ -136,7 +136,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case Device.BLE_SEARCH_DEV_CONNECT:
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) {
-                    return; //暂停的用户不需要重连
+                    return;
                 }
                 sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
                 break;
@@ -667,6 +667,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             int exception = message.getException();
             if (exception != Message.EXCEPTION_NORMAL) {
                 LogUtil.e(TAG, "msg exception : " + message.toString());
+                if (mService != null) mService.disconnect();
                 for (UiListener uiListener : mUiListeners) {
                     uiListener.sendFailed(message); //发送消息失败回调
                 }

@@ -36,7 +36,9 @@ public class BaseApplication extends Application {
     private Device mDevice;
 
     private boolean mActive;
-    private Object mStateLock = new Object();
+    private final Object mStateLock = new Object();
+
+    public int mActivityCount = 0;
 
     @Override
     public void onCreate() {
@@ -102,14 +104,20 @@ public class BaseApplication extends Application {
 
             @Override
             public synchronized void onActivityStarted(Activity activity) {
-                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到前台");
-                synchronized (mStateLock) {
-                    if (mTimer != null && mActive) {
-                        mActive = false;
-                        mTimer.cancel();
-                        mTimer = null;
+                if (activity instanceof MainActivity) {
+                    LogUtil.d(TAG, "MainActivity");
+                }
+                if (mActivityCount == 0) {
+                    LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到前台");
+                    synchronized (mStateLock) {
+                        if (mTimer != null && mActive) {
+                            mActive = false;
+                            mTimer.cancel();
+                            mTimer = null;
+                        }
                     }
                 }
+                mActivityCount++;
             }
 
             @Override
@@ -124,10 +132,13 @@ public class BaseApplication extends Application {
 
             @Override
             public synchronized void onActivityStopped(Activity activity) {
-                LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到后台");
-                synchronized (mStateLock) {
-                    if (!mActive) {
-                        startLoop();
+                mActivityCount--;
+                if (mActivityCount == 0) {
+                    LogUtil.v(TAG, ">>>>>>>>>>>>>>>>>>>切到后台");
+                    synchronized (mStateLock) {
+                        if (!mActive) {
+                            startLoop();
+                        }
                     }
                 }
             }
