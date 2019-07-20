@@ -370,7 +370,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 return;
             }
             mDevice.setBackGroundConnect(false);
-            MessageCreator.setSk(mDefaultDevice);
+            BleManagerHelper.setSk(mDefaultDevice.getBleMac(), mDefaultDevice.getDeviceSecret());
             refreshView(DEVICE_CONNECTING);
             Bundle bundle = new Bundle();
             bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
@@ -403,7 +403,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 switch (mDevice.getState()) {
                     case Device.BLE_DISCONNECTED:
                         refreshView(DEVICE_CONNECTING);
-                        MessageCreator.setSk(mDefaultDevice);
+                        BleManagerHelper.setSk(mDefaultDevice.getBleMac(), mDefaultDevice.getDeviceSecret());
                         Bundle dev = new Bundle();
                         if (mDefaultUser != null) {
                             dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
@@ -761,15 +761,17 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void reConnectBle(Device device) {
-        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
-        if (mDefaultDevice != null) {
-            mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
-        }
-        if (mDefaultUser == null) return;
-        mDevice = device;
-        LogUtil.i(TAG, "reConnectBle!");
-
-        sendMessage(DEVICE_CONNECTING, null, 0);
+//        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+//        if (mDefaultDevice != null) {
+//            mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
+//        }
+//        if (mDefaultUser == null) return;
+//        mDevice = device;
+//        LogUtil.i(TAG, "reConnectBle!");
+//
+//        sendMessage(DEVICE_CONNECTING, null, 0);
+        if (mIsVisibleToUser)
+            onResume();
     }
 
     @Override

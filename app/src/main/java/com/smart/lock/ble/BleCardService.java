@@ -148,6 +148,7 @@ public class BleCardService {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
 //                Log.i(TAG, "refresh ble :" + refreshDeviceCache());
                 Log.i(TAG, "Disconnected from GATT server.");
+                close();
                 for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
                     devStateCallback.onDisconnected();
                 }
@@ -298,7 +299,7 @@ public class BleCardService {
             return false;
         }
 
-        mBluetoothGatt = remoteDevice.connectGatt(mCtx, true, mGattCallback);
+        mBluetoothGatt = remoteDevice.connectGatt(mCtx, false, mGattCallback);
         LogUtil.d(TAG, "mBluetoothGatt : " + mBluetoothGatt.hashCode());
         if (null != mBluetoothGatt) {
             mEngine.registerDevice(device);
@@ -332,7 +333,6 @@ public class BleCardService {
             LogUtil.d(TAG, "mBluetoothGatt disconnect: " + mBluetoothGatt.hashCode());
             mBluetoothGatt.disconnect();
         }
-        close();
     }
 
     public MainEngine getMainEngine() {

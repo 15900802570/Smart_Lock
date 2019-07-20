@@ -39,41 +39,41 @@ public class MessageCreator {
 
     public static byte m128AK[] = new byte[16]; //128会话秘钥
 
-    /**
-     * 设置秘钥
-     */
-    public static void setSk(DeviceInfo info) {
-        String mac = info.getBleMac().replace(":", "");
-
-        byte[] macByte = StringUtil.hexStringToBytes(mac);
-        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
-        if (mIs128Code) {
-            byte[] code = new byte[10];
-            String secretCode = info.getDeviceSecret();
-            if (secretCode == null || secretCode.equals("0")) {
-                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
-                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
-                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
-            } else {
-                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
-                code = StringUtil.hexStringToBytes(secretCode);
-                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
-            }
-            LogUtil.d(TAG, "m128SK = " + Arrays.toString(m128SK));
-        } else {
-            System.arraycopy(macByte, 0, m256SK, 0, 6); //写入MAC
-            byte[] code = new byte[10];
-            String secretCode = info.getDeviceSecret();
-            if (secretCode == null || secretCode.equals("0")) {
-                Arrays.fill(m256SK, 6, 16, (byte) 0);
-            } else {
-                code = StringUtil.hexStringToBytes(secretCode);
-                System.arraycopy(code, 0, m256SK, 6, 10); //写入secretCode
-                Arrays.fill(m256SK, 16, 32, (byte) 0);
-            }
-            LogUtil.d(TAG, "m256AK = " + Arrays.toString(m256SK));
-        }
-    }
+//    /**
+//     * 设置秘钥
+//     */
+//    public static void setSk(DeviceInfo info) {
+//        String mac = info.getBleMac().replace(":", "");
+//
+//        byte[] macByte = StringUtil.hexStringToBytes(mac);
+//        LogUtil.d(TAG, "macByte = " + Arrays.toString(macByte));
+//        if (mIs128Code) {
+//            byte[] code = new byte[10];
+//            String secretCode = info.getDeviceSecret();
+//            if (secretCode == null || secretCode.equals("0")) {
+//                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
+//                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
+//                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
+//            } else {
+//                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
+//                code = StringUtil.hexStringToBytes(secretCode);
+//                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
+//            }
+//            LogUtil.d(TAG, "m128SK = " + Arrays.toString(m128SK));
+//        } else {
+//            System.arraycopy(macByte, 0, m256SK, 0, 6); //写入MAC
+//            byte[] code = new byte[10];
+//            String secretCode = info.getDeviceSecret();
+//            if (secretCode == null || secretCode.equals("0")) {
+//                Arrays.fill(m256SK, 6, 16, (byte) 0);
+//            } else {
+//                code = StringUtil.hexStringToBytes(secretCode);
+//                System.arraycopy(code, 0, m256SK, 6, 10); //写入secretCode
+//                Arrays.fill(m256SK, 16, 32, (byte) 0);
+//            }
+//            LogUtil.d(TAG, "m256AK = " + Arrays.toString(m256SK));
+//        }
+//    }
 
 
     /**

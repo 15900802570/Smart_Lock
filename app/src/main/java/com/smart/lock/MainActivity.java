@@ -206,6 +206,12 @@ public class MainActivity extends AppCompatActivity implements
                                 getResources().getString(R.string.pwd_setting_failed));
                     }
                     break;
+                case BleManagerHelper.REQUEST_OPEN_BT_CODE:
+                    if (mBleManagerHelper.getBleCardService() != null && mDevice != null) {
+                       mHomeFragment.onResume();
+                        LogUtil.d(TAG,"is enable!");
+                    }
+                    break;
             }
         } else if (resultCode == RESULT_CANCELED) {
             switch (requestCode) {

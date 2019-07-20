@@ -128,7 +128,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle() || mDevice.isBackGroundConnect()) {
                     return; //暂停的用户不需要重连
                 }
-//                sendMessage(MSG_RECONNCT_BLE, null, 8 * 1000);
+                sendMessage(MSG_RECONNCT_BLE, null, 8 * 1000);
                 break;
             case Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE:
                 sendMessage(BleMsg.STATE_DISCONNECTED, null, 0);
@@ -588,8 +588,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 LogUtil.i(TAG, "test reconnect device" + "mDevInfo.getBleMac() : " + mDevInfo.getBleMac());
                 if (mDevice.getState() == Device.BLE_DISCONNECTED) { //设备状态不是非连接，不需要自动连接
-                    boolean connect = mService.connect(mDevice, mDevInfo.getBleMac());
-                    if (connect) mDevice.setState(Device.BLE_CONNECTION);
+//                    boolean connect = mService.connect(mDevice, mDevInfo.getBleMac());
+//                    if (connect) mDevice.setState(Device.BLE_CONNECTION);
                     for (UiListener uiListener : mUiListeners) {
                         uiListener.reConnectBle(mDevice);
                     }

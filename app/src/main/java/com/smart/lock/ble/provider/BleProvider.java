@@ -32,7 +32,6 @@ import com.smart.lock.ble.creator.BleCmd31Creator;
 import com.smart.lock.ble.creator.BleCmd33Creator;
 import com.smart.lock.ble.creator.BleCmdOtaDataCreator;
 import com.smart.lock.ble.creator.BleCreator;
-import com.smart.lock.ble.listener.DeviceStateCallback;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.parser.BleCmd02Parse;
 import com.smart.lock.ble.parser.BleCmd04Parse;
