@@ -339,42 +339,8 @@ public class BleManagerHelper {
         }
     };
 
-//    /**
-//     * 设置秘钥
-//     */
-//    public static void setSk(String sBleMac, String sDevSecret) {
-//        String mac = sBleMac.replace(mContext.getString(R.string.colon), "");
-//
-//        byte[] macByte = StringUtil.hexStringToBytes(mac);
-//
-//        if (MessageCreator.mIs128Code) {
-//            byte[] code = new byte[10];
-//            if (sDevSecret == null || sDevSecret.equals("0")) {
-//                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
-//                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
-//                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
-//            } else {
-//                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
-//                code = StringUtil.hexStringToBytes(sDevSecret);
-//                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
-//            }
-//        } else {
-//            System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
-//            byte[] code = new byte[10];
-//            if (sDevSecret == null || sDevSecret.equals("0")) {
-//                Arrays.fill(MessageCreator.m256SK, 6, 16, (byte) 0);
-//            } else {
-//                code = StringUtil.hexStringToBytes(sDevSecret);
-//                System.arraycopy(code, 0, MessageCreator.m256SK, 6, 10); //写入secretCode
-//                Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
-//            }
-//        }
-//
-//    }
-
-
     /**
-     * 设置秘钥 --modify 01
+     * 设置秘钥
      */
     public static void setSk(String sBleMac, String sDevSecret) {
         String mac = sBleMac.replace(mContext.getString(R.string.colon), "");
@@ -384,12 +350,14 @@ public class BleManagerHelper {
         if (MessageCreator.mIs128Code) {
             byte[] code = new byte[10];
             if (sDevSecret == null || sDevSecret.equals("0")) {
-                Arrays.fill(MessageCreator.m128SK, 0, 10, (byte) 0x0A);
+                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
+                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
             } else {
+                System.arraycopy(macByte, 0, MessageCreator.m128SK, 0, 6); //写入MAC
                 code = StringUtil.hexStringToBytes(sDevSecret);
-                System.arraycopy(code, 0, MessageCreator.m128SK, 0, 10); //写入secretCode
+                System.arraycopy(code, 0, MessageCreator.m128SK, 6, 10); //写入secretCode
             }
-            System.arraycopy(macByte, 0, MessageCreator.m128SK, 10, 6); //写入MAC
         } else {
             System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
             byte[] code = new byte[10];
@@ -401,8 +369,40 @@ public class BleManagerHelper {
                 Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
             }
         }
-        LogUtil.d(TAG,"MessageCreator.m128SK : " + StringUtil.bytesToHexString(MessageCreator.m128SK,":"));
+
     }
+
+
+//    /**
+//     * 设置秘钥 --modify 01
+//     */
+//    public static void setSk(String sBleMac, String sDevSecret) {
+//        String mac = sBleMac.replace(mContext.getString(R.string.colon), "");
+//
+//        byte[] macByte = StringUtil.hexStringToBytes(mac);
+//
+//        if (MessageCreator.mIs128Code) {
+//            byte[] code = new byte[10];
+//            if (sDevSecret == null || sDevSecret.equals("0")) {
+//                Arrays.fill(MessageCreator.m128SK, 0, 10, (byte) 0x0A);
+//            } else {
+//                code = StringUtil.hexStringToBytes(sDevSecret);
+//                System.arraycopy(code, 0, MessageCreator.m128SK, 0, 10); //写入secretCode
+//            }
+//            System.arraycopy(macByte, 0, MessageCreator.m128SK, 10, 6); //写入MAC
+//        } else {
+//            System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
+//            byte[] code = new byte[10];
+//            if (sDevSecret == null || sDevSecret.equals("0")) {
+//                Arrays.fill(MessageCreator.m256SK, 6, 16, (byte) 0);
+//            } else {
+//                code = StringUtil.hexStringToBytes(sDevSecret);
+//                System.arraycopy(code, 0, MessageCreator.m256SK, 6, 10); //写入secretCode
+//                Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
+//            }
+//        }
+//        LogUtil.d(TAG,"MessageCreator.m128SK : " + StringUtil.bytesToHexString(MessageCreator.m128SK,":"));
+//    }
 
     public BleCardService getBleCardService() {
         return mService;
