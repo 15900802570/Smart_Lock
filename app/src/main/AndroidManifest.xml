@@ -40,7 +40,7 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="APP_SN"
-            android:value="\1586102" />
+            android:value="\1586101" />
 
         <activity
             android:name=".WelcomeActivity"

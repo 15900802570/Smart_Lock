@@ -97,7 +97,7 @@
                 <!--/>-->
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
@@ -115,7 +115,7 @@
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/temp_pwd_period"
-                    android:layout_width="wrap_content"
+                    android:layout_width="@dimen/x120dp"
                     android:layout_height="match_parent"
                     android:background="@color/white">
 
