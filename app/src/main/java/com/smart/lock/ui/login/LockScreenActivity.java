@@ -251,8 +251,12 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 //重新输入密码
                 mInfoTv.setText(getString(R.string.please_input_pwd_again));
                 type = ConstantUtil.SURE_SETTING_PASSWORD;
+                fBuffer.delete(0,fBuffer.length());
                 fBuffer.append(input);//保存第一次输入的密码
                 startTimer();
+                if(notCancel){
+                    mReturnTv.setVisibility(View.VISIBLE);
+                }
                 break;
             case ConstantUtil.LOGIN_PASSWORD: //登录
                 if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
@@ -274,9 +278,6 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
             case ConstantUtil.SURE_SETTING_PASSWORD: //确认密码
                 LogUtil.d("确认密码");
                 //判断两次输入的密码是否一致
-                if(notCancel){
-                    mReturnTv.setVisibility(View.VISIBLE);
-                }
                 if (input.equals(fBuffer.toString())) {//一致
                     //保存密码到文件中
                     SharedPreferenceUtil.getInstance(LockScreenActivity.this).initSharedPreferences(LockScreenActivity.this);

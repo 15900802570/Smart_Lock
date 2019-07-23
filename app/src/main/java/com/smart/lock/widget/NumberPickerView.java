@@ -88,6 +88,8 @@ public class NumberPickerView extends NumberPicker {
     }
 
     private void updateView(View view) {
+        ((EditText) view).setTextSize(16);
+        view.setBackgroundColor(getResources().getColor(R.color.white));
         setNumberPickerDividerColor(this);
     }
 
