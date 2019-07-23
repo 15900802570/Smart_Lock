@@ -232,7 +232,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     }
 
     private void onAuthenticationSuccess(DeviceInfo deviceInfo) {
-        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_success));
+        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_success));
         mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
         mDevice.setDisconnectBle(false);
         if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
@@ -249,7 +249,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             mDevice.halt();
         }
         DialogUtils.closeDialog(mLoadDialog);
-        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.toast_add_lock_falied));
+        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_falied));
         mScanQRResultInterface.onAuthenticationFailed();
     }
 

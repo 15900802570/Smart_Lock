@@ -326,7 +326,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/y16dp"
-            android:text="@string/toast_add_lock_success"
+            android:text="@string/LogUtil_add_lock_success"
             android:textColor="@color/black"
             android:textSize="@dimen/d16sp" />
 

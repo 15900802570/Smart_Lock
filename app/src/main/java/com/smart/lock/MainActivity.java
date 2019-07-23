@@ -196,20 +196,17 @@ public class MainActivity extends AppCompatActivity implements
                     break;
                 case ConstantUtil.SETTING_PWD_REQUEST_CODE:
                     if (Objects.requireNonNull(data.getExtras()).getInt(ConstantUtil.CONFIRM) == 1) {
-                        SharedPreferenceUtil.getInstance(this).
-                                writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
-                        ToastUtil.showLong(this,
-                                getResources().getString(R.string.pwd_setting_successfully));
-
+                        SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+                        ToastUtil.showLong(this, getResources().getString(R.string.pwd_setting_successfully));
                     } else {
-                        ToastUtil.showLong(this,
-                                getResources().getString(R.string.pwd_setting_failed));
+                        ToastUtil.showLong(this, getResources().getString(R.string.pwd_setting_failed));
                     }
                     break;
                 case BleManagerHelper.REQUEST_OPEN_BT_CODE:
                     if (mBleManagerHelper.getBleCardService() != null && mDevice != null) {
-                       mHomeFragment.onResume();
-                        LogUtil.d(TAG,"is enable!");
+                        mBleManagerHelper.getBleCardService().disconnect();
+                        mDevice.setDisconnectBle(false);
+                        LogUtil.d(TAG, "is unenable!");
                     }
                     break;
             }
@@ -219,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements
                     if (mBleManagerHelper.getBleCardService() != null && mDevice != null) {
                         mDevice.setDisconnectBle(true);
                         mBleManagerHelper.getBleCardService().disconnect();
-                        LogUtil.d(TAG,"is unenable!");
+                        LogUtil.d(TAG, "is unenable!");
                     }
                     break;
             }

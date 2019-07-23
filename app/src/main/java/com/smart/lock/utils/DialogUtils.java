@@ -36,6 +36,9 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.ui.SelfCheckActivity;
 import com.smart.lock.widget.CustomDialog;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class DialogUtils {
     private static final String TAG = "DialogUtils";
 
@@ -86,7 +89,7 @@ public class DialogUtils {
         tipTextView.setText(msg);// 设置加载信息
 
         LogUtil.d(TAG, "context instanceof SelfCheckActivity " + (context instanceof SelfCheckActivity));
-        Dialog loadingDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
+        final Dialog loadingDialog = new Dialog(context, R.style.DialogStyle);// 创建自定义样式dialog
         loadingDialog.setCancelable(true); // 是否可以按“返回键”消失
         loadingDialog.setCanceledOnTouchOutside(false); // 点击加载框以外的区域
         loadingDialog.setContentView(layout, new LinearLayout.LayoutParams(

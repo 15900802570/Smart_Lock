@@ -334,6 +334,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDevicePath = dir + mFileName;
 
             tempPath = mDevicePath + ".temp";
+            FileUtil.clearFiles(dir);
         } catch (Exception e) {
             e.printStackTrace();
         }

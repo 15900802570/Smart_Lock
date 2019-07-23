@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.ArrayMap;
 
+import com.smart.lock.R;
 import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.listener.DeviceStateCallback;
@@ -105,11 +106,27 @@ public class SendOTAData implements DeviceStateCallback, Handler.Callback {
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case BleCardService.READ:
-
+                LogUtil.d(TAG, "READ");
+                send(index++);
                 break;
             case BleCardService.WRITE:
-//                mBleManagerHelper.getBleCardService().validateOta(this.type);
-                send(index++);
+                int count = index++;
+                boolean ret = mBleManagerHelper.getBleCardService().validateOta(this.type, count);
+
+                LogUtil.d(TAG, "WRITE");
+                if (!ret) {
+                    send(count);
+                }
+//                int sectionSize = 16 * 8;
+//                int sendTotal = index * 16;
+//                if (sendTotal > 0 && sendTotal % sectionSize == 0) {
+//                    try {
+//                        Thread.sleep(20);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+
                 break;
         }
         return true;

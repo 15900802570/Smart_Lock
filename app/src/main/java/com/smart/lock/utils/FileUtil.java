@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -28,20 +30,6 @@ public class FileUtil {
 
     // public static String filePath;
 
-    /**
-     * 获取目录名称
-     *
-     * @param url
-     * @return FileName
-     */
-    public static String getFileName(String url) {
-        int lastIndexStart = url.lastIndexOf("/");
-        if (lastIndexStart != -1) {
-            return url.substring(lastIndexStart + 1, url.length());
-        } else {
-            return "shouzhangbao.apk";
-        }
-    }
 
     /**
      * 检查SD卡是否存在
@@ -533,8 +521,40 @@ public class FileUtil {
                     temp.delete();
                 }
             }
+        }
+    }
+
+    public static void clearQr(Context context, String type) {
+        String dir = FileUtil.createDir(context, ConstantUtil.QR_DIR_NAME) + File.separator;
+        File file = new File(dir);
+        if (file.isFile()) {
+            file.delete();
+        } else {
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File temp : files) {
+                    String fileName = temp.getName().trim().toLowerCase();
+                    if (fileName.endsWith(type)) {
+                        String name = fileName.substring(0, fileName.lastIndexOf("."));
+                        LogUtil.d(TAG, "name : " + name);
+                        if (isNumeric(name)) {
+                            if (System.currentTimeMillis() - Long.parseLong(name) > 30 * 60 * 60) {
+                                temp.delete();
+                            }
+                        } else temp.delete();
+
+                    } else temp.delete();
+                }
+            }
 
         }
+    }
+
+    private static boolean isNumeric(String str) {
+        Pattern pattern = Pattern.compile("[0-9]*");
+        Matcher isNum = pattern.matcher(str);
+        return isNum.matches();
+
     }
 
     public static byte[] loadFirmware(String filename) {

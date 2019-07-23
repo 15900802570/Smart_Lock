@@ -48,6 +48,7 @@ import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
@@ -100,7 +101,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             super.handleMessage(msg);
             switch (msg.what) {
                 case CHECK_USERS_STATE_TIME_OUT:
-
+                    DialogUtils.closeDialog(mLoadDialog);
                     break;
                 default:
                     break;
@@ -466,6 +467,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         mCheckUsers.remove(index);
                     }
                     if (mCheckUsers.size() == 0) {
+                        FileUtil.clearQr(mCtx,".jpg");
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
