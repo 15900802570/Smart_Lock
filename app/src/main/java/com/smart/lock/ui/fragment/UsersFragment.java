@@ -100,7 +100,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             super.handleMessage(msg);
             switch (msg.what) {
                 case CHECK_USERS_STATE_TIME_OUT:
-
+                    DialogUtils.closeDialog(mLoadDialog);
                     break;
                 default:
                     break;
