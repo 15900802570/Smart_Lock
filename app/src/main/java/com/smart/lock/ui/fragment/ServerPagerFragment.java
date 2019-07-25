@@ -41,6 +41,7 @@ import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
+import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.LpcdTestActivity;
 import com.smart.lock.ui.TempPwdActivity;
@@ -128,7 +129,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mBleConnectIv.setOnClickListener(this);
         mDevStatusLl.setOnClickListener(this);
         mLockNameTv.setOnClickListener(this);
-        mInstructionBtn.setOnClickListener(this);
     }
 
     @SuppressLint("HandlerLeak")
@@ -362,7 +362,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             LogUtil.e(TAG, "mDefaultUser is null! ");
             return;
         }
-
+        //重新设置一键开锁的监听事件
+        mInstructionBtn.setOnClickListener(this);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
             if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
@@ -446,7 +447,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         if (mNodeId.getBytes().length == 15)
                             mNodeId = "0" + mNodeId;
                         byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
-
+                        LogUtil.d(TAG,"NodeId = "+ mNodeId+"\n"+"hash" +this.hashCode());
                         StringUtil.exchange(nodeId);
                         mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
 

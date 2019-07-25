@@ -305,16 +305,19 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
             } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                if (0 == code || code == -1) {
+                    compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+                    if (mVersionModel.forceUpdate) {
+                        compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+                    } else {
+                        compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+                    }
                 }
             }
-//            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -378,7 +381,12 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                         }
                     });
                 }
-                mThread.start();
+                if(mThread.getState()!= Thread.State.RUNNABLE){
+                    mThread.start();
+                }else {
+                    mThread.interrupt();
+                    mThread.start();
+                }
             } else {
                 mStartBt.setVisibility(View.VISIBLE);
                 mStartBt.setEnabled(true);

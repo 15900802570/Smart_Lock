@@ -97,6 +97,12 @@ public class ConstantUtil {
     public static final int SETTING_PWD_REQUEST_CODE = 1;
 
     /**
+     * 不限版本号升级
+     * true 打开 false 关闭
+     */
+    public static final Boolean UN_CHECK_VERSION_NUMBER = false;
+
+    /**
      * SharedPreferences的文件名
      */
     public static final String PREF_NAME = "numberlock";

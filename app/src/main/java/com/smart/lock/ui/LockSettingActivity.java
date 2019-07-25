@@ -74,7 +74,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private Dialog mWaitingDialog;
 
     private int mSetTime;
-    private boolean mRestore = false;
 
     private TextView mSetRolledBackTime5sTv;
     private TextView mSetRolledBackTime8sTv;
@@ -155,6 +154,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mSetSupportCardBottomDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_support_card, R.id.design_bottom_sheet);
         mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
         mSetOrdinaryCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_ordinary_card);
+
+        if(SystemUtils.getMetaDataFromApp(this).equals("1586102")){
+            mIntelligentLockTs.setVisibility(View.GONE);
+        }
 
     }
 
@@ -545,11 +548,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 mWaitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
                 mWaitingDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
-                if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
-                    mRestore = true;
-                } else {
-                    ToastUtil.show(this, R.string.restore_the_factory_settings_failed, Toast.LENGTH_LONG);
-                }
                 break;
         }
         DialogUtils.closeDialog(mWarningDialog);
@@ -845,7 +843,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 mSetRolledBackTimeBs.setBtnDes(mSetTime + LockSettingActivity.this.getResources().getString(R.string.s));
                 break;
             case 0x22:  //恢复出厂设置成功
-                if (mRestore) {
+                if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
                     ToastUtil.show(
                             LockSettingActivity.this,
                             R.string.restore_the_factory_settings_success,

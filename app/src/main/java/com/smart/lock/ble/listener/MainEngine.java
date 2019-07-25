@@ -382,7 +382,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         if (mDevInfo != null && StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             DeviceInfo defaultDevice = mDeviceInfoDao.queryFirstData("device_default", true);
-            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId());
+            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
