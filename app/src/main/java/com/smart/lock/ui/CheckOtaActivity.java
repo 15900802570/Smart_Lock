@@ -206,7 +206,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     } else {
                         mCheckFpVersion = false;
                         mDefaultDev = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true); //刷新数据库
-                        LogUtil.d(TAG, "mDefaultDev 2: " + mDefaultDev.toString());
                         if (mVersionAction.respondData.models != null && mDefaultDev != null) {
                             mOtaAdapter.setDataSource(mVersionAction.respondData.models);
                             mOtaAdapter.notifyDataSetChanged(); //刷新升级界面
@@ -289,7 +288,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         } else {
             mCheckFpVersion = false;
             mDefaultDev = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true); //刷新数据库
-            LogUtil.d(TAG, "mDefaultDev 2: " + mDefaultDev.toString());
             if (mVersionAction.respondData.models != null && mDefaultDev != null) {
                 mOtaAdapter.setDataSource(mVersionAction.respondData.models);
                 mOtaAdapter.notifyDataSetChanged(); //刷新升级界面

@@ -29,6 +29,8 @@ public class AutoConnectBle {
      */
     private BleManagerHelper mBleManagerHelper;
 
+    private boolean mAutoConnect = true;
+
     private ArrayList<DeviceInfo> newDeviceInfo;
     private static AutoConnectBle mAutoConnectBle;
 
@@ -77,4 +79,11 @@ public class AutoConnectBle {
         DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(devInfo);
     }
 
+    public boolean isAutoConnect() {
+        return mAutoConnect;
+    }
+
+    public void setAutoConnect(boolean mAutoConnect) {
+        this.mAutoConnect = mAutoConnect;
+    }
 }

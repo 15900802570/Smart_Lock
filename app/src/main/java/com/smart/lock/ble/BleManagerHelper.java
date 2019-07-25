@@ -83,7 +83,7 @@ public class BleManagerHelper {
     private long mStartTime = 0;
     private long mEndTime = 0;
 
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 20000;
     private Device mDevice; //蓝牙连接状态实例
 
     private DeviceInfo mDefaultDevice; //默认设备
@@ -366,9 +366,7 @@ public class BleManagerHelper {
                 Arrays.fill(MessageCreator.m256SK, 16, 32, (byte) 0);
             }
         }
-
     }
-
 
 //    /**
 //     * 设置秘钥 --modify 01

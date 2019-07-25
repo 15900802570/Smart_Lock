@@ -22,6 +22,7 @@ import com.smart.lock.R;
 import com.smart.lock.action.CheckOtaAction;
 import com.smart.lock.action.CheckVersionAction;
 import com.smart.lock.ble.AES_ECB_PKCS7;
+import com.smart.lock.ble.AutoConnectBle;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
@@ -136,7 +137,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     private final static int PAYLOAD_LEN = 20;
 
     private boolean bWriteDfuData = false;
-
+    private boolean mOtaMode = false;
     /**
      * 蓝牙服务类
      */
@@ -305,20 +306,22 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
-            if (0 == code || code == -1) {
-                compareVersion(CheckVersionAction.NO_NEW_VERSION);
-            } else {
-                if (mVersionModel.forceUpdate) {
-                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                } else {
-                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                }
-            }
-//            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//            if (0 == code || code == -1) {
+//                compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//            } else {
+//                if (mVersionModel.forceUpdate) {
+//                    compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                } else {
+//                    compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                }
+//            }
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(this);
+        autoConnectBle.setAutoConnect(true);
     }
 
 
@@ -640,6 +643,8 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     @Override
     public void onDestroy() {
         super.onDestroy();
+        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(this);
+        autoConnectBle.setAutoConnect(false);
         mBleManagerHelper.removeUiListener(this);
         mBleManagerHelper.getBleCardService().removeDevStateCb(mSendOTAData);
 
@@ -662,14 +667,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         switch (v.getId()) {
             case R.id.iv_back_sysset:
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
-//                    long curTime = SystemClock.uptimeMillis();
-//                    if (curTime - mBackPressedTime < 3000) {
-//                        bWriteDfuData = false;
-//                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
-//                        finish();
-//                        return;
-//                    }
-//                    mBackPressedTime = curTime;
                     ToastUtil.showShort(this, getString(R.string.ota_back_message));
                 } else {
                     setResult(CheckOtaActivity.CHECK_FP_VERSION);
@@ -680,14 +677,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 if (mStartBt.getText().toString().trim().equals(getString(R.string.download_version))) {
                     toDownload(true);
                 } else {
-                    gCmdBytes = FileUtil.loadFirmware(mDevicePath);
-                    mOtaParser.set(gCmdBytes, mSha1);
-                    mConnetStatus.setText(R.string.start_update);
-                    if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OTA_FINRGERPRINT_UPDATE);
-                    } else {
-                        showMessage(getString(R.string.plz_reconnect));
-                    }
+                    connectOTA();
                 }
                 break;
             default:
@@ -695,7 +685,26 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         }
     }
 
-    int i = 0;
+    private void connectOTA() {
+        mConnetStatus.setText(R.string.connect_ota_mode);
+        if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RAPID_OTA_FP);
+        } else {
+            showMessage(getString(R.string.plz_reconnect));
+        }
+    }
+
+    private void updateVersion() {
+        mStartBt.setEnabled(false);
+        mConnetStatus.setText(R.string.start_update);
+        gCmdBytes = FileUtil.loadFirmware(mDevicePath);
+        mOtaParser.set(gCmdBytes, mSha1);
+        if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OTA_FINRGERPRINT_UPDATE);
+        } else {
+            showMessage(getString(R.string.plz_reconnect));
+        }
+    }
 
     @Override
     public void deviceStateChange(Device device, int state) {
@@ -707,6 +716,14 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 if (mOtaParser.hasNextPacket()) {
                     bWriteDfuData = false;
                     mConnetStatus.setText(R.string.ota_file_dan);
+                    mOtaMode = false; //异常断开，重置ota模式
+                } else if (!mOtaMode) {
+                    mConnetStatus.setText(R.string.dfu_end_waiting);
+                } else if (mOtaParser.getTotal() == 0) {
+                    mConnetStatus.setText(R.string.ota_connection);
+                } else {
+                    mStartBt.setEnabled(false);
+                    mConnetStatus.setText(R.string.disconnect_ble);
                 }
                 break;
             case BleMsg.STATE_CONNECTED:
@@ -727,22 +744,20 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_3E:
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
-                i = 0;
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
 
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
-                LogUtil.i(TAG, "receiver 04!");
-                if (!bWriteDfuData && !mOtaParser.hasNextPacket()) {
-//                    if (StringUtil.checkNotNull(mVersionModel.versionName)) {
-//                        mDefaultDev.setDeviceSwVersion(mVersionModel.versionName);
-//                        DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
-//                    }
+                LogUtil.i(TAG, "receiver 04!" + mOtaMode);
+                if (!mOtaMode && !bWriteDfuData && !mOtaParser.hasNextPacket()) {
                     String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
                     FileUtil.clearFiles(dir);
                     mConnetStatus.setText(R.string.ota_complete);
+                    mOtaMode = false;//异常断开，重置ota模式
+                } else if (mOtaMode) {
+                    updateVersion();
                 } else {
                     downloadSize = 0;
                     fileSize = 0;
@@ -764,10 +779,16 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_ALLOW_FINGERPRINT_OTA_UPDATE:
-                if (mDevice.getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
-                    mBleManagerHelper.getBleCardService().sendCmd37((gCmdBytes.length + mSha1.length), BleMsg.INT_DEFAULT_TIMEOUT);
+                mStartBt.setEnabled(false);
+                if (mOtaMode) {
+                    if (mDevice.getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
+                        mBleManagerHelper.getBleCardService().sendCmd37((gCmdBytes.length + mSha1.length), BleMsg.INT_DEFAULT_TIMEOUT);
+                    } else {
+                        showMessage(getString(R.string.plz_reconnect));
+                    }
                 } else {
-                    showMessage(getString(R.string.plz_reconnect));
+                    LogUtil.i(TAG, "mOtaMode : " + mOtaMode);
+                    mOtaMode = true;
                 }
                 break;
             case BleMsg.TYPE_REFUSE_FINGERPRINT_OTA_UPDATE:
@@ -779,11 +800,8 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_FAILED:
                 bWriteDfuData = false;
-                if (mOtaParser.hasNextPacket()) {
-                    mConnetStatus.setText(R.string.ota_file_dan);
-                } else {
-                    mConnetStatus.setText(R.string.ota_file_dan);
-                }
+                mOtaMode = false;
+                mConnetStatus.setText(R.string.ota_file_dan);
                 break;
             case BleMsg.TYPE_GET_FINGERPRINT_SIZE:
                 prepareDFU();
@@ -793,6 +811,11 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 if (mBleManagerHelper.getBleCardService() != null)
                     mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
                 showMessage(getString(R.string.plz_open_slide));
+                mOtaMode = false;
+                break;
+            case BleMsg.TYPE_NO_AUTHORITY_1E:
+                mOtaMode = true;
+                updateVersion();
                 break;
             default:
                 break;
@@ -817,22 +840,13 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     @Override
     public void scanDevFailed() {
         mConnetStatus.setText(R.string.connect_failed);
-        mStartBt.setEnabled(true);
+        mStartBt.setEnabled(false);
         updateDfuReady(Device.DFU_CHAR_DISCONNECTED);
     }
 
     @Override
     public void onBackPressed() {
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
-//            long curTime = SystemClock.uptimeMillis();
-//            LogUtil.d(TAG, "mBackPressedTime = " + mBackPressedTime);
-//            if (curTime - mBackPressedTime < 3000) {
-//                bWriteDfuData = false;
-//                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_STOP_OTA_FINRGERPRINT_UPDATE);
-//                finish();
-//                return;
-//            }
-//            mBackPressedTime = curTime;
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
 
         } else {
