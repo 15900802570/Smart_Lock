@@ -169,13 +169,11 @@ public class BleManagerHelper {
 
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             if (context instanceof MainActivity) {
-                LogUtil.d(TAG, "isEnabled1 : " + mBtAdapter.isEnabled());
                 AppCompatActivity activty = (AppCompatActivity) context;
                 activty.startActivityForResult(enableIntent, REQUEST_OPEN_BT_CODE);
             } else {
-                LogUtil.d(TAG, "isEnabled2 : " + mBtAdapter.isEnabled());
+                enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(enableIntent);
             }
 
@@ -196,7 +194,6 @@ public class BleManagerHelper {
                 mBtAdapter.startLeScan(mLeScanCallback);
             }
         }
-
     }
 
     public Device getDevice(byte type, Bundle bundle, Context ctx) {

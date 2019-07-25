@@ -818,8 +818,16 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         } else if (requestCode == REQUEST_ENABLE_BT) {
             LogUtil.d(TAG, "requestCode = " + requestCode + " resultCode :" + resultCode);
             if (resultCode == RESULT_OK) {
+                if (mBleManagerHelper.getBleCardService() != null && mDevice != null) {
+                    mBleManagerHelper.getBleCardService().disconnect();
+                    mDevice.setDisconnectBle(false);
+                }
                 scanLeDevice(true);
             } else if (resultCode == RESULT_CANCELED) {
+                if (mBleManagerHelper.getBleCardService() != null && mDevice != null) {
+                    mDevice.setDisconnectBle(true);
+                    mBleManagerHelper.getBleCardService().disconnect();
+                }
                 showMessage(getString(R.string.unenable_ble));
                 finish();
             }

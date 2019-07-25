@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class ConstantUtil {
 
-    //    public static String BASE_URL = "https://api.dttsh.cn";
-    public static String BASE_URL = "https://api.dttsh.cn";
+        public static String BASE_URL = "https://api.dttsh.cn";
+//    public static String BASE_URL = "http://118.31.62.126:8093";
     public static final String CHECK_FIRMWARE_VERSION = BASE_URL + "/api/v1.0/firmware/update";
     public static final String CHECK_APP_VERSION = BASE_URL + "/api/v1.0/application/update";
     /**

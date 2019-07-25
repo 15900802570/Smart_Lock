@@ -119,6 +119,36 @@ public class OtaAESPacketParser implements BleCommandParse {
         return packet;
     }
 
+//    public byte[] getPacket(int index) {
+//
+//        int length = this.data.length;
+//        int size = 16;
+//        int packetSize;
+//
+//        if (length > size) {
+//            if ((index + 1) == this.total) {
+//                packetSize = length - index * size;
+//            } else {
+//                packetSize = size;
+//            }
+//        } else {
+//            packetSize = length;
+//        }
+//
+//        packetSize = packetSize + 4;
+//        byte[] packet = new byte[20];
+//        for (int i = 0; i < 20; i++) {
+//            packet[i] = (byte) 0xFF;
+//        }
+//        System.arraycopy(this.data, index * size, packet, 2, packetSize - 4);
+//
+//        this.fillIndex(packet, index);
+//        int crc = this.crc16(packet);
+//        this.fillCrc(packet, crc);
+//        LogUtil.d("ota packet ---> index : " + index + " total : " + this.total + " crc : " + crc + " content : " + StringUtil.bytesToHexString(packet, ":"));
+//        return packet;
+//    }
+
     public byte[] getCheckPacket() {
         byte[] packet = new byte[16];
         for (int i = 0; i < 16; i++) {
@@ -181,7 +211,6 @@ public class OtaAESPacketParser implements BleCommandParse {
     }
 
     public int getProgress() {
-        invalidateProgress();
         return this.progress;
     }
 
