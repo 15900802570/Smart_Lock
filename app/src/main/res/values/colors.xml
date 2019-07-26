@@ -154,4 +154,5 @@
     <color name="setting_bg">#FFEEEEEE</color>
     <color name="self_check_green">#2BC80D</color>
     <color name="self_check_blue">#0078FF</color>
+    <color name="color_purple">#0078FF</color>
 </resources>

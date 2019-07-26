@@ -65,7 +65,7 @@ public class SendOTAData implements DeviceStateCallback, Handler.Callback {
     }
 
     private void send(int index) {
-        LogUtil.d(TAG,"index : " + index);
+        LogUtil.d(TAG, "index : " + index);
         if (dataList.get(index) != null) {
             mBleManagerHelper.getBleCardService().sendCmdOtaData(dataList.get(index), type);
         } else {
@@ -112,12 +112,20 @@ public class SendOTAData implements DeviceStateCallback, Handler.Callback {
                 break;
             case BleCardService.WRITE:
 //                int count = index++;
-//                boolean ret = mBleManagerHelper.getBleCardService().validateOta(this.type, count++);
+//                LogUtil.d(TAG, "count : " + count);
+//                boolean ret = mBleManagerHelper.getBleCardService().validateOta(this.type, count);
 //
-//                LogUtil.d(TAG, "WRITE");
+//                LogUtil.d(TAG, "WRITE" + ret);
 //                if (!ret) {
 //                    send(count);
 //                }
+
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 send(index++);
                 break;
         }
