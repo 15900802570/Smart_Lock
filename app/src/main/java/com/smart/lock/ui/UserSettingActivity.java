@@ -878,12 +878,12 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
 
                     if (mLifeCb.isChecked()) {
-                        if (mStartDate < mEndDate) {
-                            if (checkLifeCycle()) {
-                                showMessage(getString(R.string.life_cycle_not_changed));
-                                return;
-                            }
-                        } else {
+                        if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
                             showMessage("起始日期不能大于或等于结束日期");
                             return;
                         }

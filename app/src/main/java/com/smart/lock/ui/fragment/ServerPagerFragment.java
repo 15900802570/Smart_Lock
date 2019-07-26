@@ -173,7 +173,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
                         DeviceInfo devInfo = autoConnectBle.getAutoDev();
 
-                        if (devInfo != null) {
+                        if (devInfo != null && autoConnectBle.isAutoConnect()) {
                             autoConnectBle.autoConnect(devInfo);
                             ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
                             onResume();
@@ -338,7 +338,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     public void onResume() {
         super.onResume();
-        LogUtil.d(TAG, "ddd : onResume");
         assert getParentFragment() != null;
         if (mIsVisibleToUser) {
             ((HomeFragment) getParentFragment()).setOnSelectDialogCancelListener(this);

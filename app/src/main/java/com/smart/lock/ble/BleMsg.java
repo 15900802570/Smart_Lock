@@ -322,6 +322,8 @@ public class BleMsg {
     //连接方式
     public static final String KEY_BLE_CONNECT_TYPE = "bleConnectType";
 
+    public static final String KEY_DEVICE_INFO = "deviceInfo"; //门锁信息
+
     /**
      * MSG 2E ERRCODE
      */
@@ -469,7 +471,7 @@ public class BleMsg {
     public static final byte TYPE_DELETE_LOG_SUCCESS = 0x01; //删除log成功
     public static final byte TYPE_DELETE_LOG_FAILED = 0x02; //删除log失败
     public static final byte TYPE_NO_AUTHORITY_3E = 0x03;  //无权限
-    public static final byte TYPE_GET_FINGERPRINT_SIZE = 0x04;  //无权限
+    public static final byte TYPE_GET_FINGERPRINT_SIZE = 0x04;  //长度
 
     /**
      * MSG 33 type
@@ -506,6 +508,9 @@ public class BleMsg {
     public static final byte TYPE_STOP_OTA_FINRGERPRINT_UPDATE = 0x18;//停止指纹ota升级
     public static final byte TYPE_CHECK_FINGERPRINT_VERSION = 0x19;//查询指纹ota固件版本
     public static final byte TYPE_SELF_REPAIR = 0x1A;//开锁设备修复 通过1E回复
+
+    public static final byte TYPE_RAPID_OTA = 0x1b;//快速OTA升级
+    public static final byte TYPE_RAPID_OTA_FP = 0x1c;//快速OTA升级
 
 
     /**
