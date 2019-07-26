@@ -466,8 +466,7 @@ public class HomeFragment extends BaseFragment implements
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                             } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
-                                mDefaultInfo.setDeviceDefault(false);
-                                DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(mDefaultInfo);
+                                DeviceInfoDao.getInstance(mActivity).setNoDefaultDev();
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(mActivity).exchangeConnect(deviceInfo);

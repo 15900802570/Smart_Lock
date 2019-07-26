@@ -382,10 +382,10 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                         }
                     });
                 }
-                if(mThread.getState()!= Thread.State.RUNNABLE){
-                    mThread.start();
-                }else {
+                if (mThread.isAlive()) {
                     mThread.interrupt();
+                    mThread.start();
+                } else {
                     mThread.start();
                 }
             } else {
