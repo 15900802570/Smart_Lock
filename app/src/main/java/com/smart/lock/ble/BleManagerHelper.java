@@ -370,7 +370,8 @@ public class BleManagerHelper {
 
 //    /**
 //     * 设置秘钥 --modify 01
-//     */
+//     *
+//     * */
 //    public static void setSk(String sBleMac, String sDevSecret) {
 //        String mac = sBleMac.replace(mContext.getString(R.string.colon), "");
 //
@@ -398,6 +399,7 @@ public class BleManagerHelper {
 //        }
 //        LogUtil.d(TAG,"MessageCreator.m128SK : " + StringUtil.bytesToHexString(MessageCreator.m128SK,":"));
 //    }
+
 
     public BleCardService getBleCardService() {
         return mService;

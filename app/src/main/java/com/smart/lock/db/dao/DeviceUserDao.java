@@ -226,7 +226,7 @@ public class DeviceUserDao {
         return deviceUser;
     }
 
-    public synchronized DeviceUser queryOrCreateByNodeId(Object nodeId, short userId) {
+    public synchronized DeviceUser queryOrCreateByNodeId(Object nodeId, short userId, String authCode) {
         DeviceUser deviceUser = null;
         try {
             deviceUser = dao.queryBuilder().where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).queryForFirst();
@@ -235,6 +235,7 @@ public class DeviceUserDao {
             } else {
                 deviceUser = new DeviceUser();
                 deviceUser.setDevNodeId((String) nodeId);
+                deviceUser.setAuthCode(authCode);
                 deviceUser.setUserId(userId);
                 deviceUser.setCreateTime(System.currentTimeMillis() / 1000);
                 if (userId < 101) {

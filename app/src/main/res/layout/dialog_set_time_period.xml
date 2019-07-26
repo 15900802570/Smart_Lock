@@ -31,15 +31,19 @@
             android:layout_height="@dimen/x180dp"
             android:background="@color/white"
             android:gravity="center"
+            android:paddingStart="@dimen/y15dp"
+            android:paddingEnd="@dimen/y15dp"
             android:orientation="horizontal">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
+                android:background="@color/white"
                 android:layout_weight="1">
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/start_hour_np"
                     android:layout_width="wrap_content"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:background="@color/white">
 
@@ -55,6 +59,7 @@
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/start_minute_np"
                     android:layout_width="wrap_content"
+                    android:layout_weight="1"
                     android:layout_height="match_parent"
                     android:background="@color/white">
 
@@ -66,6 +71,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:src="@drawable/ic_line"
+                android:background="@color/white"
                 />
 
             <LinearLayout
@@ -73,12 +79,14 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:background="@color/white"
                 >
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/end_hour_np"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:background="@color/white">
+                    android:background="@color/white"
+                    android:layout_weight="1">
 
                 </com.smart.lock.widget.NumberPickerView>
 
@@ -88,18 +96,18 @@
                     android:text=":"
                     android:textSize="@dimen/d19sp"
                     android:gravity="center"
+                    android:background="@color/white"
                     android:textColor="@color/black"/>
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/end_minute_np"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:background="@color/white">
+                    android:background="@color/white"
+                    android:layout_weight="1">
 
                 </com.smart.lock.widget.NumberPickerView>
             </LinearLayout>
-
-
         </LinearLayout>
     </LinearLayout>
 

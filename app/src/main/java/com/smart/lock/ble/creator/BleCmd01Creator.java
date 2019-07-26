@@ -138,7 +138,7 @@ public class BleCmd01Creator implements BleCreator {
 //
 //        StringUtil.short2Bytes(userId, buf);
 //        System.arraycopy(buf, 0, msgBuf, 34, 2);
-//        LogUtil.d(TAG,"msgBuf : " + StringUtil.bytesToHexString(msgBuf,":"));
+//        LogUtil.d(TAG, "msgBuf : " + StringUtil.bytesToHexString(msgBuf, ":"));
 //
 //        long time = System.currentTimeMillis() / 1000;
 //        StringUtil.int2Bytes((int) time, buf);
@@ -147,7 +147,10 @@ public class BleCmd01Creator implements BleCreator {
 //        System.arraycopy(authCodeBuf, 0, msgBuf, 4, 30); //authCode
 //
 //        Arrays.fill(msgBuf, 36, 48, (byte) 0x0B);
-//        LogUtil.d(TAG,"MessageCreator.m128SK : " + StringUtil.bytesToHexString(MessageCreator.m128SK,":"));
+//        LogUtil.d(TAG, "MessageCreator.m128SK : " + StringUtil.bytesToHexString(MessageCreator.m128SK, ":"));
+//        LogUtil.d(TAG, "cmd1 buf = " + StringUtil.bytesToHexString(buf));
+//        LogUtil.d(TAG, "cmd1 authCode = " + StringUtil.bytesToHexString(authCodeBuf));
+//        LogUtil.d(TAG, "cmd1 msgBuf = " + StringUtil.bytesToHexString(msgBuf));
 //
 //        try {
 //            if (MessageCreator.mIs128Code)
@@ -163,7 +166,8 @@ public class BleCmd01Creator implements BleCreator {
 //        for (int i = 0; i < MessageCreator.pwdRandom.length; i++) {
 //            MessageCreator.pwdRandom[i] = (byte) new Random().nextInt(10);
 //        }
-//
+//        LogUtil.d(TAG, "cmd01 buf = " + StringUtil.bytesToHexString(buf));
+//        LogUtil.d(TAG, "cmd01 cmd = " + StringUtil.bytesToHexString(cmd));
 //        try {
 //            if (MessageCreator.mIs128Code)
 //                AES_ECB_PKCS7.AES128Encode(MessageCreator.pwdRandom, buf, MessageCreator.m128SK);
@@ -181,7 +185,7 @@ public class BleCmd01Creator implements BleCreator {
 //        System.arraycopy(buf, 0, cmd, 69, 2);
 //        byte[] bleCmd = new byte[71];
 //        System.arraycopy(cmd, 0, bleCmd, 0, 71);
-//        LogUtil.d(TAG,"TEST >>> send 01 :" + StringUtil.bytesToHexString(bleCmd));
+//        LogUtil.d(TAG, "TEST >>> send 01 :" + StringUtil.bytesToHexString(bleCmd));
 //        return bleCmd;
     }
 }
