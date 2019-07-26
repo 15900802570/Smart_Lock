@@ -269,16 +269,22 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null && !mCheckFpVersion) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
-//            mVersionAction.setDeviceSn("158631011112222333");
+            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+                mVersionAction.setDeviceSn(ConstantUtil.DEVICE_SN_FOR_TEST);
+            } else {
+                mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+            }
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
             if (hasFp) {
                 String fpSwVersion = mDefaultDev.getFpSwVersion();
                 String[] fpSw = fpSwVersion.split("\\.");
                 String ret = fpSw[fpSw.length - 2];
-                mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
-//                mVersionAction.setFpType("DMTTEST");
+                if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+                    mVersionAction.setFpType(ConstantUtil.FP_TYPE_FOR_TEST);
+                } else {
+                    mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
+                }
                 mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
                 mVersionAction.setFpCurZone(ret);
             }
