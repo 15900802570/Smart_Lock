@@ -53,6 +53,24 @@
             android:layout_height="0.2dip"
             android:background="@color/line" />
 
+        <TextView
+            android:id="@+id/single_delete_tv"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/y80dp"
+            android:gravity="center_vertical"
+            android:onClick="setOnClick"
+            android:paddingLeft="@dimen/x30dp"
+            android:paddingTop="@dimen/y15dp"
+            android:paddingBottom="@dimen/y15dp"
+            android:text="@string/single_delete"
+            android:textColor="@color/black_de"
+            android:textSize="@dimen/d18sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.2dip"
+            android:background="@color/line" />
+
 
         <TextView
             android:id="@+id/group_delete_tv"
@@ -63,7 +81,7 @@
             android:paddingLeft="@dimen/x30dp"
             android:paddingTop="@dimen/y15dp"
             android:paddingBottom="@dimen/y15dp"
-            android:text="批量删除"
+            android:text="@string/group_delete"
             android:textColor="@color/black_de"
             android:textSize="@dimen/d18sp" />
 
@@ -81,10 +99,10 @@
             android:layout_height="@dimen/y80dp"
             android:gravity="center_vertical"
             android:onClick="setOnClick"
-            android:paddingLeft="@dimen/x30dp"
+            android:paddingStart="@dimen/x30dp"
             android:paddingTop="@dimen/y15dp"
             android:paddingBottom="@dimen/y15dp"
-            android:text="用户设置"
+            android:text="@string/user_setting"
             android:textColor="@color/black_de"
             android:textSize="@dimen/d18sp" />
 
@@ -101,10 +119,10 @@
             android:layout_height="@dimen/y80dp"
             android:gravity="center_vertical"
             android:onClick="setOnClick"
-            android:paddingLeft="@dimen/x30dp"
+            android:paddingStart="@dimen/x30dp"
             android:paddingTop="@dimen/y15dp"
             android:paddingBottom="@dimen/y15dp"
-            android:text="编辑用户名"
+            android:text="@string/edit_user_name"
             android:textColor="@color/black_de"
             android:textSize="@dimen/d18sp" />
 

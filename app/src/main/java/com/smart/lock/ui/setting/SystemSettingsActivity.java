@@ -55,6 +55,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private ToggleSwitchDefineView mFingersPrintSwitchTv;
     private ToggleButton mFingersPrintSwitchLight;
     private ToggleSwitchDefineView mOpenTestTv;
+    private ToggleSwitchDefineView mOpenUnlockDownloadTv;
     private ToggleButton mOpenTestTb;
     private ToggleButton mNumPwdSwitchLightTBtn;
     private ToggleSwitchDefineView mFingerprintSwitchTv;
@@ -123,6 +124,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mSetDevInfoNv = findViewById(R.id.next_set_info);
         mTitleTv = findViewById(R.id.tv_title);
         mQueryLpcdNv = findViewById(R.id.next_query_lpcd);
+        mOpenUnlockDownloadTv = findViewById(R.id.tw_open_unlock_download);
 
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
@@ -135,6 +137,9 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
         mQueryLpcdNv.setDes("阈值查询");
+        mOpenUnlockDownloadTv.setDes("固件测试版本下载");
+        mOpenUnlockDownloadTv.setChecked(ConstantUtil.UN_CHECK_VERSION_NUMBER);
+        mOpenUnlockDownloadTv.setVisibility(View.GONE);
         mSetDevInfoNv.setVisibility(View.GONE);
         mQueryLpcdNv.setVisibility(View.GONE);
 
@@ -227,6 +232,13 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         });
         mTitleTv.setOnClickListener(this);
         mQueryLpcdNv.setOnClickListener(this);
+
+        mOpenUnlockDownloadTv.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doOnClick(R.id.tw_open_unlock_download);
+            }
+        });
     }
 
     @Override
@@ -261,6 +273,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     if (mSetDevInfoNv.getVisibility() == View.GONE) {
                         mSetDevInfoNv.setVisibility(View.VISIBLE);
                         mQueryLpcdNv.setVisibility(View.VISIBLE);
+                        mOpenUnlockDownloadTv.setVisibility(View.VISIBLE);
                     }
                 }
                 break;
@@ -380,6 +393,15 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 result.putExtra(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
                 result.setAction(BleMsg.STR_RSP_OPEN_TEST);
                 LocalBroadcastManager.getInstance(SystemSettingsActivity.this).sendBroadcast(result);
+                break;
+            case R.id.tw_open_unlock_download:
+                if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+                    ConstantUtil.UN_CHECK_VERSION_NUMBER = false;
+                    mOpenUnlockDownloadTv.setChecked(false);
+                } else {
+                    ConstantUtil.UN_CHECK_VERSION_NUMBER = true;
+                    mOpenUnlockDownloadTv.setChecked(true);
+                }
                 break;
         }
     }

@@ -80,6 +80,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
     private TextView mUserSettingTv;
     private TextView mUserNameTv;
     private TextView mEditUserNameTv;
+    private TextView mSingleDeleteTv;
 
     private TextView mCreateAdminTv;
     private TextView mCreateMembersTv;
@@ -88,6 +89,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
     private TextView mDeleteCancelTV;
 
     private DeviceUser mSettingUser;
+    private boolean mSingleMode = false;
 
     private Context mCtx;
 
@@ -159,11 +161,18 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     bundle.putSerializable(BleMsg.KEY_TEMP_USER, mSettingUser);
                     startIntent(UserSettingActivity.class, bundle);
                 } else
-                    showMessage("用户已暂停,请恢复后设置");
+                    showMessage(getString(R.string.user_pause_warning));
                 mFunctionDialog.cancel();
                 break;
             case R.id.edit_user_name:
                 mUserAdapter.editUserName();
+                mFunctionDialog.cancel();
+                break;
+            case R.id.single_delete_tv:
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    mSingleMode = true;
+                    mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_DELETE_USER, mSettingUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                } else showMessage(getString(R.string.disconnect_ble));
                 mFunctionDialog.cancel();
                 break;
             case R.id.create_admin_tv:
@@ -228,6 +237,9 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         mUserAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * 刷新view
+     */
     public void refreshView() {
         if (mUserAdapter != null) {
             mUserAdapter.setDataSource();
@@ -252,6 +264,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         mUserSettingTv = mFunctionDialog.findViewById(R.id.user_setting_tv);
         mUserNameTv = mFunctionDialog.findViewById(R.id.user_name_tv);
         mEditUserNameTv = mFunctionDialog.findViewById(R.id.edit_user_name);
+        mSingleDeleteTv = mFunctionDialog.findViewById(R.id.single_delete_tv);
 
         mLine = mFunctionDialog.findViewById(R.id.line);
         mCreateAdminTv = mCreateUserDialog.findViewById(R.id.create_admin_tv);
@@ -295,6 +308,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         mCreateMembersTv.setOnClickListener(this);
         mCreateCancelTv.setOnClickListener(this);
         mDeleteCancelTV.setOnClickListener(this);
+        mSingleDeleteTv.setOnClickListener(this);
 
         mSelectCb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -467,7 +481,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         mCheckUsers.remove(index);
                     }
                     if (mCheckUsers.size() == 0) {
-                        FileUtil.clearQr(mCtx,".jpg");
+                        FileUtil.clearQr(mCtx, ".jpg");
                         try {
                             Thread.sleep(500);
                         } catch (InterruptedException e) {
@@ -592,7 +606,8 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     DeviceKeyDao.getInstance(mCtx).deleteUserKey(deleteUser.getUserId(), deleteUser.getDevNodeId()); //删除开锁信息
 
                     mUserAdapter.removeItem(deleteUser);
-                    if (mUserAdapter.mDeleteUsers.size() == 0) {
+                    if (mUserAdapter.mDeleteUsers.size() == 0 || mSingleMode) {
+                        mSingleMode = false;
                         showMessage(mCtx.getString(R.string.delete_user_success));
                         selectDelete(false);
                         DialogUtils.closeDialog(mLoadDialog);
@@ -862,7 +877,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
                     holder.mUserStateTv.setText(mContext.getString(R.string.normal));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
                     holder.mUserContent.setOnLongClickListener(null);
                     holder.mDeleteRl.setVisibility(View.GONE);
 
@@ -870,53 +885,20 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 } else {
                     holder.mNameTv.setText(userInfo.getUserName());
 
-                    if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                        holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
-                        holder.mSwipeLayout.setRightSwipeEnabled(false);
-                        holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
-                    } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
-                        holder.mUserStateTv.setText(mContext.getString(R.string.normal));
-                        holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
-                        holder.mUserPause.setVisibility(View.VISIBLE);
-                        holder.mUserRecovery.setVisibility(View.GONE);
-                        holder.mSwipeLayout.setRightSwipeEnabled(true);
-                    } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
-                        holder.mUserStateTv.setText(mContext.getString(R.string.pause));
-                        holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
-                        holder.mUserPause.setVisibility(View.GONE);
-                        holder.mUserRecovery.setVisibility(View.VISIBLE);
-                        holder.mSwipeLayout.setRightSwipeEnabled(true);
-                    }
+                    refreshStatus(userInfo.getUserStatus(), holder); //刷新用户状态
+
                     if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
                         holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
                     else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
                         holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
 
-                    holder.mUserPause.setOnClickListener(new View.OnClickListener() {
+                    holder.mUserStatus.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (mDevice.getState() == Device.BLE_CONNECTED) {
-                                DialogUtils.closeDialog(mLoadDialog);
-                                mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.data_loading));
-                                mLoadDialog.show();
-                                mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                            } else showMessage(getString(R.string.disconnect_ble));
+                            doClick(holder, userInfo.getUserId());
                         }
                     });
-
-                    holder.mUserRecovery.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (mDevice.getState() == Device.BLE_CONNECTED) {
-                                DialogUtils.closeDialog(mLoadDialog);
-                                mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.data_loading));
-                                mLoadDialog.show();
-                                mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                            } else showMessage(getString(R.string.disconnect_ble));
-                        }
-                    });
-
 
                     holder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -943,18 +925,15 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
                         @Override
                         public boolean onLongClick(View v) {
-                            shakes();
-                            mSettingUser = userInfo;
-                            mUserNameTv.setText(userInfo.getUserName());
-                            if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                                mUserSettingTv.setVisibility(View.GONE);
-                                mLine.setVisibility(View.GONE);
-                            } else {
-                                mUserSettingTv.setVisibility(View.VISIBLE);
-                                mLine.setVisibility(View.VISIBLE);
-                            }
-                            mFunctionDialog.show();
+                            showBottomDialog(userInfo);
                             return true;
+                        }
+                    });
+
+                    holder.mUserMore.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showBottomDialog(userInfo);
                         }
                     });
 
@@ -978,6 +957,73 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     }
                 });
             }
+        }
+
+        /**
+         * 刷新用户状态
+         *
+         * @param status 用户状态标志
+         */
+        private void refreshStatus(int status, UserViewHolder holder) {
+            switch (status) {
+                case ConstantUtil.USER_UNENABLE:
+                    holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.gray1));
+                    holder.mUserStatus.setVisibility(View.GONE);
+                    break;
+                case ConstantUtil.USER_ENABLE:
+                    holder.mUserStateTv.setText(mContext.getString(R.string.normal));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+                    holder.mUserStatus.setVisibility(View.VISIBLE);
+                    holder.mUserStatus.setBackgroundResource(R.color.color_red);
+                    holder.mSetStateTv.setText(getString(R.string.pause));
+                    holder.mSetStateTv.setTag(R.string.pause);
+                    break;
+                case ConstantUtil.USER_PAUSE:
+                    holder.mUserStateTv.setText(mContext.getString(R.string.pause));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_red));
+                    holder.mUserStatus.setVisibility(View.VISIBLE);
+                    holder.mUserStatus.setBackgroundResource(R.color.color_green);
+                    holder.mSetStateTv.setText(getString(R.string.recovery));
+                    holder.mSetStateTv.setTag(R.string.recovery);
+                    break;
+            }
+        }
+
+        /**
+         * 用户状态切换
+         *
+         * @param holder item
+         * @param userId 用户编号
+         */
+        private void doClick(UserViewHolder holder, short userId) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                DialogUtils.closeDialog(mLoadDialog);
+                mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.data_loading));
+                mLoadDialog.show();
+                switch ((int) holder.mSetStateTv.getTag()) {
+                    case R.string.pause:
+                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userId, BleMsg.INT_DEFAULT_TIMEOUT);
+                        break;
+                    case R.string.recovery:
+                        mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userId, BleMsg.INT_DEFAULT_TIMEOUT);
+                        break;
+                }
+            } else showMessage(getString(R.string.disconnect_ble));
+        }
+
+        private void showBottomDialog(DeviceUser userInfo) {
+//            shakes();
+            mSettingUser = userInfo;
+            mUserNameTv.setText(userInfo.getUserName());
+            if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                mUserSettingTv.setVisibility(View.GONE);
+                mLine.setVisibility(View.GONE);
+            } else {
+                mUserSettingTv.setVisibility(View.VISIBLE);
+                mLine.setVisibility(View.VISIBLE);
+            }
+            mFunctionDialog.show();
         }
 
         /**
@@ -1009,10 +1055,11 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             SwipeLayout mSwipeLayout;
             TextView mNameTv;
             TextView mUserNumberTv;
-            LinearLayout mUserRecovery;
-            LinearLayout mUserPause;
+            LinearLayout mUserMore;
+            LinearLayout mUserStatus;
             CheckBox mDeleteCb;
             LinearLayout mUserContent;
+            TextView mSetStateTv;
 
             UserViewHolder(View itemView) {
                 super(itemView);
@@ -1022,8 +1069,9 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 mEditIbtn = itemView.findViewById(R.id.ib_edit);
                 mSwipeLayout = (SwipeLayout) itemView;
                 mUserNumberTv = itemView.findViewById(R.id.tv_user_number);
-                mUserRecovery = itemView.findViewById(R.id.ll_recovey);
-                mUserPause = itemView.findViewById(R.id.ll_pause);
+                mUserMore = itemView.findViewById(R.id.ll_more);
+                mUserStatus = itemView.findViewById(R.id.ll_status);
+                mSetStateTv = itemView.findViewById(R.id.tv_set_status);
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
                 mUserContent = itemView.findViewById(R.id.content_ll);
             }

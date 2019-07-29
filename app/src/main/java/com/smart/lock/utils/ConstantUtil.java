@@ -100,7 +100,7 @@ public class ConstantUtil {
      * 不限版本号升级
      * true 打开 false 关闭
      */
-    public static final Boolean UN_CHECK_VERSION_NUMBER = true;
+    public static Boolean UN_CHECK_VERSION_NUMBER = false;
     /**
      * 测试sn号
      */

@@ -8,7 +8,7 @@
     app:clickToClose="true"
     app:drag_edge="right">
 
-    <include layout="@layout/layout_swipe_item_state" />
+    <include layout="@layout/layout_swipe_user_item" />
 
     <LinearLayout
         android:layout_width="fill_parent"

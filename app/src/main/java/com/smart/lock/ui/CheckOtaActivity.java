@@ -246,7 +246,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                         fpCount = 0;
                         checkDevVersion(false);
                     }
-
                 }
                 break;
             case BleMsg.TYPE_OPEN_SLIDE:

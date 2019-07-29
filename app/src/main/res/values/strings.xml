@@ -401,5 +401,9 @@
     <string name="self_repair">Self-Repair</string>
     <string name="repair_">Repair...</string>
     <string name="plz_open_slide">Please open slide</string>
-    <string name="more">more</string>
+    <string name="more">More</string>
+    <string name="single_delete">Single Delete</string>
+    <string name="group_delete">Group Delete</string>
+    <string name="edit_user_name">Edit user name</string>
+    <string name="user_pause_warning">The user has been suspended, please resume setting</string>
 </resources>
