@@ -410,4 +410,8 @@
     <string name="repair_">正在修复...</string>
     <string name="more">更多</string>
     <string name="plz_open_slide">请打开滑盖</string>
+    <string name="single_delete">单项删除</string>
+    <string name="group_delete">批量删除</string>
+    <string name="edit_user_name">编辑用户名</string>
+    <string name="user_pause_warning">用户已暂停,请恢复后设置</string>
 </resources>

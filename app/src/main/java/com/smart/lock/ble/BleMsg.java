@@ -512,7 +512,6 @@ public class BleMsg {
     public static final byte TYPE_RAPID_OTA = 0x1b;//快速OTA升级
     public static final byte TYPE_RAPID_OTA_FP = 0x1c;//快速OTA升级
 
-
     /**
      * msg 0E type
      */
