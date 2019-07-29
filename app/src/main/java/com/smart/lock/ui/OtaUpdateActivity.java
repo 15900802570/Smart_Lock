@@ -155,6 +155,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
 
     private boolean bWriteDfuData = false;
     private boolean mOtaMode = false;
+    private boolean mOldVersion = true;
 
     /**
      * 蓝牙服务类
@@ -725,15 +726,18 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         }
     }
 
+    //请求升级指令
     private void updateVersion() {
         mStartBt.setEnabled(false);
         mConnetStatus.setText(R.string.start_update);
         gCmdBytes = FileUtil.loadFirmware(mDevicePath);
-        mOtaParser.set(gCmdBytes);
-        if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
-            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OTA_UPDATE);
-        } else {
-            showMessage(getString(R.string.plz_reconnect));
+        if (gCmdBytes != null) {
+            mOtaParser.set(gCmdBytes);
+            if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
+                mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OTA_UPDATE);
+            } else {
+                showMessage(getString(R.string.plz_reconnect));
+            }
         }
     }
 
@@ -816,6 +820,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     prepareDFU();
                 } else {
                     mOtaMode = true;
+                    mOldVersion = false;
                 }
                 break;
             case BleMsg.TYPE_REFUSE_OTA_UPDATE:
@@ -830,6 +835,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 break;
             case BleMsg.TYPE_NO_AUTHORITY_1E:
                 mOtaMode = true;
+                mOldVersion = true;
                 updateVersion();
                 break;
             default:
@@ -900,8 +906,19 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     break;
                 case BleCardService.WRITE:
                     LogUtil.d(TAG, "WRITE");
+                    boolean ret = false;
                     if (bWriteDfuData) {
-                        boolean ret = mBleManagerHelper.getBleCardService().validateOta(Message.TYPE_BLE_SEND_OTA_DATA, mOtaParser.getNextPacketIndex());
+                        if (mOldVersion) {
+                            try {
+                                Thread.sleep(20);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                        } else
+                            ret = mBleManagerHelper.getBleCardService().validateOta(Message.TYPE_BLE_SEND_OTA_DATA, mOtaParser.getNextPacketIndex());
+
+
                         if (!ret) {
                             if (mOtaParser.hasNextPacket()) {
                                 writeCommandByPosition();
@@ -909,9 +926,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                                 endDFU();
                             }
                         }
-                    }
-                    if (mOtaParser.invalidateProgress()) {
-                        sendMessage(STATE_PROGRESS);
+
+                        if (mOtaParser.invalidateProgress()) {
+                            sendMessage(STATE_PROGRESS);
+                        }
                     }
                     break;
             }
@@ -929,7 +947,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mConnetStatus.setText(R.string.ota_updating);
                 if (!mOtaParser.hasNextPacket()) {
                     LogUtil.d(TAG, "upgrade success");
-                    mStartBt.setEnabled(true);
+                    mStartBt.setEnabled(false);
                     mOtaMode = false;
                     mConnetStatus.setText(R.string.dfu_end_waiting);
                 }

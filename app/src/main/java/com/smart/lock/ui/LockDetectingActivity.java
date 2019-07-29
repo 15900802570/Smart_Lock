@@ -465,16 +465,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             mTipsLl.setVisibility(View.GONE);
             String mac = device.getAddress().replace(getString(R.string.colon), "");
             mScanLockTv.setText(getString(R.string.checking_security));
-//            byte[] macByte = StringUtil.hexStringToBytes(mac);
-//
-//            if (MessageCreator.mIs128Code) {
-//                System.arraycopy(StringUtil.hexStringToBytes("5A6B7C8D9E"), 0, MessageCreator.m128SK, 0, 5);
-//                System.arraycopy(macByte, 0, MessageCreator.m128SK, 5, 6); //写入MAC
-//                System.arraycopy(StringUtil.hexStringToBytes("A5B6C7D8E9"), 0, MessageCreator.m128SK, 11, 5);
-//            } else {
-//                System.arraycopy(macByte, 0, MessageCreator.m256SK, 0, 6); //写入MAC
-//                Arrays.fill(MessageCreator.m256SK, 6, 32, (byte) 0);
-//            }
 
             BleManagerHelper.setSk(device.getAddress(), null);
             Device connDev = Device.getInstance(mCtx);
@@ -603,10 +593,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 if (!connDev.isDisconnectBle()) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mSearchAddDev = false;
-                }/*else {
-                    mLoadDialog = DialogUtils.createLoadingDialog(mCtx, mCtx.getResources().getString(R.string.checking_security));
-                    mLoadDialog.show();
-                }*/
+                }else connDev.setDisconnectBle(false);
 
                 break;
             case BleMsg.STATE_CONNECTED:

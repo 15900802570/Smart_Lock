@@ -620,6 +620,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 writeCommandByPosition();
             } else if (mOtaParser.isLast()) { // end of writing command;
                 endDFU();
+                mOtaMode = false;
             }
 
         }
