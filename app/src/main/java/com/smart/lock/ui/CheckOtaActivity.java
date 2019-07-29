@@ -246,7 +246,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                         fpCount = 0;
                         checkDevVersion(false);
                     }
-
                 }
                 break;
             case BleMsg.TYPE_OPEN_SLIDE:
@@ -269,16 +268,16 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null && !mCheckFpVersion) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-//            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
-            mVersionAction.setDeviceSn("158631011112222333");
+            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+//            mVersionAction.setDeviceSn("158631011112222333");
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
             if (hasFp) {
                 String fpSwVersion = mDefaultDev.getFpSwVersion();
                 String[] fpSw = fpSwVersion.split("\\.");
                 String ret = fpSw[fpSw.length - 2];
-//                mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
-                mVersionAction.setFpType("DMTTEST");
+                mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
+//                mVersionAction.setFpType("DMTTEST");
                 mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
                 mVersionAction.setFpCurZone(ret);
             }

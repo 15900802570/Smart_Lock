@@ -989,15 +989,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         }
     }
 
+    //校验产品号
     private boolean compareSn(byte[] sn) {
-        boolean ret = false;
         String devSn = StringUtil.asciiDeBytesToCharString(sn).substring(0, 7);
         String appSn = SystemUtils.getMetaDataFromApp(mCtx);
         LogUtil.d(TAG, "devSn : " + devSn + " appSn: " + appSn);
-        if (devSn.equals(appSn)) {
-            ret = true;
-        }
-        return ret;
+        return devSn.equals(appSn);
     }
 
 
@@ -1010,6 +1007,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         Toast.makeText(mCtx, msg, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * 设置鉴权码到数据库
+     * @param authTime 鉴权码里面的时间
+     * @return
+     */
     private String setAuthCode(byte[] authTime) {
         byte[] authCode = new byte[30];
         if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
