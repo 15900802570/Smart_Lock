@@ -182,7 +182,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public void halt() {
         mDevInfo = null;
         mDevice.halt();
-        mCheckMsg.recycle();
+        if (mCheckMsg != null) {
+            mCheckMsg.recycle();
+        }
     }
 
     public void close() {
@@ -1009,6 +1011,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     /**
      * 设置鉴权码到数据库
+     *
      * @param authTime 鉴权码里面的时间
      * @return
      */

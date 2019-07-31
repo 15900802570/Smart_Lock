@@ -340,7 +340,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
     /**
      * 获取随机字符
      *
-     * @return String 00 -- 99
+     * @return String 000 -- 999
      */
     private String createRandomNum(boolean once, int period) {
         if (once) {
