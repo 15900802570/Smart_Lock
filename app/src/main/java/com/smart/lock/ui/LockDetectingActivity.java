@@ -565,13 +565,17 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mHandler.sendMessage(msgFull);
                 break;
             case BleMsg.TYPE_OPEN_SLIDE:
-                if (mBleManagerHelper.getBleCardService() != null)
-                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+//                if (mBleManagerHelper.getBleCardService() != null)
+//                    mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_11 + "#" + "single");
+//                DialogUtils.closeDialog(mLoadDialog);
+//                if (mDevice.getState() != Device.BLE_DISCONNECTED)
+//                    mBleManagerHelper.getBleCardService().disconnect();
+//                mSearchAddDev = false;
+//                showMessage(getString(R.string.plz_open_slide));
                 DialogUtils.closeDialog(mLoadDialog);
-                if (mDevice.getState() != Device.BLE_DISCONNECTED)
-                    mBleManagerHelper.getBleCardService().disconnect();
-                mSearchAddDev = false;
-                showMessage(getString(R.string.plz_open_slide));
+                DialogUtils.createLoadingDialog(this, getString(R.string.plz_open_slide_input_key));
+                if (!mLoadDialog.isShowing())
+                    mLoadDialog.show();
                 break;
             default:
                 break;
@@ -593,8 +597,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 if (!connDev.isDisconnectBle()) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mSearchAddDev = false;
-                }else connDev.setDisconnectBle(false);
-
+                } else connDev.setDisconnectBle(false);
                 break;
             case BleMsg.STATE_CONNECTED:
 

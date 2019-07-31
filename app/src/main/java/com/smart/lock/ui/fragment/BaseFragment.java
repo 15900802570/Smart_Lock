@@ -221,7 +221,7 @@ public abstract class BaseFragment extends Fragment {
     protected String createQr(DeviceUser user) {
         byte[] buf = new byte[64];
         byte[] authBuf = new byte[64];
-        authBuf[0] = user.getUserPermission();
+        authBuf[0] = user.getUserPermission(); //用户类型
         byte[] authCode = new byte[30];
         if (StringUtil.checkNotNull(user.getAuthCode())) {
             authCode = StringUtil.hexStringToBytes(user.getAuthCode());
