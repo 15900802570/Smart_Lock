@@ -155,7 +155,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
         mSetOrdinaryCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_ordinary_card);
 
-        if(SystemUtils.getMetaDataFromApp(this).equals("1586102")){
+        if (SystemUtils.getMetaDataFromApp(this).equals("1586102")) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
 
@@ -546,6 +546,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 break;
             case R.id.warning_confirm_btn:
                 mWaitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
+                mWarningDialog.setCancelable(true);
                 mWaitingDialog.show();
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
                 break;
@@ -672,6 +673,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        if (state != BleMsg.STATE_CONNECTED) {
+            DialogUtils.closeDialog(mWarningDialog);
+            DialogUtils.closeDialog(mWaitingDialog);
+        }
     }
 
     @Override

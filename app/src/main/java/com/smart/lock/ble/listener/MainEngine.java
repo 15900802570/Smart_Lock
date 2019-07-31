@@ -182,7 +182,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public void halt() {
         mDevInfo = null;
         mDevice.halt();
-        mCheckMsg.recycle();
+        if (mCheckMsg != null) {
+            mCheckMsg.recycle();
+        }
     }
 
     public void close() {
@@ -385,7 +387,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         if (mDevInfo != null && (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE
                 || mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT)) {
-            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), null);
+            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
@@ -510,7 +512,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.d(TAG, "status4 = " + status4);
 
         if (mDevInfo != null) {
-            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), null);
+            mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getBleMac(), 1)); //第一字节状态字
@@ -1009,6 +1011,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     /**
      * 设置鉴权码到数据库
+     *
      * @param authTime 鉴权码里面的时间
      * @return
      */

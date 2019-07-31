@@ -93,6 +93,12 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:onClick="onClick" />
+
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/tw_open_unlock_download"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick" />
         </LinearLayout>
     </ScrollView>
 

@@ -100,8 +100,15 @@ public class ConstantUtil {
      * 不限版本号升级
      * true 打开 false 关闭
      */
-    public static final Boolean UN_CHECK_VERSION_NUMBER = false;
-
+    public static Boolean UN_CHECK_VERSION_NUMBER = false;
+    /**
+     * 测试sn号
+     */
+    public static final String DEVICE_SN_FOR_TEST = "158631011112222333";
+    /**
+     * 测试FPType
+     */
+    public static final String FP_TYPE_FOR_TEST = "DMTTEST";
     /**
      * SharedPreferences的文件名
      */

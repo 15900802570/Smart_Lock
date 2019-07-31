@@ -39,6 +39,8 @@ import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ScanQRHelper implements UiListener, PermissionInterface {
     private final String TAG = ScanQRHelper.class.getSimpleName();
@@ -220,6 +222,8 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             }
             mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
             mLoadDialog.show();
+            mLoadDialog.setCancelable(true);
+            mTimer.schedule(closeDialogTimer(mLoadDialog), 20 * 1000);
             mBleManagerHelper.addUiListener(this);
             BleManagerHelper.setSk(mBleMac, mRandCode);
             Bundle bundle = new Bundle();
@@ -249,6 +253,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             mDevice.halt();
         }
         DialogUtils.closeDialog(mLoadDialog);
+        mTimer.cancel();
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_falied));
         mScanQRResultInterface.onAuthenticationFailed();
     }
@@ -369,6 +374,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 if (mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT) {
                     showMessage("添加失败,请重试!");
                     DialogUtils.closeDialog(mLoadDialog);
+                    mTimer.cancel();
                 }
                 break;
             default:
@@ -491,4 +497,15 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         return mPermissionHelper;
     }
 
+    private Timer mTimer = new Timer();
+
+    private TimerTask closeDialogTimer(final Dialog dialog) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                showMessage("请求超时");
+                DialogUtils.closeDialog(dialog);
+            }
+        };
+    }
 }

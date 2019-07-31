@@ -34,18 +34,22 @@ public class PacketParser implements BleCommandParse {
 
     public void set(byte[] data, byte[] sha1) {
         this.clear();
-        LogUtil.d(TAG, "data : " + data.length + " sha1 : " + sha1.length);
-        this.data = new byte[data.length + sha1.length];
-        System.arraycopy(sha1, 0, this.data, 0, sha1.length);
-        System.arraycopy(data, 0, this.data, sha1.length, data.length);
+        if (data == null || sha1 ==null){
+            LogUtil.e(TAG, "data or sha1 is null");
+        }else {
+            LogUtil.d(TAG, "data : " + data.length + " sha1 : " + sha1.length);
+            this.data = new byte[data.length + sha1.length];
+            System.arraycopy(sha1, 0, this.data, 0, sha1.length);
+            System.arraycopy(data, 0, this.data, sha1.length, data.length);
 
-        int length = this.data.length;
-        int size = 495;
+            int length = this.data.length;
+            int size = 495;
 
-        if (length % size == 0) {
-            total = length / size;
-        } else {
-            total = (int) Math.floor(length / size + 1);
+            if (length % size == 0) {
+                total = length / size;
+            } else {
+                total = (int) Math.floor(length / size + 1);
+            }
         }
     }
 
