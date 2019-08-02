@@ -41,6 +41,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
@@ -268,18 +269,22 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null && !mCheckFpVersion) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
-                mVersionAction.setDeviceSn(ConstantUtil.DEVICE_SN_FOR_TEST);
-            } else {
-                mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
-            }
+//            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+//                mVersionAction.setDeviceSn(ConstantUtil.DEVICE_SN_FOR_TEST);
+//            } else {
+//                mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+//            }
+
+            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
             if (hasFp) {
                 String fpSwVersion = mDefaultDev.getFpSwVersion();
                 String[] fpSw = fpSwVersion.split("\\.");
                 String ret = fpSw[fpSw.length - 2];
-                if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+
+                LogUtil.d(TAG, "is DMT test : " + SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST));
+                if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
                     mVersionAction.setFpType(ConstantUtil.FP_TYPE_FOR_TEST);
                 } else {
                     mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
@@ -304,12 +309,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     protected void onResume() {
         super.onResume();
         isHide = true;
-//        mDefaultDev = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true); //刷新数据库
-//        LogUtil.d(TAG, "mDefaultDev 2: " + mDefaultDev.toString());
-//        if (mVersionAction.respondData.models != null && mDefaultDev != null) {
-//            mOtaAdapter.setDataSource(mVersionAction.respondData.models);
-//            mOtaAdapter.notifyDataSetChanged(); //刷新升级界面
-//        }
     }
 
     @Override

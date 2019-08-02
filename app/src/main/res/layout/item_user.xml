@@ -94,7 +94,6 @@
                                 android:id="@+id/ib_edit"
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
-                                android:layout_marginStart="@dimen/x15dp"
                                 android:layout_toEndOf="@+id/tv_username"
                                 android:background="@drawable/edit_bg"
                                 android:src="@mipmap/edit"

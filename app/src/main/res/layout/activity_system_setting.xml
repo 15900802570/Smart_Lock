@@ -99,6 +99,12 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:onClick="onClick" />
+
+            <com.smart.lock.widget.ToggleSwitchDefineView
+                android:id="@+id/tw_check_sn"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick" />
         </LinearLayout>
     </ScrollView>
 

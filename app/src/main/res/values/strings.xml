@@ -364,7 +364,6 @@
     <string name="two_or_more_unlocking_keys_must_be_set">Two or more unlocking keys must be set after the combination unlock is enabled.</string>
     <string name="ble_busy">Bluetooth is connection or conneed</string>
     <string name="user_pause_contact_admin">" 用户已被暂停,请联系管理员 The user has been suspended. Please contact the administrator."</string>
-    <string name="plz_press_key">Keyboard confirmation</string>
     <string name="add_user_full">Add failed,user full</string>
     <string name="set_ordinary_card_warning">Ordinary cards have a lower security level and are subject to copying. Please keep your cards safe.</string>
     <string name="edit_device_name">Modify Device\'s Name</string>
@@ -407,4 +406,6 @@
     <string name="edit_user_name">Edit user name</string>
     <string name="user_pause_warning">The user has been suspended, please resume setting</string>
     <string name="plz_open_slide_input_key">Please open slide and input key</string>
+    <string name="check_fp_secret_error">Update failed,Check file secret error!</string>
+    <string name="plz_wait_lock_call_back">Please wait lock call back</string>
 </resources>

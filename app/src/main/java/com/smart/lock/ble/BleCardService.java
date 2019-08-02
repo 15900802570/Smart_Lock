@@ -296,12 +296,12 @@ public class BleCardService {
         }
         address = StringUtil.checkBleMac(address);
         // Previously connected device. Try to reconnect.
-        if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-//            disconnect();
-
-            return mBluetoothGatt.connect();
-        }
+//        if (address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
+//            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+////            disconnect();
+//
+//            return mBluetoothGatt.connect();
+//        }
 
         final BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {

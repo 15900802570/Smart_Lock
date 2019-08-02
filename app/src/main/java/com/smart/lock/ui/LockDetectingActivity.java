@@ -171,7 +171,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                         mLoadDialog.show();
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_NO_SCAN_QR_ADD_USER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                     } else if (mDevice != null && mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE) {
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_key));
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_wait_lock_call_back));
 //                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
 //
 //                            @Override

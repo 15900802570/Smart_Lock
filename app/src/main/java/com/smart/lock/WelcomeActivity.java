@@ -65,6 +65,9 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
         //初始化Handler和Runnable
         initThread();
         mPermissionHelper = new PermissionHelper(this, this);
+
+        SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.CHECK_DEVICE_SN, false);
+        SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.IS_DMT_TEST, false);
     }
 
     /**

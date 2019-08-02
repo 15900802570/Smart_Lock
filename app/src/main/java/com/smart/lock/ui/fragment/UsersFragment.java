@@ -775,7 +775,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             mVisiBle = visible;
         }
 
-
         public void chioseALLDelete(boolean allDelete) {
             mAllDelete = allDelete;
         }
@@ -865,7 +864,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         public void onBindViewHolder(@NonNull final UserViewHolder holder, final int position) {
             final DeviceUser userInfo = mUserList.get(position);
             if (userInfo != null) {
-                holder.mEditIbtn.setVisibility(View.GONE);
+//                holder.mEditIbtn.setVisibility(View.GONE);
 
                 if (userInfo.getUserId() == mDefaultUser.getUserId()) {
                     holder.mNameTv.setText(userInfo.getUserName() + "(我)");
@@ -882,6 +881,23 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     holder.mDeleteRl.setVisibility(View.GONE);
 
                     holder.mDeleteCb.setChecked(false);
+                } else if (userInfo.getUserId() == 1 && mDefaultUser.getUserId() != 1) { //第一个绑定的用户
+                    holder.mNameTv.setText(userInfo.getUserName() + "(主)");
+                    holder.mSwipeLayout.setRightSwipeEnabled(false);
+
+                    if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
+                        holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
+                    else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
+                        holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+
+                    holder.mUserStateTv.setText(mContext.getString(R.string.normal));
+                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+
+                    holder.mUserContent.setOnLongClickListener(null);
+                    holder.mDeleteRl.setVisibility(View.GONE);
+
+                    holder.mDeleteCb.setChecked(false);
+
                 } else {
                     holder.mNameTv.setText(userInfo.getUserName());
 

@@ -260,7 +260,7 @@
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
     <string name="search_lock">搜索附近的门锁</string>
     <string name="plz_press_setting">请按设置键</string>
-    <string name="plz_press_key">请按键确认</string>
+    <string name="plz_wait_lock_call_back">请等待门锁确认</string>
     <string name="self_message">个人中心</string>
     <string name="web_site">官方网站</string>
     <string name="customer_service">官方电话</string>
@@ -309,6 +309,7 @@
     <string name="dfu_end_waiting">请耐心等待门锁重启</string>
     <string name="ota_complete">升级成功!</string>
     <string name="ota_file_dan">升级文件不完整，请重试</string>
+    <string name="check_fp_secret_error">升级失败,文件校验错误</string>
     <string name="fp_restart">请等待指纹模块重启，大约需要3秒</string>
 
     <string name="search_failed">搜索失败</string>

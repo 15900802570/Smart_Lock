@@ -27,6 +27,16 @@ public class ConstantUtil {
     public static final String OPEN_TEST = "openTest";
 
     /**
+     * 是否开启设备检测
+     */
+    public static final String CHECK_DEVICE_SN = "isCheckSn";
+
+    /**
+     * 是否开启设备检测
+     */
+    public static final String IS_DMT_TEST = "isDmtTest";
+
+    /**
      * 系统太低不支持指纹
      */
     public static final int FP_LOW_VERSION = 0;

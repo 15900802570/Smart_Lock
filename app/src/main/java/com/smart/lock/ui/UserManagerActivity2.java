@@ -433,7 +433,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                         ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
 
                         for (DeviceUser user : list) {
-                            if (user.getUserId() != mDefaultDevice.getUserId()) {
+                            if (user.getUserId() != mDefaultDevice.getUserId() && user.getUserId() != 1) {
                                 DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
                             }
                         }
@@ -454,7 +454,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                         ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
 
                         for (DeviceUser user : list) {
-                            if (user.getUserId() != mDefaultDevice.getUserId()) {
+                            if (user.getUserId() != mDefaultDevice.getUserId() && user.getUserId() != 1) {
                                 DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId(), key.getKeyType());
                             }
                         }
@@ -468,7 +468,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
             case BleMsg.TYPE_GROUP_DELETE_USER_SUCCESS:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
                 for (DeviceUser user : users) {
-                    if (user.getUserId() != mDefaultDevice.getUserId()) {
+                    if (user.getUserId() != mDefaultDevice.getUserId() && user.getUserId() != 1) {
 
                         DeviceUserDao.getInstance(this).delete(user);
                         DeviceKeyDao.getInstance(this).deleteUserKey(user.getUserId(), user.getDevNodeId()); //删除开锁信息

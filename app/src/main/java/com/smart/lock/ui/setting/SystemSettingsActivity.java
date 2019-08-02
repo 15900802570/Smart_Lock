@@ -60,6 +60,9 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private ToggleButton mNumPwdSwitchLightTBtn;
     private ToggleSwitchDefineView mFingerprintSwitchTv;
     private ToggleButton mFingerprintSwitchLightTbtn;
+
+    private ToggleSwitchDefineView mCheckSnTv; //型号检测
+
     private NextActivityDefineView mCheckVersionNv;
 
     private NextActivityDefineView mModifyPwdNv;
@@ -93,6 +96,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     private Context mCtx;
 
+    private SharedPreferenceUtil myPrefs; //preference
+
     private String[] mPermission = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE
@@ -125,6 +130,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mTitleTv = findViewById(R.id.tv_title);
         mQueryLpcdNv = findViewById(R.id.next_query_lpcd);
         mOpenUnlockDownloadTv = findViewById(R.id.tw_open_unlock_download);
+        mCheckSnTv = findViewById(R.id.tw_check_sn);
 
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes("密码验证");
@@ -137,11 +143,13 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
         mQueryLpcdNv.setDes("阈值查询");
-        mOpenUnlockDownloadTv.setDes("固件测试版本下载");
-        mOpenUnlockDownloadTv.setChecked(ConstantUtil.UN_CHECK_VERSION_NUMBER);
+        mOpenUnlockDownloadTv.setDes("指纹测试版本下载");
         mOpenUnlockDownloadTv.setVisibility(View.GONE);
         mSetDevInfoNv.setVisibility(View.GONE);
         mQueryLpcdNv.setVisibility(View.GONE);
+
+        mCheckSnTv.setDes("检测版本功能");
+        mCheckSnTv.setVisibility(View.GONE);
 
         //指纹设置
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
@@ -157,8 +165,10 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
 
     public void initData() {
+        myPrefs = SharedPreferenceUtil.getInstance(this);
+
         try {
-            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+            if (myPrefs.readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                 mNumPwdSwitchLightTBtn.setChecked(true);
                 mIsPwdRequired = true;
                 mNumPwdSwitchTv.setVisibility(View.GONE);
@@ -176,7 +186,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
         if (mIsFP > 1) {
             try {
-                if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
+                if (myPrefs.readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
                     mFingerprintSwitchLightTbtn.setChecked(true);
                     mIsFPRequired = true;
                 } else {
@@ -191,7 +201,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         }
 
         try {
-            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.OPEN_TEST)) {
+            if (myPrefs.readBoolean(ConstantUtil.OPEN_TEST)) {
                 mOpenTestTb.setChecked(true);
             } else {
                 mOpenTestTb.setChecked(false);
@@ -203,6 +213,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mCtx = this;
         mDialog = DialogFactory.getInstance(this);
         mScanQRHelper = new ScanQRHelper(this, this);
+        mOpenUnlockDownloadTv.setChecked(myPrefs.readBoolean(ConstantUtil.IS_DMT_TEST));
+        mCheckSnTv.setChecked(myPrefs.readBoolean(ConstantUtil.CHECK_DEVICE_SN));
     }
 
     public void initEvent() {
@@ -239,12 +251,20 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 doOnClick(R.id.tw_open_unlock_download);
             }
         });
+
+        mCheckSnTv.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                doOnClick(R.id.tw_check_sn);
+            }
+        });
     }
 
     @Override
     public void onFingerprintAuthenticationSucceeded() {
         LogUtil.i(TGA, "指纹验证成功");
-        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+        myPrefs.
                 writeBoolean(ConstantUtil.FINGERPRINT_CHECK, !mIsFPRequired);
         mFingerprintSwitchLightTbtn.setChecked(!mIsFPRequired);
         mIsFPRequired = !mIsFPRequired;
@@ -274,6 +294,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         mSetDevInfoNv.setVisibility(View.VISIBLE);
                         mQueryLpcdNv.setVisibility(View.VISIBLE);
                         mOpenUnlockDownloadTv.setVisibility(View.VISIBLE);
+                        mCheckSnTv.setVisibility(View.VISIBLE);
                     }
                 }
                 break;
@@ -316,7 +337,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private void doOnClick(@IdRes int idRes) {
         switch (idRes) {
             case R.id.system_set_switch_password:
-                if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+                if (!myPrefs.readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                     mPromptDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(SystemSettingsActivity.this,
                             "您还未添加密码信息，是否立即设置？");
                     if (!mPromptDialog.isShowing()) {
@@ -348,7 +369,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 break;
 
             case R.id.system_set_switch_fingerprint:
-                if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
+                if (!myPrefs.readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
                     if (!mIsPwdRequired) {
                         mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
                                 "您未开启密码验证，请先开启密码验证");
@@ -388,33 +409,30 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 break;
 
             case R.id.tw_open_test:
-                SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).writeBoolean(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
+                myPrefs.writeBoolean(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
                 Intent result = new Intent();
                 result.putExtra(ConstantUtil.OPEN_TEST, mOpenTestTb.isChecked());
                 result.setAction(BleMsg.STR_RSP_OPEN_TEST);
                 LocalBroadcastManager.getInstance(SystemSettingsActivity.this).sendBroadcast(result);
                 break;
             case R.id.tw_open_unlock_download:
-                if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
-                    ConstantUtil.UN_CHECK_VERSION_NUMBER = false;
-                    mOpenUnlockDownloadTv.setChecked(false);
-                } else {
-                    ConstantUtil.UN_CHECK_VERSION_NUMBER = true;
-                    mOpenUnlockDownloadTv.setChecked(true);
-                }
+                myPrefs.writeBoolean(ConstantUtil.IS_DMT_TEST, mOpenUnlockDownloadTv.getIv_switch_light().isChecked());
+                break;
+            case R.id.tw_check_sn:
+                myPrefs.writeBoolean(ConstantUtil.CHECK_DEVICE_SN, mCheckSnTv.getIv_switch_light().isChecked());
                 break;
         }
     }
 
     @Override
     protected void onResume() {
-        if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK) &&
-                SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD) != "") {
-            SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
+        if (myPrefs.readBoolean(ConstantUtil.NUM_PWD_CHECK) &&
+                myPrefs.readString(ConstantUtil.NUM_PWD) != "") {
+            myPrefs.writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
             mNumPwdSwitchLightTBtn.setChecked(true);
             mIsPwdRequired = true;
         } else {
-            SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
+            myPrefs.writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
             mNumPwdSwitchLightTBtn.setChecked(false);
             mIsPwdRequired = false;
         }
@@ -454,7 +472,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             } else if (requestCode == REQUEST_CODE_PASSWORD) {
                 switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
                     case 1:
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                        myPrefs.
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                         mNumPwdSwitchLightTBtn.setChecked(true);
                         mNumPwdSwitchTv.setVisibility(View.GONE);
@@ -462,14 +480,14 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         mIsPwdRequired = true;
                         break;
                     case -1:
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                        myPrefs.
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
-                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                        myPrefs.
                                 writeString(ConstantUtil.NUM_PWD, "");
                         mNumPwdSwitchLightTBtn.setChecked(false);
                         mIsPwdRequired = false;
                         if (mIsFP > 1) {
-                            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
+                            myPrefs.
                                     writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
                             mFingerprintSwitchLightTbtn.setChecked(false);
                             mIsFPRequired = false;

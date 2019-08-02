@@ -27,6 +27,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 
@@ -976,14 +977,19 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 System.arraycopy(buf, 32, MessageCreator.m256AK, 0, 32);
                 System.arraycopy(buf, 64, sn, 0, 18);
             }
-
-            if (compareSn(sn)) {
+            LogUtil.d(TAG,"check sn : "+SharedPreferenceUtil.getInstance(mCtx).readBoolean(ConstantUtil.CHECK_DEVICE_SN));
+            if (SharedPreferenceUtil.getInstance(mCtx).readBoolean(ConstantUtil.CHECK_DEVICE_SN)) {
                 mService.sendCmd03(respRandom, BleMsg.INT_DEFAULT_TIMEOUT);
             } else {
-                showMessage(mCtx.getString(R.string.sn_warning));
-                if (mDevice.getState() != Device.BLE_DISCONNECTED)
-                    mService.disconnect();
+                if (compareSn(sn)) {
+                    mService.sendCmd03(respRandom, BleMsg.INT_DEFAULT_TIMEOUT);
+                } else {
+                    showMessage(mCtx.getString(R.string.sn_warning));
+                    if (mDevice.getState() != Device.BLE_DISCONNECTED)
+                        mService.disconnect();
+                }
             }
+
         } else {
             showMessage(mCtx.getString(R.string.random_error));
             if (mDevice.getState() != Device.BLE_DISCONNECTED)

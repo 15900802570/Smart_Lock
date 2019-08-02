@@ -136,8 +136,9 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 
     private final static int PAYLOAD_LEN = 20;
 
-    private boolean bWriteDfuData = false;
-    private boolean mOtaMode = false;
+    private boolean bWriteDfuData = false; //数据传输阶段
+    private boolean mOtaMode = false; //是否进入OTA模式
+    private boolean mIsUpdateSuccess = false;
     /**
      * 蓝牙服务类
      */
@@ -306,9 +307,9 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
-            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
-                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-            } else {
+//            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
+//                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//            } else {
                 if (0 == code || code == -1) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
@@ -318,7 +319,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                         compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
                     }
                 }
-            }
+//            }
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -722,7 +723,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             case BluetoothGatt.GATT_SUCCESS:
                 break;
             case BleMsg.STATE_DISCONNECTED:
-                if (mOtaParser.hasNextPacket()) {
+                if (mOtaParser.hasNextPacket() && !mIsUpdateSuccess) {
                     bWriteDfuData = false;
                     mConnetStatus.setText(R.string.ota_file_dan);
                     mOtaMode = false; //异常断开，重置ota模式
@@ -760,10 +761,10 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 LogUtil.i(TAG, "receiver 04!" + mOtaMode);
-                if (!mOtaMode && !bWriteDfuData && !mOtaParser.hasNextPacket()) {
+                if (!mOtaMode && !bWriteDfuData && !mOtaParser.hasNextPacket() && mIsUpdateSuccess) {
                     String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
                     FileUtil.clearFiles(dir);
-                    mConnetStatus.setText(R.string.ota_complete);
+//                    mConnetStatus.setText(R.string.ota_complete);
                     mOtaMode = false;//异常断开，重置ota模式
                 } else if (mOtaMode) {
                     updateVersion();
@@ -806,11 +807,13 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_SUCCESS:
                 mConnetStatus.setText(R.string.ota_complete);
+                mIsUpdateSuccess = true;
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_FAILED:
                 bWriteDfuData = false;
                 mOtaMode = false;
-                mConnetStatus.setText(R.string.ota_file_dan);
+                mIsUpdateSuccess = false;
+                mConnetStatus.setText(R.string.check_fp_secret_error);
                 break;
             case BleMsg.TYPE_GET_FINGERPRINT_SIZE:
                 prepareDFU();
@@ -857,7 +860,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
     public void onBackPressed() {
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED && mOtaParser.hasNextPacket()) {
             ToastUtil.showShort(this, getString(R.string.ota_back_message));
-
         } else {
             setResult(CheckOtaActivity.CHECK_FP_VERSION);
             finish();
