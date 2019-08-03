@@ -510,7 +510,7 @@ public class BleMsg {
     public static final byte TYPE_SELF_REPAIR = 0x1A;//开锁设备修复 通过1E回复
 
     public static final byte TYPE_RAPID_OTA = 0x1b;//快速OTA升级
-    public static final byte TYPE_RAPID_OTA_FP = 0x1c;//快速OTA升级
+    public static final byte TYPE_RAPID_OTA_FP = 0x1c;//快速指纹OTA升级
 
     /**
      * msg 0E type
