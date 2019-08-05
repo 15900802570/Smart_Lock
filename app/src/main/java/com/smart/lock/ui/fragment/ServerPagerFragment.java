@@ -826,9 +826,12 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         } else {
             mIsVisibleToUser = false;
             if (mCurrentIndex) {
-                mDevice.halt();
-                mBleManagerHelper.getBleCardService().disconnect();
-                mBleManagerHelper.removeUiListener(this);
+                if (mDevice.getDevInfo() != null &&
+                        !DeviceInfoDao.getInstance(mActivity).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true).getBleMac().equals(mDevice.getDevInfo().getBleMac())) {
+                    mDevice.halt();
+                    mBleManagerHelper.getBleCardService().disconnect();
+                    mBleManagerHelper.removeUiListener(this);
+                }
             }
         }
     }

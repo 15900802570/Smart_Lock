@@ -269,13 +269,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null && !mCheckFpVersion) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-//            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
-//                mVersionAction.setDeviceSn(ConstantUtil.DEVICE_SN_FOR_TEST);
-//            } else {
-//                mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
-//            }
-
-            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+                mVersionAction.setDeviceSn(ConstantUtil.DEVICE_SN_FOR_TEST);
+            } else {
+                mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
+            }
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
             if (hasFp) {

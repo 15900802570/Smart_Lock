@@ -238,6 +238,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
     private void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_success));
+        DialogUtils.closeDialog(mLoadDialog);
         mTimer.cancel();
         mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
         mDevice.setDisconnectBle(false);
@@ -444,6 +445,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     public void scanDevFailed() {
         LogUtil.e(TAG, "scanDevFailed");
         DialogUtils.closeDialog(mLoadDialog);
+        mTimer.cancel();
         mBleManagerHelper.removeUiListener(this);
     }
 
