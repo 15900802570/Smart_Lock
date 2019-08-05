@@ -6,8 +6,8 @@ android {
         applicationId "com.smart.lock"
         minSdkVersion 19
         targetSdkVersion 28
-        versionCode 17
-        versionName "1.0.17"
+        versionCode 4
+        versionName "1.0.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -50,9 +50,13 @@ def buildTime() {
     return formattedDate
 }
 
+def devType() {
+    return "ZJ"
+}
+
 android.applicationVariants.all { variant ->
     variant.outputs.all { output ->
-        outputFileName = "SMARTLOCK" + "_" + android.defaultConfig.versionName + "_${buildTime()}.apk"
+        outputFileName = "SMARTLOCK" + "_${devType()}" + "_" + android.defaultConfig.versionName + "_${buildTime()}.apk"
     }
 }
 
