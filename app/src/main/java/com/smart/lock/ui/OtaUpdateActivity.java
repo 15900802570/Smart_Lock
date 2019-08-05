@@ -42,6 +42,7 @@ import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
@@ -283,9 +284,9 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             int swLen = mDefaultDev.getDeviceSwVersion().length();
             if (len >= 5 && swLen >= 5)
                 code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
-//            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
-//                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-//            } else {
+            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+            } else {
                 if (0 == code || code == -1) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
@@ -295,7 +296,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                         compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
                     }
                 }
-//            }
+            }
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(this);

@@ -38,6 +38,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SendOTAData;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 
@@ -307,9 +308,9 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
             int code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), mVersionModel.versionName);
-//            if (ConstantUtil.UN_CHECK_VERSION_NUMBER) {
-//                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-//            } else {
+            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+            } else {
                 if (0 == code || code == -1) {
                     compareVersion(CheckVersionAction.NO_NEW_VERSION);
                 } else {
@@ -319,7 +320,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                         compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
                     }
                 }
-//            }
+            }
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
