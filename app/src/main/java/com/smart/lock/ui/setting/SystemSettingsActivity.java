@@ -148,7 +148,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mSetDevInfoNv.setVisibility(View.GONE);
         mQueryLpcdNv.setVisibility(View.GONE);
 
-        mCheckSnTv.setDes("检测版本功能");
+        mCheckSnTv.setDes("不检测设备");
         mCheckSnTv.setVisibility(View.GONE);
 
         //指纹设置
