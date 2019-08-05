@@ -143,7 +143,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
         mQueryLpcdNv.setDes("阈值查询");
-        mOpenUnlockDownloadTv.setDes("指纹测试版本下载");
+        mOpenUnlockDownloadTv.setDes("OTA内部测试");
         mOpenUnlockDownloadTv.setVisibility(View.GONE);
         mSetDevInfoNv.setVisibility(View.GONE);
         mQueryLpcdNv.setVisibility(View.GONE);
