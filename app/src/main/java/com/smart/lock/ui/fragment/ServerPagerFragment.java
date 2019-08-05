@@ -446,7 +446,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         if (mNodeId.getBytes().length == 15)
                             mNodeId = "0" + mNodeId;
                         byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
-                        LogUtil.d(TAG,"NodeId = "+ mNodeId+"\n"+"hash" +this.hashCode());
+                        LogUtil.d(TAG, "NodeId = " + mNodeId + "\n" + "hash" + this.hashCode());
                         StringUtil.exchange(nodeId);
                         mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
 
@@ -740,10 +740,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
                 mBattery = mDevice.getBattery(); //获取电池电量
-                mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
-                if (mDefaultDevice != null) {
-                    sendMessage(BIND_DEVICE, null, 0);
-                }
+//                mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+//                if (mDefaultDevice != null) {
+                sendMessage(BIND_DEVICE, null, 0);
+//                }
                 break;
             default:
                 break;

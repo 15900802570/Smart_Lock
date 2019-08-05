@@ -416,9 +416,19 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 LocalBroadcastManager.getInstance(SystemSettingsActivity.this).sendBroadcast(result);
                 break;
             case R.id.tw_open_unlock_download:
+                if (myPrefs.readBoolean(ConstantUtil.IS_DMT_TEST)){
+                    mOpenUnlockDownloadTv.setChecked(false);
+                }else {
+                    mOpenUnlockDownloadTv.setChecked(true);
+                }
                 myPrefs.writeBoolean(ConstantUtil.IS_DMT_TEST, mOpenUnlockDownloadTv.getIv_switch_light().isChecked());
                 break;
             case R.id.tw_check_sn:
+                if (myPrefs.readBoolean(ConstantUtil.CHECK_DEVICE_SN)){
+                    mCheckSnTv.setChecked(false);
+                }else {
+                    mCheckSnTv.setChecked(true);
+                }
                 myPrefs.writeBoolean(ConstantUtil.CHECK_DEVICE_SN, mCheckSnTv.getIv_switch_light().isChecked());
                 break;
         }

@@ -416,4 +416,5 @@
     <string name="group_delete">批量删除</string>
     <string name="edit_user_name">编辑用户名</string>
     <string name="user_pause_warning">用户已暂停,请恢复后设置</string>
+    <string name="connect_timeout">连接超时，请重试</string>
 </resources>

@@ -4,9 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -223,6 +223,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
             mLoadDialog.show();
             mLoadDialog.setCancelable(true);
+            mTimer = new Timer();
             mTimer.schedule(closeDialogTimer(mLoadDialog), 20 * 1000);
             mBleManagerHelper.addUiListener(this);
             BleManagerHelper.setSk(mBleMac, mRandCode);
@@ -237,6 +238,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
     private void onAuthenticationSuccess(DeviceInfo deviceInfo) {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_success));
+        mTimer.cancel();
         mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
         mDevice.setDisconnectBle(false);
         if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
@@ -497,13 +499,15 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         return mPermissionHelper;
     }
 
-    private Timer mTimer = new Timer();
+    private Timer mTimer = null;
 
     private TimerTask closeDialogTimer(final Dialog dialog) {
         return new TimerTask() {
             @Override
             public void run() {
-                showMessage("请求超时");
+                Looper.prepare();
+                showMessage(mActivity.getResources().getString(R.string.connect_timeout));
+                Looper.loop();
                 DialogUtils.closeDialog(dialog);
             }
         };

@@ -408,4 +408,5 @@
     <string name="plz_open_slide_input_key">Please open slide and input key</string>
     <string name="check_fp_secret_error">Update failed,Check file secret error!</string>
     <string name="plz_wait_lock_call_back">Please wait lock call back</string>
+    <string name="connect_timeout">Timeout</string>
 </resources>
