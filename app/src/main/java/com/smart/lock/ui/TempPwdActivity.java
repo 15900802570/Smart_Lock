@@ -380,10 +380,38 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    public class TempPwdAdapter extends RecyclerView.Adapter<TempPwdAdapter.MyViewHolder> {
+    public class TempPwdAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+        private static final int TYPE_HEAD = 0;
+        private static final int TYPE_BODY = 1;
+        private static final int TYPE_FOOT = 2;
+        private int countHead = 0;
+        private int countFoot = 2;
         private Context mContext;
         private ArrayList<TempPwd> mTempPwdList;
+
+        private int getBodySize() {
+            return mTempPwdList.size();
+        }
+
+        private boolean isHead(int position) {
+            return countHead != 0 && position < countHead;
+        }
+
+        private boolean isFoot(int position) {
+            return countFoot != 0 && (position >= (getBodySize() + countHead));
+        }
+
+        public int getItemViewType(int position) {
+            if (isHead(position)) {
+                return TYPE_HEAD;
+            } else if (isFoot(position)) {
+                return TYPE_FOOT;
+            } else {
+                return TYPE_BODY;
+            }
+        }
+
 
         private TempPwdAdapter(Context context) {
             mContext = context;
@@ -404,87 +432,98 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
 
         @NonNull
         @Override
-        public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_temp_pwd,
-                    parent,
-                    false);
-            SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_temp_pwd);
-            swipeLayout.setClickToClose(true);
-            swipeLayout.setRightSwipeEnabled(true);
-            return new MyViewHolder(inflate);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            switch (viewType) {
+                case TYPE_HEAD:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+                case TYPE_BODY:
+                    View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_temp_pwd,
+                            parent,
+                            false);
+                    SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_temp_pwd);
+                    swipeLayout.setClickToClose(true);
+                    swipeLayout.setRightSwipeEnabled(true);
+                    return new MyViewHolder(inflate);
+                case TYPE_FOOT:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+                default:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+            }
+
         }
 
         @SuppressLint("SetTextI18n")
         @Override
-        public void onBindViewHolder(@NonNull MyViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
-            final TempPwd tempPwdInfo = mTempPwdList.get(position);
-            long failureTime;
-            final String tempPwd;
-            final boolean valid;
-            if (tempPwdInfo != null) {
-                tempPwd = tempPwdInfo.getTempPwd();
-                failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime(), tempPwdInfo.getRandomNum());
-                viewHolder.mTempPwdTv.setText(
-                        tempPwd.substring(0, 3) +
-                                getResources().getString(R.string.temp_password) +
-                                tempPwd.substring(tempPwd.length() - 3)
-                );
-                viewHolder.mTempPwdFailureTimeTv.setText(DateTimeUtil.timeStamp2Date(
-                        String.valueOf(failureTime),
-                        "yyyy-MM-dd HH:mm"));
-                valid = (System.currentTimeMillis() / 1000 - failureTime >= 0) ? false : true;
-                if (!valid) {
-//                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_invalid));
-//                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.red));
-                    viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_invalid);
-                    viewHolder.mDelete.setVisibility(View.VISIBLE);
-                    viewHolder.mShare.setVisibility(View.GONE);
-                } else {
-//                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_valid));
-//                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.light_black));
-                    viewHolder.mTempPwdValidIv.setImageResource(R.mipmap.icon_valid);
-                    viewHolder.mDelete.setVisibility(View.GONE);
-                    viewHolder.mShare.setVisibility(View.VISIBLE);
-                }
-                if (tempPwdInfo.getRandomNum() % 2 == 0) {
-                    viewHolder.mTempPwdCheckNumTv.setText("多次");
-                } else {
-                    viewHolder.mTempPwdCheckNumTv.setText("单次");
-                }
-                if (valid) {
-                    viewHolder.mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.blue2));
-                } else {
-                    viewHolder.mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.gray1));
-                }
-                viewHolder.mTempPwdLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        showPwdDialog(String.valueOf(tempPwdInfo.getTempPwd()), valid);
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
+            if (viewHolder instanceof MyViewHolder) {
+                final TempPwd tempPwdInfo = mTempPwdList.get(position);
+                long failureTime;
+                final String tempPwd;
+                final boolean valid;
+                if (tempPwdInfo != null) {
+                    tempPwd = tempPwdInfo.getTempPwd();
+                    failureTime = DateTimeUtil.getFailureTime(tempPwdInfo.getPwdCreateTime(), tempPwdInfo.getRandomNum());
+                    ((MyViewHolder) viewHolder).mTempPwdTv.setText(
+                            tempPwd.substring(0, 3) +
+                                    getResources().getString(R.string.temp_password) +
+                                    tempPwd.substring(tempPwd.length() - 3)
+                    );
+                    ((MyViewHolder) viewHolder).mTempPwdFailureTimeTv.setText(DateTimeUtil.timeStamp2Date(
+                            String.valueOf(failureTime),
+                            "yyyy-MM-dd HH:mm"));
+                    valid = (System.currentTimeMillis() / 1000 - failureTime >= 0) ? false : true;
+                    if (!valid) {
+//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_invalid));
+//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setTextColor(getResources().getColor(R.color.red));
+                        ((MyViewHolder) viewHolder).mTempPwdValidIv.setImageResource(R.mipmap.icon_invalid);
+                        ((MyViewHolder) viewHolder).mDelete.setVisibility(View.VISIBLE);
+                        ((MyViewHolder) viewHolder).mShare.setVisibility(View.GONE);
+                    } else {
+//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_valid));
+//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setTextColor(getResources().getColor(R.color.light_black));
+                        ((MyViewHolder) viewHolder).mTempPwdValidIv.setImageResource(R.mipmap.icon_valid);
+                        ((MyViewHolder) viewHolder).mDelete.setVisibility(View.GONE);
+                        ((MyViewHolder) viewHolder).mShare.setVisibility(View.VISIBLE);
                     }
-                });
-                viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TempPwdDao.getInstance(TempPwdActivity.this).delete(tempPwdInfo);
-                        deleteItem(position);
-                        mTempPwdAdapter.notifyDataSetChanged();
+                    if (tempPwdInfo.getRandomNum() % 2 == 0) {
+                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setText("多次");
+                    } else {
+                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setText("单次");
                     }
-                });
-                viewHolder.mShare.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mTempPwdAdapter.notifyDataSetChanged();
-                        SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share), "*" + tempPwd);
+                    if (valid) {
+                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.blue2));
+                    } else {
+                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.gray1));
+                    }
+                    ((MyViewHolder) viewHolder).mTempPwdLl.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showPwdDialog(String.valueOf(tempPwdInfo.getTempPwd()), valid);
+                        }
+                    });
+                    ((MyViewHolder) viewHolder).mDelete.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            TempPwdDao.getInstance(TempPwdActivity.this).delete(tempPwdInfo);
+                            deleteItem(position);
+                            mTempPwdAdapter.notifyDataSetChanged();
+                        }
+                    });
+                    ((MyViewHolder) viewHolder).mShare.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mTempPwdAdapter.notifyDataSetChanged();
+                            SystemUtils.shareText(TempPwdActivity.this, getString(R.string.share), "*" + tempPwd);
 //                        Toast.makeText(TempPwdActivity.this, "还没有实现", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+                        }
+                    });
+                }
             }
         }
 
         @Override
         public int getItemCount() {
-            return mTempPwdList.size();
+            return mTempPwdList.size() + countHead + countFoot;
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -508,6 +547,12 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 mTempPwdLl = itemView.findViewById(R.id.ll_temp_pwd);
                 mDelete = itemView.findViewById(R.id.ll_delete);
                 mShare = itemView.findViewById(R.id.ll_share);
+            }
+        }
+
+        class FootViewHolder extends RecyclerView.ViewHolder {
+            private FootViewHolder(View itemView) {
+                super(itemView);
             }
         }
     }

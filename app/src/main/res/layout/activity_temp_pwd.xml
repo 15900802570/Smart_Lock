@@ -43,7 +43,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/rl_temp_pwd_title"
-        android:layout_above="@+id/fl_add"
         android:background="@color/white"
         android:orientation="vertical">
 

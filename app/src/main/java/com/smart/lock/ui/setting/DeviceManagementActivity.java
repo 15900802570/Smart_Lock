@@ -168,12 +168,40 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
     }
 
-    private class DevManagementAdapter extends RecyclerView.Adapter<DevManagementAdapter.MyViewHolder> {
+    private class DevManagementAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+        private static final int TYPE_HEAD = 0;
+        private static final int TYPE_BODY = 1;
+        private static final int TYPE_FOOT = 2;
+        private int countHead = 0;
+        private int countFoot = 2;
         private Context mContext;
         private ArrayList<DeviceInfo> mDevList;
         private DeviceInfo mDefaultInfo;
         int mDefaultPosition;
+
+
+        private int getBodySize() {
+            return mDevList.size();
+        }
+
+        private boolean isHead(int position) {
+            return countHead != 0 && position < countHead;
+        }
+
+        private boolean isFoot(int position) {
+            return countFoot != 0 && (position >= (getBodySize() + countHead));
+        }
+
+        public int getItemViewType(int position) {
+            if (isHead(position)) {
+                return TYPE_HEAD;
+            } else if (isFoot(position)) {
+                return TYPE_FOOT;
+            } else {
+                return TYPE_BODY;
+            }
+        }
 
         private DevManagementAdapter(Context context) {
             mContext = context;
@@ -192,102 +220,114 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
         @NonNull
         @Override
-        public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_dev_management, viewGroup, false);
-            SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev_management);
-            swipeLayout.setClickToClose(true);
-            swipeLayout.setRightSwipeEnabled(true);
-            return new MyViewHolder(inflate);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+            switch (viewType) {
+                case TYPE_HEAD:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
+
+                case TYPE_BODY:
+                    View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_dev_management, viewGroup, false);
+                    SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev_management);
+                    swipeLayout.setClickToClose(true);
+                    swipeLayout.setRightSwipeEnabled(true);
+                    return new MyViewHolder(inflate);
+                case TYPE_FOOT:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
+                default:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
+            }
         }
 
         @Override
-        public void onBindViewHolder(@NonNull final MyViewHolder myViewHolder, @SuppressLint("RecyclerView") final int position) {
-            final DeviceInfo deviceInfo = mDevList.get(position);
-            if (deviceInfo != null) {
-                try {
-                    myViewHolder.mLockNameTv.setText(deviceInfo.getDeviceName());
-                    myViewHolder.mLockNumTv.setText(String.valueOf(deviceInfo.getBleMac()));
-                } catch (NullPointerException e) {
-                    LogUtil.d(TAG, deviceInfo.getDeviceName() + "  " + deviceInfo.getDeviceIndex());
-                }
-                if (deviceInfo.getDeviceDefault()) {
-                    myViewHolder.mDefaultFlagIv.setImageResource(R.drawable.ic_selected);
-                    myViewHolder.mDefaultTv.setVisibility(View.VISIBLE);
-                    mDefaultInfo = deviceInfo;
-                    mDefaultPosition = position;
-                } else {
-                    myViewHolder.mDefaultFlagIv.setImageResource(R.drawable.ic_select);
-                    myViewHolder.mDefaultTv.setVisibility(View.INVISIBLE);
-                }
+        public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
+            if (viewHolder instanceof MyViewHolder) {
+                final DeviceInfo deviceInfo = mDevList.get(position);
+                if (deviceInfo != null) {
+                    try {
+                        ((MyViewHolder) viewHolder).mLockNameTv.setText(deviceInfo.getDeviceName());
+                        ((MyViewHolder) viewHolder).mLockNumTv.setText(String.valueOf(deviceInfo.getBleMac()));
+                    } catch (NullPointerException e) {
+                        LogUtil.d(TAG, deviceInfo.getDeviceName() + "  " + deviceInfo.getDeviceIndex());
+                    }
+                    if (deviceInfo.getDeviceDefault()) {
+                        ((MyViewHolder) viewHolder).mDefaultFlagIv.setImageResource(R.drawable.ic_selected);
+                        ((MyViewHolder) viewHolder).mDefaultTv.setVisibility(View.VISIBLE);
+                        mDefaultInfo = deviceInfo;
+                        mDefaultPosition = position;
+                    } else {
+                        ((MyViewHolder) viewHolder).mDefaultFlagIv.setImageResource(R.drawable.ic_select);
+                        ((MyViewHolder) viewHolder).mDefaultTv.setVisibility(View.INVISIBLE);
+                    }
 
-                myViewHolder.mLockNameTv.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final Dialog modifyNameDialog = DialogUtils.createEditorDialog(DeviceManagementActivity.this, getString(R.string.modify_name), deviceInfo.getDeviceName());
-                        ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
-                        modifyNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                String newName = ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).getText().toString();
-                                if (!newName.isEmpty()) {
-                                    myViewHolder.mLockNameTv.setText(newName);
-                                    deviceInfo.setDeviceName(newName);
-                                    DeviceInfoDao.getInstance(DeviceManagementActivity.this).updateDeviceInfo(deviceInfo);
-                                } else {
-                                    ToastUtil.showLong(DeviceManagementActivity.this, R.string.cannot_be_empty_str);
+                    ((MyViewHolder) viewHolder).mLockNameTv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            final Dialog modifyNameDialog = DialogUtils.createEditorDialog(DeviceManagementActivity.this, getString(R.string.modify_name), deviceInfo.getDeviceName());
+                            ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                            modifyNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    String newName = ((EditText) modifyNameDialog.findViewById(R.id.editor_et)).getText().toString();
+                                    if (!newName.isEmpty()) {
+                                        ((MyViewHolder) viewHolder).mLockNameTv.setText(newName);
+                                        deviceInfo.setDeviceName(newName);
+                                        DeviceInfoDao.getInstance(DeviceManagementActivity.this).updateDeviceInfo(deviceInfo);
+                                    } else {
+                                        ToastUtil.showLong(DeviceManagementActivity.this, R.string.cannot_be_empty_str);
+                                    }
+                                    modifyNameDialog.dismiss();
                                 }
-                                modifyNameDialog.dismiss();
+                            });
+                            modifyNameDialog.show();
+
+                        }
+                    });
+
+                    ((MyViewHolder) viewHolder).mSetDefaultLl.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            // 判断是否更换默认设备
+                            if (mDefaultInfo == null) {
+                                deviceInfo.setDeviceDefault(true);
+                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
+                            } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
+                                mDefaultInfo.setDeviceDefault(false);
+                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
+                                deviceInfo.setDeviceDefault(true);
+                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
+                                Device.getInstance(DeviceManagementActivity.this).exchangeConnect(deviceInfo);
+                                mBleManagerHelper.getBleCardService().disconnect();
+                                Device.getInstance(DeviceManagementActivity.this).setDisconnectBle(false);
+                                LogUtil.d(TAG, "设置为默认设备");
                             }
-                        });
-                        modifyNameDialog.show();
-
-                    }
-                });
-
-                myViewHolder.mSetDefaultLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // 判断是否更换默认设备
-                        if (mDefaultInfo == null) {
-                            deviceInfo.setDeviceDefault(true);
-                            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
-                        } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
-                            mDefaultInfo.setDeviceDefault(false);
-                            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
-                            deviceInfo.setDeviceDefault(true);
-                            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
-                            Device.getInstance(DeviceManagementActivity.this).exchangeConnect(deviceInfo);
-                            mBleManagerHelper.getBleCardService().disconnect();
-                            Device.getInstance(DeviceManagementActivity.this).setDisconnectBle(false);
-                            LogUtil.d(TAG, "设置为默认设备");
-                        }
-                        mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
-                        mDevManagementAdapter.notifyDataSetChanged();
-                    }
-                });
-                myViewHolder.mUnbindLl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (deviceInfo.getDeviceDefault() && DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false) != null) {
-                            ToastUtil.showLong(mCtx, R.string.default_dev_delete_failed);
-                            myViewHolder.mSwipeLayout.close();
-                        } else {
-                            DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
-                            mBleManagerHelper.deleteDefaultDev();
-                            Device.getInstance(DeviceManagementActivity.this).halt();
-                            mBleManagerHelper.getBleCardService().disconnect();
-                            mDevList.remove(position);
+                            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
                             mDevManagementAdapter.notifyDataSetChanged();
-
                         }
-                    }
-                });
+                    });
+                    ((MyViewHolder) viewHolder).mUnbindLl.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (deviceInfo.getDeviceDefault() && DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false) != null) {
+                                ToastUtil.showLong(mCtx, R.string.default_dev_delete_failed);
+                                ((MyViewHolder) viewHolder).mSwipeLayout.close();
+                            } else {
+                                DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
+                                mBleManagerHelper.deleteDefaultDev();
+                                Device.getInstance(DeviceManagementActivity.this).halt();
+                                mBleManagerHelper.getBleCardService().disconnect();
+                                mDevList.remove(position);
+                                mDevManagementAdapter.notifyDataSetChanged();
+
+                            }
+                        }
+                    });
+                }
             }
         }
 
         @Override
         public int getItemCount() {
-            return mDevList.size();
+            return mDevList.size() + countHead + countFoot;
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -309,6 +349,12 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 mDefaultFlagIv = itemView.findViewById(R.id.iv_dev_management_default_flag);
                 mSetDefaultLl = itemView.findViewById(R.id.ll_dev_management_set_default);
                 mUnbindLl = itemView.findViewById(R.id.ll_unbind);
+            }
+        }
+
+        class FootViewHolder extends RecyclerView.ViewHolder {
+            private FootViewHolder(View itemView) {
+                super(itemView);
             }
         }
     }
