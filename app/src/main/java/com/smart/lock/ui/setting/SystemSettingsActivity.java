@@ -133,16 +133,16 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mCheckSnTv = findViewById(R.id.tw_check_sn);
 
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
-        mNumPwdSwitchTv.setDes("密码验证");
-        mFingersPrintSwitchTv.setDes("指纹验证");
-        mOpenTestTv.setDes("测试自动连接");
+        mNumPwdSwitchTv.setDes(getString(R.string.password_verification));
+        mFingersPrintSwitchTv.setDes(getString(R.string.fingerprint_verification));
+        mOpenTestTv.setDes(getString(R.string.test_auto_conn));
         mOpenTestTv.setVisibility(View.GONE);
         mModifyPwdNv.setDes(getResources().getString(R.string.modify_pwd));
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
-        mQueryLpcdNv.setDes("阈值查询");
+        mQueryLpcdNv.setDes(getString(R.string.threshold));
         mOpenUnlockDownloadTv.setDes("OTA内部测试");
         mOpenUnlockDownloadTv.setVisibility(View.GONE);
         mSetDevInfoNv.setVisibility(View.GONE);
@@ -155,7 +155,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mFingerprintSwitchTv = this.findViewById(R.id.system_set_switch_fingerprint);
 
         if (mIsFP > 1) {
-            mFingerprintSwitchTv.setDes("指纹验证");
+            mFingerprintSwitchTv.setDes(getString(R.string.fingerprint_verification));
             mFingerprintSwitchLightTbtn = mFingerprintSwitchTv.getIv_switch_light();
         } else {
             mFingerprintSwitchTv.setVisibility(View.GONE);
@@ -339,7 +339,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             case R.id.system_set_switch_password:
                 if (!myPrefs.readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
                     mPromptDialog = DialogUtils.createTipsDialogWithConfirmAndCancel(SystemSettingsActivity.this,
-                            "您还未添加密码信息，是否立即设置？");
+                            getString(R.string.pwd_not_set));
                     if (!mPromptDialog.isShowing()) {
                         mPromptDialog.show();
                     }
@@ -372,7 +372,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 if (!myPrefs.readBoolean(ConstantUtil.FINGERPRINT_CHECK)) {
                     if (!mIsPwdRequired) {
                         mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
-                                "您未开启密码验证，请先开启密码验证");
+                                getString(R.string.pwd_not_set_yet));
                         mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
@@ -382,7 +382,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         });
                     } else if (mIsFP == ConstantUtil.FP_NO_KEYGUARDSECURE) {
                         mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
-                                "您未设置锁屏，请设置锁屏并添加指纹");
+                                getString(R.string.pwd_screen_not_set));
                         mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
@@ -392,7 +392,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         });
                     } else if (mIsFP == ConstantUtil.FP_NO_FINGERPRINT) {
                         mFingerprintDialog = DialogUtils.createTipsDialogWithCancel(SystemSettingsActivity.this,
-                                "您至少在系统设置中添加一个指纹");
+                                getString(R.string.fp_not_set));
                         mFingerprintDialog.show();
                         mFingerprintDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
                             @Override
@@ -416,17 +416,17 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 LocalBroadcastManager.getInstance(SystemSettingsActivity.this).sendBroadcast(result);
                 break;
             case R.id.tw_open_unlock_download:
-                if (myPrefs.readBoolean(ConstantUtil.IS_DMT_TEST)){
+                if (myPrefs.readBoolean(ConstantUtil.IS_DMT_TEST)) {
                     mOpenUnlockDownloadTv.setChecked(false);
-                }else {
+                } else {
                     mOpenUnlockDownloadTv.setChecked(true);
                 }
                 myPrefs.writeBoolean(ConstantUtil.IS_DMT_TEST, mOpenUnlockDownloadTv.getIv_switch_light().isChecked());
                 break;
             case R.id.tw_check_sn:
-                if (myPrefs.readBoolean(ConstantUtil.CHECK_DEVICE_SN)){
+                if (myPrefs.readBoolean(ConstantUtil.CHECK_DEVICE_SN)) {
                     mCheckSnTv.setChecked(false);
-                }else {
+                } else {
                     mCheckSnTv.setChecked(true);
                 }
                 myPrefs.writeBoolean(ConstantUtil.CHECK_DEVICE_SN, mCheckSnTv.getIv_switch_light().isChecked());

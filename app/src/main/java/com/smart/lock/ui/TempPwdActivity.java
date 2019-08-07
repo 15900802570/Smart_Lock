@@ -98,7 +98,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 mSecretList.add(tempSecret.substring(192, 256));
             }
         } else {
-            Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.time_not_calibrated), Toast.LENGTH_LONG).show();
         }
 
         mTempPwdAdapter = new TempPwdAdapter(this);
@@ -123,7 +123,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.btn_create_temp_pwd:
                 if (StringUtil.checkIsNull(mDefaultDevice.getTempSecret())) {
-                    Toast.makeText(this, "设备时间未校准！", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, getString(R.string.time_not_calibrated), Toast.LENGTH_LONG).show();
                     return;
                 } else {
                     CreateTmpPwdDialog createTmpPwdDialog = new CreateTmpPwdDialog(1);
@@ -486,9 +486,9 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                         ((MyViewHolder) viewHolder).mShare.setVisibility(View.VISIBLE);
                     }
                     if (tempPwdInfo.getRandomNum() % 2 == 0) {
-                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setText("多次");
+                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setText(getString(R.string.many));
                     } else {
-                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setText("单次");
+                        ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setText(getString(R.string.one));
                     }
                     if (valid) {
                         ((MyViewHolder) viewHolder).mTempPwdCheckNumTv.setTextColor(getResources().getColor(R.color.blue2));

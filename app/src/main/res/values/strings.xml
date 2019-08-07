@@ -409,4 +409,18 @@
     <string name="check_fp_secret_error">Update failed,Check file secret error!</string>
     <string name="plz_wait_lock_call_back">Please wait lock call back</string>
     <string name="connect_timeout">Timeout</string>
+    <string name="one">Once</string>
+    <string name="many">Many</string>
+    <string name="time_not_calibrated">Time of Device is not calibrated</string>
+    <string name="effective_num">Effective Numbers</string>
+    <string name="valid_period">Valid Period</string>
+    <string name="hour">Hour</string>
+    <string name="fingerprint_verification">Fingerprint Verification</string>
+    <string name="password_verification">Password Verification</string>
+    <string name="pwd_not_set">You hava not added a password yet, are you adding it now?</string>
+    <string name="pwd_not_set_yet">You hava not turned on password authentication.Please enable password verification first.</string>
+    <string name="pwd_screen_not_set">You have not set a phone lock password . Please set the phone lock password firest.</string>
+    <string name="fp_not_set">You add at least one fingerprint to you system settings.</string>
+    <string name="test_auto_conn">Test Automatic Connection</string>
+    <string name="threshold">Threshold Query</string>
 </resources>

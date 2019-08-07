@@ -417,4 +417,18 @@
     <string name="edit_user_name">编辑用户名</string>
     <string name="user_pause_warning">用户已暂停,请恢复后设置</string>
     <string name="connect_timeout">连接超时，请重试</string>
+    <string name="one">单次</string>
+    <string name="many">多次</string>
+    <string name="time_not_calibrated">设备时间未校准</string>
+    <string name="effective_num">有效次数</string>
+    <string name="valid_period">有效时间</string>
+    <string name="hour">小时</string>
+    <string name="fingerprint_verification">指纹验证</string>
+    <string name="password_verification">密码验证</string>
+    <string name="pwd_not_set">您还未添加密码信息，是否立即设置？</string>
+    <string name="pwd_not_set_yet">您未开启密码验证，请先开启密码验证</string>
+    <string name="pwd_screen_not_set">您未设置锁屏，请设置锁屏并添加指纹</string>
+    <string name="fp_not_set">您至少在系统设置中添加一个指纹</string>
+    <string name="test_auto_conn">测试自动连接</string>
+    <string name="threshold">阈值查询</string>
 </resources>
