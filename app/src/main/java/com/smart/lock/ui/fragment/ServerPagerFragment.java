@@ -227,7 +227,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 }
                 break;
             case BIND_DEVICE:
-
+                if (mDevice == null) mDevice = Device.getInstance(mCtx);
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
                     mBleConnectIv.setClickable(false);
