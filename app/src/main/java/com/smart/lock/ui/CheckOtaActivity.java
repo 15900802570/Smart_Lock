@@ -446,8 +446,15 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     viewHolder.mNameTv.setText(R.string.lock_default_name);
                     if (StringUtil.checkNotNull(mDefaultDev.getDeviceSwVersion())) {
                         swLen = mDefaultDev.getDeviceSwVersion().length();
-                        if (len >= 5 && swLen >= 5)
-                            code = StringUtil.compareVersion(model.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
+                        if (len >= 5 && swLen >= 5) {
+                            String[] tempList = mDefaultDev.getDeviceSwVersion().split("_");
+                            if (tempList.length >= 2) {
+                                code = StringUtil.compareVersion(model.versionName, tempList[tempList.length - 2]);
+                                LogUtil.d(TAG, "code = " + code + '\n' + "temp = " + tempList[tempList.length - 2]);
+                            } else {
+                                code = -1;
+                            }
+                        }
                     }
                 }
 

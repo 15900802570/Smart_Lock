@@ -254,7 +254,7 @@ public class HomeFragment extends BaseFragment implements
 
             case BIND_DEVICE:
                 LogUtil.d(TAG, "onResume bind");
-                if (mNewsVpRL.getLayoutParams() != null)
+                if (mNewsVpRL != null && mNewsVpRL.getLayoutParams() != null)
                     mNewsVpRL.getLayoutParams().height = (int) mCtx.getResources().getDimension(R.dimen.y366dp);
                 mAdapter.setImageIds(mImageIdsNor);
                 mAdapter.notifyDataSetChanged();
@@ -272,7 +272,7 @@ public class HomeFragment extends BaseFragment implements
                 break;
             case UNBIND_DEVICE:
                 LogUtil.d(TAG, "onResume Unbind");
-                if (mNewsVpRL.getLayoutParams() != null)
+                if (mNewsVpRL != null && mNewsVpRL.getLayoutParams() != null)
                     mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mServerPager.setVisibility(View.GONE);
@@ -365,6 +365,7 @@ public class HomeFragment extends BaseFragment implements
 
     @Override
     public void onPageSelected(int i) {
+        LogUtil.d(TAG, "PageSelected");
         DeviceInfoDao.getInstance(mActivity).setNoDefaultDev();
         deviceInfoArraysList = DeviceInfoDao.getInstance(mActivity).queryAll();
         deviceInfoArraysList.get(i).setDeviceDefault(true);
@@ -375,7 +376,8 @@ public class HomeFragment extends BaseFragment implements
     public void onPageScrollStateChanged(int i) {
 
     }
-    public void setOnSelectDialogCancelListener(final ServerPagerFragment fragment){
+
+    public void setOnSelectDialogCancelListener(final ServerPagerFragment fragment) {
         mBottomSheetSelectDev.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -459,10 +461,11 @@ public class HomeFragment extends BaseFragment implements
                     @Override
                     public void onClick(View v) {
                         // 判断是否更换默认设备
-                       HomeFragment.this.mBottomSheetSelectDev.cancel();
+                        HomeFragment.this.mBottomSheetSelectDev.cancel();
                         if (!deviceInfo.getDeviceDefault()) {
                             if (mDefaultInfo == null) {
                                 LogUtil.d(TAG, "设置为默认设备222");
+                                DeviceInfoDao.getInstance(mActivity).setNoDefaultDev();
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                             } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
@@ -470,13 +473,14 @@ public class HomeFragment extends BaseFragment implements
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(mActivity).exchangeConnect(deviceInfo);
-//                                mBleManagerHelper.getBleCardService().disconnect();
+                                mDevice.halt();
+                                mBleManagerHelper.getBleCardService().disconnect();
                                 LogUtil.d(TAG, "设置为默认设备");
                             }
+                            Device.getInstance(mActivity).setDisconnectBle(false);
                             mDevList = DeviceInfoDao.getInstance(mActivity).queryAll();
                             mDevManagementAdapter.notifyDataSetChanged();
                             onSelectDev(deviceInfo);
-                            Device.getInstance(mActivity).setDisconnectBle(false);
                         }
 
                     }

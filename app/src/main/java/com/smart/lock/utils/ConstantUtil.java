@@ -37,6 +37,11 @@ public class ConstantUtil {
     public static final String IS_DMT_TEST = "isDmtTest";
 
     /**
+     * 是否开启设备检测
+     */
+    public static final String DEFAULT_LANGNAGE = "defaultLangnage";
+
+    /**
      * 系统太低不支持指纹
      */
     public static final int FP_LOW_VERSION = 0;
@@ -105,6 +110,11 @@ public class ConstantUtil {
      * 设置密码请求参数
      */
     public static final int SETTING_PWD_REQUEST_CODE = 1;
+
+    /**
+     * 不检测设备SN号
+     */
+    public static String UNCHECK_DEVICE_SN = "uncheckDeviceSn";
 
     /**
      * 不限版本号升级

@@ -31,6 +31,7 @@ import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.OtaUpdateActivity;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SendOTAData;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 
@@ -200,7 +201,6 @@ public class BleCardService {
 
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            LogUtil.d(TAG, "characteristic 222 : " + characteristic.getUuid());
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 for (DeviceStateCallback devStateCallback : mDeviceStateCallbackArrayList) {
                     devStateCallback.onGattStateChanged(BluetoothGatt.GATT_SUCCESS, WRITE);
@@ -302,6 +302,12 @@ public class BleCardService {
 //
 //            return mBluetoothGatt.connect();
 //        }
+
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } //有时候刚连接就异常断开，尝试加个延时试试
 
         final BluetoothDevice remoteDevice = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {

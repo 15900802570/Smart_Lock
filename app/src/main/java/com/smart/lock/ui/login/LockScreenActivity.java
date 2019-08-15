@@ -89,9 +89,9 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
         switch (errorCode) {
             case FingerprintManager.FINGERPRINT_ERROR_LOCKOUT:
                 ToastUtil.show(this,
-                        "指纹验证次数达到上限",
+                        getString(R.string.password_is_required),
                         Toast.LENGTH_SHORT);
-                mInfoTv.setText("输入密码");
+                mInfoTv.setText(getString(R.string.please_input_pwd));
                 setAllText(false);
                 break;
             case FingerprintManager.FINGERPRINT_ERROR_CANCELED:
@@ -181,7 +181,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
             LogUtil.e(TAG, "获取是否开启指纹验证信息失败");
         }
         if (mIsFP == 4 && isFPRequired && !isReturn) {
-            mInfoTv.setText("指纹 / 输入密码");
+            mInfoTv.setText(getString(R.string.plz_enter_pwd_or_touch_id));
             initFP();
             onStartFPListening();
         } else {

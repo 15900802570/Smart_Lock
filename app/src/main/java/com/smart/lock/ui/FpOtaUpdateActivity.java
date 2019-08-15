@@ -283,6 +283,12 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
         mVersionModel = (VersionModel) getIntent().getSerializableExtra(ConstantUtil.SERIALIZABLE_FP_VERSION_MODEL);
+
+        if (mSendOTAData == null) {
+            mSendOTAData = new SendOTAData(this, mBleManagerHelper, Message.TYPE_BLE_FP_SEND_OTA_DATA);
+            mBleManagerHelper.getBleCardService().registerDevStateCb(mSendOTAData);
+        }
+
         if (mVersionModel == null) {
             showMessage("没有可更新的文件");
             finish();
@@ -321,6 +327,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                     }
                 }
             }
+
         }
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
@@ -566,7 +573,11 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         mOtaParser.set(gCmdBytes, mSha1);
 
         buildAndSendDFUCommand(TAG_OTA_PREPARE);
-
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // wait 500ms;
         writeCommandAction();
     }
@@ -592,10 +603,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             byte[] cmd = mOtaParser.getNextPacket();
 
 //            mBleManagerHelper.getBleCardService().sendCmdOtaData(cmd, Message.TYPE_BLE_FP_SEND_OTA_DATA);
-            if (mSendOTAData == null) {
-                mSendOTAData = new SendOTAData(this, mBleManagerHelper, Message.TYPE_BLE_FP_SEND_OTA_DATA);
-                mBleManagerHelper.getBleCardService().registerDevStateCb(mSendOTAData);
-            }
+
             LogUtil.d("index 发送2");
             mSendOTAData.start(cmd);
         }
@@ -610,7 +618,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
             mStartBt.setEnabled(true);
         }
 //        mSendOTAData.setStateToDone();
-        mBleManagerHelper.getBleCardService().removeDevStateCb(mSendOTAData);
+//        mBleManagerHelper.getBleCardService().removeDevStateCb(mSendOTAData);
     }
 
     @Override
@@ -656,8 +664,11 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
         super.onDestroy();
         AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(this);
         autoConnectBle.setAutoConnect(false);
-        mBleManagerHelper.removeUiListener(this);
-        mBleManagerHelper.getBleCardService().removeDevStateCb(mSendOTAData);
+        if (mBleManagerHelper != null) {
+            mBleManagerHelper.removeUiListener(this);
+            if (mBleManagerHelper.getBleCardService() != null)
+                mBleManagerHelper.getBleCardService().removeDevStateCb(mSendOTAData);
+        }
 
         try {
             if (mThread != null) {
@@ -765,7 +776,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 if (!mOtaMode && !bWriteDfuData && !mOtaParser.hasNextPacket() && mIsUpdateSuccess) {
                     String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
                     FileUtil.clearFiles(dir);
-//                    mConnetStatus.setText(R.string.ota_complete);
+                    mConnetStatus.setText(R.string.ota_complete);
                     mOtaMode = false;//异常断开，重置ota模式
                 } else if (mOtaMode) {
                     updateVersion();
@@ -807,7 +818,6 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                 mStartBt.setEnabled(true);
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_SUCCESS:
-                mConnetStatus.setText(R.string.ota_complete);
                 mIsUpdateSuccess = true;
                 break;
             case BleMsg.TYPE_FINGERPRINT_OTA_UPDATE_FAILED:
@@ -837,6 +847,7 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
 
     @Override
     public void reConnectBle(Device device) {
+        LogUtil.d(TAG, "reconnect!");
         mConnetStatus.setText(R.string.bt_connecting);
     }
 

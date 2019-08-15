@@ -448,7 +448,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 //                        }
 //
 //                    } else {
-//                        mEndDateTv.setError("起始日期不能大于或等于结束日期");
+//                        mEndDateTv.setError(getString(R.string.set_date_error));
 //                        return;
 //                    }
 //                }
@@ -744,7 +744,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 //                                return;
 //                            }
 //                        } else {
-                            showMessage("起始日期不能大于或等于结束日期");
+                            showMessage(getString(R.string.set_date_error));
                             return;
                         }
                     }
@@ -769,13 +769,13 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     if (mLifeCb.isChecked()) {
-                        if (mStartDate < mEndDate) {
-                            if (checkLifeCycle()) {
-                                showMessage(getString(R.string.life_cycle_not_changed));
-                                return;
-                            }
-                        } else {
-                            showMessage("起始日期不能大于或等于结束日期");
+                        if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
+                            showMessage(getString(R.string.set_date_error));
                             return;
                         }
                     }
@@ -799,13 +799,13 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
             if (mDevice.getState() == Device.BLE_CONNECTED) {
 
                 if (mLifeCb.isChecked()) {
-                    if (mStartDate < mEndDate) {
-                        if (checkLifeCycle()) {
-                            showMessage(getString(R.string.life_cycle_not_changed));
-                            return;
-                        }
-                    } else {
-                        showMessage("起始日期不能大于或等于结束日期");
+                    if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
+                        showMessage(getString(R.string.set_date_error));
                         return;
                     }
                 }
@@ -824,13 +824,13 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         } else if (!mUnlockTimeCb1.isChecked() && mUnlockTimeCb2.isChecked() && !mUnlockTimeCb3.isChecked()) {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
                 if (mLifeCb.isChecked()) {
-                    if (mStartDate < mEndDate) {
-                        if (checkLifeCycle()) {
-                            showMessage(getString(R.string.life_cycle_not_changed));
-                            return;
-                        }
-                    } else {
-                        showMessage("起始日期不能大于或等于结束日期");
+                    if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
+                        showMessage(getString(R.string.set_date_error));
                         return;
                     }
                 }
@@ -850,13 +850,13 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
             if (mDevice.getState() == Device.BLE_CONNECTED) {
 
                 if (mLifeCb.isChecked()) {
-                    if (mStartDate < mEndDate) {
-                        if (checkLifeCycle()) {
-                            showMessage(getString(R.string.life_cycle_not_changed));
-                            return;
-                        }
-                    } else {
-                        showMessage("起始日期不能大于或等于结束日期");
+                    if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
+                        showMessage(getString(R.string.set_date_error));
                         return;
                     }
                 }
@@ -884,7 +884,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 //                                return;
 //                            }
 //                        } else {
-                            showMessage("起始日期不能大于或等于结束日期");
+                            showMessage(getString(R.string.set_date_error));
                             return;
                         }
                     }
@@ -910,13 +910,13 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     if (mLifeCb.isChecked()) {
-                        if (mStartDate < mEndDate) {
-                            if (checkLifeCycle()) {
-                                showMessage(getString(R.string.life_cycle_not_changed));
-                                return;
-                            }
-                        } else {
-                            showMessage("起始日期不能大于或等于结束日期");
+                        if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
+                            showMessage(getString(R.string.set_date_error));
                             return;
                         }
                     }
@@ -938,13 +938,13 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                 DialogUtils.closeDialog(mLoadDialog);
 
                 if (mLifeCb.isChecked()) {
-                    if (mStartDate < mEndDate) {
-                        if (checkLifeCycle()) {
-                            showMessage(getString(R.string.life_cycle_not_changed));
-                            return;
-                        }
-                    } else {
-                        showMessage("起始日期不能大于或等于结束日期");
+                    if (mStartDate >= mEndDate) {
+//                            if (checkLifeCycle()) {
+//                                showMessage(getString(R.string.life_cycle_not_changed));
+//                                return;
+//                            }
+//                        } else {
+                        showMessage(getString(R.string.set_date_error));
                         return;
                     }
                 }

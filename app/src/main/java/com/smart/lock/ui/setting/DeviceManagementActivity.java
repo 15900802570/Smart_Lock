@@ -12,6 +12,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -220,7 +221,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
         @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
             switch (viewType) {
                 case TYPE_HEAD:
                     return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
@@ -241,7 +242,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         @Override
         public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             if (viewHolder instanceof MyViewHolder) {
-                final DeviceInfo deviceInfo = mDevList.get(position);
+                final DeviceInfo deviceInfo = mDevList.get(position - countHead);
                 if (deviceInfo != null) {
                     try {
                         ((MyViewHolder) viewHolder).mLockNameTv.setText(deviceInfo.getDeviceName());
@@ -307,18 +308,19 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                     ((MyViewHolder) viewHolder).mUnbindLl.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (deviceInfo.getDeviceDefault() && DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false) != null) {
-                                ToastUtil.showLong(mCtx, R.string.default_dev_delete_failed);
-                                ((MyViewHolder) viewHolder).mSwipeLayout.close();
-                            } else {
-                                DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
-                                mBleManagerHelper.deleteDefaultDev();
-                                Device.getInstance(DeviceManagementActivity.this).halt();
+//                        if (deviceInfo.getDeviceDefault() && DeviceInfoDao.getInstance(mCtx).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false) != null) {
+//                            ToastUtil.showLong(mCtx, R.string.default_dev_delete_failed);
+//                            ((MyViewHolder) viewHolder).mSwipeLayout.close();
+//                        } else {
+                            DtComFunHelper.restoreFactorySettings(DeviceManagementActivity.this, deviceInfo);
+                            if (Device.getInstance(DeviceManagementActivity.this).getState() == Device.BLE_CONNECTED) {
                                 mBleManagerHelper.getBleCardService().disconnect();
-                                mDevList.remove(position);
-                                mDevManagementAdapter.notifyDataSetChanged();
-
                             }
+                            Device.getInstance(DeviceManagementActivity.this).halt();
+                            mDevList = DeviceInfoDao.getInstance(mCtx).queryAll();
+                            mDevManagementAdapter.notifyDataSetChanged();
+
+//                        }
                         }
                     });
                 }
@@ -327,7 +329,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
 
         @Override
         public int getItemCount() {
-            return mDevList.size() + countHead + countFoot;
+            return mDevList.size() + countFoot + countHead;
         }
 
         class MyViewHolder extends RecyclerView.ViewHolder {
@@ -362,12 +364,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     @Override
     protected void onResume() {
         super.onResume();
-        long l = DeviceInfoDao.getInstance(mCtx).queryCount();
-        LogUtil.d(TAG, "type = " + l + '\n' +
-                "count = " + mDevManagementAdapter.getItemCount());
-        if (l > mDevManagementAdapter.getItemCount()) {
-            mDevManagementAdapter.refreshList();
-            mDevManagementAdapter.notifyDataSetChanged();
-        }
+        mDevManagementAdapter.refreshList();
+        mDevManagementAdapter.notifyDataSetChanged();
     }
 }

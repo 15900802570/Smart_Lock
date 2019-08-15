@@ -10,42 +10,55 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(generatedId = true, columnName = "_id")
     private int id;
 
+    //设备ID
     @DatabaseField(columnName = "dev_node_id",canBeNull = false)
     private String devNodeId;
 
+    //智能锁芯
     @DatabaseField(columnName = "intelligent_lock_core", defaultValue = "0")
     private boolean intelligentLockCore;
 
+    //防撬报警
     @DatabaseField(columnName = "anti_prizing_alarm", defaultValue = "0")
     private boolean antiPrizingAlarm;
 
+    //组合开锁
     @DatabaseField(columnName = "combination_lock", defaultValue = "0")
     private boolean combinationLock;
 
+    //常开功能
     @DatabaseField(columnName = "normally_open", defaultValue = "0")
     private boolean normallyOpen;
 
+    //语言提示
     @DatabaseField(columnName = "voice_prompt", defaultValue = "1")
     private boolean voicePrompt;
 
+    //蓝牙广播
     @DatabaseField(columnName = "broadcastNormallyOpen", defaultValue = "0")
     private boolean broadcastNormallyOpen;
 
+    //M1卡 NFC卡类型
     @DatabaseField(columnName = "support_m1", defaultValue = "0")
     private boolean m1Support;
 
+    //回锁时间
     @DatabaseField(columnName = "rolled_back_time",defaultValue = "5" )
     private int rolledBackTime;
 
+    //省电开始时间
     @DatabaseField(columnName = "power_saving_start_time",defaultValue = "2300" )
     private int powerSavingStartTime;
 
+    //省电结束时间
     @DatabaseField(columnName = "power_saving_end_time",defaultValue = "700" )
     private int powerSavingEndTime;
 
+    //电池
     @DatabaseField(columnName = "battery",defaultValue = "0" )
     private int battery;
 
+    //信息更新时间
     @DatabaseField(columnName = "status_update_time")
     private long updateTime;
 

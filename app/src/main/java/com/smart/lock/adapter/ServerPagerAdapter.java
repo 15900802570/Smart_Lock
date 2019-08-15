@@ -27,6 +27,7 @@ public class ServerPagerAdapter extends FragmentPagerAdapter {
             }
         }
         if (currentItem == Integer.MAX_VALUE && deviceInfos.size() != 0) {
+            DeviceInfoDao.getInstance(context).setNoDefaultDev();
             deviceInfos.get(0).setDeviceDefault(true);
             DeviceInfoDao.getInstance(context).updateDeviceInfo(deviceInfos.get(0));
             currentItem = 0;
@@ -43,6 +44,7 @@ public class ServerPagerAdapter extends FragmentPagerAdapter {
             }
         }
         if (currentItem == Integer.MAX_VALUE && deviceInfos.size() != 0) {
+            DeviceInfoDao.getInstance(context).setNoDefaultDev();
             deviceInfos.get(0).setDeviceDefault(true);
             DeviceInfoDao.getInstance(context).updateDeviceInfo(deviceInfos.get(0));
             currentItem = 0;

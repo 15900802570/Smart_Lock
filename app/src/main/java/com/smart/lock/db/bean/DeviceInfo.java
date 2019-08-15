@@ -106,7 +106,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public String getDeviceSwVersion() {
-        return deviceSwVersion;
+        return deviceSwVersion != null ? deviceSwVersion : "SMARTLOCK_1.0.1_20190813";
     }
 
     public void setDeviceSwVersion(String deviceSwVersion) {

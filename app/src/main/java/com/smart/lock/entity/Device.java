@@ -37,11 +37,11 @@ public class Device {
 
     private boolean mBackGroundConnect = false;//
 
-    public static final byte BLE_SCAN_QR_CONNECT_TYPE = 0;
-    public static final byte BLE_OTHER_CONNECT_TYPE = 1;
-    public static final byte BLE_SET_DEVICE_INFO_CONNECT_TYPE = 2;
-    public static final byte BLE_SEARCH_DEV_CONNECT = 3;
-    public static final byte BLE_SCAN_AUTH_CODE_CONNECT = 4;
+    public static final byte BLE_SCAN_QR_CONNECT_TYPE = 0; //扫描连接
+    public static final byte BLE_OTHER_CONNECT_TYPE = 1; //普通类型安全连接
+    public static final byte BLE_SET_DEVICE_INFO_CONNECT_TYPE = 2; //设置设备信息连接
+    public static final byte BLE_SEARCH_DEV_CONNECT = 3; //搜索添加连接类型
+    public static final byte BLE_SCAN_AUTH_CODE_CONNECT = 4; //APK之间通过鉴权码分享连接类型
     public static final byte BLE_CONNECT_TYPE = BLE_SCAN_QR_CONNECT_TYPE;
 
     public static final int DFU_CHAR_EXISTS = 0x01;
@@ -182,7 +182,7 @@ public class Device {
         mDevInfo = null;
     }
 
-    public void exchangeConnect(DeviceInfo deviceInfo){
+    public void exchangeConnect(DeviceInfo deviceInfo) {
         state = BLE_DISCONNECTED;
         mDevInfo = deviceInfo;
     }
