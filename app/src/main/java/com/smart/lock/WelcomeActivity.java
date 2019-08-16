@@ -19,6 +19,7 @@ import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.LanguageType;
 import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
@@ -75,7 +76,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     @Override
     protected void attachBaseContext(Context newBase) {
         //获取我们存储的语言环境 比如 "en","zh",等等
-        String language = SharedPreferenceUtil.getInstance(newBase).readString(ConstantUtil.DEFAULT_LANGNAGE);
+        String language = SharedPreferenceUtil.getInstance(newBase).readString(ConstantUtil.DEFAULT_LANGNAGE, LanguageType.CHINESE.getLanguage());
         /**
          * attach对应语言环境下的context
          */
@@ -301,7 +302,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     private void jLockScreenActivity(Activity mActivity) {
         int param;
         try {
-            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD).isEmpty()) {
+            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD,"").isEmpty()) {
                 param = ConstantUtil.LOGIN_PASSWORD;
             } else {
                 param = ConstantUtil.SETTING_PASSWORD;

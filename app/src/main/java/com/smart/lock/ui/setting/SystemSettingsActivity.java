@@ -449,7 +449,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     @Override
     protected void onResume() {
         if (myPrefs.readBoolean(ConstantUtil.NUM_PWD_CHECK) &&
-                myPrefs.readString(ConstantUtil.NUM_PWD) != "") {
+                !myPrefs.readString(ConstantUtil.NUM_PWD, "").equals("")) {
             myPrefs.writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
             mNumPwdSwitchLightTBtn.setChecked(true);
             mIsPwdRequired = true;

@@ -259,7 +259,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 }
                 break;
             case ConstantUtil.LOGIN_PASSWORD: //登录
-                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
+                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD,""))) {
                     if (mNumCounter < 3) {
                         SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeInt(ConstantUtil.NUM_COUNTER, ++mNumCounter);
                     } else {
@@ -293,7 +293,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 break;
             case ConstantUtil.MODIFY_PASSWORD:
                 LogUtil.d("修改密码");
-                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD))) {
+                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD,""))) {
                     shakes();
                 } else {
                     type = ConstantUtil.SETTING_PASSWORD;
@@ -347,7 +347,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
      * 设置所有字符
      */
     private void setAllText(boolean flag) {
-        String pwd = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD);
+        String pwd = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD,"");
         clearText();
         if (flag) {
             setText(pwd.substring(0, 1));

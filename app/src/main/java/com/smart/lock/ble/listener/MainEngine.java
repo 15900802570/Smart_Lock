@@ -1000,6 +1000,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mService.sendCmd03(respRandom, BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     showMessage(mCtx.getString(R.string.sn_warning));
+                    mDevice.setDisconnectBle(false);
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mService.disconnect();
                 }

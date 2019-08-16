@@ -57,7 +57,7 @@ public class LanguageActivity extends AppCompatActivity {
 
     private void initData() {
         final List<LangnageModel> langnages = new ArrayList<>();
-        mLangnage = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.DEFAULT_LANGNAGE);
+        mLangnage = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.DEFAULT_LANGNAGE, "");
 
         LangnageModel chModel = new LangnageModel();
         chModel.setLangnage(LanguageType.CHINESE.getLanguage());
@@ -80,7 +80,7 @@ public class LanguageActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mLangnage = langnages.get(position).getLangnage();
                 adapter.selectLangnage(position);
-                String defaultLangnage = SharedPreferenceUtil.getInstance(LanguageActivity.this).readString(ConstantUtil.DEFAULT_LANGNAGE);
+                String defaultLangnage = SharedPreferenceUtil.getInstance(LanguageActivity.this).readString(ConstantUtil.DEFAULT_LANGNAGE, LanguageType.CHINESE.getLanguage());
                 if (defaultLangnage.equals(mLangnage)) {
                     mSaveItem.setEnabled(false);
                 } else mSaveItem.setEnabled(true);
