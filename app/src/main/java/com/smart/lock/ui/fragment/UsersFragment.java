@@ -702,7 +702,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
     }
 
-    private class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+    private class UserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private static final int TYPE_HEAD = 0;
         private static final int TYPE_BODY = 1;
@@ -772,7 +772,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
         @NonNull
         @Override
-        public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
             switch (viewType) {
                 case TYPE_HEAD:
@@ -894,67 +894,67 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
         @SuppressLint("SetTextI18n")
         @Override
-        public void onBindViewHolder(@NonNull final UserViewHolder holder, final int position) {
+        public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
             if (holder instanceof UserViewHolder) {
                 final DeviceUser userInfo = mUserList.get(position - countHead);
                 if (userInfo != null) {
 //                holder.mEditIbtn.setVisibility(View.GONE);
 
                     if (userInfo.getUserId() == mDefaultUser.getUserId()) {
-                        holder.mNameTv.setText(userInfo.getUserName() + "(我)");
-                        holder.mSwipeLayout.setRightSwipeEnabled(false);
+                        ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName() + "(我)");
+                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
 
                         if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
-                            holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
+                            ((UserViewHolder) holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
                         else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
-                            holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+                            ((UserViewHolder) holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                        holder.mUserStateTv.setText(mContext.getString(R.string.normal));
-                        holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
-                        holder.mUserContent.setOnLongClickListener(null);
-                        holder.mDeleteRl.setVisibility(View.GONE);
+                        ((UserViewHolder) holder).mUserStateTv.setText(mContext.getString(R.string.normal));
+                        ((UserViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(null);
+                        ((UserViewHolder) holder).mDeleteRl.setVisibility(View.GONE);
 
-                        holder.mDeleteCb.setChecked(false);
+                        ((UserViewHolder) holder).mDeleteCb.setChecked(false);
                     } else if (userInfo.getUserId() == 1 && mDefaultUser.getUserId() != 1) { //第一个绑定的用户
-                        holder.mNameTv.setText(userInfo.getUserName() + "(主)");
-                    holder.mSwipeLayout.setRightSwipeEnabled(false);
+                        ((UserViewHolder)holder).mNameTv.setText(userInfo.getUserName() + "(主)");
+                    ((UserViewHolder)holder).mSwipeLayout.setRightSwipeEnabled(false);
 
                     if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
-                        holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
+                        ((UserViewHolder)holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
                     else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
-                        holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+                        ((UserViewHolder)holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                    holder.mUserStateTv.setText(mContext.getString(R.string.normal));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+                    ((UserViewHolder)holder).mUserStateTv.setText(mContext.getString(R.string.normal));
+                    ((UserViewHolder)holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
 
-                    holder.mUserContent.setOnLongClickListener(null);
-                    holder.mDeleteRl.setVisibility(View.GONE);
+                    ((UserViewHolder)holder).mUserContent.setOnLongClickListener(null);
+                    ((UserViewHolder)holder).mDeleteRl.setVisibility(View.GONE);
 
-                    holder.mDeleteCb.setChecked(false);
+                    ((UserViewHolder)holder).mDeleteCb.setChecked(false);
 
                 } else {
-                        holder.mSwipeLayout.setRightSwipeEnabled(true);
-                        holder.mNameTv.setText(userInfo.getUserName());
+                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(true);
+                        ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName());
 
-                        refreshStatus(userInfo.getUserStatus(), holder); //刷新用户状态
+                        refreshStatus(userInfo.getUserStatus(), ((UserViewHolder) holder)); //刷新用户状态
 
                         if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
-                            holder.mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
+                            ((UserViewHolder) holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
                         else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
-                            holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+                            ((UserViewHolder) holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
 
-                        holder.mUserStatus.setOnClickListener(new View.OnClickListener() {
+                        ((UserViewHolder) holder).mUserStatus.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                doClick(holder, userInfo.getUserId());
+                                doClick(((UserViewHolder) holder), userInfo.getUserId());
                             }
                         });
 
-                        holder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
+                        ((UserViewHolder) holder).mDeleteCb.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                if (holder.mDeleteCb.isChecked()) {
+                                if (((UserViewHolder) holder).mDeleteCb.isChecked()) {
                                     mDeleteUsers.add(userInfo);
                                 } else {
                                     int delIndex = -1;
@@ -972,7 +972,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                             }
                         });
 
-                        holder.mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
+                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
 
                             @Override
                             public boolean onLongClick(View v) {
@@ -981,7 +981,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                             }
                         });
 
-                        holder.mUserMore.setOnClickListener(new View.OnClickListener() {
+                        ((UserViewHolder) holder).mUserMore.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 showBottomDialog(userInfo);
@@ -989,15 +989,15 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         });
 
                         if (mVisiBle)
-                            holder.mDeleteRl.setVisibility(View.VISIBLE);
+                            ((UserViewHolder) holder).mDeleteRl.setVisibility(View.VISIBLE);
                         else
-                            holder.mDeleteRl.setVisibility(View.GONE);
+                            ((UserViewHolder) holder).mDeleteRl.setVisibility(View.GONE);
 
-                        holder.mDeleteCb.setChecked(mAllDelete);
+                        ((UserViewHolder) holder).mDeleteCb.setChecked(mAllDelete);
 
                     }
 
-                    holder.mUserContent.setOnClickListener(new View.OnClickListener() {
+                    ((UserViewHolder) holder).mUserContent.setOnClickListener(new View.OnClickListener() {
 
                         @Override
                         public void onClick(View v) {
@@ -1089,11 +1089,11 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         }
 
         @Override
-        public void onViewAttachedToWindow(@NonNull UserViewHolder holder) {
+        public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
             super.onViewAttachedToWindow(holder);
             if (holder instanceof UserViewHolder) {
-                holder.mNameTv.setEnabled(false);
-                holder.mNameTv.setEnabled(true);
+                ((UserViewHolder) holder).mNameTv.setEnabled(false);
+                ((UserViewHolder) holder).mNameTv.setEnabled(true);
             }
         }
 
@@ -1131,7 +1131,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             }
         }
 
-        class FootViewHolder extends UserViewHolder {
+        class FootViewHolder extends RecyclerView.ViewHolder {
             private FootViewHolder(View itemView) {
                 super(itemView);
             }
