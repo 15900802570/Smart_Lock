@@ -916,23 +916,23 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
                         ((UserViewHolder) holder).mDeleteCb.setChecked(false);
                     } else if (userInfo.getUserId() == 1 && mDefaultUser.getUserId() != 1) { //第一个绑定的用户
-                        ((UserViewHolder)holder).mNameTv.setText(userInfo.getUserName() + "(主)");
-                    ((UserViewHolder)holder).mSwipeLayout.setRightSwipeEnabled(false);
+                        ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName() + "(主)");
+                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
 
-                    if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
-                        ((UserViewHolder)holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
-                    else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
-                        ((UserViewHolder)holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+                        if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
+                            ((UserViewHolder) holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
+                        else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
+                            ((UserViewHolder) holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                    ((UserViewHolder)holder).mUserStateTv.setText(mContext.getString(R.string.normal));
-                    ((UserViewHolder)holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+                        ((UserViewHolder) holder).mUserStateTv.setText(mContext.getString(R.string.normal));
+                        ((UserViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
 
-                    ((UserViewHolder)holder).mUserContent.setOnLongClickListener(null);
-                    ((UserViewHolder)holder).mDeleteRl.setVisibility(View.GONE);
+                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(null);
+                        ((UserViewHolder) holder).mDeleteRl.setVisibility(View.GONE);
 
-                    ((UserViewHolder)holder).mDeleteCb.setChecked(false);
+                        ((UserViewHolder) holder).mDeleteCb.setChecked(false);
 
-                } else {
+                    } else {
                         ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(true);
                         ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName());
 
