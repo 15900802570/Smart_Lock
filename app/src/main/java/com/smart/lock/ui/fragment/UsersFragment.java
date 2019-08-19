@@ -416,6 +416,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 short userIdTag = (short) serializable;
+                LogUtil.i(TAG, "receiver msg 26 : " + userIdTag);
                 if (userIdTag <= 0 || userIdTag > 200) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
@@ -424,10 +425,11 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 if (userInfo != null) {
                     DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
 
+                    devUser.setUserStatus(userInfo[0]);
+
                     if (devUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
                         checKMembers(userInfo, devUser);
 
-                    devUser.setUserStatus(userInfo[0]);
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
@@ -436,6 +438,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[6], ConstantUtil.USER_FINGERPRINT, "4");
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
 
+                    DeviceUserDao.getInstance(mCtx).updateDeviceUser(devUser);
                     if (mShowQR) {
                         mShowQR = false;
                         byte[] authTime = new byte[4];
@@ -576,7 +579,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     "thEnd : " + thEnd + "\n" +
                     "lcBegin : " + lcBegin + "\n" +
                     "lcEnd : " + lcEnd + "\n");
-            DeviceUserDao.getInstance(mCtx).updateDeviceUser(user);
         }
 
 
