@@ -273,6 +273,7 @@ public class ConstantUtil {
         String DEVICE_SN = "deviceSn";
         String EXTENSION = "extension";
         String DEV_CUR_VER = "devCurVer";
+        String IS_TEST = "isTest";
         String FINGERPRINT = "fingerprint";
         String FP_TYPE = "fpType";
         String FP_CUR_VER = "fpCurVer";

@@ -269,24 +269,19 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null && !mCheckFpVersion) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
-            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
-                mVersionAction.setDeviceSn(ConstantUtil.DEVICE_SN_FOR_TEST);
-            } else {
-                mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
-            }
+            mVersionAction.setDeviceSn(mDefaultDev.getDeviceSn());
             mVersionAction.setDevCurVer(mDefaultDev.getDeviceSwVersion());
             mVersionAction.setExtension(ConstantUtil.BIN_EXTENSION);
+            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+                mVersionAction.setTest(true);
+            } else {
+                mVersionAction.setTest(false); //正式
+            }
             if (hasFp) {
                 String fpSwVersion = mDefaultDev.getFpSwVersion();
                 String[] fpSw = fpSwVersion.split("\\.");
                 String ret = fpSw[fpSw.length - 2];
-
-                LogUtil.d(TAG, "is DMT test : " + SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST));
-                if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
-                    mVersionAction.setFpType(ConstantUtil.FP_TYPE_FOR_TEST);
-                } else {
-                    mVersionAction.setFpType(fpSwVersion.split("_")[0]); //正式
-                }
+                mVersionAction.setFpType(fpSwVersion.split("_")[0]);
                 mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
                 mVersionAction.setFpCurZone(ret);
             }
