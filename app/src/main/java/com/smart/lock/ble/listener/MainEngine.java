@@ -526,15 +526,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
-            checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
-            checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getDeviceNodeId(), 2));//第二字节状态字
-            checkUserId(mDeviceUserDao.checkUserStatus(status3, mDevInfo.getDeviceNodeId(), 3));//第三字节状态字
-            checkUserId(mDeviceUserDao.checkUserStatus(status4, mDevInfo.getDeviceNodeId(), 4));//第四字节状态字
-            mDeviceUserDao.checkUserState(mDevInfo.getDeviceNodeId(), userState); //开锁信息状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getBleMac(), 1)); //第一字节状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getBleMac(), 2));//第二字节状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status3, mDevInfo.getBleMac(), 3));//第三字节状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status4, mDevInfo.getBleMac(), 4));//第四字节状态字
+            mDeviceUserDao.checkUserState(mDevInfo.getBleMac(), userState); //开锁信息状态字
 
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
-            getUserInfo();
 
             if (mDefaultStatus != null) {
                 mDefaultStatus.setBattery(battery);
@@ -793,7 +792,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             int exception = message.getException();
             if (exception != Message.EXCEPTION_NORMAL) {
                 LogUtil.e(TAG, "msg exception : " + message.toString());
-                if (mService != null) mService.disconnect();
+
+                if (exception != Message.EXCEPTION_TIMEOUT)
+                    if (mService != null) mService.disconnect();
                 for (UiListener uiListener : mUiListeners) {
                     uiListener.sendFailed(message); //发送消息失败回调
                 }
@@ -859,9 +860,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                     short sUserId = Short.parseShort(addUserId, 16);
 
-                    createDeviceUser(sUserId, null, StringUtil.bytesToHexString(authCode));
+                    sendMessage(MSG_ADD_USER_SUCCESS, null, 0); //先同步O4里面的用户数据
 
-                    sendMessage(MSG_ADD_USER_SUCCESS, null, 0);
+                    createDeviceUser(sUserId, null, StringUtil.bytesToHexString(authCode)); //再创建msg12回复的用户
+
+                    getUserInfo(); //查询12回复的用户
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_1A:
                 case Message.TYPE_BLE_RECEIVER_CMD_1C:
@@ -919,8 +922,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         mDefaultUser.setAuthCode((auth.equals("0")) ? null : auth);
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);
-                        mEndTime = System.currentTimeMillis();
-                        LogUtil.d(TAG, "mStartTime - mEndTime = " + (mEndTime - mStartTime));
                     } else {
                         for (UiListener uiListener : mUiListeners) {
                             uiListener.dispatchUiCallback(message, mDevice, -1);
@@ -1040,6 +1041,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      */
     private String setAuthCode(byte[] authTime) {
         byte[] authCode = new byte[30];
+        LogUtil.d(TAG, "mDevInfo.getDeviceNodeId() ： " + mDevInfo.getDeviceNodeId());
         if (StringUtil.checkNotNull(mDevInfo.getDeviceNodeId())) {
             byte[] userId = new byte[2];
             StringUtil.short2Bytes(mDevInfo.getUserId(), userId);
