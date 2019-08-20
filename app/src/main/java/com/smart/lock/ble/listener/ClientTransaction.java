@@ -111,4 +111,10 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
         }
     }
 
+    public void closeTimer() {
+        if (timer.isActive()) {
+            timer.halt();
+        }
+    }
+
 }
