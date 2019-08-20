@@ -29,9 +29,19 @@ public class CheckOtaAction extends AbstractTransaction {
         String deviceSn;
         String devCurVer;
         String extension;
+        boolean isTest;
         String fpType;
         String fpCurVer;
         String fpCurZone;
+
+    }
+
+    public boolean isTest() {
+        return sendData.isTest;
+    }
+
+    public void setTest(boolean test) {
+        sendData.isTest = test;
     }
 
     public String getDevCurVer() {
@@ -191,6 +201,7 @@ public class CheckOtaAction extends AbstractTransaction {
         paramCheckVersion.put(ParamName.DEVICE_SN, sendData.deviceSn);
         paramCheckVersion.put(ParamName.EXTENSION, sendData.extension);
         paramCheckVersion.put(ParamName.DEV_CUR_VER, sendData.devCurVer);
+        paramCheckVersion.put(ParamName.IS_TEST, sendData.isTest);
         Map<String, Object> fingerprint = new HashMap<>();
         fingerprint.put(ParamName.FP_TYPE, sendData.fpType);
         fingerprint.put(ParamName.FP_CUR_VER, sendData.fpCurVer);

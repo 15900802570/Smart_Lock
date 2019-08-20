@@ -266,7 +266,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                 break;
             case R.id.btn_confirm:
                 if (StringUtil.checkIsNull(mEtMome.getText().toString())) {
-                    showMessage("备注名不能为空！");
+                    showMessage(getString(R.string.note_name_error));
                     return;
                 }
                 if (mStartDateTv.getText().toString().equals(getString(R.string._1970_01_01)) || mEndDateTv.getText().toString().equals(getString(R.string._1970_01_01))) {
@@ -289,7 +289,7 @@ public class TempUserActivity extends BaseActivity implements View.OnClickListen
                     }
 
                 } else {
-                    showMessage("起始日期不能大于或等于结束日期！");
+                    showMessage(getString(R.string.set_date_error));
                 }
 
                 break;

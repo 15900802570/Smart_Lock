@@ -173,6 +173,11 @@
         <item name="actionMenuTextColor">@color/black</item>
     </style>
 
+    <style name="Enable.ActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:background">@color/white</item>
+        <item name="actionMenuTextColor">@color/gray1</item>
+    </style>
+
     <style name="TabLayout" parent="Base.Widget.Design.TabLayout">
         <item name="tabBackground">@drawable/tab_background</item>
     </style>
@@ -255,6 +260,12 @@
         <item name="colorAccent">@color/colorAccent</item>
         <!--自定义AlertDialog-->
         <item name="alertDialogTheme">@style/Theme.AppCompat.Light.Dialog.Alert.Self</item>
+    </style>
+
+    <style name="LineHorizontal">
+        <item name="android:background">@color/color_line</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">0.5dip</item>
     </style>
 
 </resources>

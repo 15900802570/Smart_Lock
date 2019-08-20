@@ -45,6 +45,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 
 public class LockSettingActivity extends AppCompatActivity implements UiListener, TimePickerDefineDialog.onTimePickerListener {
+    private final String TAG = LockSettingActivity.class.getSimpleName();
 
     private ToggleSwitchDefineView mIntelligentLockTs;
     private ToggleSwitchDefineView mAntiPrizingAlarmTs;
@@ -57,8 +58,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private BtnSettingDefineView mSetRolledBackTimeBs;
     private BtnSettingDefineView mSetSupportCardTypeBs;
     private BtnSettingDefineView mSetPowerSavingTimeBs;
-
-    private String TAG = "LockSettingActivity";
 
     private DeviceInfo mDefaultDevice;
     private short mUserID;
@@ -128,6 +127,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mFactoryResetNa = findViewById(R.id.next_factory_reset);
 
         mIntelligentLockTs.setDes(getResources().getString(R.string.intelligent_lock));
+        mIntelligentLockTs.setVisibility(View.GONE);
         mAntiPrizingAlarmTs.setDes(getResources().getString(R.string.anti_prizing_alarm));
         mCombinationLockTs.setDes(getResources().getString(R.string.combination_lock));
         mNormallyOpenTs.setDes(getResources().getString(R.string.normally_open));
@@ -175,12 +175,19 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mDeviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         setStatus();
         if (mUserID > 0 & mUserID < 100) {
-            mFactoryResetNa.setVisibility(View.VISIBLE);
             mSetSupportCardTypeBs.setVisibility(View.VISIBLE);
+            mIntelligentLockTs.setVisibility(View.VISIBLE);
+            mAntiPrizingAlarmTs.setVisibility(View.VISIBLE);
         } else {
-            mFactoryResetNa.setVisibility(View.GONE);
+
             mSetSupportCardTypeBs.setVisibility(View.GONE);
+            mIntelligentLockTs.setVisibility(View.GONE);
+            mAntiPrizingAlarmTs.setVisibility(View.GONE);
         }
+        //只有管理员1才可以设置恢复出厂设置
+        if (mUserID != 1) {
+            mFactoryResetNa.setVisibility(View.GONE);
+        } else mFactoryResetNa.setVisibility(View.VISIBLE);
     }
 
     private void enableTest() {
@@ -394,6 +401,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                             return;
                         }
+
+                        if (mDevice.getBattery() <= 35) {
+                            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
+                            return;
+                        }
                         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                             Intent intent = new Intent(this, CheckOtaActivity.class);
                             startActivity(intent);
@@ -567,11 +579,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                         return;
                     }
+
+                    if (mDevice.getBattery() <= 35) {
+                        ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
+                        return;
+                    }
+
                     if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-                        Intent intent = new Intent(this, OtaUpdateActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                        intent.putExtras(bundle);
+                        Intent intent = new Intent(this, CheckOtaActivity.class);
                         startActivity(intent);
                     } else
                         Toast.makeText(this, getString(R.string.plz_reconnect), Toast.LENGTH_LONG).show();

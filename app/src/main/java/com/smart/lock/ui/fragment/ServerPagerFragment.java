@@ -103,6 +103,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     private boolean mCurrentIndex = false;
 
+    private boolean mStopScanByUser = false;
+
 
     public View initView() {
         mPagerView = View.inflate(mActivity, R.layout.server_pager, null);
@@ -173,7 +175,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
                         DeviceInfo devInfo = autoConnectBle.getAutoDev();
 
-                        if (devInfo != null && autoConnectBle.isAutoConnect()) {
+                        if (devInfo != null && autoConnectBle.isAutoConnect() && !mStopScanByUser) {
                             autoConnectBle.autoConnect(devInfo);
                             ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
                             onResume();
@@ -186,6 +188,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             } else {
                                 refreshView(UNBIND_DEVICE);
                             }
+                            mStopScanByUser = false;
                         }
 
                         break;
@@ -224,7 +227,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 }
                 break;
             case BIND_DEVICE:
-
+                if (mDevice == null) mDevice = Device.getInstance(mCtx);
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     mLockStatusTv.setText(R.string.bt_connect_success);
                     mBleConnectIv.setClickable(false);
@@ -244,7 +247,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 if (mDefaultDevice == null) {
                     mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
                 }
+
                 if (mDefaultDevice != null) {
+                    LogUtil.d(TAG, mDefaultDevice.getBleMac());
                     mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
                 }
                 if (mDefaultDevice != null && mDefaultUser != null) {
@@ -365,7 +370,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mInstructionBtn.setOnClickListener(this);
         mNodeId = mDefaultDevice.getDeviceNodeId();
         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
-            if (mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE || mDevice.isDisconnectBle()) {
+            if ((mDevice != null && mDevice.getUserStatus() == ConstantUtil.USER_PAUSE) || mDevice.isDisconnectBle()) {
                 refreshView(BIND_DEVICE);
                 return;
             }
@@ -423,6 +428,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             mDevice.setDisconnectBle(true);
                             mBleManagerHelper.getBleCardService().disconnect();
                             mBleManagerHelper.stopScan();
+                            mStopScanByUser = true;
                         }
 //                        showMessage(getString(R.string.is_connecting));
                         break;
@@ -651,7 +657,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
             mBleManagerHelper.getBleCardService().disconnect();
         if (mAuthErrorCounter++ == 1) {
-            LogUtil.d(TAG, "用户已删除");
+            LogUtil.d(TAG, "用户已删除" + mDefaultDevice.getBleMac());
             mAuthErrorCounter = 0;
             // 删除相关数据
             if (mDefaultDevice != null) {
@@ -740,10 +746,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
                 mBattery = mDevice.getBattery(); //获取电池电量
-//                mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
-//                if (mDefaultDevice != null) {
                 sendMessage(BIND_DEVICE, null, 0);
-//                }
                 break;
             default:
                 break;
@@ -816,7 +819,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        LogUtil.d(TAG, "ddd : isVisibleToUser " + isVisibleToUser);
+        LogUtil.d(TAG, "ddd : isVisibleToUser " + isVisibleToUser + hashCode());
         if (isVisibleToUser) {
             mIsVisibleToUser = true;
             if (mCurrentIndex) {
@@ -829,9 +832,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 if (mDevice.getDevInfo() != null &&
                         !DeviceInfoDao.getInstance(mActivity).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, true).getBleMac().equals(mDevice.getDevInfo().getBleMac())) {
                     mDevice.halt();
+                    LogUtil.d(TAG, "ddd: mm");
                     mBleManagerHelper.getBleCardService().disconnect();
-                    mBleManagerHelper.removeUiListener(this);
                 }
+                mBleManagerHelper.removeUiListener(this);
             }
         }
     }

@@ -31,6 +31,7 @@ import com.smart.lock.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 public class BleManagerHelper {
@@ -266,6 +267,9 @@ public class BleManagerHelper {
                 uiListener.scanDevFailed();
             }
             mHandler.removeCallbacks(mRunnable);
+            if (mBtAdapter == null) {
+                mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+            }
             mBtAdapter.stopLeScan(mLeScanCallback);
         }
     }
@@ -410,7 +414,9 @@ public class BleManagerHelper {
             LogUtil.d(TAG, "uiListener is contains!~");
             return;
         }
-        mUiListeners.add(uiListener);
+        ListIterator<UiListener> iterable = mUiListeners.listIterator();
+        iterable.add(uiListener);
+//        mUiListeners.add(uiListener);
         if (mService == null) {
             LogUtil.e(TAG, "service is null");
             return;
@@ -426,7 +432,12 @@ public class BleManagerHelper {
 
     //移除UI监听
     public synchronized void removeUiListener(UiListener uiListener) {
-        mUiListeners.remove(uiListener);
+        Iterator<UiListener> iterable = mUiListeners.iterator();
+        while (iterable.hasNext()) {
+            if (iterable.next() == uiListener) {
+                iterable.remove();
+            }
+        }
         if (mService == null) {
             LogUtil.e(TAG, "service is null");
             return;

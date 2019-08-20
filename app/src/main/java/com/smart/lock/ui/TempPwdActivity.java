@@ -381,7 +381,6 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public class TempPwdAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
         private static final int TYPE_HEAD = 0;
         private static final int TYPE_BODY = 1;
         private static final int TYPE_FOOT = 2;
@@ -411,7 +410,6 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                 return TYPE_BODY;
             }
         }
-
 
         private TempPwdAdapter(Context context) {
             mContext = context;
@@ -456,7 +454,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             if (viewHolder instanceof MyViewHolder) {
-                final TempPwd tempPwdInfo = mTempPwdList.get(position);
+                final TempPwd tempPwdInfo = mTempPwdList.get(position - countHead);
                 long failureTime;
                 final String tempPwd;
                 final boolean valid;
@@ -473,14 +471,14 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                             "yyyy-MM-dd HH:mm"));
                     valid = (System.currentTimeMillis() / 1000 - failureTime >= 0) ? false : true;
                     if (!valid) {
-//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_invalid));
-//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setTextColor(getResources().getColor(R.color.red));
+//                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_invalid));
+//                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.red));
                         ((MyViewHolder) viewHolder).mTempPwdValidIv.setImageResource(R.mipmap.icon_invalid);
                         ((MyViewHolder) viewHolder).mDelete.setVisibility(View.VISIBLE);
                         ((MyViewHolder) viewHolder).mShare.setVisibility(View.GONE);
                     } else {
-//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_valid));
-//                    ((MyViewHolder) viewHolder).mTempPwdValidIv.setTextColor(getResources().getColor(R.color.light_black));
+//                    viewHolder.mTempPwdValidIv.setText(getResources().getString(R.string.temp_pwd_valid));
+//                    viewHolder.mTempPwdValidIv.setTextColor(getResources().getColor(R.color.light_black));
                         ((MyViewHolder) viewHolder).mTempPwdValidIv.setImageResource(R.mipmap.icon_valid);
                         ((MyViewHolder) viewHolder).mDelete.setVisibility(View.GONE);
                         ((MyViewHolder) viewHolder).mShare.setVisibility(View.VISIBLE);
@@ -517,6 +515,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
 //                        Toast.makeText(TempPwdActivity.this, "还没有实现", Toast.LENGTH_SHORT).show();
                         }
                     });
+
                 }
             }
         }

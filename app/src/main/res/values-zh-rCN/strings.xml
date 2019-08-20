@@ -255,11 +255,12 @@
     <string name="use">使用</string>
     <string name="open">打开了</string>
     <string name="rejected_permission">您拒绝了权限申请</string>
-    <string name="unenable_ble">您放弃打开了蓝牙</string>
+    <string name="unenable_ble">您放弃打开蓝牙</string>
     <string name="disconnect_ble">连接已断开</string>
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
     <string name="search_lock">搜索附近的门锁</string>
     <string name="plz_press_setting">请按设置键</string>
+    <string name="plz_press_key">请按键确认</string>
     <string name="plz_wait_lock_call_back">请等待门锁确认</string>
     <string name="self_message">个人中心</string>
     <string name="web_site">官方网站</string>
@@ -279,7 +280,7 @@
     <string name="download_error">下载出错了 </string>
     <string name="net_error"> 网络出现异常 </string>
     <string name="down_finish">下载完成 </string>
-    <string name="down_alert"> 下载提示 </string>
+    <string name="down_alert">"下载提示 "</string>
 
     <string name="recovery_user_success">恢复用户成功</string>
     <string name="recovery_user_failed">恢复用户失败,用户不处于生命周期内</string>
@@ -412,11 +413,15 @@
     <string name="more">更多</string>
     <string name="plz_open_slide">请打开滑盖</string>
     <string name="plz_open_slide_input_key">请打开滑盖,按键确认</string>
-    <string name="single_delete">单项删除</string>
+    <string name="single_delete">删除</string>
     <string name="group_delete">批量删除</string>
     <string name="edit_user_name">编辑用户名</string>
     <string name="user_pause_warning">用户已暂停,请恢复后设置</string>
     <string name="connect_timeout">连接超时，请重试</string>
+    <string name="dev_time_adjusting">设备时间未校准!</string>
+    <string name="save">保存</string>
+    <string name="multi_language">多语言</string>
+
     <string name="one">单次</string>
     <string name="many">多次</string>
     <string name="time_not_calibrated">设备时间未校准</string>
@@ -431,4 +436,12 @@
     <string name="fp_not_set">您至少在系统设置中添加一个指纹</string>
     <string name="test_auto_conn">测试自动连接</string>
     <string name="threshold">阈值查询</string>
+    <string name="update_time">更新于</string>
+    <string name="plz_enter_pwd_or_touch_id">指纹或输入密码</string>
+    <string name="password_is_required">指纹验证次数达到上限</string>
+
+    <string name="battery_low">电量低,请更换电池后升级</string>
+    <string name="set_date_error">起始日期不能大于或等于结束日期</string>
+    <string name="time_period_repeat">时间段重复，请检查!</string>
+    <string name="note_name_error">备注名不能为空</string>
 </resources>

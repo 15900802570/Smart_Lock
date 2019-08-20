@@ -233,8 +233,10 @@ public class BleProvider {
     public void start() {
         Log.i(TAG, "start");
         // 启动线程
-        receiverThread.start();
-        sendThread.start();
+        if (receiverThread != null)
+            receiverThread.start();
+        if (sendThread != null)
+            sendThread.start();
     }
 
     /**
@@ -916,8 +918,6 @@ public class BleProvider {
                 RX_CMD_UUID = UUID.fromString("00010203-0405-0607-0809-0a0b0c0d2b12");
                 break;
         }
-
-        LogUtil.d("values content : " + StringUtil.bytesToHexString(value, ":") + " RX_SERVICE_UUID : " + RX_SERVICE_UUID);
 
         BluetoothGattService RxService = mBleGatt.getService(RX_SERVICE_UUID);
 

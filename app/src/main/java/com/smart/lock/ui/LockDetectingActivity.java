@@ -126,6 +126,15 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
         }
     };
 
+    private Runnable cancelDialog = new Runnable() {
+        @Override
+        public void run() {
+            DialogUtils.closeDialog(mLoadDialog);
+            DialogUtils.closeDialog(mCancelDialog);
+            mSearchAddDev = false;
+        }
+    };
+
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
@@ -339,7 +348,6 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             @Override
             public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
                 refreshLayout.finishRefresh(5000/*,false*/);//传入false表示刷新失败
-                Log.d(TAG, "setOnRefreshListener");
             }
 
         });
@@ -552,6 +560,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 
         switch (errCode) {
             case BleMsg.TYPE_ADD_USER_SUCCESS:
+                mHandler.removeCallbacks(cancelDialog);
                 showMessage(mCtx.getString(R.string.add_user_success));
                 break;
             case BleMsg.TYPE_ADD_USER_FAILED:
@@ -595,6 +604,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 LogUtil.d(TAG, "STATE_DISCONNECTED !");
                 Device connDev = Device.getInstance(mCtx);
                 if (!connDev.isDisconnectBle()) {
+                    mHandler.removeCallbacks(cancelDialog);
                     DialogUtils.closeDialog(mLoadDialog);
                     mSearchAddDev = false;
                 } else connDev.setDisconnectBle(false);
@@ -741,6 +751,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     public void onClick(View v) {
 
                         if (!mSearchAddDev) {
+                            mHandler.postDelayed(cancelDialog, SCAN_PERIOD);
                             if (mScanning) {
                                 scanLeDevice(false);
                             }

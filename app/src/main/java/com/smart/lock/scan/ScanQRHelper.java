@@ -3,11 +3,14 @@ package com.smart.lock.scan;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.LogPrinter;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -224,7 +227,8 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             mLoadDialog.show();
             mLoadDialog.setCancelable(true);
             mTimer = new Timer();
-            mTimer.schedule(closeDialogTimer(mLoadDialog), 20 * 1000);
+            LogUtil.d(TAG, "mLoadDialog = " + mLoadDialog.hashCode());
+            mTimer.schedule(closeDialogTimer(mActivity, mLoadDialog), 20 * 1000);
             mBleManagerHelper.addUiListener(this);
             BleManagerHelper.setSk(mBleMac, mRandCode);
             Bundle bundle = new Bundle();
@@ -240,14 +244,15 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_success));
         DialogUtils.closeDialog(mLoadDialog);
         mTimer.cancel();
-        mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
         mDevice.setDisconnectBle(false);
+        mScanQRResultInterface.onAuthenticationSuccess(deviceInfo);
         if (!SharedPreferenceUtil.getInstance(mActivity).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
             Intent intent = new Intent(mActivity, LockScreenActivity.class);
             intent.putExtra(ConstantUtil.IS_RETURN, true);
             intent.putExtra(ConstantUtil.NOT_CANCEL, true);
             mActivity.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), ConstantUtil.SETTING_PWD_REQUEST_CODE);
         }
+
     }
 
     private void onAuthenticationFailed() {
@@ -321,6 +326,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 "mBleMac = " + mBleMac + '\n' +
                 "Time = " + DateTimeUtil.stampToDate(mTime + "000") + '\n');
         LogUtil.d(TAG, "newDevice: " + "BLEMAC =" + mBleMac);
+        LogUtil.d("MainEngine", "Create Device");
         mNewDevice = new DeviceInfo();
         mNewDevice.setActivitedTime(Long.valueOf(mTime));
         mNewDevice.setBleMac(getMacAdr(mBleMac));
@@ -398,6 +404,11 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 DeviceInfo deviceInfo = DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId);
+                DeviceUser deviceUser = DeviceUserDao.getInstance(mActivity).queryUser(mNodeId, Short.parseShort(mUserId, 16));
+                if (deviceUser == null) {
+                    LogUtil.d("Main", "device is null");
+                    DeviceUserDao.getInstance(mActivity).queryOrCreateByNodeId(mNodeId, Short.parseShort(mUserId, 16), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
+                }
                 LogUtil.d(TAG, "deviceInfo = " + deviceInfo + '\n' +
                         "mNodeId = " + mNodeId);
                 if (deviceInfo == null) {
@@ -446,6 +457,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         LogUtil.e(TAG, "scanDevFailed");
         DialogUtils.closeDialog(mLoadDialog);
         mTimer.cancel();
+        showMessage(mActivity.getString(R.string.connect_timeout));
         mBleManagerHelper.removeUiListener(this);
     }
 
@@ -503,14 +515,18 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
     private Timer mTimer = null;
 
-    private TimerTask closeDialogTimer(final Dialog dialog) {
+    private TimerTask closeDialogTimer(final Context context, final Dialog dialog) {
         return new TimerTask() {
             @Override
             public void run() {
-                Looper.prepare();
-                showMessage(mActivity.getResources().getString(R.string.connect_timeout));
-                Looper.loop();
+                LogUtil.d(TAG, "timer");
+                LogUtil.d(TAG, "dialog = " + dialog.hashCode());
                 DialogUtils.closeDialog(dialog);
+                Looper.prepare();
+                showMessage(mActivity.getString(R.string.connect_timeout));
+                Looper.loop();
+
+
             }
         };
     }

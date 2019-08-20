@@ -3,6 +3,7 @@ package com.smart.lock;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,8 @@ import com.smart.lock.permission.PermissionHelper;
 import com.smart.lock.permission.PermissionInterface;
 import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.LanguageType;
+import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 
@@ -68,6 +71,16 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
 
         SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.CHECK_DEVICE_SN, false);
         SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.IS_DMT_TEST, false);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        //获取我们存储的语言环境 比如 "en","zh",等等
+        String language = SharedPreferenceUtil.getInstance(newBase).readString(ConstantUtil.DEFAULT_LANGNAGE, LanguageType.CHINESE.getLanguage());
+        /**
+         * attach对应语言环境下的context
+         */
+        super.attachBaseContext(LanguageUtil.attachBaseContext(newBase, language));
     }
 
     /**
@@ -289,7 +302,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     private void jLockScreenActivity(Activity mActivity) {
         int param;
         try {
-            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD).isEmpty()) {
+            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD,"").isEmpty()) {
                 param = ConstantUtil.LOGIN_PASSWORD;
             } else {
                 param = ConstantUtil.SETTING_PASSWORD;

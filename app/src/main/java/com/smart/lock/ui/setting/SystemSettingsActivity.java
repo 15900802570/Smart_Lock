@@ -28,6 +28,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.entity.Device;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
+import com.smart.lock.ui.LanguageActivity;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LpcdTestActivity;
 import com.smart.lock.ui.fp.BaseFPActivity;
@@ -70,6 +71,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     private NextActivityDefineView mSetDevInfoNv;
 
     private NextActivityDefineView mQueryLpcdNv;
+
+    private NextActivityDefineView mMultiLanguageNv;
 
     private Dialog mPromptDialog;
 
@@ -131,6 +134,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mQueryLpcdNv = findViewById(R.id.next_query_lpcd);
         mOpenUnlockDownloadTv = findViewById(R.id.tw_open_unlock_download);
         mCheckSnTv = findViewById(R.id.tw_check_sn);
+        mMultiLanguageNv = findViewById(R.id.next_multi_language);
 
         mOpenTestTb = mOpenTestTv.getIv_switch_light();
         mNumPwdSwitchTv.setDes(getString(R.string.password_verification));
@@ -139,6 +143,9 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mOpenTestTv.setVisibility(View.GONE);
         mModifyPwdNv.setDes(getResources().getString(R.string.modify_pwd));
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
+
+        mMultiLanguageNv.setDes(getString(R.string.multi_language));
+        mMultiLanguageNv.setVisibility(View.GONE);
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));
@@ -293,6 +300,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                     if (mSetDevInfoNv.getVisibility() == View.GONE) {
                         mSetDevInfoNv.setVisibility(View.VISIBLE);
                         mQueryLpcdNv.setVisibility(View.VISIBLE);
+                        mOpenUnlockDownloadTv.setChecked(myPrefs.readBoolean(ConstantUtil.IS_DMT_TEST));
                         mOpenUnlockDownloadTv.setVisibility(View.VISIBLE);
                         mCheckSnTv.setVisibility(View.VISIBLE);
                     }
@@ -326,6 +334,10 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             case R.id.next_query_lpcd:
                 Intent lpcdIntent = new Intent(this, LpcdTestActivity.class);
                 startActivity(lpcdIntent);
+                break;
+            case R.id.next_multi_language:
+                Intent langnageIntent = new Intent(this, LanguageActivity.class);
+                startActivity(langnageIntent);
                 break;
             default:
                 doOnClick(v.getId());
@@ -437,7 +449,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
     @Override
     protected void onResume() {
         if (myPrefs.readBoolean(ConstantUtil.NUM_PWD_CHECK) &&
-                myPrefs.readString(ConstantUtil.NUM_PWD) != "") {
+                !myPrefs.readString(ConstantUtil.NUM_PWD, "").equals("")) {
             myPrefs.writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
             mNumPwdSwitchLightTBtn.setChecked(true);
             mIsPwdRequired = true;
@@ -482,7 +494,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
             } else if (requestCode == REQUEST_CODE_PASSWORD) {
                 switch (data.getExtras().getInt(ConstantUtil.CONFIRM)) {
                     case 1:
-                        myPrefs.
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                         mNumPwdSwitchLightTBtn.setChecked(true);
                         mNumPwdSwitchTv.setVisibility(View.GONE);
@@ -490,14 +502,14 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                         mIsPwdRequired = true;
                         break;
                     case -1:
-                        myPrefs.
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, false);
-                        myPrefs.
+                        SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                                 writeString(ConstantUtil.NUM_PWD, "");
                         mNumPwdSwitchLightTBtn.setChecked(false);
                         mIsPwdRequired = false;
                         if (mIsFP > 1) {
-                            myPrefs.
+                            SharedPreferenceUtil.getInstance(SystemSettingsActivity.this).
                                     writeBoolean(ConstantUtil.FINGERPRINT_CHECK, false);
                             mFingerprintSwitchLightTbtn.setChecked(false);
                             mIsFPRequired = false;

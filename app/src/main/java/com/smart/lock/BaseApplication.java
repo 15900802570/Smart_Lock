@@ -17,7 +17,10 @@ import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.entity.Device;
+import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 
 import java.util.List;
 import java.util.Timer;

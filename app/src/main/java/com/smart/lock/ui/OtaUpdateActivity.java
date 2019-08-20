@@ -786,8 +786,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     dispatchErrorCode(errCode[3]);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
-                LogUtil.i(TAG, "receiver 04!");
-                if (!mOtaMode && !bWriteDfuData && !mOtaParser.hasNextPacket()) {
+                if (!mOtaMode && !bWriteDfuData && mOtaParser.isLast()) {
                     String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
                     FileUtil.clearFiles(dir);
                     mConnetStatus.setText(R.string.ota_complete);
@@ -903,6 +902,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                         } else { // end of writing command;
                             endDFU();
                         }
+
+                        if (mOtaParser.invalidateProgress()) {
+                            sendMessage(STATE_PROGRESS);
+                        }
                     }
                     break;
                 case BleCardService.WRITE:
@@ -911,7 +914,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                     if (bWriteDfuData) {
                         if (mOldVersion) {
                             try {
-                                Thread.sleep(20);
+                                Thread.sleep(15);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -946,7 +949,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                 mPb.setProgress(mOtaParser.getProgress());
                 mTvProgress.setText(mOtaParser.getProgress() + "%");
                 mConnetStatus.setText(R.string.ota_updating);
-                if (!mOtaParser.hasNextPacket()) {
+                if (mOtaParser.isLast()) {
                     LogUtil.d(TAG, "upgrade success");
                     mStartBt.setEnabled(false);
                     mOtaMode = false;

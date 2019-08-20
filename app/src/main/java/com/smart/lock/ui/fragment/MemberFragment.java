@@ -92,7 +92,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 //                } else if ((int) mSelectBtn.getTag() == R.string.cancel) {
 //                    mMemberAdapter.mDeleteUsers.clear();
 //                    mSelectBtn.setText(R.string.all_election);
-//                    mMemberAdapter.chioseALLDelete(false);
+//                    mMemberAdapter.choiceALLDelete(false);
 //                    mSelectBtn.setTag(R.string.all_election);
 //                }
 //                mMemberAdapter.notifyDataSetChanged();
@@ -131,8 +131,8 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             mSelectDeleteRl.setVisibility(View.GONE);
         }
         mSelectCb.setChecked(false);
-        mMemberAdapter.chioseALLDelete(false);
-        mMemberAdapter.chioseItemDelete(choise);
+        mMemberAdapter.choiceALLDelete(false);
+        mMemberAdapter.choiceItemDelete(choise);
         mMemberAdapter.notifyDataSetChanged();
     }
 
@@ -200,10 +200,10 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                         deleteUsers.remove(index);
                     }
                     mMemberAdapter.mDeleteUsers.addAll(deleteUsers);
-                    mMemberAdapter.chioseALLDelete(true);
+                    mMemberAdapter.choiceALLDelete(true);
                 } else {
                     mTipTv.setText(R.string.all_election);
-                    mMemberAdapter.chioseALLDelete(false);
+                    mMemberAdapter.choiceALLDelete(false);
                 }
                 mMemberAdapter.notifyDataSetChanged();
             }
@@ -432,13 +432,41 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
     }
 
-    private class MemberAdapter extends RecyclerView.Adapter<MemberAdapter.MemberViewHoler> {
+    private class MemberAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        private static final int TYPE_HEAD = 0;
+        private static final int TYPE_BODY = 1;
+        private static final int TYPE_FOOT = 2;
+        private int countHead = 0;
+        private int countFoot = 2;
         private Context mContext;
         public ArrayList<DeviceUser> mUserList;
         private Boolean mVisiBle = false;
         public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
         public boolean mAllDelete = false;
 //        private SwipeLayout mSwipelayout;
+
+        private int getBodySize() {
+            return mUserList.size();
+        }
+
+        private boolean isHead(int position) {
+            return countHead != 0 && position < countHead;
+        }
+
+        private boolean isFoot(int position) {
+            return countFoot != 0 && (position >= (getBodySize() + countHead));
+        }
+
+        public int getItemViewType(int position) {
+            if (isHead(position)) {
+                return TYPE_HEAD;
+            } else if (isFoot(position)) {
+                return TYPE_FOOT;
+            } else {
+                return TYPE_BODY;
+            }
+        }
 
         public MemberAdapter(Context context) {
             mContext = context;
@@ -456,12 +484,21 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
 
         @NonNull
         @Override
-        public MemberViewHoler onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
-            SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
-            swipelayout.setClickToClose(true);
-            swipelayout.setRightSwipeEnabled(true);
-            return new MemberViewHoler(inflate);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            switch (viewType) {
+                case TYPE_HEAD:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+                case TYPE_BODY:
+                    View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
+                    SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
+                    swipelayout.setClickToClose(true);
+                    swipelayout.setRightSwipeEnabled(true);
+                    return new MemberViewHolder(inflate);
+                case TYPE_FOOT:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+                default:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+            }
         }
 
         public void setDataSource() {
@@ -477,12 +514,12 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             }
         }
 
-        public void chioseItemDelete(boolean visible) {
+        public void choiceItemDelete(boolean visible) {
             mVisiBle = visible;
         }
 
 
-        public void chioseALLDelete(boolean allDelete) {
+        public void choiceALLDelete(boolean allDelete) {
             mAllDelete = allDelete;
         }
 
@@ -534,128 +571,130 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
         }
 
         @Override
-        public void onBindViewHolder(final MemberViewHoler holder, final int position) {
-            final DeviceUser userInfo = mUserList.get(position);
-            if (userInfo != null) {
-                holder.mNameTv.setText(userInfo.getUserName());
-                if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
-                    holder.mSwipeLayout.setRightSwipeEnabled(false);
-                } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
-                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.normal));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
-                    holder.mUserPause.setVisibility(View.VISIBLE);
-                    holder.mUserRecovery.setVisibility(View.GONE);
-                    holder.mSwipeLayout.setRightSwipeEnabled(true);
-                } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
-                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.pause));
-                    holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
-                    holder.mUserPause.setVisibility(View.GONE);
-                    holder.mUserRecovery.setVisibility(View.VISIBLE);
-                    holder.mSwipeLayout.setRightSwipeEnabled(true);
-                }
-                holder.mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
+        public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+            if (holder instanceof MemberViewHolder) {
+                final DeviceUser userInfo = mUserList.get(position - countHead);
+                if (userInfo != null) {
+                    ((MemberViewHolder) holder).mNameTv.setText(userInfo.getUserName());
+                    if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
+                        ((MemberViewHolder) holder).mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
+                        ((MemberViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
+                        ((MemberViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
+                    } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
+                        ((MemberViewHolder) holder).mUserStateTv.setText(mCtx.getResources().getString(R.string.normal));
+                        ((MemberViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.blue_enable));
+                        ((MemberViewHolder) holder).mUserPause.setVisibility(View.VISIBLE);
+                        ((MemberViewHolder) holder).mUserRecovery.setVisibility(View.GONE);
+                        ((MemberViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(true);
+                    } else if (userInfo.getUserStatus() == ConstantUtil.USER_PAUSE) {
+                        ((MemberViewHolder) holder).mUserStateTv.setText(mCtx.getResources().getString(R.string.pause));
+                        ((MemberViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.yallow_pause));
+                        ((MemberViewHolder) holder).mUserPause.setVisibility(View.GONE);
+                        ((MemberViewHolder) holder).mUserRecovery.setVisibility(View.VISIBLE);
+                        ((MemberViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(true);
+                    }
+                    ((MemberViewHolder) holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), holder.mNameTv.getText().toString());
-                final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
+                    final Dialog mEditorNameDialog = DialogUtils.createEditorDialog(mActivity, getString(R.string.modify_note_name), ((MemberViewHolder) holder).mNameTv.getText().toString());
+                    final EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                    editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
-                //修改呢称响应事件
-                mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        final String newName = editText.getText().toString();
-                        if (!newName.isEmpty()) {
-                            holder.mNameTv.setText(newName);
-                            userInfo.setUserName(newName);
-                            DeviceUserDao.getInstance(mContext).updateDeviceUser(userInfo);
-                        } else {
-                            ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
+                    //修改呢称响应事件
+                    mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            final String newName = editText.getText().toString();
+                            if (!newName.isEmpty()) {
+                                ((MemberViewHolder) holder).mNameTv.setText(newName);
+                                userInfo.setUserName(newName);
+                                DeviceUserDao.getInstance(mContext).updateDeviceUser(userInfo);
+                            } else {
+                                ToastUtil.showLong(mActivity, R.string.cannot_be_empty_str);
+                            }
+                            mEditorNameDialog.dismiss();
                         }
-                        mEditorNameDialog.dismiss();
-                    }
-                });
+                    });
 
-                holder.mEditIbtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        editText.setText(holder.mNameTv.getText().toString());
-                        mEditorNameDialog.show();
-                    }
-                });
+                    ((MemberViewHolder) holder).mEditIbtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            editText.setText(((MemberViewHolder) holder).mNameTv.getText().toString());
+                            mEditorNameDialog.show();
+                        }
+                    });
 
 
-                holder.mUserPause.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mDevice.getState() == Device.BLE_CONNECTED) {
-                            DialogUtils.closeDialog(mLoadDialog);
-                            mLoadDialog.show();
-                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        } else showMessage(getString(R.string.disconnect_ble));
-                    }
-                });
+                    ((MemberViewHolder) holder).mUserPause.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                                DialogUtils.closeDialog(mLoadDialog);
+                                mLoadDialog.show();
+                                mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_PAUSE_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                            } else showMessage(getString(R.string.disconnect_ble));
+                        }
+                    });
 
-                holder.mUserRecovery.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mDevice.getState() == Device.BLE_CONNECTED) {
-                            DialogUtils.closeDialog(mLoadDialog);
-                            mLoadDialog.show();
-                            mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        } else showMessage(getString(R.string.disconnect_ble));
-                    }
-                });
+                    ((MemberViewHolder) holder).mUserRecovery.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                                DialogUtils.closeDialog(mLoadDialog);
+                                mLoadDialog.show();
+                                mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_RECOVERY_USER, userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                            } else showMessage(getString(R.string.disconnect_ble));
+                        }
+                    });
 
 
-                holder.mDeleteCb.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (holder.mDeleteCb.isChecked()) {
-                            mDeleteUsers.add(userInfo);
-                        } else {
-                            int delIndex = -1;
+                    ((MemberViewHolder) holder).mDeleteCb.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (((MemberViewHolder) holder).mDeleteCb.isChecked()) {
+                                mDeleteUsers.add(userInfo);
+                            } else {
+                                int delIndex = -1;
 
-                            for (DeviceUser deleteUser : mDeleteUsers) {
-                                if (deleteUser.getUserId() == userInfo.getUserId()) {
-                                    delIndex = mDeleteUsers.indexOf(deleteUser);
+                                for (DeviceUser deleteUser : mDeleteUsers) {
+                                    if (deleteUser.getUserId() == userInfo.getUserId()) {
+                                        delIndex = mDeleteUsers.indexOf(deleteUser);
+                                    }
+                                }
+
+                                if (delIndex != -1) {
+                                    mDeleteUsers.remove(delIndex);
                                 }
                             }
-
-                            if (delIndex != -1) {
-                                mDeleteUsers.remove(delIndex);
-                            }
                         }
-                    }
-                });
+                    });
 
-                holder.mUserContent.setOnClickListener(new View.OnClickListener() {
+                    ((MemberViewHolder) holder).mUserContent.setOnClickListener(new View.OnClickListener() {
 
-                    @Override
-                    public void onClick(View v) {
-                        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-                            mBleManagerHelper.getBleCardService().sendCmd25(userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
-                        } else showMessage(mContext.getString(R.string.unconnected_device));
+                        @Override
+                        public void onClick(View v) {
+                            if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                                mBleManagerHelper.getBleCardService().sendCmd25(userInfo.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+                            } else showMessage(mContext.getString(R.string.unconnected_device));
 
-                    }
-                });
+                        }
+                    });
 
-                if (mVisiBle)
-                    holder.mDeleteRl.setVisibility(View.VISIBLE);
-                else
-                    holder.mDeleteRl.setVisibility(View.GONE);
-                holder.mDeleteCb.setChecked(mAllDelete);
+                    if (mVisiBle)
+                        ((MemberViewHolder) holder).mDeleteRl.setVisibility(View.VISIBLE);
+                    else
+                        ((MemberViewHolder) holder).mDeleteRl.setVisibility(View.GONE);
+                    ((MemberViewHolder) holder).mDeleteCb.setChecked(mAllDelete);
+                }
             }
         }
 
 
         @Override
         public int getItemCount() {
-            return mUserList.size();
+            return mUserList.size() + countHead + countFoot;
         }
 
-        public class MemberViewHoler extends RecyclerView.ViewHolder {
+        class MemberViewHolder extends RecyclerView.ViewHolder {
             RelativeLayout mDeleteRl;
             TextView mUserStateTv;
             ImageButton mEditIbtn;
@@ -667,7 +706,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
             CheckBox mDeleteCb;
             LinearLayout mUserContent;
 
-            public MemberViewHoler(View itemView) {
+            public MemberViewHolder(View itemView) {
                 super(itemView);
                 mNameTv = itemView.findViewById(R.id.tv_username);
                 mDeleteRl = itemView.findViewById(R.id.rl_delete);
@@ -679,6 +718,12 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 mUserPause = itemView.findViewById(R.id.ll_pause);
                 mDeleteCb = itemView.findViewById(R.id.delete_locked);
                 mUserContent = itemView.findViewById(R.id.ll_content);
+            }
+        }
+
+        class FootViewHolder extends RecyclerView.ViewHolder {
+            private FootViewHolder(View itemView) {
+                super(itemView);
             }
         }
 
