@@ -574,6 +574,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 } else {
                     mDefaultStatus.setBroadcastNormallyOpen(false);
                 }
+                if ((stStatus & 128) == 128) {    //是否禁止智能锁芯 1位禁用 0位启用
+                    mDefaultStatus.setInvalidIntelligentLock(true);
+                } else {
+                    mDefaultStatus.setBroadcastNormallyOpen(false);
+                }
                 mDefaultStatus.setRolledBackTime(unLockTime);
                 // 获取省电时间段
                 if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {

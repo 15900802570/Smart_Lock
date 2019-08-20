@@ -127,7 +127,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mFactoryResetNa = findViewById(R.id.next_factory_reset);
 
         mIntelligentLockTs.setDes(getResources().getString(R.string.intelligent_lock));
-        mIntelligentLockTs.setVisibility(View.GONE);
         mAntiPrizingAlarmTs.setDes(getResources().getString(R.string.anti_prizing_alarm));
         mCombinationLockTs.setDes(getResources().getString(R.string.combination_lock));
         mNormallyOpenTs.setDes(getResources().getString(R.string.normally_open));
@@ -155,9 +154,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
         mSetOrdinaryCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_ordinary_card);
 
-        if (SystemUtils.getMetaDataFromApp(this).equals("1586102")) {
-            mIntelligentLockTs.setVisibility(View.GONE);
-        }
 
     }
 
@@ -188,6 +184,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if (mUserID != 1) {
             mFactoryResetNa.setVisibility(View.GONE);
         } else mFactoryResetNa.setVisibility(View.VISIBLE);
+
+        if ((mDefaultDevice.getDeviceNodeId()).substring(0,7).equals("1586102")||mDeviceStatus.isInvalidIntelligentLock()) {
+            mIntelligentLockTs.setVisibility(View.GONE);
+        }
     }
 
     private void enableTest() {
