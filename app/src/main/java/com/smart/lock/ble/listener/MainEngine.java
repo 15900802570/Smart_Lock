@@ -526,11 +526,11 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
             mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
-            checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getBleMac(), 1)); //第一字节状态字
-            checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getBleMac(), 2));//第二字节状态字
-            checkUserId(mDeviceUserDao.checkUserStatus(status3, mDevInfo.getBleMac(), 3));//第三字节状态字
-            checkUserId(mDeviceUserDao.checkUserStatus(status4, mDevInfo.getBleMac(), 4));//第四字节状态字
-            mDeviceUserDao.checkUserState(mDevInfo.getBleMac(), userState); //开锁信息状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getDeviceNodeId(), 2));//第二字节状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status3, mDevInfo.getDeviceNodeId(), 3));//第三字节状态字
+            checkUserId(mDeviceUserDao.checkUserStatus(status4, mDevInfo.getDeviceNodeId(), 4));//第四字节状态字
+            mDeviceUserDao.checkUserState(mDevInfo.getDeviceNodeId(), userState); //开锁信息状态字
 
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息

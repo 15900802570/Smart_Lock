@@ -174,16 +174,19 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mDeviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         setStatus();
         if (mUserID > 0 & mUserID < 100) {
-            mFactoryResetNa.setVisibility(View.VISIBLE);
             mSetSupportCardTypeBs.setVisibility(View.VISIBLE);
             mIntelligentLockTs.setVisibility(View.VISIBLE);
             mAntiPrizingAlarmTs.setVisibility(View.VISIBLE);
         } else {
-            mFactoryResetNa.setVisibility(View.GONE);
+
             mSetSupportCardTypeBs.setVisibility(View.GONE);
             mIntelligentLockTs.setVisibility(View.GONE);
             mAntiPrizingAlarmTs.setVisibility(View.GONE);
         }
+        //只有管理员1才可以设置恢复出厂设置
+        if (mUserID != 1) {
+            mFactoryResetNa.setVisibility(View.GONE);
+        } else mFactoryResetNa.setVisibility(View.VISIBLE);
     }
 
     private void enableTest() {

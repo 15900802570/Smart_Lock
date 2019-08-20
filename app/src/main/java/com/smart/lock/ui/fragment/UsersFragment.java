@@ -52,6 +52,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 public class UsersFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = UsersFragment.class.getSimpleName();
@@ -743,14 +744,18 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         public UserAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mCtx).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-
             int index = -1;
 
-            for (DeviceUser user : mUserList) {
-                if (user.getUserId() == mDefaultUser.getUserId()) {
-                    index = mUserList.indexOf(user);
+            ListIterator<DeviceUser> userListIterator = mUserList.listIterator();
+
+            while (userListIterator.hasNext()) {
+                DeviceUser user = userListIterator.next();
+                if (user.getUserId() == mDefaultUser.getUserId() || user.getUserId() == 1 && mDefaultUser.getUserId() != 1) {
+                    userListIterator.remove();
                 } else mCheckUsers.add(user);
             }
+            mUserList.add(0, mDefaultUser);
+
             if (mCheckUsers.size() > 0) {
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.sync_data));
@@ -763,11 +768,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                     mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.unconnected_device));
-            }
-
-            if (index != -1) {
-                mUserList.remove(index);
-                mUserList.add(0, mDefaultUser);
             }
 
         }
@@ -795,15 +795,16 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         public void setDataSource() {
             mUserList = DeviceUserDao.getInstance(mCtx).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
             int index = -1;
-            for (DeviceUser user : mUserList) {
-                if (user.getUserId() == mDefaultUser.getUserId()) {
-                    index = mUserList.indexOf(user);
-                }
+
+            ListIterator<DeviceUser> userListIterator = mUserList.listIterator();
+
+            while (userListIterator.hasNext()) {
+                DeviceUser user = userListIterator.next();
+                if (user.getUserId() == mDefaultUser.getUserId() || (user.getUserId() == 1 && mDefaultUser.getUserId() != 1)) {
+                    userListIterator.remove();
+                } else mCheckUsers.add(user);
             }
-            if (index != -1) {
-                mUserList.remove(index);
-                mUserList.add(0, mDefaultUser);
-            }
+            mUserList.add(0, mDefaultUser); //将默认用户调整至最上方
         }
 
         public void choiceItemDelete(boolean visible) {
