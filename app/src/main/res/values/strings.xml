@@ -434,4 +434,5 @@
     <string name="set_date_error">The start date cannot be greater than or equal to the end date</string>
     <string name="note_name_error">Note name error</string>
     <string name="time_period_repeat">Time period repeat, please check</string>
+    <string name="unknown">Unknown</string>
 </resources>

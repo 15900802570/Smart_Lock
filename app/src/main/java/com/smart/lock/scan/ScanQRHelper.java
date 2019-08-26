@@ -236,6 +236,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             bundle.putString(BleMsg.KEY_BLE_MAC, getMacAdr(mBleMac));
             bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
             bundle.putByteArray(BleMsg.KEY_AUTH_CODE, authCode);
+            Device.getInstance(mActivity).setTempAuthCode(authCode);
             mBleManagerHelper.connectBle(Device.BLE_SCAN_AUTH_CODE_CONNECT, bundle, mActivity);
         }
     }
@@ -523,7 +524,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 LogUtil.d(TAG, "dialog = " + dialog.hashCode());
                 DialogUtils.closeDialog(dialog);
                 Looper.prepare();
-                showMessage(mActivity.getString(R.string.connect_timeout));
+//                showMessage(mActivity.getString(R.string.connect_timeout));
                 Looper.loop();
 
 

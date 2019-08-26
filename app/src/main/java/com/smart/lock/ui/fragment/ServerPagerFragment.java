@@ -303,7 +303,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         }
         mUpdateTimeTv.setVisibility(View.VISIBLE);
         mShowTimeTv.setVisibility(View.VISIBLE);
-        mEqTv.setText(String.valueOf(battery) + "%");
+        if (battery != -1)
+            mEqTv.setText(battery + "%");
+        else
+            mEqTv.setText(getString(R.string.unknown));
         mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(updateTime), "MM-dd HH:mm"));
         switch (battery / 10) {
             case 0:

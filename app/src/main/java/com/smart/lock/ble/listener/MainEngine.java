@@ -90,17 +90,18 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
     //添加UI监听
     public void addUiListener(UiListener uiListener) {
-        ListIterator<UiListener> iterable = mUiListeners.listIterator();
-        iterable.add(uiListener);
-//        mUiListeners.add(uiListener);
+//        ListIterator<UiListener> iterable = mUiListeners.listIterator();
+//        iterable.add(uiListener);
+        mUiListeners.add(uiListener);
     }
 
     //移除UI监听
     public void removeUiListener(UiListener uiListener) {
-        Iterator<UiListener> iterable = mUiListeners.iterator();
-        while (iterable.hasNext()) {
-            if (iterable.next() == uiListener) {
-                iterable.remove();
+        Iterator<UiListener> iterator = mUiListeners.iterator();
+        while (iterator.hasNext()) {
+            UiListener tempUiListener = iterator.next();
+            if (tempUiListener == uiListener) {
+                iterator.remove();
             }
         }
     }

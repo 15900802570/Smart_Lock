@@ -232,7 +232,7 @@ public class DeviceUserDao {
             deviceUser = dao.queryBuilder().where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).queryForFirst();
             if (deviceUser != null) {
                 return deviceUser;
-            } else {
+            } else if (authCode != null) {
                 deviceUser = new DeviceUser();
                 deviceUser.setDevNodeId((String) nodeId);
                 deviceUser.setAuthCode(authCode);
