@@ -19,23 +19,7 @@ import com.smart.lock.R;
 import java.lang.reflect.Field;
 
 public class NumberPickerView extends NumberPicker {
-    private Paint mSelectorWheelPaint;
     private NumberPicker mNumberPicker;
-    private boolean mHasSelectorWheel;
-    private int mTopSelectionDividerTop;
-    private int mBottomSelectionDividerBottom;
-    private int[] mSelectorIndices;
-    private int mScrollState;
-    private SparseArray<String> mSelectorIndexToStringCache;
-    private EditText mInputText;
-    private int mSelectorElementHeight;
-    private int mCurrentScrollOffset;
-    private boolean mHideWheelUntilFocused;
-    private boolean mDecrementVirtualButtonPressed;
-    private boolean mIncrementVirtualButtonPressed;
-    private Drawable mSelectionDivider;
-    private Drawable mVirtualButtonPressedDrawable;
-    private int mSelectionDividerHeight;
 
     /**
      * The number of items show in the selector wheel.

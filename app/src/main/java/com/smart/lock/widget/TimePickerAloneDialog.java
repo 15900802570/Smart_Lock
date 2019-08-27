@@ -138,16 +138,13 @@ public class TimePickerAloneDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 setValue();
-                if (value[0] == value[1]) {
-                    ToastUtil.showShort(getActivity(), Objects.requireNonNull(getActivity()).getString(R.string.set_time_error));
-                } else {
-                    LogUtil.d("mConfirmBtn","mConfirmBtn");
-                    if (getActivity() instanceof onTimePickerListener) {
-                        ((onTimePickerListener) getActivity()).onTimePickerClickConfirm(getLastValue(), requestCode);
-                    }
-                    dismiss();
+                LogUtil.d("mConfirmBtn", "mConfirmBtn");
+                if (getActivity() instanceof onTimePickerListener) {
+                    ((onTimePickerListener) getActivity()).onTimePickerClickConfirm(getLastValue(), requestCode);
                 }
+                dismiss();
             }
+
         });
 
         mCloseBtn.setOnClickListener(new View.OnClickListener() {

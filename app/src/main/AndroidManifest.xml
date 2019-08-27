@@ -42,7 +42,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <meta-data
             android:name="APP_SN"
-            android:value="\1586102" />
+            android:value="\1586001" />
 
         <activity
             android:name=".WelcomeActivity"

@@ -660,7 +660,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
             mBleManagerHelper.getBleCardService().disconnect();
         if (mAuthErrorCounter++ == 1) {
-            LogUtil.d(TAG, "用户已删除" + mDefaultDevice.getBleMac());
+            LogUtil.d(TAG, "用户已删除" );
             mAuthErrorCounter = 0;
             // 删除相关数据
             if (mDefaultDevice != null) {
