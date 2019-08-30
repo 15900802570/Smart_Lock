@@ -403,10 +403,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             return;
                         }
 
-//                        if (mDevice.getBattery() <= 35 && !SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
-//                            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
-//                            return;
-//                        }
+                        if (mDevice.getBattery() <= 35 && !SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+                            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
+                            return;
+                        }
                         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                             Intent intent = new Intent(this, CheckOtaActivity.class);
                             startActivity(intent);

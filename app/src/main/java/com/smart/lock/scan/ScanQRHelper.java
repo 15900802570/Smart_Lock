@@ -416,8 +416,9 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 if (deviceUser == null || deviceUser.getAuthCode() == null) {
                     LogUtil.d("Main", "device is null");
                     if (mDevice.getTempAuthCode() == null) {
-                        DeviceUserDao.getInstance(mActivity).delete(deviceUser);
-                        onAuthenticationFailed((byte)0);
+                        if (deviceInfo != null)
+                            DeviceUserDao.getInstance(mActivity).delete(deviceUser);
+                        onAuthenticationFailed((byte) 0);
                         break;
                     }
                     DeviceUserDao.getInstance(mActivity).queryOrCreateByNodeId(mNodeId, Short.parseShort(mUserId, 16), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
