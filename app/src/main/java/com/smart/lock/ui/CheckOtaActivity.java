@@ -300,8 +300,13 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onResume() {
+        LogUtil.d(TAG,"onResume");
         super.onResume();
         isHide = true;
+        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+        } else
+            showMessage(getString(R.string.unconnected_device));
     }
 
     @Override

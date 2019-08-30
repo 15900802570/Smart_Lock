@@ -51,7 +51,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     private DeviceUser mDefaultUser; //当前用户信息
     private DeviceStatus mDefaultStatus; //设备属性信息
     private DeviceKeyDao mDeviceKeyDao;//设备信息管理者
-    private ArrayList<UiListener> mUiListeners = new ArrayList(); //Ui监听集合
+    private final ArrayList<UiListener> mUiListeners = new ArrayList(); //Ui监听集合
     private long mStartTime = 0, mEndTime = 0;//测试注册时间
     private static MainEngine mInstance;
 
@@ -89,14 +89,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     }
 
     //添加UI监听
-    public void addUiListener(UiListener uiListener) {
+    public synchronized void addUiListener(UiListener uiListener) {
 //        ListIterator<UiListener> iterable = mUiListeners.listIterator();
 //        iterable.add(uiListener);
         mUiListeners.add(uiListener);
     }
 
     //移除UI监听
-    public void removeUiListener(UiListener uiListener) {
+    public synchronized void removeUiListener(UiListener uiListener) {
         Iterator<UiListener> iterator = mUiListeners.iterator();
         while (iterator.hasNext()) {
             UiListener tempUiListener = iterator.next();
@@ -373,8 +373,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDefaultUser.setUserStatus(userStatus);
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mDefaultUser);
                 }
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.dispatchUiCallback(msg, mDevice, BleMsg.USER_PAUSE);
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.dispatchUiCallback(msg, mDevice, BleMsg.USER_PAUSE);
+                    }
                 }
                 return;
             }
@@ -484,10 +486,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             extra.putByteArray(BleMsg.KEY_POWER_SAVE, bundle.getByteArray(BleMsg.KEY_POWER_SAVE));
         }
         mDevice.setState(Device.BLE_CONNECTED);
-        ListIterator<UiListener> iterator = mUiListeners.listIterator();
-        synchronized (this.mStateLock) {
-            while (iterator.hasNext()) {
-                iterator.next().dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS);
+
+        synchronized (mUiListeners) {
+            for (UiListener mUiListener : mUiListeners) {
+                mUiListener.dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS);
             }
         }
     }
@@ -696,8 +698,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 boolean result = mService.connect(mDevice, mDevInfo.getBleMac());
                 LogUtil.d(TAG, "result : " + result);
                 if (result) mDevice.setState(Device.BLE_CONNECTION);
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.reConnectBle(mDevice);
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.reConnectBle(mDevice);
+                    }
                 }
                 sendMessage(MSG_POLLING_BLE, null, 120 * 1000);
                 break;
@@ -738,8 +742,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case MSG_CHANGE_GATT_STATE:
                 int state = msg.getData().getInt("gatt_state", -1);
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.deviceStateChange(mDevice, state);
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.deviceStateChange(mDevice, state);
+                    }
                 }
                 break;
 
@@ -770,18 +776,24 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 }
                 break;
             case BleMsg.STATE_DISCONNECTED:
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.deviceStateChange(mDevice, BleMsg.STATE_DISCONNECTED);
+                    }
                 }
                 break;
             case BleMsg.STATE_CONNECTED:
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.deviceStateChange(mDevice, BleMsg.STATE_CONNECTED);
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.deviceStateChange(mDevice, BleMsg.STATE_CONNECTED);
+                    }
                 }
                 break;
             case BleMsg.GATT_SERVICES_DISCOVERED:
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.deviceStateChange(mDevice, BleMsg.GATT_SERVICES_DISCOVERED);
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.deviceStateChange(mDevice, BleMsg.GATT_SERVICES_DISCOVERED);
+                    }
                 }
                 break;
             default:
@@ -801,8 +813,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                 if (exception != Message.EXCEPTION_TIMEOUT)
                     if (mService != null) mService.disconnect();
-                for (UiListener uiListener : mUiListeners) {
-                    uiListener.sendFailed(message); //发送消息失败回调
+                synchronized (mUiListeners) {
+                    for (UiListener uiListener : mUiListeners) {
+                        uiListener.sendFailed(message); //发送消息失败回调
+                    }
                 }
             }
 
@@ -823,8 +837,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
                     if (addUser == null || !(addUser.getUserPermission() == BleMsg.TYPE_SCAN_QR_ADD_MASTER ||
                             addUser.getUserPermission() == BleMsg.TYPT_NO_SCAN_QR_ADD_USER)) {
-                        for (UiListener uiListener : mUiListeners) {
-                            uiListener.dispatchUiCallback(message, mDevice, -1);
+                        synchronized (mUiListeners) {
+                            for (UiListener uiListener : mUiListeners) {
+                                uiListener.dispatchUiCallback(message, mDevice, -1);
+                            }
                         }
                         return;
                     }
@@ -878,10 +894,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 case Message.TYPE_BLE_RECEIVER_CMD_16:
                 case Message.TYPE_BLE_RECEIVER_CMD_0E:
                 case Message.TYPE_BLE_RECEIVER_CMD_62:
-                    ListIterator<UiListener> iterator = mUiListeners.listIterator();
-                    synchronized (this.mStateLock) {
-                        while (iterator.hasNext()) {
-                            iterator.next().dispatchUiCallback(message, mDevice, -1);
+                    synchronized (mUiListeners) {
+                        ListIterator<UiListener> iterator = mUiListeners.listIterator();
+                        synchronized (this.mStateLock) {
+                            while (iterator.hasNext()) {
+                                iterator.next().dispatchUiCallback(message, mDevice, -1);
+                            }
                         }
                     }
                     break;
@@ -895,10 +913,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_2E:
-                    iterator = mUiListeners.listIterator();
-                    synchronized (this.mStateLock) {
-                        while (iterator.hasNext()) {
-                            iterator.next().dispatchUiCallback(message, mDevice, -1);
+
+                    synchronized (mUiListeners) {
+                        for (UiListener uiListener : mUiListeners) {
+                            uiListener.dispatchUiCallback(message, mDevice, -1);
                         }
                     }
                     break;
@@ -928,7 +946,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         mDefaultUser.setAuthCode((auth.equals("0")) ? null : auth);
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);
-                    } else {
+                    }
+                    synchronized (mUiListeners) {
                         for (UiListener uiListener : mUiListeners) {
                             uiListener.dispatchUiCallback(message, mDevice, -1);
                         }
@@ -936,29 +955,27 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                     if (mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE
                             || mDevice.getConnectType() == Device.BLE_SEARCH_DEV_CONNECT)
-                        for (UiListener uiListener : mUiListeners) {
-                            uiListener.addUserSuccess(mDevice);
+                        synchronized (mUiListeners) {
+                            for (UiListener uiListener : mUiListeners) {
+                                uiListener.addUserSuccess(mDevice);
+                            }
                         }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_32:
                     LogUtil.i(TAG, "receiver 32!");
                     receiverLog(extra);
-//                    for (UiListener uiListener : mUiListeners) {
-//                        uiListener.dispatchUiCallback(message, mDevice, BleMsg.RECEIVER_LOGS);
-//                    }
-                    iterator = mUiListeners.listIterator();
-                    while (iterator.hasNext()) {
-                        iterator.next().dispatchUiCallback(message, mDevice, -1);
+                    synchronized (mUiListeners) {
+                        for (UiListener uiListener : mUiListeners) {
+                            uiListener.dispatchUiCallback(message, mDevice, BleMsg.RECEIVER_LOGS);
+                        }
                     }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_3E:
                     LogUtil.i(TAG, "receiver 3e!");
-//                    for (UiListener uiListener : mUiListeners) {
-//                        uiListener.dispatchUiCallback(message, mDevice, -1);
-//                    }
-                    iterator = mUiListeners.listIterator();
-                    while (iterator.hasNext()) {
-                        iterator.next().dispatchUiCallback(message, mDevice, -1);
+                    synchronized (mUiListeners) {
+                        for (UiListener uiListener : mUiListeners) {
+                            uiListener.dispatchUiCallback(message, mDevice, -1);
+                        }
                     }
                     break;
                 default:

@@ -256,15 +256,20 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
     }
 
-    private void onAuthenticationFailed() {
+    private void onAuthenticationFailed(byte errorCode) {
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() == Device.BLE_CONNECTED) {
             mBleManagerHelper.getBleCardService().disconnect();
             mDevice.halt();
         }
         DialogUtils.closeDialog(mLoadDialog);
         mTimer.cancel();
-        ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_falied));
-        mScanQRResultInterface.onAuthenticationFailed();
+        LogUtil.d(TAG, "ERROR_CODE= " + errorCode);
+        if (errorCode == BleMsg.TYPE_USER_SUSPENDED) {
+            DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.user_pause_contact_admin)).show();
+        } else {
+            ToastUtil.showLong(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_falied));
+            mScanQRResultInterface.onAuthenticationFailed();
+        }
     }
 
     /**
@@ -401,13 +406,20 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         }
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
-                onAuthenticationFailed();
+                final byte[] errCode0E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode0E != null)
+                    onAuthenticationFailed(errCode0E[3]);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 DeviceInfo deviceInfo = DeviceInfoDao.getInstance(mActivity).queryByField(DeviceInfoDao.NODE_ID, mNodeId);
                 DeviceUser deviceUser = DeviceUserDao.getInstance(mActivity).queryUser(mNodeId, Short.parseShort(mUserId, 16));
-                if (deviceUser == null) {
+                if (deviceUser == null || deviceUser.getAuthCode() == null) {
                     LogUtil.d("Main", "device is null");
+                    if (mDevice.getTempAuthCode() == null) {
+                        DeviceUserDao.getInstance(mActivity).delete(deviceUser);
+                        onAuthenticationFailed((byte)0);
+                        break;
+                    }
                     DeviceUserDao.getInstance(mActivity).queryOrCreateByNodeId(mNodeId, Short.parseShort(mUserId, 16), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
                 }
                 LogUtil.d(TAG, "deviceInfo = " + deviceInfo + '\n' +
@@ -434,7 +446,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     public void sendFailed(Message msg) {
         int exception = msg.getException();
         LogUtil.e(TAG, "msg exception : " + msg.toString());
-        onAuthenticationFailed();
+        onAuthenticationFailed((byte) 0);
         mBleManagerHelper.removeUiListener(this);
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:

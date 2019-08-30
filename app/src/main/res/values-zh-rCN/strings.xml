@@ -445,4 +445,5 @@
     <string name="time_period_repeat">时间段重复，请检查!</string>
     <string name="note_name_error">备注名不能为空</string>
     <string name="unknown">未知</string>
+    <string name="synchronization_timeout">同步超时，请稍后再试！</string>
 </resources>

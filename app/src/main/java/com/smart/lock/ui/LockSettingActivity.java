@@ -33,6 +33,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
@@ -185,7 +186,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mFactoryResetNa.setVisibility(View.GONE);
         } else mFactoryResetNa.setVisibility(View.VISIBLE);
 
-        if ((mDefaultDevice.getDeviceNodeId()).substring(0,7).equals("1586102")||mDeviceStatus.isInvalidIntelligentLock()) {
+        if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
     }
@@ -402,10 +403,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             return;
                         }
 
-                        if (mDevice.getBattery() <= 35) {
-                            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
-                            return;
-                        }
+//                        if (mDevice.getBattery() <= 35 && !SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+//                            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
+//                            return;
+//                        }
                         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                             Intent intent = new Intent(this, CheckOtaActivity.class);
                             startActivity(intent);

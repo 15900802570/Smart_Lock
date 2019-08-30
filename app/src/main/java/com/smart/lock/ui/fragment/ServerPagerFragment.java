@@ -449,7 +449,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 }
                 break;
             case R.id.one_click_unlock_ib:
-                if (mDevice.getState() == Device.BLE_CONNECTED)
+                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED)
                     if (!mIsLockBack) {
 //                        mInstructionBtn.setEnabled(false);
                         if (mNodeId.getBytes().length == 15)
@@ -605,6 +605,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     (ServerPagerFragment.this.getParentFragment()).onResume();
                 }
                 break;
+            case BleMsg.TYPE_USER_SUSPENDED:
+                Device.getInstance(mActivity).setDisconnectBle(true);
+                showMessage(getString(R.string.user_pause_contact_admin));
+//                DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.user_pause_contact_admin)).show();
+                break;
             default:
                 break;
         }
@@ -660,7 +665,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
             mBleManagerHelper.getBleCardService().disconnect();
         if (mAuthErrorCounter++ == 1) {
-            LogUtil.d(TAG, "用户已删除" );
+            LogUtil.d(TAG, "用户已删除");
             mAuthErrorCounter = 0;
             // 删除相关数据
             if (mDefaultDevice != null) {

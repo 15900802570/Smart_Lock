@@ -520,4 +520,5 @@ public class BleMsg {
     public static final byte ERR0E_NO_AUTHORITY = 0X03; //无权限
     public static final byte TYPE_DEVICE_BUSY = 0x04; //设备忙
     public static final byte TYPE_AUTH_CODE_ERROR = 0x05; //鉴权码错误
+    public static final byte TYPE_USER_SUSPENDED = 0x06; //用户已暂停
 }

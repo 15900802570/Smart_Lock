@@ -263,8 +263,12 @@ public class BleManagerHelper {
 
     public void stopScan() {
         synchronized (mState) {
-            for (UiListener uiListener : mUiListeners) {
-                uiListener.scanDevFailed();
+//            for (UiListener uiListener : mUiListeners) {
+//                uiListener.scanDevFailed();
+//            }
+            ListIterator<UiListener> iterator = mUiListeners.listIterator();
+            while (iterator.hasNext()) {
+                iterator.next().scanDevFailed();
             }
             mHandler.removeCallbacks(mRunnable);
             if (mBtAdapter == null) {
@@ -414,9 +418,9 @@ public class BleManagerHelper {
             LogUtil.d(TAG, "uiListener is contains!~");
             return;
         }
-        ListIterator<UiListener> iterable = mUiListeners.listIterator();
-        iterable.add(uiListener);
-//        mUiListeners.add(uiListener);
+//        ListIterator<UiListener> iterable = mUiListeners.listIterator();
+//        iterable.add(uiListener);
+        mUiListeners.add(uiListener);
         if (mService == null) {
             LogUtil.e(TAG, "service is null");
             return;
@@ -434,7 +438,8 @@ public class BleManagerHelper {
     public synchronized void removeUiListener(UiListener uiListener) {
         Iterator<UiListener> iterable = mUiListeners.iterator();
         while (iterable.hasNext()) {
-            if (iterable.next() == uiListener) {
+            UiListener tempIterable = iterable.next();
+            if (tempIterable == uiListener) {
                 iterable.remove();
             }
         }
