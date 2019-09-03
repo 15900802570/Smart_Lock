@@ -41,7 +41,7 @@ public class DtComFunHelper {
      *
      * @param context Context
      */
-    private static void setNewDefault(Context context) {
+    public static void setNewDefault(Context context) {
         DeviceInfo deviceInfo = DeviceInfoDao.getInstance(context).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT, false);
         if (deviceInfo != null) {
             deviceInfo.setDeviceDefault(true);

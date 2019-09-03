@@ -85,7 +85,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                                             mCancelDialog.cancel();
                                         }
                                     });
-                                    if(!mCancelDialog.isShowing()) {
+                                    if (!mCancelDialog.isShowing()) {
                                         mCancelDialog.show();
                                     }
 
@@ -365,7 +365,7 @@ public class CardFragment extends BaseFragment implements View.OnClickListener, 
                                                 mCancelDialog.cancel();
                                             }
                                         });
-                                        if(!mCancelDialog.isShowing()) {
+                                        if (!mCancelDialog.isShowing()) {
                                             mCancelDialog.show();
                                         }
 

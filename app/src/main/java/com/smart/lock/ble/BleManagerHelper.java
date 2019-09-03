@@ -95,7 +95,7 @@ public class BleManagerHelper {
 
     private DeviceListener mDeviceListener;
 
-    private ArrayList<UiListener> mUiListeners = new ArrayList(); //Ui监听集合
+    private final ArrayList<UiListener> mUiListeners = new ArrayList(); //Ui监听集合
 
     public static final int REQUEST_OPEN_BT_CODE = 100;
 
@@ -109,10 +109,10 @@ public class BleManagerHelper {
                     mDevice.setState(Device.BLE_DISCONNECTED);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                 }
-
-                ListIterator<UiListener> iterator = mUiListeners.listIterator();
-                while (iterator.hasNext()) {
-                    iterator.next().scanDevFailed();
+                synchronized (mUiListeners) {
+                    for (UiListener mUiListener : mUiListeners) {
+                        mUiListener.scanDevFailed();
+                    }
                 }
             }
 
@@ -189,6 +189,7 @@ public class BleManagerHelper {
                 if (mService != null) {
                     mService.disconnect();
                 }
+                getDevice(type, bundle, context);
                 mDevice.setState(Device.BLE_CONNECTION);
                 closeDialog((int) (SCAN_PERIOD / 1000));
                 mBleDevList.clear();
@@ -227,6 +228,7 @@ public class BleManagerHelper {
                 mDevice.setConnectType(type);
                 break;
             case Device.BLE_SCAN_AUTH_CODE_CONNECT:
+                Device.getInstance(mContext).setDisconnectBle(true);
                 devInfo = new DeviceInfo();
                 if (bundle.getShort(BleMsg.KEY_USER_ID) != 0 && StringUtil.checkNotNull(bundle.getString(BleMsg.KEY_NODE_ID))) {
                     devInfo.setUserId(bundle.getShort(BleMsg.KEY_USER_ID));
@@ -266,9 +268,10 @@ public class BleManagerHelper {
 //            for (UiListener uiListener : mUiListeners) {
 //                uiListener.scanDevFailed();
 //            }
-            ListIterator<UiListener> iterator = mUiListeners.listIterator();
-            while (iterator.hasNext()) {
-                iterator.next().scanDevFailed();
+            synchronized (mUiListeners) {
+                for (UiListener mUiListener : mUiListeners) {
+                    mUiListener.scanDevFailed();
+                }
             }
             mHandler.removeCallbacks(mRunnable);
             if (mBtAdapter == null) {
@@ -436,11 +439,13 @@ public class BleManagerHelper {
 
     //移除UI监听
     public synchronized void removeUiListener(UiListener uiListener) {
-        Iterator<UiListener> iterable = mUiListeners.iterator();
-        while (iterable.hasNext()) {
-            UiListener tempIterable = iterable.next();
-            if (tempIterable == uiListener) {
-                iterable.remove();
+        synchronized (mUiListeners) {
+            ListIterator<UiListener> iterable = mUiListeners.listIterator();
+            while (iterable.hasNext()) {
+                UiListener tempIterable = iterable.next();
+                if (tempIterable == uiListener) {
+                    iterable.remove();
+                }
             }
         }
         if (mService == null) {

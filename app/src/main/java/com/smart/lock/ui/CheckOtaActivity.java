@@ -126,10 +126,10 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         mOtaUpdateRv.setAdapter(mOtaAdapter);
         mOtaUpdateRv.addItemDecoration(new SpacesItemDecoration(getResources().getDimensionPixelSize(R.dimen.y10dp)));
 
-        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
-        } else
-            showMessage(getString(R.string.unconnected_device));
+//        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+//            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+//        } else
+//            showMessage(getString(R.string.unconnected_device));
     }
 
     private void initEvent() {

@@ -814,6 +814,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     userListIterator.remove();
                 } else mCheckUsers.add(user);
             }
+            mDefaultUser = DeviceUserDao.getInstance(mActivity).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
             mUserList.add(0, mDefaultUser); //将默认用户调整至最上方
         }
 
