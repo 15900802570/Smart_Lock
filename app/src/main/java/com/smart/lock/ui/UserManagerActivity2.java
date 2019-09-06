@@ -490,7 +490,6 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                         UsersFragment usersFragment = (UsersFragment) framentView;
                         usersFragment.refreshView();
                     }
-
                 }
                 showMessage(getString(R.string.delete_users_success));
                 break;
