@@ -289,11 +289,11 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                         public void onClick(View v) {
                             // 判断是否更换默认设备
                             if (mDefaultInfo == null) {
+                                DeviceInfoDao.getInstance(mContext).setNoDefaultDev();
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
                             } else if (!mDefaultInfo.getBleMac().equals(deviceInfo.getBleMac())) {
-                                mDefaultInfo.setDeviceDefault(false);
-                                DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDefaultInfo);
+                                DeviceInfoDao.getInstance(mContext).setNoDefaultDev();
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(DeviceManagementActivity.this).exchangeConnect(deviceInfo);

@@ -37,6 +37,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.UserManagerActivity2;
 import com.smart.lock.utils.DialogUtils;
@@ -100,7 +101,11 @@ public class HomeFragment extends BaseFragment implements
     }
 
     public void onAuthenticationFailed() {
-        refreshView(UNBIND_DEVICE);
+        mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+        if (mDefaultDevice == null)
+            refreshView(UNBIND_DEVICE);
+        else
+            refreshView(BIND_DEVICE);
     }
 
     private Runnable mRunnable = new Runnable() {
@@ -206,7 +211,12 @@ public class HomeFragment extends BaseFragment implements
         mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
         mDevice = Device.getInstance(mCtx);
         if (mDefaultDevice == null) {
-            refreshView(UNBIND_DEVICE);
+            DtComFunHelper.setNewDefault(mActivity);
+            mDefaultDevice = DeviceInfoDao.getInstance(mCtx).queryFirstData("device_default", true);
+            if (mDefaultDevice == null)
+                refreshView(UNBIND_DEVICE);
+            else
+                refreshView(BIND_DEVICE);
         } else {
             refreshView(BIND_DEVICE);
         }
@@ -256,6 +266,10 @@ public class HomeFragment extends BaseFragment implements
                 LogUtil.d(TAG, "onResume bind");
                 if (mNewsVpRL != null && mNewsVpRL.getLayoutParams() != null)
                     mNewsVpRL.getLayoutParams().height = (int) mCtx.getResources().getDimension(R.dimen.y366dp);
+                else {
+                    mNewsVpRL = mHomeView.findViewById(R.id.rl_news_vp);
+                    mNewsVpRL.getLayoutParams().height = (int) mCtx.getResources().getDimension(R.dimen.y366dp);
+                }
                 mAdapter.setImageIds(mImageIdsNor);
                 mAdapter.notifyDataSetChanged();
                 mAddLockLl.setVisibility(View.GONE);
@@ -274,6 +288,10 @@ public class HomeFragment extends BaseFragment implements
                 LogUtil.d(TAG, "onResume Unbind");
                 if (mNewsVpRL != null && mNewsVpRL.getLayoutParams() != null)
                     mNewsVpRL.getLayoutParams().height = (int) getResources().getDimension(R.dimen.y536dp);
+                else {
+                    mNewsVpRL = mHomeView.findViewById(R.id.rl_news_vp);
+                    mNewsVpRL.getLayoutParams().height = (int) mCtx.getResources().getDimension(R.dimen.y536dp);
+                }
                 mAddLockLl.setVisibility(View.VISIBLE);
                 mServerPager.setVisibility(View.GONE);
                 mInstructionBtn.setVisibility(View.GONE);

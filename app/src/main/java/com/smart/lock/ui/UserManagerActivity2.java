@@ -79,7 +79,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
         initEvent();
     }
 
-    @SuppressLint("WrongViewCast")
+//    @SuppressLint("WrongViewCast")
     private void initView() {
         mUserPermissionVp = findViewById(R.id.vp_user_manager);
         mUserSetTb = findViewById(R.id.tb_user_set);
@@ -459,7 +459,6 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                             }
                         }
                     }
-                    showMessage(getString(R.string.delete_key_success));
                 }
                 break;
             case BleMsg.TYPE_DELETE_FP_FAILED:

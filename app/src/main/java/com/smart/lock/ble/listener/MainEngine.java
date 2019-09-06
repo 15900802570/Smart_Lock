@@ -92,16 +92,20 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     public synchronized void addUiListener(UiListener uiListener) {
 //        ListIterator<UiListener> iterable = mUiListeners.listIterator();
 //        iterable.add(uiListener);
-        mUiListeners.add(uiListener);
+        synchronized (mUiListeners) {
+            mUiListeners.add(uiListener);
+        }
     }
 
     //移除UI监听
     public synchronized void removeUiListener(UiListener uiListener) {
-        Iterator<UiListener> iterator = mUiListeners.iterator();
-        while (iterator.hasNext()) {
-            UiListener tempUiListener = iterator.next();
-            if (tempUiListener == uiListener) {
-                iterator.remove();
+        synchronized (mUiListeners) {
+            ListIterator<UiListener> iterator = mUiListeners.listIterator();
+            while (iterator.hasNext()) {
+                UiListener tempUiListener = iterator.next();
+                if (tempUiListener == uiListener) {
+                    iterator.remove();
+                }
             }
         }
     }
@@ -114,6 +118,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     @Override
     public void onDisconnected() {
         LogUtil.i(TAG, "onDisconnected : change dev state from : " + mDevice.getState() + " to: " + Device.BLE_DISCONNECTED);
+        LogUtil.i(TAG, "onDisconnected : connect type = " + mDevice.getConnectType());
         mDevice.setState(Device.BLE_DISCONNECTED);
         MessageCreator.m128AK = null;
         MessageCreator.m256AK = null;
@@ -895,11 +900,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 case Message.TYPE_BLE_RECEIVER_CMD_0E:
                 case Message.TYPE_BLE_RECEIVER_CMD_62:
                     synchronized (mUiListeners) {
-                        ListIterator<UiListener> iterator = mUiListeners.listIterator();
-                        synchronized (this.mStateLock) {
-                            while (iterator.hasNext()) {
-                                iterator.next().dispatchUiCallback(message, mDevice, -1);
-                            }
+                        for (UiListener mUiListener : mUiListeners) {
+                            mUiListener.dispatchUiCallback(message, mDevice, -1);
                         }
                     }
                     break;

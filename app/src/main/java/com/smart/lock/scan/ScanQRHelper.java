@@ -237,6 +237,20 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
             bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
             bundle.putByteArray(BleMsg.KEY_AUTH_CODE, authCode);
             Device.getInstance(mActivity).setTempAuthCode(authCode);
+            switch (mDevice.getState()) {
+                case Device.BLE_CONNECTED:
+                    if (mBleManagerHelper.getBleCardService() != null) {
+                        mDevice.setDisconnectBle(true);
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
+                    break;
+                case Device.BLE_CONNECTION:
+                    if (mBleManagerHelper.getBleCardService() != null) {
+                        mDevice.setDisconnectBle(true);
+                        mBleManagerHelper.getBleCardService().disconnect();
+                        mBleManagerHelper.stopScan();
+                    }
+            }
             mBleManagerHelper.connectBle(Device.BLE_SCAN_AUTH_CODE_CONNECT, bundle, mActivity);
         }
     }
@@ -383,18 +397,18 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
     @Override
     public void deviceStateChange(Device device, int state) {
-        mDevice = device;
-        switch (state) {
-            case BleMsg.STATE_DISCONNECTED:
-                if (mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT) {
-                    showMessage("添加失败,请重试!");
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mTimer.cancel();
-                }
-                break;
-            default:
-                break;
-        }
+//        mDevice = device;
+//        switch (state) {
+//            case BleMsg.STATE_DISCONNECTED:
+//                if (mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT) {
+////                    showMessage("添加失败,请重试!");
+////                    DialogUtils.closeDialog(mLoadDialog);
+////                    mTimer.cancel();
+//                }
+//                break;
+//            default:
+//                break;
+//        }
     }
 
     @Override
