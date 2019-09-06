@@ -42,6 +42,10 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(columnName = "support_m1", defaultValue = "0")
     private boolean m1Support;
 
+    //是否禁止智能锁芯 1为禁用 0为启用
+    @DatabaseField(columnName = "invalid_intelligent_lock",defaultValue = "1")
+    private boolean invalidIntelligentLock;
+
     //回锁时间
     @DatabaseField(columnName = "rolled_back_time",defaultValue = "5" )
     private int rolledBackTime;
@@ -172,5 +176,13 @@ public class DeviceStatus implements Serializable{
 
     public void setBroadcastNormallyOpen(boolean broadcastNormallyOpen) {
         this.broadcastNormallyOpen = broadcastNormallyOpen;
+    }
+
+    public boolean isInvalidIntelligentLock() {
+        return invalidIntelligentLock;
+    }
+
+    public void setInvalidIntelligentLock(boolean invalidIntelligentLock) {
+        this.invalidIntelligentLock = invalidIntelligentLock;
     }
 }

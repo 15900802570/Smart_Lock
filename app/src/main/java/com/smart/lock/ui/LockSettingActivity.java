@@ -33,6 +33,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
@@ -154,9 +155,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
         mSetOrdinaryCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_ordinary_card);
 
-        if (SystemUtils.getMetaDataFromApp(this).equals("1586102")) {
-            mIntelligentLockTs.setVisibility(View.GONE);
-        }
 
     }
 
@@ -187,6 +185,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if (mUserID != 1) {
             mFactoryResetNa.setVisibility(View.GONE);
         } else mFactoryResetNa.setVisibility(View.VISIBLE);
+
+        if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
+            mIntelligentLockTs.setVisibility(View.GONE);
+        }
     }
 
     private void enableTest() {
@@ -401,7 +403,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             return;
                         }
 
-                        if (mDevice.getBattery() <= 35) {
+                        if (mDevice.getBattery() <= 35 && !SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
                             ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
                             return;
                         }

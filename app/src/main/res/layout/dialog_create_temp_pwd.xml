@@ -32,89 +32,86 @@
             android:background="@color/white"
             android:gravity="center"
             android:orientation="vertical">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:gravity="center"
                 android:background="@color/white"
-                android:gravity="center">
-
+                android:layout_weight="1">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:background="@color/white"
-                    android:gravity="center"
                     android:text="@string/effective_num"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/d19sp" />
+                    android:textSize="@dimen/d19sp"
+                    android:gravity="center"
+                    android:background="@color/white"
+                    android:textColor="@color/black"/>
                 <!--<com.smart.lock.widget.NumberPickerView-->
-                <!--android:id="@+id/temp_pwd_num"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:background="@color/white">-->
+                    <!--android:id="@+id/temp_pwd_num"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:background="@color/white">-->
 
 
                 <!--</com.smart.lock.widget.NumberPickerView>-->
                 <!--<android.support.v7.widget.AppCompatCheckBox-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="match_parent"-->
-                <!--/>-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--/>-->
                 <!--<CheckBox-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:verticalScrollbarPosition="defaultPosition"/>-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:verticalScrollbarPosition="defaultPosition"/>-->
                 <!--<TextView-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="match_parent"-->
-                <!--android:text="次"-->
-                <!--android:textSize="@dimen/d19sp"-->
-                <!--android:gravity="center"-->
-                <!--android:background="@color/white"-->
-                <!--android:textColor="@color/black"/>-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:text="次"-->
+                    <!--android:textSize="@dimen/d19sp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:background="@color/white"-->
+                    <!--android:textColor="@color/black"/>-->
                 <RadioGroup
                     android:id="@+id/temp_pwd_rg"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:background="@color/white"
                     android:orientation="horizontal">
-
                     <RadioButton
                         android:id="@+id/temp_pwd_rg_one"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="@string/one" />
-
+                        android:text="@string/one"/>
                     <RadioButton
                         android:id="@+id/temp_pwd_rg_more"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="@string/many" />
+                        android:text="@string/many"/>
                 </RadioGroup>
             </LinearLayout>
             <!--<ImageView-->
-            <!--android:layout_weight="1.87"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:gravity="center"-->
-            <!--android:src="@drawable/ic_line"-->
-            <!--/>-->
+                <!--android:layout_weight="1.87"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:gravity="center"-->
+                <!--android:src="@drawable/ic_line"-->
+                <!--/>-->
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:background="@color/white"
-                android:gravity="center">
+                >
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:background="@color/white"
-                    android:gravity="center"
                     android:text="@string/valid_period"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/d19sp" />
+                    android:textSize="@dimen/d19sp"
+                    android:gravity="center"
+                    android:background="@color/white"
+                    android:textColor="@color/black"/>
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/temp_pwd_period"
@@ -123,15 +120,14 @@
                     android:background="@color/white">
 
                 </com.smart.lock.widget.NumberPickerView>
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:background="@color/white"
-                    android:gravity="center"
                     android:text="@string/hour"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/d19sp" />
+                    android:textSize="@dimen/d19sp"
+                    android:gravity="center"
+                    android:background="@color/white"
+                    android:textColor="@color/black"/>
             </LinearLayout>
 
 

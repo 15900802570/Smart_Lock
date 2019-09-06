@@ -82,6 +82,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
     private TextView mCreateCancelTv;
     private View mLine;
     private TextView mDeleteCancelTV;
+    private int mCountUsers = 0;
 
     private DeviceUser mSettingUser;
     private boolean mSingleMode = false;
@@ -138,6 +139,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 break;
             case R.id.share_tv:
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                    LogUtil.d(TAG, "send25");
                     mShowQR = true;
                     mBleManagerHelper.getBleCardService().sendCmd25(mSettingUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(mCtx.getString(R.string.unconnected_device));
@@ -422,6 +424,12 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
+                LogUtil.d(TAG, "mCount   " + mCountUsers + '\n' + mCheckUsers.size());
+                // 记录同步数据，同步完成后关闭Dialog
+                if (++mCountUsers == mCheckUsers.size() - 1) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mCountUsers = 0;
+                }
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                 if (userInfo != null) {
                     DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
@@ -440,6 +448,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[7], ConstantUtil.USER_FINGERPRINT, "5");
 
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(devUser);
+                    LogUtil.d(TAG, "mShowQR =" + mShowQR);
                     if (mShowQR) {
                         mShowQR = false;
                         byte[] authTime = new byte[4];
@@ -762,10 +771,11 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 mLoadDialog.show();
                 android.os.Message msg = android.os.Message.obtain();
                 msg.what = CHECK_USERS_STATE_TIME_OUT;
-                mHandler.sendMessageDelayed(msg, 10 * 1000);
+                mHandler.sendMessageDelayed(msg, 5 * 1000);
             }
             for (DeviceUser user : mCheckUsers) {
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                    LogUtil.d(TAG, "mCount send25 " + user.getUserId());
                     mBleManagerHelper.getBleCardService().sendCmd25(user.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else showMessage(getString(R.string.unconnected_device));
             }
@@ -905,41 +915,58 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
                     if (userInfo.getUserId() == mDefaultUser.getUserId()) {
                         ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName() + "(我)");
-                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
+//                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
 
                         if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
                             ((UserViewHolder) holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
                         else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
                             ((UserViewHolder) holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                        ((UserViewHolder) holder).mUserStateTv.setText(mContext.getString(R.string.normal));
-                        ((UserViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
-                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(null);
+//                        ((UserViewHolder) holder).mUserStateTv.setText(mContext.getString(R.string.normal));
+//                        ((UserViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+//                        refreshStatus(userInfo.getUserStatus(), ((UserViewHolder) holder));
+//                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(null);
                         ((UserViewHolder) holder).mDeleteRl.setVisibility(View.GONE);
+                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
+
+                            @Override
+                            public boolean onLongClick(View v) {
+                                showBottomDialog(userInfo);
+                                return true;
+                            }
+                        });
 
                         ((UserViewHolder) holder).mDeleteCb.setChecked(false);
                     } else if (userInfo.getUserId() == 1 && mDefaultUser.getUserId() != 1) { //第一个绑定的用户
                         ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName() + "(主)");
-                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
+//                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
 
                         if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
                             ((UserViewHolder) holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
                         else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
                             ((UserViewHolder) holder).mUserNumberTv.setText(String.valueOf(userInfo.getUserId()));
 
-                        ((UserViewHolder) holder).mUserStateTv.setText(mContext.getString(R.string.normal));
-                        ((UserViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
-
-                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(null);
+//                        ((UserViewHolder) holder).mUserStateTv.setText(mContext.getString(R.string.normal));
+//                        ((UserViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.color_green));
+//                        refreshStatus(userInfo.getUserStatus(), ((UserViewHolder) holder));
+//                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(null);
                         ((UserViewHolder) holder).mDeleteRl.setVisibility(View.GONE);
 
                         ((UserViewHolder) holder).mDeleteCb.setChecked(false);
+                        ((UserViewHolder) holder).mUserContent.setOnLongClickListener(new View.OnLongClickListener() {
+
+                            @Override
+                            public boolean onLongClick(View v) {
+                                showBottomDialog(userInfo);
+                                return true;
+                            }
+                        });
 
                     } else {
                         ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(true);
                         ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName());
 
-                        refreshStatus(userInfo.getUserStatus(), ((UserViewHolder) holder)); //刷新用户状态
+//                        refreshStatus(userInfo.getUserStatus(), ((UserViewHolder) holder)); //刷新用户状态
 
                         if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)
                             ((UserViewHolder) holder).mUserNumberTv.setText("00" + String.valueOf(userInfo.getUserId()));
@@ -984,13 +1011,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                             }
                         });
 
-                        ((UserViewHolder) holder).mUserMore.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                showBottomDialog(userInfo);
-                            }
-                        });
-
                         if (mVisiBle)
                             ((UserViewHolder) holder).mDeleteRl.setVisibility(View.VISIBLE);
                         else
@@ -999,7 +1019,14 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         ((UserViewHolder) holder).mDeleteCb.setChecked(mAllDelete);
 
                     }
-
+                    ((UserViewHolder) holder).mUserMore.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showBottomDialog(userInfo);
+                        }
+                    });
+                    refreshStatus(userInfo, ((UserViewHolder) holder));
+                    LogUtil.d(TAG, "id= " + userInfo.getUserId() + "\n" + "usrInfo=" + userInfo.getUserStatus());
                     ((UserViewHolder) holder).mUserContent.setOnClickListener(new View.OnClickListener() {
 
                         @Override
@@ -1017,10 +1044,11 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         /**
          * 刷新用户状态
          *
-         * @param status 用户状态标志
+         * @param userInfo 用户状态标志
          */
-        private void refreshStatus(int status, UserViewHolder holder) {
-            switch (status) {
+        private void refreshStatus(DeviceUser userInfo, UserViewHolder holder) {
+
+            switch (userInfo.getUserStatus()) {
                 case ConstantUtil.USER_UNENABLE:
                     holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.gray1));
@@ -1042,6 +1070,9 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     holder.mSetStateTv.setText(getString(R.string.recovery));
                     holder.mSetStateTv.setTag(R.string.recovery);
                     break;
+            }
+            if (userInfo.getUserId() == mDefaultUser.getUserId()) {
+                holder.mUserStatus.setVisibility(View.GONE);
             }
         }
 
@@ -1071,12 +1102,18 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 //            shakes();
             mSettingUser = userInfo;
             mUserNameTv.setText(userInfo.getUserName());
-            if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+            if (userInfo.getUserId() == mDefaultUser.getUserId()) {
                 mUserSettingTv.setVisibility(View.GONE);
                 mLine.setVisibility(View.GONE);
+                mSingleDeleteTv.setVisibility(View.GONE);
+            } else if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                mUserSettingTv.setVisibility(View.GONE);
+                mLine.setVisibility(View.GONE);
+                mSingleDeleteTv.setVisibility(View.VISIBLE);
             } else {
                 mUserSettingTv.setVisibility(View.VISIBLE);
                 mLine.setVisibility(View.VISIBLE);
+                mSingleDeleteTv.setVisibility(View.VISIBLE);
             }
             mFunctionDialog.show();
         }

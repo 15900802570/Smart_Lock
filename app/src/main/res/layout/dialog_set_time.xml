@@ -37,15 +37,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:background="@color/white"
                 android:gravity="center">
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/start_hour_np"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="@color/white">
+                    android:layout_width="@dimen/x90dp"
+                    android:layout_height="match_parent">
 
                 </com.smart.lock.widget.NumberPickerView>
 
@@ -60,9 +58,8 @@
 
                 <com.smart.lock.widget.NumberPickerView
                     android:id="@+id/start_minute_np"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="@color/white">
+                    android:layout_width="@dimen/x90dp"
+                    android:layout_height="match_parent">
 
                 </com.smart.lock.widget.NumberPickerView>
             </LinearLayout>

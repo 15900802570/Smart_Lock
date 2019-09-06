@@ -303,7 +303,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         }
         mUpdateTimeTv.setVisibility(View.VISIBLE);
         mShowTimeTv.setVisibility(View.VISIBLE);
-        mEqTv.setText(String.valueOf(battery) + "%");
+        if (battery != -1)
+            mEqTv.setText(battery + "%");
+        else
+            mEqTv.setText(getString(R.string.unknown));
         mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(updateTime), "MM-dd HH:mm"));
         switch (battery / 10) {
             case 0:
@@ -446,7 +449,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 }
                 break;
             case R.id.one_click_unlock_ib:
-                if (mDevice.getState() == Device.BLE_CONNECTED)
+                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED)
                     if (!mIsLockBack) {
 //                        mInstructionBtn.setEnabled(false);
                         if (mNodeId.getBytes().length == 15)
@@ -602,6 +605,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     (ServerPagerFragment.this.getParentFragment()).onResume();
                 }
                 break;
+            case BleMsg.TYPE_USER_SUSPENDED:
+                Device.getInstance(mActivity).setDisconnectBle(true);
+                showMessage(getString(R.string.user_pause_contact_admin));
+//                DialogUtils.createTipsDialogWithCancel(mActivity, mActivity.getString(R.string.user_pause_contact_admin)).show();
+                break;
             default:
                 break;
         }
@@ -657,7 +665,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_CONNECTED)
             mBleManagerHelper.getBleCardService().disconnect();
         if (mAuthErrorCounter++ == 1) {
-            LogUtil.d(TAG, "用户已删除" + mDefaultDevice.getBleMac());
+            LogUtil.d(TAG, "用户已删除");
             mAuthErrorCounter = 0;
             // 删除相关数据
             if (mDefaultDevice != null) {

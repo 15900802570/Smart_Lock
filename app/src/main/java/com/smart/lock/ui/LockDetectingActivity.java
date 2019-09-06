@@ -373,6 +373,22 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         } else {
             if (enable) {
+                Bundle extras = getIntent().getExtras();
+                //扫描连接
+                if (extras != null) {
+                    mConnectType = extras.getByte(BleMsg.KEY_BLE_CONNECT_TYPE);
+                    if (mConnectType == Device.BLE_SET_DEVICE_INFO_CONNECT_TYPE) {
+                        mMode = SET_DEV_INFO;
+                        deviceList = new ArrayList<>();
+                        mTitleTv.setText(getString(R.string.search_lock));
+                        mBleAdapter = new BleAdapter(this, deviceList);
+                        mDevList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+                        mDevList.setItemAnimator(new DefaultItemAnimator());
+                        mDevList.setAdapter(mBleAdapter);
+                    }
+                    mBleMac = StringUtil.getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
+                    mDevice = mBleManagerHelper.getDevice(mConnectType, extras, this);
+                }
                 if (mMode == DETECTING_LOCK) {
                     mHandler.postDelayed(mStopScan, SCAN_PERIOD);
                     mRefreshDevLl.setVisibility(View.GONE);

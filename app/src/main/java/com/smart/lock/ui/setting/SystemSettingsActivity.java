@@ -441,7 +441,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 } else {
                     mCheckSnTv.setChecked(true);
                 }
-                myPrefs.writeBoolean(ConstantUtil.CHECK_DEVICE_SN, mCheckSnTv.getIv_switch_light().isChecked());
+//                myPrefs.writeBoolean(ConstantUtil.CHECK_DEVICE_SN, mCheckSnTv.getIv_switch_light().isChecked());
                 break;
         }
     }

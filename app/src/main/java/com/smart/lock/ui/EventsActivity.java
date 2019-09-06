@@ -66,6 +66,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     private Device mDevice;
     private int count = 0;
     private Context mCtx;
+    private int countTimeOut = 0;
 
     private final static int RECEIVER_LOG_TIME_OUT = 5;
 
@@ -88,9 +89,10 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     if (mHandler.hasMessages(RECEIVER_LOG_TIME_OUT)) {
                         mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
                     }
+                    DialogUtils.closeDialog(mLoadDialog);
                     LogUtil.d(TAG, "receiver log time out!");
                     DeviceLogDao.getInstance(EventsActivity.this).deleteAll();
-                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    if (mDevice.getState() == Device.BLE_CONNECTED && ++countTimeOut < 2) {
                         mLoadDialog.show();
                         android.os.Message logMsg = android.os.Message.obtain();
                         logMsg.what = RECEIVER_LOG_TIME_OUT;
@@ -100,6 +102,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
                             mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
                         }
+                    } else if (countTimeOut >= 2) {
+                        countTimeOut = 0;
+                        showMessage(getString(R.string.synchronization_timeout));
                     } else {
                         showMessage(getString(R.string.disconnect_ble));
                     }

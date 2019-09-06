@@ -473,7 +473,7 @@ public class HomeFragment extends BaseFragment implements
                                 deviceInfo.setDeviceDefault(true);
                                 DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(deviceInfo);
                                 Device.getInstance(mActivity).exchangeConnect(deviceInfo);
-                                mDevice.halt();
+                                Device.getInstance(mActivity).halt();
                                 mBleManagerHelper.getBleCardService().disconnect();
                                 LogUtil.d(TAG, "设置为默认设备");
                             }

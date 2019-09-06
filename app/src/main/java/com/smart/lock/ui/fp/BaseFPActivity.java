@@ -40,7 +40,7 @@ public abstract class BaseFPActivity extends AppCompatActivity {
 
     public abstract void onFingerprintAuthenticationError(int errorCode);
 
-    public void onFingerprintAuthenticationFailed(){
+    public void onFingerprintAuthenticationFailed() {
 
     }
 
@@ -56,15 +56,20 @@ public abstract class BaseFPActivity extends AppCompatActivity {
         } else {
             KeyguardManager keyguardManager = getSystemService(KeyguardManager.class);
             mFPM = getSystemService(FingerprintManager.class);
-            if (!mFPM.isHardwareDetected()) {
+            try {
+                if (!mFPM.isHardwareDetected()) {
+                    LogUtil.i(TGA, "手机不支持指纹");
+                    return ConstantUtil.FP_NO_HARDWARE;
+                } else if (!keyguardManager.isKeyguardSecure()) {
+                    LogUtil.i(TGA, "未设置锁屏，需设置锁屏并添加指纹");
+                    return ConstantUtil.FP_NO_KEYGUARDSECURE;
+                } else if (!mFPM.hasEnrolledFingerprints()) {
+                    LogUtil.i(TGA, "系统中至少需要添加一个指纹");
+                    return ConstantUtil.FP_NO_FINGERPRINT;
+                }
+            } catch (NullPointerException e) {
                 LogUtil.i(TGA, "手机不支持指纹");
                 return ConstantUtil.FP_NO_HARDWARE;
-            } else if (!keyguardManager.isKeyguardSecure()) {
-                LogUtil.i(TGA, "未设置锁屏，需设置锁屏并添加指纹");
-                return ConstantUtil.FP_NO_KEYGUARDSECURE;
-            } else if (!mFPM.hasEnrolledFingerprints()) {
-                LogUtil.i(TGA, "系统中至少需要添加一个指纹");
-                return ConstantUtil.FP_NO_FINGERPRINT;
             }
         }
         LogUtil.i(TGA, "支持指纹");
@@ -140,7 +145,7 @@ public abstract class BaseFPActivity extends AppCompatActivity {
                 null);
     }
 
-    protected void onStopFPListening(){
+    protected void onStopFPListening() {
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
             mCancellationSignal = null;
