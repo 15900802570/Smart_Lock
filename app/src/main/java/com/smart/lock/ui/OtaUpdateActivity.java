@@ -279,24 +279,26 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
             mLatestVersion.setText(mVersionModel.versionName);
             mDeviceSnTv.setText(mDefaultDev.getDeviceSn());
 
-            int len = mVersionModel.versionName.length();
-            int code = 0;
-            int swLen = mDefaultDev.getDeviceSwVersion().length();
-            if (len >= 5 && swLen >= 5)
-                code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
-            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
-                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-            } else {
-                if (0 == code || code == -1) {
-                    compareVersion(CheckVersionAction.NO_NEW_VERSION);
-                } else {
-                    if (mVersionModel.forceUpdate) {
-                        compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
-                    } else {
-                        compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
-                    }
-                }
-            }
+//            int len = mVersionModel.versionName.length();
+//            int code = 0;
+//            int swLen = mDefaultDev.getDeviceSwVersion().length();
+//            if (len >= 5 && swLen >= 5)
+//                code = StringUtil.compareVersion(mVersionModel.versionName, mDefaultDev.getDeviceSwVersion().split("_")[1]);
+//            if (SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+//                compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//            } else {
+//                if (0 == code || code == -1) {
+//                    compareVersion(CheckVersionAction.NO_NEW_VERSION);
+//                } else {
+//                    if (mVersionModel.forceUpdate) {
+//                        compareVersion(CheckVersionAction.MAST_UPDATE_VERSION);
+//                    } else {
+//                        compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
+//                    }
+//                }
+//            }
+
+            compareVersion(CheckVersionAction.SELECT_VERSION_UPDATE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
                     WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(this);
