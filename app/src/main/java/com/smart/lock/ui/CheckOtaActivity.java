@@ -433,38 +433,38 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             LogUtil.d(TAG, "mDefaultDev : " + mDefaultDev.toString());
             int swLen = 0;
             if (model != null) {
-                int len = model.versionName.length();
-                int code = 0;
+//                int len = model.versionName.length();
+//                int code = 0;
                 if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.ota_fingerprint);
                     viewHolder.mNameTv.setText(R.string.fingerprint_firmware);
-                    if (StringUtil.checkNotNull(mDefaultDev.getFpSwVersion())) {
-                        code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
-                    }
+//                    if (StringUtil.checkNotNull(mDefaultDev.getFpSwVersion())) {
+//                        code = StringUtil.compareFPVersion(mDefaultDev.getFpSwVersion(), model.versionName);
+//                    }
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.ota_lock);
                     viewHolder.mNameTv.setText(R.string.lock_default_name);
-                    if (StringUtil.checkNotNull(mDefaultDev.getDeviceSwVersion())) {
-                        swLen = mDefaultDev.getDeviceSwVersion().length();
-                        if (len >= 5 && swLen >= 5) {
-                            String[] tempList = mDefaultDev.getDeviceSwVersion().split("_");
-                            if (tempList.length >= 2) {
-                                code = StringUtil.compareVersion(model.versionName, tempList[tempList.length - 2]);
-                                LogUtil.d(TAG, "code = " + code + '\n' + "temp = " + tempList[tempList.length - 2]);
-                            } else {
-                                code = -1;
-                            }
-                        }
-                    }
+//                    if (StringUtil.checkNotNull(mDefaultDev.getDeviceSwVersion())) {
+//                        swLen = mDefaultDev.getDeviceSwVersion().length();
+//                        if (len >= 5 && swLen >= 5) {
+//                            String[] tempList = mDefaultDev.getDeviceSwVersion().split("_");
+//                            if (tempList.length >= 2) {
+//                                code = StringUtil.compareVersion(model.versionName, tempList[tempList.length - 2]);
+//                                LogUtil.d(TAG, "code = " + code + '\n' + "temp = " + tempList[tempList.length - 2]);
+//                            } else {
+//                                code = -1;
+//                            }
+//                        }
+//                    }
                 }
 
-                if (0 == code || code == -1) {
-                    viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
-                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.black));
-                } else {
+//                if (0 == code || code == -1) {
+//                    viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
+//                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.black));
+//                } else {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
                     viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.red));
-                }
+//                }
 
                 viewHolder.mSwipeLayout.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -498,6 +498,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
+
 
             SwipeLayout mSwipeLayout;
             TextView mNameTv;
