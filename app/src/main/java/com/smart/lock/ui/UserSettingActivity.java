@@ -438,40 +438,41 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
                     showMessage("备注名不能为空！");
                     return;
                 }
-//                if (mLifeCb.isChecked() || mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked()) {
+                if (mLifeCb.isChecked() || mUnlockTimeCb1.isChecked() || mUnlockTimeCb2.isChecked() || mUnlockTimeCb3.isChecked()) {
 
-//                if (mLifeCb.isChecked()) {
-//                    if (mStartDate < mEndDate) {
-//                        if (checkLifeCycle()) {
-//                            mEndDateTv.setError(getString(R.string.life_cycle_not_changed));
-//                            return;
-//                        }
-//
-//                    } else {
-//                        mEndDateTv.setError(getString(R.string.set_date_error));
-//                        return;
-//                    }
-//                }
-                if (mUnlockTimeCb1.isChecked() && !timeCompare(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString())) {
-                    showMessage("开始时间大于或等于结束时间");
-                    showTimePickerDefineDialog(TEMP_KEY_FIRST_END_TIME);
-                    return;
-                }
+                    if (mLifeCb.isChecked()) {
+                        if (mStartDate < mEndDate) {
+                            if (checkLifeCycle()) {
+                                mEndDateTv.setError(getString(R.string.life_cycle_not_changed));
+                                return;
+                            }
 
-                if (mUnlockTimeCb2.isChecked() && !timeCompare(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString())) {
-                    showMessage("开始时间大于或等于结束时间");
-                    showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
-                    return;
-                }
+                        } else {
+                            mEndDateTv.setError(getString(R.string.set_date_error));
+                            return;
+                        }
+                    }
 
-                if (mUnlockTimeCb3.isChecked() && !timeCompare(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
-                    showMessage("开始时间大于或等于结束时间");
-                    showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
-                    return;
-                }
-                sendUnlocktime();
-//                } else
-//                    showMessage("请选择需要设置有效期或开锁时段！");
+                    if (mUnlockTimeCb1.isChecked() && !timeCompare(mFirstStartTime.getText().toString(), mFirstEndTime.getText().toString())) {
+                        showMessage("开始时间大于或等于结束时间");
+                        showTimePickerDefineDialog(TEMP_KEY_FIRST_END_TIME);
+                        return;
+                    }
+
+                    if (mUnlockTimeCb2.isChecked() && !timeCompare(mSecondStartTime.getText().toString(), mSecondEndTime.getText().toString())) {
+                        showMessage("开始时间大于或等于结束时间");
+                        showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
+                        return;
+                    }
+
+                    if (mUnlockTimeCb3.isChecked() && !timeCompare(mThirdStartTime.getText().toString(), mThirtEndTime.getText().toString())) {
+                        showMessage("开始时间大于或等于结束时间");
+                        showTimePickerDefineDialog(TEMP_KEY_SECOND_END_TIME);
+                        return;
+                    }
+                    sendUnlocktime();
+                } else
+                    showMessage("请选择需要设置有效期或开锁时段！");
 
                 break;
             default:

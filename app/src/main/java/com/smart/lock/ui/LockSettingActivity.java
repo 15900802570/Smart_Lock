@@ -170,7 +170,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         }
         // 查询或者创建状态表
         mDeviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        setStatus();
         if (mUserID > 0 & mUserID < 100) {
             mSetSupportCardTypeBs.setVisibility(View.VISIBLE);
             mIntelligentLockTs.setVisibility(View.VISIBLE);
@@ -306,6 +305,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     @Override
     protected void onResume() {
         super.onResume();
+        setStatus();
         mVisibility = true;
     }
 
