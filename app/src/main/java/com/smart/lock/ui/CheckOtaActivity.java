@@ -76,6 +76,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     private boolean isHide = false;
     private boolean mCheckFpVersion = false;
+    private boolean mHadFP = false;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -203,6 +204,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     mDefaultDev.setFpSwVersion(swVer);
                     DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
                     if (!mCheckFpVersion) {
+                        mHadFP = true;
                         checkDevVersion(true);
                     } else {
                         mCheckFpVersion = false;
@@ -300,7 +302,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onResume() {
-        LogUtil.d(TAG,"onResume");
+        LogUtil.d(TAG, "onResume");
         super.onResume();
         isHide = true;
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
@@ -328,7 +330,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 sendMessage(RECEIVER_OTA_VERSION, null, 0);
                 mOtaAdapter.setDataSource(mVersionAction.respondData.models);
                 mOtaAdapter.notifyDataSetChanged();
-            } else refreshView(EMPTY_VERSION_UPDATE);
+            } else {
+                sendMessage(RECEIVER_OTA_VERSION, null, 0);
+                mOtaAdapter.setDataSource(mVersionAction.respondData.models);
+                mOtaAdapter.notifyDataSetChanged();
+            }
         }
     };
 
@@ -405,11 +411,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
         public void setDataSource(ArrayList<VersionModel> versionList) {
             mVersionList = versionList;
-//            for (VersionModel model : mVersionList) {
-//                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
-//                    mVersionList.remove(model);
-//                }
-//            }
+            for (VersionModel model : mVersionList) {
+                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION) && !mHadFP) {
+                    mVersionList.remove(model);
+                }
+            }
         }
 
         public void addItem(VersionModel model) {
@@ -462,33 +468,35 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 //                    viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
 //                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.black));
 //                } else {
+
+//                }
+                if (model.versionCode != 0) {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
                     viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.red));
-//                }
+                    viewHolder.mSwipeLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+                                Intent intent = new Intent();
+                                Bundle bundle = new Bundle();
+                                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
+                                    bundle.putSerializable(ConstantUtil.SERIALIZABLE_FP_VERSION_MODEL, model);
+                                    intent.putExtras(bundle);
+                                    intent.setClass(mContext, FpOtaUpdateActivity.class);
+                                    CheckOtaActivity.this.startActivityForResult(intent, CHECK_FP_VERSION);
+                                } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
+                                    bundle.putSerializable(ConstantUtil.SERIALIZABLE_DEV_VERSION_MODEL, model);
+                                    intent.putExtras(bundle);
+                                    intent.setClass(mContext, OtaUpdateActivity.class);
+                                    CheckOtaActivity.this.startActivityForResult(intent, CHECK_DEV_VERSION);
+                                }
 
-                viewHolder.mSwipeLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-                            Intent intent = new Intent();
-                            Bundle bundle = new Bundle();
-                            if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION)) {
-                                bundle.putSerializable(ConstantUtil.SERIALIZABLE_FP_VERSION_MODEL, model);
-                                intent.putExtras(bundle);
-                                intent.setClass(mContext, FpOtaUpdateActivity.class);
-                                CheckOtaActivity.this.startActivityForResult(intent, CHECK_FP_VERSION);
-                            } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
-                                bundle.putSerializable(ConstantUtil.SERIALIZABLE_DEV_VERSION_MODEL, model);
-                                intent.putExtras(bundle);
-                                intent.setClass(mContext, OtaUpdateActivity.class);
-                                CheckOtaActivity.this.startActivityForResult(intent, CHECK_DEV_VERSION);
-                            }
+                            } else
+                                showMessage(getString(R.string.unconnected_device));
 
-                        } else
-                            showMessage(getString(R.string.unconnected_device));
-
-                    }
-                });
+                        }
+                    });
+                }
             }
         }
 

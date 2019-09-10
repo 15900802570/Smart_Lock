@@ -171,6 +171,11 @@ public class CheckOtaAction extends AbstractTransaction {
                             versionModel.msg = devObj.getString("msg");
                             respondData.models.add(versionModel);
                         }
+                    }else {
+                        VersionModel versionModel = new VersionModel();
+                        versionModel.type = ConstantUtil.OTA_LOCK_SW_VERSION;
+                        versionModel.versionCode = 0;
+                        respondData.models.add(versionModel);
                     }
                     JSONObject fpObj = null;
                     if (object.has("fingerprint")) {
@@ -187,6 +192,11 @@ public class CheckOtaAction extends AbstractTransaction {
                             versionModel.zone = fpObj.getString("zone");
                             respondData.models.add(versionModel);
                         }
+                    }else {
+                        VersionModel versionModel = new VersionModel();
+                        versionModel.type = ConstantUtil.OTA_FP_SW_VERSION;
+                        versionModel.versionCode = 0;
+                        respondData.models.add(versionModel);
                     }
                 }
             } catch (JSONException e) {
