@@ -172,6 +172,11 @@ public class ConstantUtil {
      */
     public static final String LOCK_DEFAULT_NAME = "DTLOCKER";
 
+//    /**
+//     * NPM 锁默认名称
+//     */
+//    public static final String LOCK_DEFAULT_NAME = "iKEYhome";
+
     /**
      * 门锁软件版本
      */
