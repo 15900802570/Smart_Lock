@@ -321,7 +321,21 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
         @Override
         public void transFailed(String httpCode, String errorInfo) {
-            refreshView(EMPTY_VERSION_UPDATE);
+//            refreshView(EMPTY_VERSION_UPDATE);
+            ArrayList<VersionModel> models = new ArrayList<>();
+            VersionModel versionModel = new VersionModel();
+            versionModel.type = ConstantUtil.OTA_LOCK_SW_VERSION;
+            versionModel.versionCode = 0;
+            models.add(versionModel);
+            if (mHadFP){
+                VersionModel versionModel2 = new VersionModel();
+                versionModel2.type = ConstantUtil.OTA_FP_SW_VERSION;
+                versionModel2.versionCode = 0;
+                models.add(versionModel2);
+            }
+            sendMessage(RECEIVER_OTA_VERSION, null, 0);
+            mOtaAdapter.setDataSource(models);
+            mOtaAdapter.notifyDataSetChanged();
         }
 
         @Override

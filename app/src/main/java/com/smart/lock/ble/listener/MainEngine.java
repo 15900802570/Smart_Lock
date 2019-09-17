@@ -684,7 +684,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             case RUN_ON_UI_THREAD:
                 Message message = (Message) msg.getData().getSerializable(MSG_RECEIVER);
                 TimerProvider timer = (TimerProvider) msg.getData().getSerializable("timer");
-                dispatchMessage(message, timer);
+                if (message != null)
+                    dispatchMessage(message, timer);
                 break;
             case MSG_POLLING_BLE:
                 LogUtil.i(TAG, "Ble polling!");

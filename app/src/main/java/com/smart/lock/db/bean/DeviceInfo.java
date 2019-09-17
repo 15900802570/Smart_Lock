@@ -3,6 +3,7 @@ package com.smart.lock.db.bean;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.smart.lock.utils.LogUtil;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -166,6 +167,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public void setDeviceDefault(boolean deviceDefault) {
+        LogUtil.d("SetDefault","logID = "+this.getBleMac());
         this.deviceDefault = deviceDefault;
     }
 

@@ -333,13 +333,13 @@
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
     <string name="to"> 至 </string>
-    <string name = "no_name">没名字</string>
+    <string name="no_name">没名字</string>
 
-    <string name = "choise_photo">选择头像</string>
-    <string name = "camera_shot">拍摄新照片</string>
-    <string name = "local_photo">从预置图片中选择</string>
-    <string name = "gallery_photo">从图库中选择</string>
-    <string name = "set_dev_info">设置设备信息</string>
+    <string name="choise_photo">选择头像</string>
+    <string name="camera_shot">拍摄新照片</string>
+    <string name="local_photo">从预置图片中选择</string>
+    <string name="gallery_photo">从图库中选择</string>
+    <string name="set_dev_info">设置设备信息</string>
     <string name="pwd_setting_successfully">密码设置成功</string>
     <string name="pwd_setting_failed">密码设置失败</string>
 
@@ -446,4 +446,5 @@
     <string name="note_name_error">备注名不能为空</string>
     <string name="unknown">未知</string>
     <string name="synchronization_timeout">同步超时，请稍后再试！</string>
+    <string name="ota_tips">1.请确保门锁与手机电量充足\n2.不要远离门锁，等待升级成功\n3.升级过程中，请勿操作门锁\n4.升级过程中，手机请勿关机、切换后台、关闭屏幕</string>
 </resources>

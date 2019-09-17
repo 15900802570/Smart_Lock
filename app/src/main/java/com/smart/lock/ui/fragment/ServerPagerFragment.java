@@ -171,24 +171,26 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         showMessage(getString(R.string.remote_unlock_success));
                         break;
                     case BleMsg.SCAN_DEV_FIALED:
-                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode());
-                        AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
-                        DeviceInfo devInfo = autoConnectBle.getAutoDev();
+                        LogUtil.d(TAG, "SCAN_DEV_FIALED 1 " + this.hashCode() + Device.getInstance(mCtx).ismStopChangeDEV());
+                        if (!Device.getInstance(mCtx).ismStopChangeDEV()) {
+                            AutoConnectBle autoConnectBle = AutoConnectBle.getInstance(mCtx);
+                            DeviceInfo devInfo = autoConnectBle.getAutoDev();
 
-                        if (devInfo != null && autoConnectBle.isAutoConnect() && !mStopScanByUser) {
-                            autoConnectBle.autoConnect(devInfo);
-                            ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
-                            onResume();
-                        } else {
-                            if (mDevice != null && !mDevice.isDisconnectBle()) {
-                                showMessage(getString(R.string.retry_connect));
-                            }
-                            if (mDefaultDevice != null) {
-                                refreshView(BIND_DEVICE);
+                            if (devInfo != null && autoConnectBle.isAutoConnect() && !mStopScanByUser) {
+                                autoConnectBle.autoConnect(devInfo);
+                                ((HomeFragment) getParentFragment()).onSelectDev(devInfo);
+                                onResume();
                             } else {
-                                refreshView(UNBIND_DEVICE);
+                                if (mDevice != null && !mDevice.isDisconnectBle()) {
+                                    showMessage(getString(R.string.retry_connect));
+                                }
+                                if (mDefaultDevice != null) {
+                                    refreshView(BIND_DEVICE);
+                                } else {
+                                    refreshView(UNBIND_DEVICE);
+                                }
+                                mStopScanByUser = false;
                             }
-                            mStopScanByUser = false;
                         }
 
                         break;
@@ -832,6 +834,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             mIsVisibleToUser = true;
             if (mCurrentIndex) {
                 onResume();
+                Device.getInstance(mActivity).setmStopChangeDEV(false);
                 mBleManagerHelper.addUiListener(this);
             }
         } else {

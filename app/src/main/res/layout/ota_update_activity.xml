@@ -92,7 +92,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="温馨提示"
+                    android:text="@string/tips"
                     android:textColor="@color/red"
                     android:textStyle="bold"/>
 
@@ -102,7 +102,7 @@
                     android:layout_height="match_parent"
                     android:padding="@dimen/x10dp"
                     android:textSize="@dimen/d13sp"
-                    android:text="1.请确保门锁与手机电量充足\n2.不要远离门锁，等待升级成功\n3.升级过程中，请勿操作门锁\n4.升级过程中，手机请勿关机、切换后台、关闭屏幕"
+                    android:text="@string/ota_tips"
                     android:textColor="@color/red"
                     android:textStyle="bold"/>
 

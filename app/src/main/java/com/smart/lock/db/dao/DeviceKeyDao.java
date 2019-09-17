@@ -120,7 +120,8 @@ public class DeviceKeyDao {
 
     public int delete(DeviceKey info) {
         try {
-            return dao.delete(info);
+             dao.deleteById(info.getId());
+             return 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return -1;

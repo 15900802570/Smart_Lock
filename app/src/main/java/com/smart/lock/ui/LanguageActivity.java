@@ -57,7 +57,7 @@ public class LanguageActivity extends AppCompatActivity {
 
     private void initData() {
         final List<LangnageModel> langnages = new ArrayList<>();
-        mLangnage = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.DEFAULT_LANGNAGE, "");
+        mLangnage = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.DEFAULT_LANGUAGE, "");
 
         LangnageModel chModel = new LangnageModel();
         chModel.setLangnage(LanguageType.CHINESE.getLanguage());
@@ -80,7 +80,7 @@ public class LanguageActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mLangnage = langnages.get(position).getLangnage();
                 adapter.selectLangnage(position);
-                String defaultLangnage = SharedPreferenceUtil.getInstance(LanguageActivity.this).readString(ConstantUtil.DEFAULT_LANGNAGE, LanguageType.CHINESE.getLanguage());
+                String defaultLangnage = SharedPreferenceUtil.getInstance(LanguageActivity.this).readString(ConstantUtil.DEFAULT_LANGUAGE, LanguageType.CHINESE.getLanguage());
                 if (defaultLangnage.equals(mLangnage)) {
                     mSaveItem.setEnabled(false);
                 } else mSaveItem.setEnabled(true);
@@ -119,7 +119,7 @@ public class LanguageActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.item_save:
-//                mLangnage = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.DEFAULT_LANGNAGE);
+//                mLangnage = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.DEFAULT_LANGUAGE);
                 LogUtil.d(TAG, "save : " + mLangnage);
                 changeLanguage(mLangnage);
                 mSaveItem.setEnabled(false);
@@ -143,7 +143,7 @@ public class LanguageActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             LanguageUtil.changeAppLanguage(this, language);
         }
-        SharedPreferenceUtil.getInstance(this).writeString(ConstantUtil.DEFAULT_LANGNAGE, language);
+        SharedPreferenceUtil.getInstance(this).writeString(ConstantUtil.DEFAULT_LANGUAGE, language);
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);

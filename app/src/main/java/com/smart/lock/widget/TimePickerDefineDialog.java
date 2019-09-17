@@ -42,6 +42,9 @@ public class TimePickerDefineDialog extends DialogFragment {
     private int requestCode;
     private String mTitleStr;
 
+    private boolean enableMin;
+    private boolean getSame;
+
     /**
      * 初始化
      *
@@ -51,7 +54,12 @@ public class TimePickerDefineDialog extends DialogFragment {
      * @param requestCode int Dialog请求参数
      */
     @SuppressLint("ValidFragment")
-    public TimePickerDefineDialog(int[] value, boolean isWithClose, String title, int requestCode) {
+    public TimePickerDefineDialog(int[] value,
+                                  boolean isWithClose,
+                                  String title,
+                                  int requestCode,
+                                  boolean enableMin,
+                                  boolean getSame) {
         if (value.length >= 4) {
             this.value[0] = value[0];
             this.value[1] = value[1];
@@ -61,6 +69,8 @@ public class TimePickerDefineDialog extends DialogFragment {
         this.isWithClose = isWithClose;
         this.mTitleStr = title;
         this.requestCode = requestCode;
+        this.enableMin = enableMin;
+        this.getSame = getSame;
     }
 
     @Override
@@ -128,6 +138,8 @@ public class TimePickerDefineDialog extends DialogFragment {
         mEndHourNP.setMaxValue(ConstantUtil.HOUR.length);
         mEndMinuteNP.setMaxValue(ConstantUtil.MINUTE.length);
 
+        mEndMinuteNP.setEnabled(enableMin);
+        mStartMinuteNP.setEnabled(enableMin);
         setCloseBtnVisible(isWithClose); //设置是否需要关闭Btn
         setDialogTitleTv(mTitleStr);    //设置Title
         return mView;
@@ -153,7 +165,7 @@ public class TimePickerDefineDialog extends DialogFragment {
             @Override
             public void onClick(View view) {
                 setValue();
-                if (value[0] == value[2] && value[1] == value[3]) {
+                if (value[0] == value[2] && value[1] == value[3] && !getSame) {
                     ToastUtil.showShort(getActivity(), Objects.requireNonNull(getActivity()).getString(R.string.set_time_error));
                 } else {
                     if (getActivity() instanceof onTimePickerListener) {

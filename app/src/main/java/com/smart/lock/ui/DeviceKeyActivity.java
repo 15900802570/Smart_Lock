@@ -112,6 +112,10 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mUserPermissionVp.setOffscreenPageLimit(2);
         mUserPermissionVp.setCurrentItem(currentItem);
         mUserPermissionVp.setNoScroll(true);
+        if (mTempUser != null) {
+            LogUtil.d(TAG, "mCount send25 " + mTempUser.getUserId());
+            mBleManagerHelper.getBleCardService().sendCmd25(mTempUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
+        }
     }
 
     private void initEvent() {
@@ -204,8 +208,8 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         if (deviceStatus.isCombinationLock()) {
             int counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();
-            if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && counter < 2){
-                DialogUtils.createTipsDialogWithConfirm(this,getString(R.string.two_or_more_unlocking_keys_must_be_set)).show();
+            if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && counter < 2) {
+                DialogUtils.createTipsDialogWithConfirm(this, getString(R.string.two_or_more_unlocking_keys_must_be_set)).show();
                 return;
             }
         }

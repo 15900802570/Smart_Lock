@@ -915,7 +915,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 //                holder.mEditIbtn.setVisibility(View.GONE);
 
                     if (userInfo.getUserId() == mDefaultUser.getUserId()) {
-                        ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName() + "(我)");
+                        ((UserViewHolder) holder).mNameTv.setText(userInfo.getUserName() + "(" + getString(R.string.me) + ")");
 //                        ((UserViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
 
                         if (userInfo.getUserPermission() == ConstantUtil.DEVICE_MASTER)

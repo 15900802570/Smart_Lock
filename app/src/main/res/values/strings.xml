@@ -436,4 +436,5 @@
     <string name="time_period_repeat">Time period repeat, please check</string>
     <string name="unknown">Unknown</string>
     <string name="synchronization_timeout">Synchronization timeout, please try again late.</string>
+    <string name="ota_tips">1.请确保门锁与手机电量充足\n2.不要远离门锁，等待升级成功\n3.升级过程中，请勿操作门锁\n4.升级过程中，手机请勿关机、切换后台、关闭屏幕</string>
 </resources>

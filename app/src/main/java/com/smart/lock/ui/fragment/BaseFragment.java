@@ -108,6 +108,7 @@ public abstract class BaseFragment extends Fragment {
      */
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     protected void startIntent(Class<?> cls, Bundle bundle) {
+        Device.getInstance(mActivity).setmStopChangeDEV(true);
         Intent intent = new Intent();
         if (bundle != null) {
             intent.putExtras(bundle);

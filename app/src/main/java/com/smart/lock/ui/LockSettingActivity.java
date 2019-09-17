@@ -381,7 +381,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     TimePickerDefineDialog mTimePickerDefineDialog = new TimePickerDefineDialog(mTimePickerValue,
                             true,
                             this.getString(R.string.setting_power_saving_time_period),
-                            TIME_PICKER_CODE);
+                            TIME_PICKER_CODE,
+                            false,
+                            true);
                     mTimePickerDefineDialog.show(this.getSupportFragmentManager(), "timePicker");
                     break;
                 case R.id.next_version_info:        //查看版本信息
@@ -621,6 +623,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Device.getInstance(this).setmStopChangeDEV(false);
         mBleManagerHelper.removeUiListener(this);
     }
 
@@ -665,7 +668,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         try {
             long startStamp = DateTimeUtil.dateToStamp(startTime) / 1000;
             long endStamp = DateTimeUtil.dateToStamp(endTime) / 1000;
-            if (startStamp > endStamp) {
+            if (startStamp >= endStamp) {
                 endStamp += 86400;
             }
             byte[] startTimeBytes = new byte[4];

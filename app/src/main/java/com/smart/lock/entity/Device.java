@@ -26,6 +26,7 @@ public class Device {
     public static final int BLE_DISCONNECTED = 22; //未连接
 
     private boolean mDisconnectBle = false;//主动断开蓝牙
+    private boolean mStopChangeDEV = false; //禁止自动切换设备
 
     public boolean isBackGroundConnect() {
         return mBackGroundConnect;
@@ -212,5 +213,14 @@ public class Device {
                 ", tempSecret=" + Arrays.toString(tempSecret) +
                 ", tempAuthCode=" + Arrays.toString(tempAuthCode) +
                 '}';
+    }
+
+    public boolean ismStopChangeDEV() {
+        return mStopChangeDEV;
+    }
+
+    public void setmStopChangeDEV(boolean mStopChangeDEV) {
+        LogUtil.d(TAG, "STOPChange dev "+mStopChangeDEV);
+        this.mStopChangeDEV = mStopChangeDEV;
     }
 }

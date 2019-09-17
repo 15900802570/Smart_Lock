@@ -53,6 +53,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class FingerprintFragment extends BaseFragment implements View.OnClickListener, UiListener {
     private final static String TAG = FingerprintFragment.class.getSimpleName();
@@ -227,6 +229,15 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                 mFpAdapter.addItem(deviceKey);
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                mFpAdapter.setDataSource();
+                mFpAdapter.notifyDataSetChanged();
+                break;
             default:
                 break;
 
@@ -324,8 +335,8 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             mFpList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT);
         }
 
-        public void setDataSource(ArrayList<DeviceKey> cardList) {
-            mFpList = cardList;
+        public void setDataSource() {
+            mFpList = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT);
         }
 
         public void addItem(DeviceKey key) {
@@ -337,7 +348,6 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
             LogUtil.d(TAG, "mFpList = " + mFpList.toString());
             if (index != -1 && !mFpList.isEmpty()) {
                 DeviceKey del = mFpList.remove(index);
-
                 DeviceKeyDao.getInstance(mContext).delete(del);
                 notifyDataSetChanged();
             }
@@ -400,7 +410,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
                                             mCancelDialog.cancel();
                                         }
                                     });
-                                    if(!mCancelDialog.isShowing()) {
+                                    if (!mCancelDialog.isShowing()) {
                                         mCancelDialog.show();
                                     }
 
@@ -474,7 +484,7 @@ public class FingerprintFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onResume() {
         super.onResume();
-        mFpAdapter.setDataSource(DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_FINGERPRINT));
+        mFpAdapter.setDataSource();
         mFpAdapter.notifyDataSetChanged();
     }
 

@@ -39,7 +39,7 @@ public class ConstantUtil {
     /**
      * 是否开启设备检测
      */
-    public static final String DEFAULT_LANGNAGE = "defaultLangnage";
+    public static final String DEFAULT_LANGUAGE = "defaultLanguage";
 
     /**
      * 系统太低不支持指纹

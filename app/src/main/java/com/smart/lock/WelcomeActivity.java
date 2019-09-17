@@ -76,7 +76,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     @Override
     protected void attachBaseContext(Context newBase) {
         //获取我们存储的语言环境 比如 "en","zh",等等
-        String language = SharedPreferenceUtil.getInstance(newBase).readString(ConstantUtil.DEFAULT_LANGNAGE, LanguageType.CHINESE.getLanguage());
+        String language = SharedPreferenceUtil.getInstance(newBase).readString(ConstantUtil.DEFAULT_LANGUAGE, LanguageType.CHINESE.getLanguage());
         /**
          * attach对应语言环境下的context
          */
