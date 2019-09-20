@@ -382,8 +382,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             true,
                             this.getString(R.string.setting_power_saving_time_period),
                             TIME_PICKER_CODE,
-                            false,
-                            true);
+                            true,
+                            false);
                     mTimePickerDefineDialog.show(this.getSupportFragmentManager(), "timePicker");
                     break;
                 case R.id.next_version_info:        //查看版本信息

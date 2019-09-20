@@ -393,12 +393,13 @@ public class FpOtaUpdateActivity extends Activity implements View.OnClickListene
                         }
                     });
                 }
-                if (mThread.isAlive()) {
+                try {
+                    mThread.start();
+                } catch (IllegalThreadStateException e) {
                     mThread.interrupt();
                     mThread.start();
-                } else {
-                    mThread.start();
                 }
+
             } else {
                 mStartBt.setVisibility(View.VISIBLE);
                 mStartBt.setEnabled(true);

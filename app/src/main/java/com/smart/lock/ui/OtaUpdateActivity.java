@@ -362,10 +362,10 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
                         }
                     });
                 }
-                if (mThread.isAlive()) {
-                    mThread.interrupt();
+                try {
                     mThread.start();
-                } else {
+                } catch (IllegalThreadStateException e) {
+                    mThread.interrupt();
                     mThread.start();
                 }
             } else {
