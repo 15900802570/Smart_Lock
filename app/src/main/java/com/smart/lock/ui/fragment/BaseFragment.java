@@ -114,7 +114,7 @@ public abstract class BaseFragment extends Fragment {
             intent.putExtras(bundle);
         }
 
-        intent.setClass(Objects.requireNonNull(getView()).getContext(), cls);
+        intent.setClass(mActivity, cls);
         startActivity(intent);
     }
 

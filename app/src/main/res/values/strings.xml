@@ -437,4 +437,6 @@
     <string name="unknown">Unknown</string>
     <string name="synchronization_timeout">Synchronization timeout, please try again late.</string>
     <string name="ota_tips">1.请确保门锁与手机电量充足\n2.不要远离门锁，等待升级成功\n3.升级过程中，请勿操作门锁\n4.升级过程中，手机请勿关机、切换后台、关闭屏幕</string>
+    <string name="input_key_tips">Please enter your unlock information, thank you!</string>
+    <string name="del_local_key_tips">If you have previously recorded unlock information through non-Bluetooth mode, this information has been cleared, please re-enter. Thank you!</string>
 </resources>

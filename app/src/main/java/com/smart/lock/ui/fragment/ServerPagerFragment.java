@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -35,6 +36,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
+import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.db.helper.DtComFunHelper;
@@ -53,6 +55,8 @@ import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
+import com.smart.lock.widget.BaseDialog;
+import com.smart.lock.widget.DialogFactory;
 import com.smart.lock.widget.MyGridView;
 
 
@@ -77,7 +81,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private LockManagerAdapter mLockAdapter; //gridView adapter
 //    private MainActivity.DevManagementAdapter mDevManagementAdapter;
 
-    private Dialog mBottomSheetSelectDev;
+    private DialogFactory mTipsDialog; //未设置开锁信息提示框
 
     private int mBattery = 0;
 
@@ -94,7 +98,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     private boolean mIsLockBack = false;
 
-
     public static final int BATTER_FULL = 100;//电量充足
     public static final int BATTER_LOW = 101;//电量缺少
     public static final int BATTER_UNKNOW = 102;//电量未知
@@ -104,6 +107,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private boolean mCurrentIndex = false;
 
     private boolean mStopScanByUser = false;
+
+    private boolean mIsShowTips = false;
 
 
     public View initView() {
@@ -120,6 +125,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mDevStatusLl = mPagerView.findViewById(R.id.ll_status);
         mInstructionBtn = mActivity.findViewById(R.id.one_click_unlock_ib);
         mIconSelectDevIv = mPagerView.findViewById(R.id.icon_select_dev);
+
         initEvent();
         LogUtil.d(TAG, "initView");
         return mPagerView;
@@ -140,6 +146,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mCtx = mPagerView.getContext();
 
         mBleManagerHelper = BleManagerHelper.getInstance(mActivity);
+
+        mTipsDialog = DialogFactory.getInstance(mActivity);
 
         if (mIsVisibleToUser) {
             mBleManagerHelper.addDeviceListener(this);
@@ -364,6 +372,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         // 检测是否有切换默认用户，已MAC地址来判断，用于切换蓝牙连接
         if (mDefaultDevice == null || !newDeviceInfo.getBleMac().equals(mDefaultDevice.getBleMac()) || !newDeviceInfo.getDeviceName().equals(mDefaultDevice.getDeviceName())) {
             mDefaultDevice = newDeviceInfo;
+            mIsShowTips = false; //切换设备时，提示也将更新
         }
         mLockNameTv.setText(mDefaultDevice.getDeviceName());
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
@@ -391,7 +400,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             refreshView(DEVICE_CONNECTING);
         } else
             refreshView(BIND_DEVICE);
-
+        Device.getInstance(mActivity).setmStopChangeDEV(false); //二级界面不能切换设备
     }
 
     public void onPause() {
@@ -589,7 +598,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         LogUtil.i(TAG, "errCode : " + errCode);
         switch (errCode) {
             case BleMsg.TYPE_RAND_ERROR:
-                showMessage(getString(R.string.random_error));
+//                showMessage(getString(R.string.random_error));
                 break;
             case BleMsg.ERR0E_NO_AUTHORITY:
                 mDevice.setState(Device.BLE_DISCONNECTED);
@@ -723,7 +732,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void addUserSuccess(Device device) {
-
+        mIsShowTips = false;
+        Log.d(TAG,"mIsShowTips 2: " + mIsShowTips);
     }
 
     @Override
@@ -753,10 +763,15 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     dispatch2E(errCode2E[3]);
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
-            case Message.TYPE_BLE_RECEIVER_CMD_26:
-                LogUtil.i(TAG, "receiver 26!");
+                LogUtil.i(TAG, "receiver 04!");
                 mBattery = mDevice.getBattery(); //获取电池电量
                 sendMessage(BIND_DEVICE, null, 0);
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_26:
+                LogUtil.i(TAG, "receiver 26!");
+//                mBattery = mDevice.getBattery(); //获取电池电量
+//                sendMessage(BIND_DEVICE, null, 0);
+                checkUserKey(); //检查登录的用户是否有录入开锁信息，如未录入则提示并确认后，调整录入界面
                 break;
             default:
                 break;
@@ -834,7 +849,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             mIsVisibleToUser = true;
             if (mCurrentIndex) {
                 onResume();
-                Device.getInstance(mActivity).setmStopChangeDEV(false);
+
                 mBleManagerHelper.addUiListener(this);
             }
         } else {
@@ -849,6 +864,58 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 mBleManagerHelper.removeUiListener(this);
             }
         }
+    }
+
+    /**
+     * 检查用户是否有录入过开锁信息
+     */
+    private void checkUserKey() {
+        String msg = mCtx.getString(R.string.input_key_tips);
+        mDefaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
+        Log.e(TAG, "mIsShowTips ：" + mIsShowTips);
+        if (mDefaultDevice != null && !mIsShowTips) {
+            Log.e(TAG, "mDefaultDevice ：" + mDefaultDevice.toString());
+            if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
+                if (mDefaultUser.getUserId() == 1) msg = mCtx.getString(R.string.del_local_key_tips);
+
+                showTipsDialog(msg);
+            }
+        }
+    }
+
+    /**
+     * 第一次连接蓝牙提示，本地用户数据被清空，请重新设置开锁信息
+     * 第一次创建的新用户登录，提示请设置开锁信息
+     */
+    private void showTipsDialog(String msg) {
+        mIsShowTips = true;
+        if (mTipsDialog != null) {
+            mTipsDialog = null;
+            mTipsDialog = new DialogFactory(mActivity);
+        }
+        mTipsDialog.getAlter(getString(R.string.friend_tip_title), msg)
+                .setOkButtonText(getString(R.string.confirm))
+                .setDownloadCancelable(false)
+                .setButtonVisible(BaseDialog.DIALOG_OK_BUTTON_VISIBLE)
+                .setOkClick(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mTipsDialog.cancelDownLoadDialog();
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                        if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                            showMessage(mCtx.getString(R.string.unconnected_device));
+                            return;
+                        } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+                            showMessage(mCtx.getString(R.string.bt_connecting));
+                            return;
+                        }
+
+                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                        startIntent(DeviceKeyActivity.class, bundle);
+                    }
+                })
+                .show();
     }
 
 }
