@@ -447,4 +447,6 @@
     <string name="unknown">未知</string>
     <string name="synchronization_timeout">同步超时，请稍后再试！</string>
     <string name="ota_tips">1.请确保门锁与手机电量充足\n2.不要远离门锁，等待升级成功\n3.升级过程中，请勿操作门锁\n4.升级过程中，手机请勿关机、切换后台、关闭屏幕</string>
+    <string name="back_warning">再次点击退出</string>
+    <string name="version_empty">当前没有最新升级文件!</string>
 </resources>

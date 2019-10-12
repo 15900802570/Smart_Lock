@@ -187,6 +187,7 @@ public class CheckOtaAction extends AbstractTransaction {
                             versionModel.updateDate = fpObj.getString("updateDate");
                             versionModel.versionCode = fpObj.getInt("versionCode");
                             versionModel.versionName = fpObj.getString("version");
+                            versionModel.msg = fpObj.getString("msg");
                             versionModel.path = fpObj.getString("path");
                             versionModel.sha1 = fpObj.getString("sha1");
                             versionModel.zone = fpObj.getString("zone");
