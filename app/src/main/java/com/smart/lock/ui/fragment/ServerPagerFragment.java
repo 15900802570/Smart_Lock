@@ -274,6 +274,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 }
 
+                checkUserKey(); //检查登录的用户是否有录入开锁信息，如未录入则提示并确认后，调整录入界面
                 break;
             case BATTER_FULL:
                 mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
@@ -771,7 +772,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 LogUtil.i(TAG, "receiver 26!");
 //                mBattery = mDevice.getBattery(); //获取电池电量
 //                sendMessage(BIND_DEVICE, null, 0);
-                checkUserKey(); //检查登录的用户是否有录入开锁信息，如未录入则提示并确认后，调整录入界面
+
                 break;
             default:
                 break;
@@ -873,7 +874,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         String msg = mCtx.getString(R.string.input_key_tips);
         mDefaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
         Log.e(TAG, "mIsShowTips ：" + mIsShowTips);
-        if (mDefaultDevice != null && !mIsShowTips) {
+        if (mDefaultDevice != null && !mIsShowTips && mDevice.getState() == Device.BLE_CONNECTED) {
             Log.e(TAG, "mDefaultDevice ：" + mDefaultDevice.toString());
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
                 if (mDefaultUser.getUserId() == 1) msg = mCtx.getString(R.string.del_local_key_tips);
