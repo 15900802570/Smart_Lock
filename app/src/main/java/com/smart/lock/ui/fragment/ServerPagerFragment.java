@@ -274,7 +274,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 }
 
-                checkUserKey(); //检查登录的用户是否有录入开锁信息，如未录入则提示并确认后，调整录入界面
                 break;
             case BATTER_FULL:
                 mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
@@ -734,7 +733,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void addUserSuccess(Device device) {
         mIsShowTips = false;
-        Log.d(TAG,"mIsShowTips 2: " + mIsShowTips);
+        Log.d(TAG, "mIsShowTips 2: " + mIsShowTips);
     }
 
     @Override
@@ -767,12 +766,15 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 LogUtil.i(TAG, "receiver 04!");
                 mBattery = mDevice.getBattery(); //获取电池电量
                 sendMessage(BIND_DEVICE, null, 0);
+                if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
+                    checkUserKey();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
 //                mBattery = mDevice.getBattery(); //获取电池电量
 //                sendMessage(BIND_DEVICE, null, 0);
-
+                if (mDevice.getConnectType() != Device.BLE_OTHER_CONNECT_TYPE) //非普通连接26检查设备开锁信息
+                    checkUserKey();
                 break;
             default:
                 break;
@@ -877,8 +879,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         if (mDefaultDevice != null && !mIsShowTips && mDevice.getState() == Device.BLE_CONNECTED) {
             Log.e(TAG, "mDefaultDevice ：" + mDefaultDevice.toString());
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
-                if (mDefaultUser.getUserId() == 1) msg = mCtx.getString(R.string.del_local_key_tips);
-
+                if (mDefaultDevice.getUserId() == 1)
+                    msg = mCtx.getString(R.string.del_local_key_tips);
+                else   msg = mCtx.getString(R.string.input_key_tips);
                 showTipsDialog(msg);
             }
         }
@@ -889,6 +892,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
      * 第一次创建的新用户登录，提示请设置开锁信息
      */
     private void showTipsDialog(String msg) {
+        Log.e(TAG, "msg ：" + msg);
         mIsShowTips = true;
         if (mTipsDialog != null) {
             mTipsDialog = null;
