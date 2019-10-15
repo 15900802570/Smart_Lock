@@ -1014,19 +1014,21 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         mDefaultUser.setUserStatus(userInfo[0]);
                         mDeviceUserDao.updateDeviceUser(mDefaultUser);
                     }
-                    synchronized (mUiListeners) {
-                        for (UiListener uiListener : mUiListeners) {
-                            uiListener.dispatchUiCallback(message, mDevice, -1);
-                        }
-                    }
+                    synchronized (this) {
+                        if (mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE
+                                || mDevice.getConnectType() == Device.BLE_SEARCH_DEV_CONNECT)
+                            synchronized (mUiListeners) {
+                                for (UiListener uiListener : mUiListeners) {
+                                    uiListener.addUserSuccess(mDevice);
+                                }
+                            }
 
-                    if (mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE
-                            || mDevice.getConnectType() == Device.BLE_SEARCH_DEV_CONNECT)
                         synchronized (mUiListeners) {
                             for (UiListener uiListener : mUiListeners) {
-                                uiListener.addUserSuccess(mDevice);
+                                uiListener.dispatchUiCallback(message, mDevice, -1);
                             }
                         }
+                    }
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_32:
                     LogUtil.i(TAG, "receiver 32!");

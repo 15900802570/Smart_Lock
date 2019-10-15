@@ -190,7 +190,7 @@ public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
                 if (device.getConnectType() == Device.BLE_RETRIEVE_CONNECT) {
-                    ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_falied));
+                    ToastUtil.showShort(this, getResources().getString(R.string.LogUtil_add_lock_falied));
                     DialogUtils.closeDialog(mLoadDialog);
                     mTimer.cancel();
                 }

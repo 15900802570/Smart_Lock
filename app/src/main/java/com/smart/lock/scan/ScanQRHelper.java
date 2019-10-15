@@ -443,18 +443,17 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
     @Override
     public void deviceStateChange(Device device, int state) {
-//        mDevice = device;
-//        switch (state) {
-//            case BleMsg.STATE_DISCONNECTED:
-//                if (mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT) {
-////                    showMessage("添加失败,请重试!");
-////                    DialogUtils.closeDialog(mLoadDialog);
-////                    mTimer.cancel();
-//                }
-//                break;
-//            default:
-//                break;
-//        }
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                if (device.getConnectType() == Device.BLE_RETRIEVE_CONNECT) {
+                    ToastUtil.showShort(mActivity, mActivity.getResources().getString(R.string.LogUtil_add_lock_falied));
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mTimer.cancel();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

@@ -143,10 +143,9 @@
 
                     <ImageView
                         android:id="@+id/iv_electric_quantity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_width="@dimen/x50dp"
+                        android:layout_height="@dimen/y25dp"
                         android:layout_gravity="center"
-                        android:layout_weight="1"
                         android:background="@mipmap/icon_battery_nor" />
 
                     <TextView
@@ -158,7 +157,8 @@
                         android:gravity="center"
                         android:text="100%"
                         android:textColor="#828282"
-                        android:textSize="15sp" />
+                        android:textSize="15sp"
+                        android:visibility="gone"/>
                 </LinearLayout>
 
                 <LinearLayout
