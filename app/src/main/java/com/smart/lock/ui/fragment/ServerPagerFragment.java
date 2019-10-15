@@ -319,34 +319,34 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         else
             mEqTv.setText(getString(R.string.unknown));
         mUpdateTimeTv.setText(DateTimeUtil.timeStamp2Date(String.valueOf(updateTime), "MM-dd HH:mm"));
-        switch (battery / 10) {
+        switch (battery / 5) {
             case 0:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_10);
-                break;
             case 1:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_10);
-                break;
             case 2:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_20);
-                break;
             case 3:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_30);
-                break;
             case 4:
             case 5:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_50);
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_25);
                 break;
             case 6:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_60);
-                break;
             case 7:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_70);
-                break;
             case 8:
-                mEqIv.setBackgroundResource(R.mipmap.icon_battery_80);
-                break;
             case 9:
             case 10:
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_50);
+                break;
+            case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+                mEqIv.setBackgroundResource(R.mipmap.icon_battery_75);
+                break;
+            case 16:
+            case 17:
+            case 18:
+            case 19:
+            case 20:
                 mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
                 break;
             default:
