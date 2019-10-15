@@ -37,6 +37,7 @@ import com.smart.lock.ble.parser.BleCmd02Parse;
 import com.smart.lock.ble.parser.BleCmd04Parse;
 import com.smart.lock.ble.parser.BleCmd0EParse;
 import com.smart.lock.ble.parser.BleCmd12Parse;
+import com.smart.lock.ble.parser.BleCmd14Parse;
 import com.smart.lock.ble.parser.BleCmd16Parse;
 import com.smart.lock.ble.parser.BleCmd18Parse;
 import com.smart.lock.ble.parser.BleCmd1AParse;
@@ -616,6 +617,7 @@ public class BleProvider {
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1C, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1E, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_12, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_14, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_16, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_18, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_2E, mBleMessageListener);
@@ -632,6 +634,7 @@ public class BleProvider {
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_02, new BleCmd02Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_04, new BleCmd04Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_12, new BleCmd12Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_14, new BleCmd14Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_16, new BleCmd16Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_18, new BleCmd18Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_26, new BleCmd26Parse());

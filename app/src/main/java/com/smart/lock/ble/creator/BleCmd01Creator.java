@@ -88,7 +88,7 @@ public class BleCmd01Creator implements BleCreator {
         for (int i = 0; i < MessageCreator.pwdRandom.length; i++) {
             MessageCreator.pwdRandom[i] = (byte) new Random().nextInt(10);
         }
-
+        LogUtil.d(TAG, "type="+type+"\nMessageCreator.pwdRandom ="+StringUtil.bytesToHexString(MessageCreator.pwdRandom));
         try {
             if (MessageCreator.mIs128Code)
                 AES_ECB_PKCS7.AES128Encode(MessageCreator.pwdRandom, buf, MessageCreator.m128SK);

@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -26,18 +27,24 @@ import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
+import com.smart.lock.ble.listener.UiListener;
+import com.smart.lock.ble.message.Message;
+import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.entity.Device;
 import com.smart.lock.ui.BaseActivity;
-import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
+public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,View.OnClickListener {
 
-    private String TAG = "SetLocalInfo";
+    private String TAG = "RetrieveDeviceActivity";
 
     private LinearLayout mRescanLl;
     private LinearLayout mTipsLl;
@@ -53,11 +60,11 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
     private Dialog mLoadDialog;
     private BleManagerHelper mBleManagerHelper;
     private int REQUEST_ENABLE_BT = 100;
-
+    private Device mDevice;
     private Runnable mRunnable = new Runnable() {
         public void run() {
             DialogUtils.closeDialog(mLoadDialog);
-            Toast.makeText(SetLocalInfo.this, R.string.retry_connect, Toast.LENGTH_LONG).show();
+            Toast.makeText(RetrieveDeviceActivity.this, R.string.retry_connect, Toast.LENGTH_LONG).show();
             mRescanLl.setVisibility(View.VISIBLE);
             mTipsLl.setVisibility(View.VISIBLE);
         }
@@ -102,14 +109,8 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
             return;
         }
         mScanning = true;
-        mLoadDialog = DialogUtils.createLoadingDialog(SetLocalInfo.this, SetLocalInfo.this.getString(R.string.search_lock));
+        mLoadDialog = DialogUtils.createLoadingDialog(RetrieveDeviceActivity.this, RetrieveDeviceActivity.this.getString(R.string.search_lock));
         scanLeDevice(true);
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mBleMac = StringUtil.getMacAdr(extras.getString(BleMsg.KEY_BLE_MAC));
-            mSn = extras.getString(BleMsg.KEY_NODE_SN);
-            mNodeId = extras.getString(BleMsg.KEY_NODE_ID);
-        }
 
     }
 
@@ -184,6 +185,72 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
         mScanDevBar.setVisibility(View.GONE);
     }
 
+    @Override
+    public void deviceStateChange(Device device, int state) {
+        switch (state) {
+            case BleMsg.STATE_DISCONNECTED:
+                if (device.getConnectType() == Device.BLE_RETRIEVE_CONNECT) {
+                    ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_falied));
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mTimer.cancel();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void dispatchUiCallback(Message msg, Device device, int type) {
+        mDevice = device;
+        if (mDevice != null && type == BleMsg.USER_PAUSE) {
+            DialogUtils.closeDialog(mLoadDialog);
+            return;
+        }
+        switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEIVER_CMD_0E:
+                final byte[] errCode0E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                if (errCode0E != null)
+                    LogUtil.d(TAG, "ERRORCode ="+ errCode0E);
+                    ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_falied));
+                break;
+            case Message.TYPE_BLE_RECEIVER_CMD_04:
+                ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_success));
+                finish();
+                break;
+            default:
+                break;
+        }
+
+        mBleManagerHelper.removeUiListener(this);
+        DialogUtils.closeDialog(mLoadDialog);
+    }
+
+    @Override
+    public void reConnectBle(Device device) {
+
+    }
+
+    @Override
+    public void sendFailed(Message msg) {
+
+    }
+
+    @Override
+    public void addUserSuccess(Device device) {
+
+    }
+
+    @Override
+    public void scanDevFailed() {
+        LogUtil.e(TAG, "scanDevFailed");
+        DialogUtils.closeDialog(mLoadDialog);
+        mTimer.cancel();
+        showMessage(getString(R.string.connect_timeout));
+        mBleManagerHelper.removeUiListener(this);
+
+    }
+
 
     public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
         private Context mContext;
@@ -235,7 +302,7 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
                         mHandler.removeCallbacks(mRunnable);
                         DialogUtils.closeDialog(mLoadDialog);
                         Bundle bundle = new Bundle();
-                        bundle.putString(BleMsg.KEY_BLE_MAC, StringUtil.deleteString(mBleMac,':'));
+                        bundle.putString(BleMsg.KEY_BLE_MAC, StringUtil.deleteString(dev.getAddress(),':'));
                         bundle.putString(BleMsg.KEY_NODE_SN, mSn);
                         bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
                         bundle.putString(BleMsg.KEY_OLD_MAC, dev.getAddress());
@@ -243,7 +310,18 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
                                 " sn = " + mSn + "\n" +
                                 "mNodeId = " + mNodeId+'\n'+
                                 "oldMAC = " + dev.getAddress());
-                        BleManagerHelper.getInstance(SetLocalInfo.this).connectBle((byte) 2, bundle, SetLocalInfo.this);
+
+                        mLoadDialog = DialogUtils.createLoadingDialog(RetrieveDeviceActivity.this, getString(R.string.data_loading));
+                        mLoadDialog.show();
+                        mLoadDialog.setCancelable(true);
+                        mTimer = new Timer();
+                        LogUtil.d(TAG, "mLoadDialog = " + mLoadDialog.hashCode());
+                        mTimer.schedule(closeDialogTimer(RetrieveDeviceActivity.this, mLoadDialog), 30 * 1000);
+                        mBleManagerHelper=BleManagerHelper.getInstance(RetrieveDeviceActivity.this);
+                        mBleManagerHelper.addUiListener( RetrieveDeviceActivity.this);
+                        Device.getInstance(RetrieveDeviceActivity.this).setmRetrieveDevice(true);
+                        BleManagerHelper.setSk(dev.getAddress(), null);
+                        mBleManagerHelper.connectBle(Device.BLE_RETRIEVE_CONNECT, bundle, RetrieveDeviceActivity.this);
                     }
                 });
             }
@@ -305,6 +383,25 @@ public class SetLocalInfo extends BaseActivity implements View.OnClickListener {
         mHandler.removeCallbacks(mRunnable);
 
         mHandler.postDelayed(mRunnable, seconds * 1000);
+    }
+
+
+    private Timer mTimer = null;
+
+    private TimerTask closeDialogTimer(final Context context, final Dialog dialog) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                LogUtil.d(TAG, "timer");
+                LogUtil.d(TAG, "dialog = " + dialog.hashCode());
+                DialogUtils.closeDialog(dialog);
+                Looper.prepare();
+//                showMessage(mActivity.getString(R.string.connect_timeout));
+                Looper.loop();
+
+
+            }
+        };
     }
 
 }

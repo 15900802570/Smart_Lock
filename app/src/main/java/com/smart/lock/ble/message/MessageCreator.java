@@ -177,6 +177,25 @@ public class MessageCreator {
     }
 
     /**
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_14
+     *
+     * @param type     消息类型
+     * @param authCode 用户授权码
+     * @return
+     */
+    public static Message getCmd14Message(byte type, byte[] authCode) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+
+        if (authCode != null && authCode.length != 0) {
+            mBundle.putByteArray(BleMsg.KEY_AUTH_CODE, authCode);
+        }
+
+        return mMessage;
+    }
+
+    /**
      * 获取消息 MESSAGE.TYPE_BLE_RECEIVER_CMD_1C
      *
      * @param type   消息类型

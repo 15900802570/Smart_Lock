@@ -377,6 +377,7 @@ public class BleCardService {
      * MSG 01
      */
     public boolean sendCmd01(byte cmdType, String authCode, short userId, String mac, int timeOut) {
+        LogUtil.d(TAG, "cmdType=" + cmdType);
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_01);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_01 + "#" + "single");

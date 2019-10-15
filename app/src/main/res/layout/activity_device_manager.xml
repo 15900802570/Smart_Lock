@@ -30,6 +30,30 @@
             android:src="@mipmap/btn_back"
             android:onClick="onClick"
             android:paddingLeft="@dimen/x15dp" />
+        <LinearLayout
+            android:id="@+id/ll_retrieve"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:paddingTop="@dimen/x5dp"
+            android:paddingRight="@dimen/x5dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:layout_centerHorizontal="true"
+            android:layout_height="match_parent">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.7"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_retrieve_dev"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:text="@string/retrieve_dev"/>
+        </LinearLayout>
     </RelativeLayout>
 
     <View

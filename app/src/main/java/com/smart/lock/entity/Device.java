@@ -28,6 +28,16 @@ public class Device {
     private boolean mDisconnectBle = false;//主动断开蓝牙
     private boolean mStopChangeDEV = false; //禁止自动切换设备
 
+    public boolean ismRetrieveDevice() {
+        return mRetrieveDevice;
+    }
+
+    public void setmRetrieveDevice(boolean mRetrieveDevice) {
+        this.mRetrieveDevice = mRetrieveDevice;
+    }
+
+    private boolean mRetrieveDevice = false; //找回设备模式
+
     public boolean isBackGroundConnect() {
         return mBackGroundConnect;
     }
@@ -40,9 +50,11 @@ public class Device {
 
     public static final byte BLE_SCAN_QR_CONNECT_TYPE = 0; //扫描连接
     public static final byte BLE_OTHER_CONNECT_TYPE = 1; //普通类型安全连接
+    public static final byte BLE_OTHER_RETRIEVE_TYPE = 2; //普通类型安全连接
     public static final byte BLE_SET_DEVICE_INFO_CONNECT_TYPE = 2; //设置设备信息连接
     public static final byte BLE_SEARCH_DEV_CONNECT = 3; //搜索添加连接类型
     public static final byte BLE_SCAN_AUTH_CODE_CONNECT = 4; //APK之间通过鉴权码分享连接类型
+    public static final byte BLE_RETRIEVE_CONNECT = 5; //找回用户数据
     public static final byte BLE_CONNECT_TYPE = BLE_SCAN_QR_CONNECT_TYPE;
 
     public static final int DFU_CHAR_EXISTS = 0x01;

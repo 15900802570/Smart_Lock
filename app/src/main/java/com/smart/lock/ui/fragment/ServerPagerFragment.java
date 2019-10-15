@@ -272,9 +272,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                     mMyGridView.setAdapter(mLockAdapter);
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
+                    checkUserKey();
                 }
 
-                checkUserKey(); //检查登录的用户是否有录入开锁信息，如未录入则提示并确认后，调整录入界面
                 break;
             case BATTER_FULL:
                 mEqIv.setBackgroundResource(R.mipmap.icon_battery_100);
@@ -878,9 +878,14 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             Log.e(TAG, "mDefaultDevice ：" + mDefaultDevice.toString());
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
                 if (mDefaultUser.getUserId() == 1) msg = mCtx.getString(R.string.del_local_key_tips);
-
                 showTipsDialog(msg);
+            }else {
+                if (mTipsDialog !=null)
+                mTipsDialog.cancelDownLoadDialog();
             }
+        }else {
+            if (mTipsDialog !=null)
+                mTipsDialog.cancelDownLoadDialog();
         }
     }
 

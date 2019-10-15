@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -39,7 +40,7 @@ import com.smart.lock.utils.ToastUtil;
 import java.util.ArrayList;
 
 
-public class DeviceManagementActivity extends AppCompatActivity implements ScanQRResultInterface {
+public class DeviceManagementActivity extends AppCompatActivity implements ScanQRResultInterface, View.OnClickListener {
 
     private static String TAG = "DeviceManagementActivity";
 
@@ -47,6 +48,12 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     private DevManagementAdapter mDevManagementAdapter;
 
     private Dialog mAddNewDevDialog;
+
+    private BottomSheetDialog mRetrieveBottomDialog; //找回设备
+    private TextView mRetrieveByScan;
+    private TextView mRetrieveBySearch;
+    private TextView mRetrieveCancel;
+
     private ScanQRHelper mScanQRHelper;
     private Context mCtx;
     private BleManagerHelper mBleManagerHelper;
@@ -97,10 +104,19 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         mDevManagementRv.setAdapter(mDevManagementAdapter);
         mScanQRHelper = new ScanQRHelper(this, this);
         mCtx = this;
+
+        mRetrieveBottomDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_retrieve_device, R.id.design_bottom_sheet);
+        mRetrieveByScan = mRetrieveBottomDialog.findViewById(R.id.tv_retrieve_scan);
+        mRetrieveBySearch = mRetrieveBottomDialog.findViewById(R.id.tv_retrieve_search);
+        mRetrieveCancel = mRetrieveBottomDialog.findViewById(R.id.tv_cancel);
+
         mBleManagerHelper = BleManagerHelper.getInstance(this);
     }
 
     private void initEvent() {
+        mRetrieveByScan.setOnClickListener(this);
+        mRetrieveBySearch.setOnClickListener(this);
+        mRetrieveCancel.setOnClickListener(this);
 
     }
 
@@ -111,6 +127,21 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                 break;
             case R.id.btn_dev_management_add_new_lock:
                 mScanQRHelper.scanQr();
+                break;
+            case R.id.ll_retrieve:
+                mRetrieveBottomDialog.show();
+                break;
+            case R.id.tv_cancel:
+                mRetrieveBottomDialog.cancel();
+                break;
+            case R.id.tv_retrieve_scan:
+                mScanQRHelper.scanQr(true);
+                mRetrieveBottomDialog.cancel();
+                break;
+            case R.id.tv_retrieve_search:
+                Bundle bundle = new Bundle();
+                mRetrieveBottomDialog.cancel();
+                startIntent(RetrieveDeviceActivity.class, bundle);
                 break;
             default:
                 break;

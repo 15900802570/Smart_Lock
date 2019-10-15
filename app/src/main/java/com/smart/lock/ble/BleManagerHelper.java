@@ -154,6 +154,8 @@ public class BleManagerHelper {
         LogUtil.d(TAG, "dev : " + dev.toString());
         mConnectType = type;
 
+        mBleMac = StringUtil.checkBleMac(mBleMac);
+
         if (StringUtil.checkIsNull(mBleMac)) {
             mStartTime = System.currentTimeMillis();
             return;
@@ -171,8 +173,8 @@ public class BleManagerHelper {
         if (!mBtAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             if (context instanceof MainActivity) {
-                AppCompatActivity activty = (AppCompatActivity) context;
-                activty.startActivityForResult(enableIntent, REQUEST_OPEN_BT_CODE);
+                AppCompatActivity activity = (AppCompatActivity) context;
+                activity.startActivityForResult(enableIntent, REQUEST_OPEN_BT_CODE);
             } else {
                 enableIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(enableIntent);
@@ -207,6 +209,7 @@ public class BleManagerHelper {
         DeviceInfo devInfo = null;
         mBleMac = bundle.getString(BleMsg.KEY_BLE_MAC);
         switch (type) {
+            case Device.BLE_RETRIEVE_CONNECT:
             case Device.BLE_SCAN_QR_CONNECT_TYPE:
                 devInfo = new DeviceInfo();
                 devInfo.setUserId((short) 0);

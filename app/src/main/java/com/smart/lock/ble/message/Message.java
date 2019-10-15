@@ -119,6 +119,10 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_SEND_CMD_13 = 0x13;
 
     /**
+     * MSG 14 在找回密码的时候，锁侧返回AuthCode
+     */
+    public static final byte TYPE_BLE_RECEIVER_CMD_14 = 0x14;
+    /**
      * APK通知智能锁进行锁体密钥录入的消息
      */
     public static final byte TYPE_BLE_SEND_CMD_15 = 0x15;
