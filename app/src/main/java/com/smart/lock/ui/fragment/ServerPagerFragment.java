@@ -375,7 +375,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         // 检测是否有切换默认用户，已MAC地址来判断，用于切换蓝牙连接
         if (mDefaultDevice == null || !newDeviceInfo.getBleMac().equals(mDefaultDevice.getBleMac()) || !newDeviceInfo.getDeviceName().equals(mDefaultDevice.getDeviceName())) {
             mDefaultDevice = newDeviceInfo;
-            mIsShowTips = false; //切换设备时，提示也将更新
         }
         mLockNameTv.setText(mDefaultDevice.getDeviceName());
         mDefaultUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId());
@@ -496,8 +495,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 default:
                     break;
             }
+            lastClickTime = curClickTime;
         }
-        lastClickTime = curClickTime;
+
     }
 
     public void closedSelectDevDialog() {
@@ -554,8 +554,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 default:
                     break;
             }
+            lastClickTime = curClickTime;
         }
-        lastClickTime = curClickTime;
+
     }
 
     @Override
@@ -742,8 +743,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void addUserSuccess(Device device) {
-        mIsShowTips = false;
-        Log.d(TAG, "mIsShowTips 2: " + mIsShowTips);
+
     }
 
     @Override
@@ -885,8 +885,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private void checkUserKey() {
         String msg = mCtx.getString(R.string.input_key_tips);
         mDefaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
-        Log.e(TAG, "mIsShowTips ：" + mIsShowTips);
-        if (mDefaultDevice != null && !mIsShowTips && mDevice.getState() == Device.BLE_CONNECTED) {
+
+        if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
             Log.e(TAG, "mDefaultDevice ：" + mDefaultDevice.toString());
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
                 if (mDefaultDevice.getUserId() == 1)
@@ -908,7 +908,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
      * 第一次创建的新用户登录，提示请设置开锁信息
      */
     private void showTipsDialog(String msg) {
-        mIsShowTips = true;
         if (mTipsDialog != null) {
             mTipsDialog = null;
             mTipsDialog = new DialogFactory(mActivity);

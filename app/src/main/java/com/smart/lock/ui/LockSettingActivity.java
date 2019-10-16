@@ -501,8 +501,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
                 setStatus();
             }
+            lastClickTime = curClickTime;
         }
-        lastClickTime = curClickTime;
+
     }
 
     public void setOnClick(View view) {

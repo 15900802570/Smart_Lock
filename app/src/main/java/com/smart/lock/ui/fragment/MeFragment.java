@@ -289,8 +289,9 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 default:
                     break;
             }
+            lastClickTime = curClickTime;
         }
-        lastClickTime = curClickTime;
+
     }
 
     @Override
