@@ -99,7 +99,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private Device mDevice;
     private int mCount = 0; //打开测试条例
 
-    private static final int MIN_CLICK_DELAY_TIME = 2000; //防止多次点击
     private static long lastClickTime;
 
     @Override
@@ -434,7 +433,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     private void doClick(int value) {
         long curClickTime = System.currentTimeMillis();
-        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+        if ((curClickTime - lastClickTime) >= ConstantUtil.MIN_CLICK_DELAY_TIME) {
             if (mDevice.getState() == Device.BLE_CONNECTED) {
                 switch (value) {
                     case R.string.lock_settings:

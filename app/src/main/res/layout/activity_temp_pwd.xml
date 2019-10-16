@@ -10,6 +10,18 @@
         android:layout_height="@dimen/y81dp"
         android:background="@color/app_bg" >
 
+        <ImageView
+            android:id="@+id/iv_temp_pwd_back"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:paddingStart="@dimen/x30dp"
+            android:paddingEnd="@dimen/x30dp"
+            android:background="@drawable/selector_normal"
+            android:src="@mipmap/btn_back"
+            android:onClick="onClick"/>
+
         <TextView
             android:id="@+id/tv_temp_pwd_title"
             android:layout_width="wrap_content"
@@ -21,16 +33,6 @@
             android:textColor="#ff000000"
             android:textSize="@dimen/d22sp" />
 
-        <ImageView
-            android:id="@+id/iv_temp_pwd_back"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:paddingLeft="@dimen/x15dp"
-            android:paddingRight="@dimen/x25dp"
-            android:onClick="onClick"
-            android:src="@mipmap/btn_back" />
     </RelativeLayout>
     <View
         android:layout_height="0.5dp"

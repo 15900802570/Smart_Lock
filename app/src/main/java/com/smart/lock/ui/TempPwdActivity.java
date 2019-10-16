@@ -78,6 +78,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
 
     protected void initView() {
         mTempPwdListViewRv = findViewById(R.id.temp_pwd_list_view);
+        findViewById(R.id.iv_temp_pwd_back).setOnClickListener(this);
     }
 
     private void initData() {

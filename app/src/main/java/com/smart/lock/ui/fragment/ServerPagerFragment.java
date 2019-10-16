@@ -110,7 +110,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     private boolean mIsShowTips = false;
 
-    private static final int MIN_CLICK_DELAY_TIME = 2000; //防止多次点击
     private static long lastClickTime;
 
 
@@ -417,7 +416,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onClick(View v) {
         long curClickTime = System.currentTimeMillis();
-        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+        if ((curClickTime - lastClickTime) >= ConstantUtil.MIN_CLICK_DELAY_TIME) {
             Bundle bundle = new Bundle();
             bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
 
@@ -510,7 +509,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         long curClickTime = System.currentTimeMillis();
-        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+        if ((curClickTime - lastClickTime) >= ConstantUtil.MIN_CLICK_DELAY_TIME) {
             Bundle bundle = new Bundle();
             bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
             if (mDevice.getState() == Device.BLE_DISCONNECTED && (Integer) view.getTag() != R.mipmap.icon_temporarypassword) {

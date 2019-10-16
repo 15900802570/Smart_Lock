@@ -202,6 +202,12 @@ public class ConstantUtil {
     public static final String CREATE = "create";
 
     /**
+     * 防多次点击
+     */
+
+    public static final int MIN_CLICK_DELAY_TIME = 1500; //防止多次点击
+
+    /**
      * 设备管理员
      */
     public static final byte DEVICE_MASTER = 0x01;

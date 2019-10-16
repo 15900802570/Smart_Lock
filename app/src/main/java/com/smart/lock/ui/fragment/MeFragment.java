@@ -91,7 +91,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private Uri imgUri; // 拍照时返回的uri
     private Uri mCutUri;// 图片裁剪时返回的uri
     private File imgFile;// 拍照保存的图片文件
-    private static final int MIN_CLICK_DELAY_TIME = 2000; //防止多次点击
+
     private static long lastClickTime;
 
     public void onCreate(Bundle savedInstanceState) {
@@ -227,7 +227,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         long curClickTime = System.currentTimeMillis();
-        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+        if ((curClickTime - lastClickTime) >= ConstantUtil.MIN_CLICK_DELAY_TIME) {
             switch (v.getId()) {
                 case R.id.mc_manage:
                     Bundle bundle = new Bundle();

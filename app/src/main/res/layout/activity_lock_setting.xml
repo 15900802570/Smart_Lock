@@ -27,11 +27,13 @@
             android:id="@+id/iv_back"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:paddingStart="@dimen/x30dp"
+            android:paddingEnd="@dimen/x30dp"
+            android:background="@drawable/selector_normal"
             android:src="@mipmap/btn_back"
-            android:onClick="onClick"
-            android:paddingLeft="@dimen/x15dp" />
+            android:onClick="onClick" />
     </RelativeLayout>
 
     <View
