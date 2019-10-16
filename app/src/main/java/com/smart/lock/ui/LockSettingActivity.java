@@ -99,6 +99,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private Device mDevice;
     private int mCount = 0; //打开测试条例
 
+    private static final int MIN_CLICK_DELAY_TIME = 2000; //防止多次点击
+    private static long lastClickTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -430,72 +433,76 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     }
 
     private void doClick(int value) {
-        if (mDevice.getState() == Device.BLE_CONNECTED) {
-            switch (value) {
-                case R.string.lock_settings:
-                    mCount++;
-                    if (mCount >= 5) {
-                        enableTest();
-                    }
-                    break;
-                case R.string.intelligent_lock: //智能锁芯
-                    if (mDeviceStatus.isIntelligentLockCore()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_CLOSE);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_OPEN);
-                    }
-                    break;
+        long curClickTime = System.currentTimeMillis();
+        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+            if (mDevice.getState() == Device.BLE_CONNECTED) {
+                switch (value) {
+                    case R.string.lock_settings:
+                        mCount++;
+                        if (mCount >= 5) {
+                            enableTest();
+                        }
+                        break;
+                    case R.string.intelligent_lock: //智能锁芯
+                        if (mDeviceStatus.isIntelligentLockCore()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_CLOSE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INTELLIGENT_LOCK_CORE_OPEN);
+                        }
+                        break;
 
-                case R.string.anti_prizing_alarm:   //防撬报警
-                    if (mDeviceStatus.isAntiPrizingAlarm()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ANTI_PRYING_ALARM_CLOSE);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ANTI_PRYING_ALARM_OPEN);
-                    }
-                    break;
+                    case R.string.anti_prizing_alarm:   //防撬报警
+                        if (mDeviceStatus.isAntiPrizingAlarm()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ANTI_PRYING_ALARM_CLOSE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ANTI_PRYING_ALARM_OPEN);
+                        }
+                        break;
 
-                case R.string.combination_lock:     //组合开锁
-                    if (mDeviceStatus.isCombinationLock()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_UNENABLE_COMBINATION_UNLOCK);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ENABLE_COMBINATION_UNLOCK);
-                    }
-                    break;
+                    case R.string.combination_lock:     //组合开锁
+                        if (mDeviceStatus.isCombinationLock()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_UNENABLE_COMBINATION_UNLOCK);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ENABLE_COMBINATION_UNLOCK);
+                        }
+                        break;
 
-                case R.string.normally_open:    //常开功能
-                    if (mDeviceStatus.isNormallyOpen()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_CLOSE);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_OPEN);
-                    }
-                    break;
-                case R.string.voice_prompt:     //语言提示
-                    if (mDeviceStatus.isVoicePrompt()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_CLOSE);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_OPEN);
-                    }
-                    break;
+                    case R.string.normally_open:    //常开功能
+                        if (mDeviceStatus.isNormallyOpen()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_CLOSE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_OPEN);
+                        }
+                        break;
+                    case R.string.voice_prompt:     //语言提示
+                        if (mDeviceStatus.isVoicePrompt()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_CLOSE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_VOICE_PROMPT_OPEN);
+                        }
+                        break;
 
-                case R.string.lock_log: //门锁日志
-                    if (mLogEnableTs.isChecked()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_ENABLE);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_UNENABLE);
-                    }
-                    break;
-                case R.string.ble_broadcast_normally_open: //蓝牙广播
-                    if (mBroadcastNormallyOpenTs.isChecked()) {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_ENABLE);
-                    } else {
-                        mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_UNENABLE);
-                    }
-                    break;
+                    case R.string.lock_log: //门锁日志
+                        if (mLogEnableTs.isChecked()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_ENABLE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_UNENABLE);
+                        }
+                        break;
+                    case R.string.ble_broadcast_normally_open: //蓝牙广播
+                        if (mBroadcastNormallyOpenTs.isChecked()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_ENABLE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_UNENABLE);
+                        }
+                        break;
+                }
+            } else {
+                ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
+                setStatus();
             }
-        } else {
-            ToastUtil.show(this, getResources().getString(R.string.ble_disconnect), Toast.LENGTH_LONG);
-            setStatus();
         }
+        lastClickTime = curClickTime;
     }
 
     public void setOnClick(View view) {

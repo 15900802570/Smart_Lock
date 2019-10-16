@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +32,14 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.BaseActivity;
+import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 
@@ -42,7 +47,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,View.OnClickListener {
+public class RetrieveDeviceActivity extends BaseActivity implements UiListener, View.OnClickListener {
 
     private String TAG = "RetrieveDeviceActivity";
 
@@ -211,11 +216,12 @@ public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,
             case Message.TYPE_BLE_RECEIVER_CMD_0E:
                 final byte[] errCode0E = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode0E != null)
-                    LogUtil.d(TAG, "ERRORCode ="+ errCode0E);
-                    ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_falied));
+                    LogUtil.d(TAG, "ERRORCode =" + errCode0E);
+                ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_falied));
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 ToastUtil.showLong(this, getResources().getString(R.string.LogUtil_add_lock_success));
+                setResult(RESULT_OK);
                 finish();
                 break;
             default:
@@ -252,13 +258,48 @@ public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,
     }
 
 
-    public class BleAdapter extends RecyclerView.Adapter<BleAdapter.ViewHolder> {
+    public class BleAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        private static final int TYPE_HEAD = 0;
+        private static final int TYPE_BODY = 1;
+        private static final int TYPE_FOOT = 2;
+
+        private int countHead = 0;
+        private int countFoot = 2;
+
         private Context mContext;
         public ArrayList<BluetoothDevice> mBluetoothDevList;
 
         public BleAdapter(Context context, ArrayList<BluetoothDevice> devList) {
             mContext = context;
             mBluetoothDevList = devList;
+        }
+
+        private int getBodySize() {
+            return mBluetoothDevList.size();
+        }
+
+        private boolean isHead(int position) {
+            return countHead != 0 && position < countHead;
+        }
+
+        private boolean isFoot(int position) {
+            return countFoot != 0 && (position >= (getBodySize() + countHead));
+        }
+
+        public int getItemViewType(int position) {
+            if (isHead(position)) {
+                return TYPE_HEAD;
+            } else if (isFoot(position)) {
+                return TYPE_FOOT;
+            } else {
+                return TYPE_BODY;
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return mBluetoothDevList.size() + countFoot + countHead;
         }
 
         public void setDataSource(ArrayList<BluetoothDevice> devList) {
@@ -277,76 +318,133 @@ public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,
         }
 
         @Override
-        public BleAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dev, parent, false);
-            SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev);
-            swipeLayout.setClickToClose(false);
-            swipeLayout.setRightSwipeEnabled(false);
-            return new BleAdapter.ViewHolder(inflate);
-        }
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+            switch (viewType) {
+                case TYPE_HEAD:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
 
-        @Override
-        public void onBindViewHolder(final BleAdapter.ViewHolder viewHolder, final int position) {
-            final BluetoothDevice dev = mBluetoothDevList.get(position);
-            if (dev != null) {
-                viewHolder.mDevName.setText(dev.getName());
-                viewHolder.mDevMac.setText(dev.getAddress());
-
-                viewHolder.mDevContent.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View v) {
-                        if (mScanning) {
-                            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                        }
-                        mHandler.removeCallbacks(mRunnable);
-                        DialogUtils.closeDialog(mLoadDialog);
-                        Bundle bundle = new Bundle();
-                        bundle.putString(BleMsg.KEY_BLE_MAC, StringUtil.deleteString(dev.getAddress(),':'));
-                        bundle.putString(BleMsg.KEY_NODE_SN, mSn);
-                        bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
-                        bundle.putString(BleMsg.KEY_OLD_MAC, dev.getAddress());
-                        LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
-                                " sn = " + mSn + "\n" +
-                                "mNodeId = " + mNodeId+'\n'+
-                                "oldMAC = " + dev.getAddress());
-
-                        mLoadDialog = DialogUtils.createLoadingDialog(RetrieveDeviceActivity.this, getString(R.string.data_loading));
-                        mLoadDialog.show();
-                        mLoadDialog.setCancelable(true);
-                        mTimer = new Timer();
-                        LogUtil.d(TAG, "mLoadDialog = " + mLoadDialog.hashCode());
-                        mTimer.schedule(closeDialogTimer(RetrieveDeviceActivity.this, mLoadDialog), 30 * 1000);
-                        mBleManagerHelper=BleManagerHelper.getInstance(RetrieveDeviceActivity.this);
-                        mBleManagerHelper.addUiListener( RetrieveDeviceActivity.this);
-                        Device.getInstance(RetrieveDeviceActivity.this).setmRetrieveDevice(true);
-                        BleManagerHelper.setSk(dev.getAddress(), null);
-                        mBleManagerHelper.connectBle(Device.BLE_RETRIEVE_CONNECT, bundle, RetrieveDeviceActivity.this);
-                    }
-                });
+                case TYPE_BODY:
+                    View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_dev, viewGroup, false);
+                    SwipeLayout swipeLayout = inflate.findViewById(R.id.item_ll_dev);
+                    swipeLayout.setClickToClose(false);
+                    swipeLayout.setRightSwipeEnabled(false);
+                    return new MyViewHolder(inflate);
+                case TYPE_FOOT:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
+                default:
+                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, viewGroup, false));
             }
-
         }
 
         @Override
-        public int getItemCount() {
-            return mBluetoothDevList.size();
-        }
+        public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
+            if (viewHolder instanceof MyViewHolder) {
+                final BluetoothDevice dev = mBluetoothDevList.get(position - countHead);
+                if (dev != null) {
+                    ((MyViewHolder) viewHolder).mDevName.setText(dev.getName());
+                    ((MyViewHolder) viewHolder).mDevMac.setText(dev.getAddress());
 
-        class ViewHolder extends RecyclerView.ViewHolder {
+                    ((MyViewHolder) viewHolder).mDevContent.setOnClickListener(new View.OnClickListener() {
+
+                        @Override
+                        public void onClick(View v) {
+                            if (mScanning) {
+                                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                            }
+                            mHandler.removeCallbacks(mRunnable);
+                            DialogUtils.closeDialog(mLoadDialog);
+                            if (DeviceInfoDao.getInstance(RetrieveDeviceActivity.this).queryByField(DeviceInfoDao.DEVICE_MAC, dev.getAddress()) == null) {
+                                Bundle bundle = new Bundle();
+                                bundle.putString(BleMsg.KEY_BLE_MAC, StringUtil.deleteString(dev.getAddress(), ':'));
+                                bundle.putString(BleMsg.KEY_NODE_SN, mSn);
+                                bundle.putString(BleMsg.KEY_NODE_ID, mNodeId);
+                                bundle.putString(BleMsg.KEY_OLD_MAC, dev.getAddress());
+                                LogUtil.d(TAG, "mac = " + mBleMac + '\n' +
+                                        " sn = " + mSn + "\n" +
+                                        "mNodeId = " + mNodeId + '\n' +
+                                        "oldMAC = " + dev.getAddress());
+
+                                mLoadDialog = DialogUtils.createLoadingDialog(RetrieveDeviceActivity.this, getString(R.string.data_loading));
+                                mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                                    @Override
+                                    public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                                        if (i == KeyEvent.KEYCODE_BACK) {
+                                            disconnect();
+                                        }
+                                        return false;
+                                    }
+                                });
+                                mLoadDialog.show();
+                                mLoadDialog.setCancelable(true);
+                                mTimer = new Timer();
+                                LogUtil.d(TAG, "mLoadDialog = " + mLoadDialog.hashCode());
+                                mTimer.schedule(closeDialogTimer(RetrieveDeviceActivity.this, mLoadDialog), 30 * 1000);
+                                mBleManagerHelper = BleManagerHelper.getInstance(RetrieveDeviceActivity.this);
+                                mDevice = Device.getInstance(RetrieveDeviceActivity.this);
+                                switch (mDevice.getState()) { //断开已连接的蓝牙
+                                    case Device.BLE_CONNECTED:
+                                        if (mBleManagerHelper.getBleCardService() != null) {
+                                            mDevice.setDisconnectBle(true);
+                                            mBleManagerHelper.getBleCardService().disconnect();
+                                        }
+                                        break;
+                                    case Device.BLE_CONNECTION:
+                                        if (mBleManagerHelper.getBleCardService() != null) {
+                                            mDevice.setDisconnectBle(true);
+                                            mBleManagerHelper.getBleCardService().disconnect();
+                                        }
+                                        break;
+                                }
+                                mBleManagerHelper.addUiListener(RetrieveDeviceActivity.this);
+                                BleManagerHelper.setSk(dev.getAddress(), null);
+                                mBleManagerHelper.connectBle(Device.BLE_RETRIEVE_CONNECT, bundle, RetrieveDeviceActivity.this);
+                            } else {
+                                ToastUtil.show(RetrieveDeviceActivity.this, getString(R.string.device_has_been_added), Toast.LENGTH_LONG);
+                            }
+                        }
+                    });
+                }
+
+            }
+        }
+        private void disconnect(){
+            mBleManagerHelper = BleManagerHelper.getInstance(RetrieveDeviceActivity.this);
+            mDevice = Device.getInstance(RetrieveDeviceActivity.this);
+            switch (mDevice.getState()) { //断开已连接的蓝牙
+                case Device.BLE_CONNECTED:
+                    if (mBleManagerHelper.getBleCardService() != null) {
+                        mDevice.setDisconnectBle(true);
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
+                    break;
+                case Device.BLE_CONNECTION:
+                    if (mBleManagerHelper.getBleCardService() != null) {
+                        mDevice.setDisconnectBle(true);
+                        mBleManagerHelper.getBleCardService().disconnect();
+                    }
+                    break;
+            }
+        }
+        class MyViewHolder extends RecyclerView.ViewHolder {
 
             SwipeLayout mSwipeLayout;
             TextView mDevMac;
             TextView mDevName;
             LinearLayout mDevContent;
 
-            public ViewHolder(View itemView) {
+            public MyViewHolder(View itemView) {
                 super(itemView);
 
                 mSwipeLayout = (SwipeLayout) itemView;
                 mDevMac = itemView.findViewById(R.id.tv_dev_mac);
                 mDevName = itemView.findViewById(R.id.tv_dev_name);
                 mDevContent = itemView.findViewById(R.id.ll_content);
+            }
+        }
+
+        class FootViewHolder extends RecyclerView.ViewHolder {
+            private FootViewHolder(View itemView) {
+                super(itemView);
             }
         }
     }
@@ -404,4 +502,17 @@ public class RetrieveDeviceActivity extends BaseActivity implements  UiListener,
         };
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LogUtil.d(TAG, "OnDestroy");
+        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        finish();
+    }
 }

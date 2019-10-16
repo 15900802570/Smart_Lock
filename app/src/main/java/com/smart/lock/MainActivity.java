@@ -198,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements
                     if (Objects.requireNonNull(data.getExtras()).getInt(ConstantUtil.CONFIRM) == 1) {
                         SharedPreferenceUtil.getInstance(this).writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                         ToastUtil.showLong(this, getResources().getString(R.string.pwd_setting_successfully));
+                        mTabVg.setCurrentItem(0, false);
                     } else {
                         ToastUtil.showLong(this, getResources().getString(R.string.pwd_setting_failed));
                     }

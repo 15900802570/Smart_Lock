@@ -109,10 +109,14 @@ public class BleManagerHelper {
                     mDevice.setState(Device.BLE_DISCONNECTED);
                     mBtAdapter.stopLeScan(mLeScanCallback);
                 }
+                LogUtil.d(TAG, "mState" + mState);
                 synchronized (mUiListeners) {
-                    for (UiListener mUiListener : mUiListeners) {
+                    ArrayList<UiListener> uiListeners = new ArrayList();
+                    uiListeners.addAll(mUiListeners);
+                    for (UiListener mUiListener : uiListeners) {
                         mUiListener.scanDevFailed();
                     }
+                    uiListeners.clear();
                 }
             }
 
@@ -272,9 +276,12 @@ public class BleManagerHelper {
 //                uiListener.scanDevFailed();
 //            }
             synchronized (mUiListeners) {
-                for (UiListener mUiListener : mUiListeners) {
+                ArrayList<UiListener> uiListeners = new ArrayList();
+                uiListeners.addAll(mUiListeners);
+                for (UiListener mUiListener : uiListeners) {
                     mUiListener.scanDevFailed();
                 }
+                uiListeners.clear();
             }
             mHandler.removeCallbacks(mRunnable);
             if (mBtAdapter == null) {
@@ -384,8 +391,7 @@ public class BleManagerHelper {
 
     /**
      * 设置秘钥 --modify 01   NPD
-     *
-     * */
+     */
 //    public static void setSk(String sBleMac, String sDevSecret) {
 //        String mac = sBleMac.replace(mContext.getString(R.string.colon), "");
 //
@@ -446,8 +452,6 @@ public class BleManagerHelper {
 //        }
 //        LogUtil.d(TAG,"MessageCreator.m128SK : " + StringUtil.bytesToHexString(MessageCreator.m128SK,":"));
 //    }
-
-
     public BleCardService getBleCardService() {
         return mService;
     }

@@ -31,6 +31,7 @@ import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.scan.ScanQRHelper;
 import com.smart.lock.scan.ScanQRResultInterface;
+import com.smart.lock.ui.login.LockScreenActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -71,14 +72,21 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
                                 writeBoolean(ConstantUtil.NUM_PWD_CHECK, true);
                         ToastUtil.showLong(this,
                                 getResources().getString(R.string.pwd_setting_successfully));
-                        finish();
 
                     } else {
                         ToastUtil.showLong(this,
                                 getResources().getString(R.string.pwd_setting_failed));
-                        finish();
                     }
                     break;
+                case ConstantUtil.RETRIEVE_DEV_REQUEST_CODE:
+                    if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+                        Intent intent = new Intent(this, LockScreenActivity.class);
+                        intent.putExtra(ConstantUtil.IS_RETURN, true);
+                        intent.putExtra(ConstantUtil.NOT_CANCEL, true);
+                        this.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), ConstantUtil.SETTING_PWD_REQUEST_CODE);
+                    }
+                    break;
+
             }
         }
     }
@@ -141,7 +149,7 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
             case R.id.tv_retrieve_search:
                 Bundle bundle = new Bundle();
                 mRetrieveBottomDialog.cancel();
-                startIntent(RetrieveDeviceActivity.class, bundle);
+                startIntentForResult(RetrieveDeviceActivity.class, bundle, ConstantUtil.RETRIEVE_DEV_REQUEST_CODE);
                 break;
             default:
                 break;
@@ -193,6 +201,15 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
         }
         intent.setClass(this, cls);
         startActivity(intent);
+    }
+
+    protected void startIntentForResult(Class<?> cls, Bundle bundle, int requestCode) {
+        Intent intent = new Intent();
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        intent.setClass(this, cls);
+        startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -393,9 +410,22 @@ public class DeviceManagementActivity extends AppCompatActivity implements ScanQ
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+        LogUtil.d(TAG, "onRestart");
+//        if (!SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.NUM_PWD_CHECK)) {
+//            Intent intent = new Intent(this, LockScreenActivity.class);
+//            intent.putExtra(ConstantUtil.IS_RETURN, true);
+//            intent.putExtra(ConstantUtil.NOT_CANCEL, true);
+//            this.startActivityForResult(intent.putExtra(ConstantUtil.TYPE, ConstantUtil.SETTING_PASSWORD), ConstantUtil.SETTING_PWD_REQUEST_CODE);
+//        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         mDevManagementAdapter.refreshList();
         mDevManagementAdapter.notifyDataSetChanged();
     }
+
 }

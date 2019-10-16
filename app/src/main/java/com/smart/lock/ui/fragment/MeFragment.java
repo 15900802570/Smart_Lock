@@ -91,6 +91,8 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private Uri imgUri; // 拍照时返回的uri
     private Uri mCutUri;// 图片裁剪时返回的uri
     private File imgFile;// 拍照保存的图片文件
+    private static final int MIN_CLICK_DELAY_TIME = 2000; //防止多次点击
+    private static long lastClickTime;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -224,67 +226,71 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     @SuppressLint("IntentReset")
     @Override
     public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.mc_manage:
-                Bundle bundle = new Bundle();
-                if (mDefaultDevice != null) {
-                    bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                }
-                startIntent(DeviceManagementActivity.class, bundle);
-                break;
-            case R.id.system_set:
-                Intent intent = new Intent(mMeView.getContext(), SystemSettingsActivity.class);
-                this.startActivity(intent);
-                break;
-            case R.id.about_us:
-                Intent aboutIntent = new Intent(mMeView.getContext(), AboutUsActivity.class);
-                this.startActivity(aboutIntent);
-                break;
-            case R.id.me_center_head_name:
-            case R.id.me_edit_name:
-                ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).setText(mNameTv.getText());
-                EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
-                mEditorNameDialog.show();
-                break;
-            case R.id.me_center_head_photo:
-                mBottomSheetDialog.show();
-                break;
-            case R.id.camera_shot_tv:
-                if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                    imageCapture();
-                } else {
-                    requestPermissions(mExternalPermission, REQUESTCODE);
-                }
-                mBottomSheetDialog.cancel();
-                break;
-            case R.id.local_photo_tv:
-                mBottomSheetDialog.cancel();
-                break;
-            case R.id.gallery_photo_tv:
-                if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    Intent picture = new Intent(Intent.ACTION_PICK);
-                    picture.setType("image/*");
-                    // 判断系统中是否有处理该 Intent 的 Activity
-                    if (picture.resolveActivity(mMeView.getContext().getPackageManager()) != null) {
-                        startActivityForResult(picture, SCAN_OPEN_PHONE);
-                    } else {
-                        Toast.makeText(mMeView.getContext(), "未找到图片查看器", Toast.LENGTH_SHORT).show();
+        long curClickTime = System.currentTimeMillis();
+        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+            switch (v.getId()) {
+                case R.id.mc_manage:
+                    Bundle bundle = new Bundle();
+                    if (mDefaultDevice != null) {
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                     }
-                } else {
-                    requestPermissions(mExternalPermission, REQUESTCODE);
-                }
-                mBottomSheetDialog.cancel();
-                break;
-            case R.id.tv_cancel:
-                mBottomSheetDialog.cancel();
-                break;
-            default:
-                break;
+                    startIntent(DeviceManagementActivity.class, bundle);
+                    break;
+                case R.id.system_set:
+                    Intent intent = new Intent(mMeView.getContext(), SystemSettingsActivity.class);
+                    this.startActivity(intent);
+                    break;
+                case R.id.about_us:
+                    Intent aboutIntent = new Intent(mMeView.getContext(), AboutUsActivity.class);
+                    this.startActivity(aboutIntent);
+                    break;
+                case R.id.me_center_head_name:
+                case R.id.me_edit_name:
+                    ((EditText) mEditorNameDialog.findViewById(R.id.editor_et)).setText(mNameTv.getText());
+                    EditText editText = mEditorNameDialog.findViewById(R.id.editor_et);
+                    editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(6)});
+                    mEditorNameDialog.show();
+                    break;
+                case R.id.me_center_head_photo:
+                    mBottomSheetDialog.show();
+                    break;
+                case R.id.camera_shot_tv:
+                    if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        imageCapture();
+                    } else {
+                        requestPermissions(mExternalPermission, REQUESTCODE);
+                    }
+                    mBottomSheetDialog.cancel();
+                    break;
+                case R.id.local_photo_tv:
+                    mBottomSheetDialog.cancel();
+                    break;
+                case R.id.gallery_photo_tv:
+                    if (ContextCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && ContextCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        Intent picture = new Intent(Intent.ACTION_PICK);
+                        picture.setType("image/*");
+                        // 判断系统中是否有处理该 Intent 的 Activity
+                        if (picture.resolveActivity(mMeView.getContext().getPackageManager()) != null) {
+                            startActivityForResult(picture, SCAN_OPEN_PHONE);
+                        } else {
+                            Toast.makeText(mMeView.getContext(), "未找到图片查看器", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        requestPermissions(mExternalPermission, REQUESTCODE);
+                    }
+                    mBottomSheetDialog.cancel();
+                    break;
+                case R.id.tv_cancel:
+                    mBottomSheetDialog.cancel();
+                    break;
+                default:
+                    break;
+            }
         }
+        lastClickTime = curClickTime;
     }
 
     @Override

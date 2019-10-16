@@ -112,6 +112,11 @@ public class ConstantUtil {
     public static final int SETTING_PWD_REQUEST_CODE = 1;
 
     /**
+     * 找回设备成功返回
+     */
+    public static final int RETRIEVE_DEV_REQUEST_CODE = 2;
+
+    /**
      * 不检测设备SN号
      */
     public static String UNCHECK_DEVICE_SN = "uncheckDeviceSn";

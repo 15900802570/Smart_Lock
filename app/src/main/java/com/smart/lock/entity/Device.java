@@ -28,15 +28,6 @@ public class Device {
     private boolean mDisconnectBle = false;//主动断开蓝牙
     private boolean mStopChangeDEV = false; //禁止自动切换设备
 
-    public boolean ismRetrieveDevice() {
-        return mRetrieveDevice;
-    }
-
-    public void setmRetrieveDevice(boolean mRetrieveDevice) {
-        this.mRetrieveDevice = mRetrieveDevice;
-    }
-
-    private boolean mRetrieveDevice = false; //找回设备模式
 
     public boolean isBackGroundConnect() {
         return mBackGroundConnect;

@@ -4,11 +4,13 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.smart.lock.R;
@@ -171,6 +173,15 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                 }
             }
             mLoadDialog = DialogUtils.createLoadingDialog(mActivity, mActivity.getString(R.string.data_loading));
+            mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialogInterface, int i, KeyEvent keyEvent) {
+                    if (i == KeyEvent.KEYCODE_BACK) {
+                        disconnect();
+                    }
+                    return false;
+                }
+            });
             mLoadDialog.show();
             mLoadDialog.setCancelable(true);
             mTimer = new Timer();
@@ -191,10 +202,28 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                         mBleManagerHelper.stopScan();
                     }
             }
-            mDevice.setmRetrieveDevice(true);
             BleManagerHelper.setSk(bundle.getString(BleMsg.KEY_BLE_MAC), null);
             mBleManagerHelper.connectBle(Device.BLE_RETRIEVE_CONNECT, bundle, mActivity);
             mRetrieveDevice = false;
+        }
+    }
+
+    private void disconnect(){
+        mBleManagerHelper = BleManagerHelper.getInstance(mActivity);
+        mDevice = Device.getInstance(mActivity);
+        switch (mDevice.getState()) { //断开已连接的蓝牙
+            case Device.BLE_CONNECTED:
+                if (mBleManagerHelper.getBleCardService() != null) {
+                    mDevice.setDisconnectBle(true);
+                    mBleManagerHelper.getBleCardService().disconnect();
+                }
+                break;
+            case Device.BLE_CONNECTION:
+                if (mBleManagerHelper.getBleCardService() != null) {
+                    mDevice.setDisconnectBle(true);
+                    mBleManagerHelper.getBleCardService().disconnect();
+                }
+                break;
         }
     }
 

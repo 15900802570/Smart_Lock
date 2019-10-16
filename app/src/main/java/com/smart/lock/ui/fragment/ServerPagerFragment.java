@@ -110,6 +110,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     private boolean mIsShowTips = false;
 
+    private static final int MIN_CLICK_DELAY_TIME = 2000; //防止多次点击
+    private static long lastClickTime;
+
 
     public View initView() {
         mPagerView = View.inflate(mActivity, R.layout.server_pager, null);
@@ -414,84 +417,87 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void onClick(View v) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+        long curClickTime = System.currentTimeMillis();
+        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
 
-        switch (v.getId()) {
-            case R.id.ll_status:
-                switch (mDevice.getState()) {
-                    case Device.BLE_DISCONNECTED:
-                        refreshView(DEVICE_CONNECTING);
-                        BleManagerHelper.setSk(mDefaultDevice.getBleMac(), mDefaultDevice.getDeviceSecret());
-                        Bundle dev = new Bundle();
-                        if (mDefaultUser != null) {
-                            dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                            dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
-                            mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mCtx);
-                            mDevice.setDisconnectBle(false);
-                        }
-                        break;
-                    case Device.BLE_CONNECTED:
-                        if (mBleManagerHelper.getBleCardService() != null) {
-                            mDevice.setDisconnectBle(true);
-                            mBleManagerHelper.getBleCardService().disconnect();
-                        }
-                        break;
-                    case Device.BLE_CONNECTION:
-                        if (mBleManagerHelper.getBleCardService() != null) {
-                            mDevice.setDisconnectBle(true);
-                            mBleManagerHelper.getBleCardService().disconnect();
-                            mBleManagerHelper.stopScan();
-                            mStopScanByUser = true;
-                        }
+            switch (v.getId()) {
+                case R.id.ll_status:
+                    switch (mDevice.getState()) {
+                        case Device.BLE_DISCONNECTED:
+                            refreshView(DEVICE_CONNECTING);
+                            BleManagerHelper.setSk(mDefaultDevice.getBleMac(), mDefaultDevice.getDeviceSecret());
+                            Bundle dev = new Bundle();
+                            if (mDefaultUser != null) {
+                                dev.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                                dev.putString(BleMsg.KEY_BLE_MAC, mDefaultDevice.getBleMac());
+                                mBleManagerHelper.connectBle(Device.BLE_OTHER_CONNECT_TYPE, dev, mCtx);
+                                mDevice.setDisconnectBle(false);
+                            }
+                            break;
+                        case Device.BLE_CONNECTED:
+                            if (mBleManagerHelper.getBleCardService() != null) {
+                                mDevice.setDisconnectBle(true);
+                                mBleManagerHelper.getBleCardService().disconnect();
+                            }
+                            break;
+                        case Device.BLE_CONNECTION:
+                            if (mBleManagerHelper.getBleCardService() != null) {
+                                mDevice.setDisconnectBle(true);
+                                mBleManagerHelper.getBleCardService().disconnect();
+                                mBleManagerHelper.stopScan();
+                                mStopScanByUser = true;
+                            }
 //                        showMessage(getString(R.string.is_connecting));
-                        break;
-                }
+                            break;
+                    }
 //                refreshView(mDevice.getState());
-                break;
-            case R.id.ll_setting:
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
-                    startIntent(LockSettingActivity.class, bundle);
-                } else if (mDevice.getState() == Device.BLE_CONNECTION) {
-                    showMessage(mCtx.getString(R.string.bt_connecting));
-                } else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
-                    showMessage(mCtx.getString(R.string.bt_unconnected));
-                }
-                break;
-            case R.id.one_click_unlock_ib:
-                if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED)
-                    if (!mIsLockBack) {
+                    break;
+                case R.id.ll_setting:
+                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+                        bundle.putShort(BleMsg.KEY_USER_ID, mDefaultUser.getUserId());
+                        startIntent(LockSettingActivity.class, bundle);
+                    } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+                        showMessage(mCtx.getString(R.string.bt_connecting));
+                    } else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                        showMessage(mCtx.getString(R.string.bt_unconnected));
+                    }
+                    break;
+                case R.id.one_click_unlock_ib:
+                    if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED)
+                        if (!mIsLockBack) {
 //                        mInstructionBtn.setEnabled(false);
-                        if (mNodeId.getBytes().length == 15)
-                            mNodeId = "0" + mNodeId;
-                        byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
-                        LogUtil.d(TAG, "NodeId = " + mNodeId + "\n" + "hash" + this.hashCode());
-                        StringUtil.exchange(nodeId);
-                        mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
+                            if (mNodeId.getBytes().length == 15)
+                                mNodeId = "0" + mNodeId;
+                            byte[] nodeId = StringUtil.hexStringToBytes(mNodeId);
+                            LogUtil.d(TAG, "NodeId = " + mNodeId + "\n" + "hash" + this.hashCode());
+                            StringUtil.exchange(nodeId);
+                            mBleManagerHelper.getBleCardService().sendCmd21(nodeId, BleMsg.INT_DEFAULT_TIMEOUT);
 
-                        mIsLockBack = true;
-                        mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
-                        int unLockTime = mDefaultStatus.getRolledBackTime();
-                        LogUtil.d(TAG, "unLockTime : " + unLockTime);
-                        closeDialog(unLockTime);
-                    } else showMessage(getString(R.string.rolled_back));
-                else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
-                    showMessage(mCtx.getString(R.string.bt_unconnected));
-                } else if (mDevice.getState() == Device.BLE_CONNECTION) {
-                    showMessage(mCtx.getString(R.string.bt_connecting));
-                }
-                break;
-            case R.id.tv_lock_name:
-                if (this.getParentFragment() != null) {
-                    mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
-                    ((HomeFragment) getParentFragment()).showDialog();
-                }
-                break;
-            default:
-                break;
+                            mIsLockBack = true;
+                            mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+                            int unLockTime = mDefaultStatus.getRolledBackTime();
+                            LogUtil.d(TAG, "unLockTime : " + unLockTime);
+                            closeDialog(unLockTime);
+                        } else showMessage(getString(R.string.rolled_back));
+                    else if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                        showMessage(mCtx.getString(R.string.bt_unconnected));
+                    } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+                        showMessage(mCtx.getString(R.string.bt_connecting));
+                    }
+                    break;
+                case R.id.tv_lock_name:
+                    if (this.getParentFragment() != null) {
+                        mIconSelectDevIv.setImageResource(R.drawable.ic_select_dev_nor);
+                        ((HomeFragment) getParentFragment()).showDialog();
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
-
+        lastClickTime = curClickTime;
     }
 
     public void closedSelectDevDialog() {
@@ -503,49 +509,53 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-        if (mDevice.getState() == Device.BLE_DISCONNECTED && (Integer) view.getTag() != R.mipmap.icon_temporarypassword) {
-            showMessage(mCtx.getString(R.string.unconnected_device));
-            return;
-        } else if (mDevice.getState() == Device.BLE_CONNECTION && (Integer) view.getTag() != R.mipmap.icon_temporarypassword) {
-            showMessage(mCtx.getString(R.string.bt_connecting));
-            return;
+        long curClickTime = System.currentTimeMillis();
+        if ((curClickTime - lastClickTime) >= MIN_CLICK_DELAY_TIME) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+            if (mDevice.getState() == Device.BLE_DISCONNECTED && (Integer) view.getTag() != R.mipmap.icon_temporarypassword) {
+                showMessage(mCtx.getString(R.string.unconnected_device));
+                return;
+            } else if (mDevice.getState() == Device.BLE_CONNECTION && (Integer) view.getTag() != R.mipmap.icon_temporarypassword) {
+                showMessage(mCtx.getString(R.string.bt_connecting));
+                return;
+            }
+            switch ((Integer) view.getTag()) {
+                case R.mipmap.icon_password:
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                    break;
+                case R.mipmap.icon_nfc:
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                    break;
+                case R.mipmap.icon_fingerprint:
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 1);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                    break;
+                case R.mipmap.icon_events:
+                    startIntent(EventsActivity.class, bundle);
+                    break;
+                case R.mipmap.icon_userguanl:
+                    if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                            && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        startIntent(UserManagerActivity2.class, bundle);
+                    } else {
+                        ActivityCompat.requestPermissions(mActivity, mExternalPermission, REQUESTCODE);
+                    }
+                    break;
+                case R.mipmap.icon_temporarypassword:
+                    if (mDefaultUser.getUserStatus() == ConstantUtil.USER_PAUSE) { //用户被暂停
+                        ToastUtil.showShort(mCtx, mCtx.getString(R.string.user_pause_contact_admin));
+                    } else {
+                        startIntent(TempPwdActivity.class, bundle);
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
-        switch ((Integer) view.getTag()) {
-            case R.mipmap.icon_password:
-                bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
-                startIntent(DeviceKeyActivity.class, bundle);
-                break;
-            case R.mipmap.icon_nfc:
-                bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
-                startIntent(DeviceKeyActivity.class, bundle);
-                break;
-            case R.mipmap.icon_fingerprint:
-                bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 1);
-                startIntent(DeviceKeyActivity.class, bundle);
-                break;
-            case R.mipmap.icon_events:
-                startIntent(EventsActivity.class, bundle);
-                break;
-            case R.mipmap.icon_userguanl:
-                if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    startIntent(UserManagerActivity2.class, bundle);
-                } else {
-                    ActivityCompat.requestPermissions(mActivity, mExternalPermission, REQUESTCODE);
-                }
-                break;
-            case R.mipmap.icon_temporarypassword:
-                if (mDefaultUser.getUserStatus() == ConstantUtil.USER_PAUSE) { //用户被暂停
-                    ToastUtil.showShort(mCtx, mCtx.getString(R.string.user_pause_contact_admin));
-                } else {
-                    startIntent(TempPwdActivity.class, bundle);
-                }
-                break;
-            default:
-                break;
-        }
+        lastClickTime = curClickTime;
     }
 
     @Override
