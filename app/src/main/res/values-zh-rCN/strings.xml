@@ -455,4 +455,14 @@
     <string name="retrieve_title">找回设备</string>
     <string name="retrieve_dev_by_scan">通过扫描二维码找回设备</string>
     <string name="retrieve_dev_by_search">通过搜索找回设备</string>
+
+    <string name="delete_all_psw_tips_1">您将删除其他用户的所有密码</string>
+    <string name="delete_all_psw_tips_2">您将删除普通用户的所有密码</string>
+    <string name="delete_all_nfc_tips_1">您将删除其他用户的所有NFC卡</string>
+    <string name="delete_all_nfc_tips_2">您将删除普通用户的所有NFC卡</string>
+    <string name="delete_all_fp_tips_1">您将删除其他用户的所有指纹</string>
+    <string name="delete_all_fp_tips_2">您将删除普通用户的所有指纹</string>
+    <string name="delete_all_users_tips_1">您将删除其他用户</string>
+    <string name="delete_all_users_tips_2">您将删除所有普通用户</string>
+
 </resources>

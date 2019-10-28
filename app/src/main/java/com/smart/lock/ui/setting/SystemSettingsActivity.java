@@ -64,15 +64,15 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
 
     private ToggleSwitchDefineView mCheckSnTv; //型号检测
 
-    private NextActivityDefineView mCheckVersionNv;
+    private NextActivityDefineView mCheckVersionNv; //OTA是否检测版本信息
 
-    private NextActivityDefineView mModifyPwdNv;
+    private NextActivityDefineView mModifyPwdNv; //修改密码
 
-    private NextActivityDefineView mSetDevInfoNv;
+    private NextActivityDefineView mSetDevInfoNv;  //设置开锁信息
 
-    private NextActivityDefineView mQueryLpcdNv;
+    private NextActivityDefineView mQueryLpcdNv; //查询阈值
 
-    private NextActivityDefineView mMultiLanguageNv;
+    private NextActivityDefineView mMultiLanguageNv; //多语言
 
     private Dialog mPromptDialog;
 
@@ -145,7 +145,7 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
         mNumPwdSwitchLightTBtn = mNumPwdSwitchTv.getIv_switch_light();
 
         mMultiLanguageNv.setDes(getString(R.string.multi_language));
-        mMultiLanguageNv.setVisibility(View.GONE);
+        mMultiLanguageNv.setVisibility(View.VISIBLE);
 
         mCheckVersionNv.setDes(getString(R.string.check_app_version));
         mSetDevInfoNv.setDes(getString(R.string.set_dev_info));

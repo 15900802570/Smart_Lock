@@ -9,7 +9,7 @@
     <string name="forget_pwd">忘记密码?</string>
     <string name="delete">Delete</string>
 
-    <string name="home_rd">home</string>
+    <string name="home_rd">ome</string>
     <string name="me_rd">me</string>
     <string name="lock_manager">Lock Manager</string>
     <string name="back_message">Click again to exit the APP</string>
@@ -443,4 +443,12 @@
     <string name="retrieve_title">Retrieve Device</string>
     <string name="retrieve_dev_by_scan">Retrieve device by scanning</string>
     <string name="retrieve_dev_by_search">Retrieve device by search</string>
+    <string name="delete_all_psw_tips_2">You will delete all passwords of ordinary users</string>
+    <string name="delete_all_psw_tips_1">You are about to delete all passwords for other users</string>
+    <string name="delete_all_nfc_tips_1">You are about to delete all NFC cards for other users</string>
+    <string name="delete_all_nfc_tips_2">You will delete all NFC cards of ordinary users</string>
+    <string name="delete_all_fp_tips_1">You will delete all fingerprints of other users</string>
+    <string name="delete_all_fp_tips_2">You will delete all fingerprints of ordinary users</string>
+    <string name="delete_all_users_tips_1">You are about to delete other users</string>
+    <string name="delete_all_users_tips_2">You will delete all normal users</string>
 </resources>

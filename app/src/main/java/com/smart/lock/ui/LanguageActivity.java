@@ -138,11 +138,12 @@ public class LanguageActivity extends AppCompatActivity {
      *
      * @param language
      */
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void changeLanguage(String language) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            LanguageUtil.changeAppLanguage(this, language);
-        }
+
+        LanguageUtil.changeAppLanguage(this, language); //切换语言
+
         SharedPreferenceUtil.getInstance(this).writeString(ConstantUtil.DEFAULT_LANGUAGE, language);
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);

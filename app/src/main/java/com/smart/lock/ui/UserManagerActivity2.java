@@ -39,6 +39,8 @@ import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.widget.BaseDialog;
+import com.smart.lock.widget.DialogFactory;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.io.Serializable;
@@ -69,6 +71,8 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
 
     private DeviceInfo mDefaultDevice; //默认设备
 
+    private DialogFactory mTipsDialog; //删除提示框
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +83,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
         initEvent();
     }
 
-//    @SuppressLint("WrongViewCast")
+    //    @SuppressLint("WrongViewCast")
     private void initView() {
         mUserPermissionVp = findViewById(R.id.vp_user_manager);
         mUserSetTb = findViewById(R.id.tb_user_set);
@@ -87,6 +91,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
     }
 
     private void initData() {
+        mTipsDialog = DialogFactory.getInstance(this);
         mHandler = new Handler();
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
         mBleManagerHelper = BleManagerHelper.getInstance(this);
@@ -131,46 +136,104 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (mTipsDialog != null && mTipsDialog.isShowing())
+            mTipsDialog.cancelDownLoadDialog();
 
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
                 break;
-//            case R.id.item_edit:
-//                changeVisible();
-//                break;
             case R.id.del_all_pwd:
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_PASSWORD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_PWD);
-                } else showMessage(getString(R.string.disconnect_ble));
-                break;
             case R.id.del_all_fp:
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FINGERPRINT, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_FINGERPRINT);
-                } else showMessage(getString(R.string.disconnect_ble));
-                break;
             case R.id.del_all_card:
-                if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_NFC);
-                } else showMessage(getString(R.string.disconnect_ble));
-                break;
             case R.id.del_all_user:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
-                    mBleManagerHelper.getBleCardService().sendCmd13(BleMsg.TYPE_DELETE_ALL_USER, BleMsg.INT_DEFAULT_TIMEOUT);
+                    showTipsDialog(item);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             default:
                 break;
         }
         return true;
+    }
+
+    /**
+     * 删除所有开锁信息提示
+     */
+    private void showTipsDialog(final MenuItem item) {
+        if (mTipsDialog != null) {
+            mTipsDialog = null;
+            mTipsDialog = new DialogFactory(this);
+        }
+        String tips = getString(R.string.delete_all_psw_tips_1);
+
+        switch (item.getItemId()) {
+            case R.id.del_all_pwd:
+                if (mDefaultDevice.getUserId() == 1) {
+                    tips = getString(R.string.delete_all_psw_tips_1);
+                } else if (mDefaultDevice.getUserId() == 2) {
+                    tips = getString(R.string.delete_all_psw_tips_2);
+                }
+                break;
+            case R.id.del_all_fp:
+                if (mDefaultDevice.getUserId() == 1) {
+                    tips = getString(R.string.delete_all_fp_tips_1);
+                } else if (mDefaultDevice.getUserId() == 2) {
+                    tips = getString(R.string.delete_all_fp_tips_2);
+                }
+                break;
+            case R.id.del_all_card:
+                if (mDefaultDevice.getUserId() == 1) {
+                    tips = getString(R.string.delete_all_nfc_tips_1);
+                } else if (mDefaultDevice.getUserId() == 2) {
+                    tips = getString(R.string.delete_all_nfc_tips_2);
+                }
+                break;
+            case R.id.del_all_user:
+                if (mDefaultDevice.getUserId() == 1) {
+                    tips = getString(R.string.delete_all_users_tips_1);
+                } else if (mDefaultDevice.getUserId() == 2) {
+                    tips = getString(R.string.delete_all_users_tips_2);
+                }
+                break;
+            default:
+                break;
+        }
+
+        mTipsDialog.getAlter(getString(R.string.friend_tip_title), tips)
+                .setOkButtonText(getString(R.string.confirm))
+                .setDownloadCancelable(true)
+                .setButtonVisible(BaseDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
+                .setOkClick(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mTipsDialog.cancelDownLoadDialog();
+                        DialogUtils.closeDialog(mLoadDialog);
+                        mLoadDialog.show();
+
+                        switch (item.getItemId()) {
+                            case R.id.del_all_pwd:
+                                mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_PASSWORD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_PWD);
+                                break;
+                            case R.id.del_all_fp:
+                                mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FINGERPRINT, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_FINGERPRINT);
+                                break;
+                            case R.id.del_all_card:
+                                mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_NFC);
+                                break;
+                            case R.id.del_all_user:
+                                mBleManagerHelper.getBleCardService().sendCmd13(BleMsg.TYPE_DELETE_ALL_USER, BleMsg.INT_DEFAULT_TIMEOUT);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }).setNoClick(new View.OnClickListener() {
+                      @Override
+                      public void onClick(View v) {
+                          mTipsDialog.cancelDownLoadDialog();
+                      }
+                }).show();
     }
 
     /**
