@@ -462,4 +462,14 @@
     <string name="_remote_zh">远程</string>
     <string name="_combination_lock_zh">使用组合开锁</string>
     <string name="_combination_lock">" "</string>
+
+    <string name="delete_all_psw_tips_1">您将删除其他用户的所有密码</string>
+    <string name="delete_all_psw_tips_2">您将删除普通用户的所有密码</string>
+    <string name="delete_all_nfc_tips_1">您将删除其他用户的所有NFC卡</string>
+    <string name="delete_all_nfc_tips_2">您将删除普通用户的所有NFC卡</string>
+    <string name="delete_all_fp_tips_1">您将删除其他用户的所有指纹</string>
+    <string name="delete_all_fp_tips_2">您将删除普通用户的所有指纹</string>
+    <string name="delete_all_users_tips_1">您将删除其他用户</string>
+    <string name="delete_all_users_tips_2">您将删除所有普通用户</string>
+
 </resources>

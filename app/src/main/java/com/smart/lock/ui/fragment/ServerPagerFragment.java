@@ -108,8 +108,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
     private boolean mStopScanByUser = false;
 
-    private boolean mIsShowTips = false;
-
     private static long lastClickTime;
 
 
@@ -712,6 +710,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 } else {
                     sendMessage(BIND_DEVICE, null, 0);
                 }
+                mTipsDialog.cancelDownLoadDialog();
                 break;
             case BleMsg.STATE_CONNECTED:
 
@@ -891,13 +890,14 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 if (mDefaultDevice.getUserId() == 1)
                     msg = mCtx.getString(R.string.del_local_key_tips);
                 else msg = mCtx.getString(R.string.input_key_tips);
-                showTipsDialog(msg);
+                if (mTipsDialog != null && !mTipsDialog.isShowing())
+                    showTipsDialog(msg);
             } else {
-                if (mTipsDialog != null)
+                if (mTipsDialog != null && mTipsDialog.isShowing())
                     mTipsDialog.cancelDownLoadDialog();
             }
         } else {
-            if (mTipsDialog != null)
+            if (mTipsDialog != null && mTipsDialog.isShowing())
                 mTipsDialog.cancelDownLoadDialog();
         }
     }
@@ -914,11 +914,16 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mTipsDialog.getAlter(getString(R.string.friend_tip_title), msg)
                 .setOkButtonText(getString(R.string.confirm))
                 .setDownloadCancelable(false)
-                .setButtonVisible(BaseDialog.DIALOG_OK_BUTTON_VISIBLE)
+                .setButtonVisible(BaseDialog.DIALOG_OK_AND_NO_BUTTON_VISIBLE)
                 .setOkClick(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         mTipsDialog.cancelDownLoadDialog();
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                         if (mDevice.getState() == Device.BLE_DISCONNECTED) {
@@ -931,6 +936,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
                         bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
                         startIntent(DeviceKeyActivity.class, bundle);
+                    }
+                }).setNoClick(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mTipsDialog.cancelDownLoadDialog();
                     }
                 })
                 .show();

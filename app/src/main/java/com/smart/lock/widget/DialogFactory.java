@@ -182,7 +182,7 @@ public class DialogFactory {
     }
 
     public void cancelDownLoadDialog() {
-        if (mDownLoadDialog != null) {
+        if (mDownLoadDialog != null && mDownLoadDialog.isShowing()) {
             mDownLoadDialog.cancel();
         }
     }
@@ -197,6 +197,10 @@ public class DialogFactory {
 
     public void setCancel(boolean flag) {
         mDownLoadDialog.setCancelable(flag);
+    }
+
+    public boolean isShowing() {
+       return mDownLoadDialog.isShowing();
     }
 
     public static DialogFactory getInstance(Activity context) {

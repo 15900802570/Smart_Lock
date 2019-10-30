@@ -81,7 +81,7 @@
     <string name="temp_password">***</string>
     <string name="unconnected_device">Not Connected</string>
     <string name="bt_connect_failed">Connection failed</string>
-    <string name="bt_connect_success">Connection</string>
+    <string name="bt_connect_success">Connected</string>
     <string name="ble_instruction">Unlock</string>
     <string name="numeric_keyboard_down">numeric keyboard down</string>
     <string name="numeric_keyboard_up">numeric keyboard up</string>
@@ -401,7 +401,7 @@
     <string name="plz_open_slide">Please open slide</string>
     <string name="more">More</string>
     <string name="single_delete">Delete</string>
-    <string name="group_delete">Batch delete</string>
+    <string name="group_delete">Batch Delete</string>
     <string name="edit_user_name">Edit username</string>
     <string name="user_pause_warning">The user has been suspended</string>
     <string name="plz_open_slide_input_key">Please open slide and input key</string>
@@ -449,4 +449,12 @@
     <string name="_remote_zh"> </string>
     <string name="_through_zh"> </string>
     <string name="_combination_lock_zh">" "</string>
+    <string name="delete_all_psw_tips_2">You will delete all passwords of ordinary users</string>
+    <string name="delete_all_psw_tips_1">You are about to delete all passwords for other users</string>
+    <string name="delete_all_nfc_tips_1">You are about to delete all NFC cards for other users</string>
+    <string name="delete_all_nfc_tips_2">You will delete all NFC cards of ordinary users</string>
+    <string name="delete_all_fp_tips_1">You will delete all fingerprints of other users</string>
+    <string name="delete_all_fp_tips_2">You will delete all fingerprints of ordinary users</string>
+    <string name="delete_all_users_tips_1">You are about to delete other users</string>
+    <string name="delete_all_users_tips_2">You will delete all normal users</string>
 </resources>

@@ -33,11 +33,21 @@ public class LanguageUtil {
         Configuration configuration = resources.getConfiguration();
         //获取想要切换的语言类型
         Locale locale = getLocaleByLanguage(newLanguage);
-        configuration.setLocale(locale);
+        //区别17版本（其实在17以上版本通过 config.locale设置也是有效的，不知道为什么还要区别）
+        //在这里设置需要转换成的语言，也就是选择用哪个values目录下的strings.xml文件
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            configuration.setLocale(locale);//设置简体中文
+            //config.setLocale(Locale.ENGLISH);//设置英文
+        } else {
+            configuration.locale = locale;//设置简体中文
+            //config.locale = Locale.ENGLISH;//设置英文
+        }
         // updateConfiguration
         DisplayMetrics dm = resources.getDisplayMetrics();
         resources.updateConfiguration(configuration, dm);
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static Locale getLocaleByLanguage(String language) {
