@@ -418,18 +418,19 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 mCreateUserDialog.cancel();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
+
                 short userIdTag = (short) serializable;
                 LogUtil.i(TAG, "receiver msg 26 : " + userIdTag);
                 if (userIdTag <= 0 || userIdTag > 200) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
-                LogUtil.d(TAG, "mCount   " + mCountUsers + '\n' + mCheckUsers.size());
-                // 记录同步数据，同步完成后关闭Dialog
-                if (++mCountUsers == mCheckUsers.size() - 1) {
-                    DialogUtils.closeDialog(mLoadDialog);
-                    mCountUsers = 0;
-                }
+//                LogUtil.d(TAG, "mCount   " + mCountUsers + '\n' + mCheckUsers.size());
+//                // 记录同步数据，同步完成后关闭Dialog
+//                if (++mCountUsers == mCheckUsers.size() - 1) {
+//                    DialogUtils.closeDialog(mLoadDialog);
+//                    mCountUsers = 0;gi
+//                }
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                 if (userInfo != null) {
                     DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
@@ -753,7 +754,6 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         public UserAdapter(Context context) {
             mContext = context;
             mUserList = DeviceUserDao.getInstance(mCtx).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-            int index = -1;
 
             ListIterator<DeviceUser> userListIterator = mUserList.listIterator();
 
@@ -804,8 +804,8 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
         public void setDataSource() {
             mUserList = DeviceUserDao.getInstance(mCtx).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
-            int index = -1;
 
+            mCheckUsers.clear();
             ListIterator<DeviceUser> userListIterator = mUserList.listIterator();
 
             while (userListIterator.hasNext()) {
