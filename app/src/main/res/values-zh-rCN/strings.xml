@@ -449,4 +449,17 @@
     <string name="retrieve_dev_by_scan">通过扫描二维码找回设备</string>
     <string name="retrieve_dev_by_search">通过搜索找回设备</string>
     <string name="edit_device_name">修改设备名称</string>
+    <string name="the"> </string>
+    <string name="remotely"> </string>
+    <string name="by_pwd"> </string>
+    <string name="by_nfc"> </string>
+    <string name="by_fingerprint"> </string>
+    <string name="_unlocked">打开</string>
+    <string name="_through_zh">通过</string>
+    <string name="_fingerprint_zh">指纹</string>
+    <string name="_nfc_zh">卡片</string>
+    <string name="_pwd_zh">密码</string>
+    <string name="_remote_zh">远程</string>
+    <string name="_combination_lock_zh">使用组合开锁</string>
+    <string name="_combination_lock">" "</string>
 </resources>

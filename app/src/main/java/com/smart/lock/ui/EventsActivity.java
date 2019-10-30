@@ -1,15 +1,11 @@
 package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,19 +23,15 @@ import android.widget.TextView;
 import com.daimajia.swipe.SwipeLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
-import com.scwang.smartrefresh.layout.listener.OnRefreshLoadMoreListener;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.db.dao.DeviceLogDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
@@ -47,10 +39,8 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class EventsActivity extends BaseListViewActivity implements View.OnClickListener, UiListener {
     private static final String TAG = "EventsActivity";
@@ -492,7 +482,6 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     viewHolder.mEventInfo.setText("门锁多次验证失败");
                 } else {
                     viewHolder.mEventIv.setImageResource(R.mipmap.icon_event);
-                    viewHolder.mEventType.setText(R.string.unlock_event);
                     viewHolder.mEventType.setTextColor(getResources().getColor(R.color.color_text));
                     DeviceUser user = DeviceUserDao.getInstance(mContext).queryUser(logInfo.getNodeId(), logInfo.getUserId());
                     DeviceInfo devInfo = DeviceInfoDao.getInstance(mContext).queryFirstData("device_nodeId", logInfo.getNodeId());
@@ -510,18 +499,19 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                             logUser = mContext.getString(R.string.tmp_user) + logInfo.getUserId();
                         }
                     }
+                    viewHolder.mEventType.setText(logUser);
                     if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.password) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._pwd_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_pwd));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._fingerprint_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_fingerprint));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.card) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._nfc_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_nfc));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.remote) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._remote_zh)+mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.remotely));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_TEMP_PWD) {
-                        viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + " "+mContext.getString(R.string.open)+ " " + devInfo.getDeviceName());
                     } else if (logInfo.getLogType() == ConstantUtil.USER_COMBINATION_LOCK) {
-                        viewHolder.mEventInfo.setText(logUser + mContext.getString(R.string.use) + mContext.getString(R.string.combination_lock) + mContext.getString(R.string.open) + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) +logUser + mContext.getString(R.string._combination_lock_zh)+mContext.getString(R.string._unlocked) + devInfo.getDeviceName()+ mContext.getString(R.string._combination_lock) );
                     }
                 }
 
