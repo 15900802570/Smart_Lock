@@ -134,6 +134,9 @@ public class ConstantUtil {
      * 测试FPType
      */
     public static final String FP_TYPE_FOR_TEST = "DMTTEST";
+
+    //常见问题
+    public static final String KEY_PROBLEM = "problem";
     /**
      * SharedPreferences的文件名
      */

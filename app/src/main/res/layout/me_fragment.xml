@@ -73,6 +73,11 @@
             android:id="@+id/system_set"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
+
+        <com.smart.lock.widget.MeDefineView
+            android:id="@+id/mv_help"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 </LinearLayout>

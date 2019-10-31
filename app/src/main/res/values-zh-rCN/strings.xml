@@ -421,6 +421,8 @@
     <string name="dev_time_adjusting">设备时间未校准!</string>
     <string name="save">保存</string>
     <string name="multi_language">多语言</string>
+    <string name="device_help">帮助</string>
+    <string name="common_problem">常见问题</string>
 
     <string name="one">单次</string>
     <string name="many">多次</string>

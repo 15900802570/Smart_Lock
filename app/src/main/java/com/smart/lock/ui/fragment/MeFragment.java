@@ -38,6 +38,7 @@ import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.UserProfile;
 import com.smart.lock.db.dao.UserProfileDao;
 import com.smart.lock.ui.AboutUsActivity;
+import com.smart.lock.ui.HelpListActivity;
 import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.ui.setting.DeviceManagementActivity;
@@ -70,6 +71,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
     private MeDefineView mSystemSetTv;
     private MeDefineView mDevManagementTv;
     private MeDefineView mAboutUsTv;
+    private MeDefineView mHelpTv; //QA
     private TextView mNameTv;
     private ImageView mEditNameIv;
     private ImageView mHeadPhoto;
@@ -106,6 +108,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mNameTv = mMeView.findViewById(R.id.me_center_head_name);
         mEditNameIv = mMeView.findViewById(R.id.me_edit_name);
         mHeadPhoto = mMeView.findViewById(R.id.me_center_head_photo);
+        mHelpTv = mMeView.findViewById(R.id.mv_help);
 
         mBottomSheetDialog = DialogUtils.createBottomSheetDialog(mMeView.getContext(), R.layout.bottom_sheet_set_head_photo, R.id.design_bottom_sheet);
         mCameraShotTv = mBottomSheetDialog.findViewById(R.id.camera_shot_tv);
@@ -152,6 +155,8 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
             mNameTv.setText(mDefaultUser.getUserName());
         }
 
+        mHelpTv.setImage(R.mipmap.ic_device_management);
+        mHelpTv.setDes(getString(R.string.common_problem));
         setHasOptionsMenu(true);
     }
 
@@ -191,6 +196,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
         mSystemSetTv.setOnClickListener(this);
         mDevManagementTv.setOnClickListener(this);
         mAboutUsTv.setOnClickListener(this);
+        mHelpTv.setOnClickListener(this);
         mEditNameIv.setOnClickListener(this);
         mHeadPhoto.setOnClickListener(this);
         mCameraShotTv.setOnClickListener(this);
@@ -243,6 +249,10 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
                 case R.id.about_us:
                     Intent aboutIntent = new Intent(mMeView.getContext(), AboutUsActivity.class);
                     this.startActivity(aboutIntent);
+                    break;
+                case R.id.mv_help:
+                    Intent helpIntent = new Intent(mMeView.getContext(), HelpListActivity.class);
+                    this.startActivity(helpIntent);
                     break;
                 case R.id.me_center_head_name:
                 case R.id.me_edit_name:
