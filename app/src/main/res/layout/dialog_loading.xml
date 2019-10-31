@@ -7,20 +7,20 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:layout_width="150dp"
-        android:layout_height="110dp"
+        android:layout_width="@dimen/x230dp"
+        android:layout_height="@dimen/x160dp"
         android:background="@drawable/loading_bg"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingBottom="10dp"
-        android:paddingLeft="21dp"
-        android:paddingRight="21dp"
+        android:paddingLeft="@dimen/x5dp"
+        android:paddingRight="@dimen/x5dp"
         android:paddingTop="10dp">
 
         <ProgressBar
             android:id="@+id/loading_pb"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
+            android:layout_width="@dimen/x55dp"
+            android:layout_height="@dimen/x55dp"
             android:layout_gravity="center_horizontal"
             android:indeterminateBehavior="repeat"
             android:indeterminateDrawable="@drawable/dialog_loading"
@@ -33,7 +33,7 @@
             android:layout_marginTop="15dp"
             android:text="加载中..."
             android:textColor="#f0f0f0"
-            android:textSize="15sp" />
+            android:textSize="@dimen/d16sp" />
     </LinearLayout>
 
 </LinearLayout>

@@ -11,7 +11,6 @@
 
     <string name="please_input_pwd">请输入密码</string>
     <string name="please_input_pwd_again">确认密码</string>
-    <string name="not_equals">两次输入的密码不一致,请重新输入！</string>
     <string name="setting_pwd_success">密码设置成功！</string>
     <string name="forget_pwd">忘记密码?</string>
     <string name="delete">删除</string>
@@ -35,7 +34,6 @@
     <string name="card_manager">卡片管理</string>
     <string name="password_manager">密码管理</string>
     <string name="fingerprint_manager">指纹管理</string>
-    <string name="device_manager">设备管理</string>
     <string name="permission_manager">用户管理</string>
     <string name="unlock_key">开锁信息管理</string>
     <string name="temp_user_setting">临时用户管理</string>
@@ -122,7 +120,6 @@
     <string name="device_busy">设备忙</string>
     <string name="ble_busy">蓝牙连接中或已连接</string>
     <string name="delete_fp_failed">删除指纹失败</string>
-    <string name="long_term">长期</string>
     <string name="create_time">创建时间:</string>
     <string name="add_nfc_tips">您已添加过卡片,请删除后添加</string>
     <string name="add_pwd_tips">您已添加过密码,请删除后添加</string>
@@ -152,10 +149,9 @@
     <string name="input_new_pwd_again">请再次输入新密码:</string>
     <string name="tips">提示</string>
     <string name="valid_password">请输入正确的密码（6位）</string>
-    <string name="pwd_twice_error">2次输入的密码不一致</string>
+    <string name="pwd_twice_error">两次输入的密码不一致</string>
     <string name="plz_input_username">请输入使用者</string>
     <string name="fingerprint">指纹</string>
-    <string name="modify_username">修改使用者</string>
     <string name="title_event">门锁事件</string>
     <string name="unlock_event">开门事件</string>
     <string name="event_type">类型编号:</string>
@@ -169,7 +165,7 @@
     <string name="tmp_user">临时用户</string>
     <string name="user_pwd">用户密码:</string>
     <string name="user_confirm">确认密码:</string>
-    <string name="del_log_failed">删除log成功</string>
+    <string name="del_log_failed">删除记录成功</string>
     <string name="no_authority">无权限</string>
     <string name="prompt_email">邮件</string>
     <string name="title_activity_welcome">欢迎使用界面</string>
@@ -291,8 +287,7 @@
 
     <string name="fix_alert">已经下载完成,点击安装 </string>
     <string name="friend_tip_title">温馨提示 </string>
-    <string name="dialog_load_data">正在加载数据 </string>
-    <string name="new_version">新版本</string>
+    <string name="dialog_load_data">正在加载数据</string>
     <string name="downloading">正在下载</string>
     <string name="start_update">开始更新</string>
     <string name="new_dev_version">有新的版本可以更新</string>
@@ -314,7 +309,6 @@
     <string name="fp_restart">请等待指纹模块重启，大约需要3秒</string>
 
     <string name="search_failed">搜索失败</string>
-    <string name="secure_connection">正在建立安全连接</string>
     <string name="connection_success">已建立安全连接</string>
     <string name="http_version_latest">已是最新版本，无需升级</string>
     <string name="ota_updating">正在升级</string>
@@ -333,7 +327,7 @@
     <string name="woman">女</string>
     <string name="edit_back">退出</string>
     <string name="to"> 至 </string>
-    <string name="no_name">没名字</string>
+    <string name="no_name">您</string>
 
     <string name="choise_photo">选择头像</string>
     <string name="camera_shot">拍摄新照片</string>
@@ -400,7 +394,6 @@
     <string name="fingerprint_firmware">指纹固件</string>
     <string name="is_connecting">正在连接,请稍候</string>
     <string name="rolled_back">正在回锁,请稍候</string>
-    <string name="open_set_dev_info">设置设备信息已打开!</string>
     <string name="cancel_warning">是否取消</string>
     <string name="input">录入</string>
     <string name="key_repetition">密钥重复</string>
@@ -457,6 +450,20 @@
     <string name="retrieve_title">找回设备</string>
     <string name="retrieve_dev_by_scan">通过扫描二维码找回设备</string>
     <string name="retrieve_dev_by_search">通过搜索找回设备</string>
+    <string name="edit_device_name">修改设备名称</string>
+    <string name="the"> </string>
+    <string name="remotely"> </string>
+    <string name="by_pwd"> </string>
+    <string name="by_nfc"> </string>
+    <string name="by_fingerprint"> </string>
+    <string name="_unlocked">打开</string>
+    <string name="_through_zh">通过</string>
+    <string name="_fingerprint_zh">指纹</string>
+    <string name="_nfc_zh">卡片</string>
+    <string name="_pwd_zh">密码</string>
+    <string name="_remote_zh">远程</string>
+    <string name="_combination_lock_zh">使用组合开锁</string>
+    <string name="_combination_lock">" "</string>
 
     <string name="delete_all_psw_tips_1">您将删除其他用户的所有密码</string>
     <string name="delete_all_psw_tips_2">您将删除普通用户的所有密码</string>

@@ -10,59 +10,59 @@ public class DeviceStatus implements Serializable{
     @DatabaseField(generatedId = true, columnName = "_id")
     private int id;
 
-    //Éè±¸ID
+    //è®¾å¤‡ID
     @DatabaseField(columnName = "dev_node_id",canBeNull = false)
     private String devNodeId;
 
-    //ÖÇÄÜËøĞ¾
+    //æ™ºèƒ½é”èŠ¯
     @DatabaseField(columnName = "intelligent_lock_core", defaultValue = "0")
     private boolean intelligentLockCore;
 
-    //·ÀÇË±¨¾¯
+    //é˜²æ’¬æŠ¥è­¦
     @DatabaseField(columnName = "anti_prizing_alarm", defaultValue = "0")
     private boolean antiPrizingAlarm;
 
-    //×éºÏ¿ªËø
+    //ç»„åˆå¼€é”
     @DatabaseField(columnName = "combination_lock", defaultValue = "0")
     private boolean combinationLock;
 
-    //³£¿ª¹¦ÄÜ
+    //å¸¸å¼€åŠŸèƒ½
     @DatabaseField(columnName = "normally_open", defaultValue = "0")
     private boolean normallyOpen;
 
-    //ÓïÑÔÌáÊ¾
+    //è¯­è¨€æç¤º
     @DatabaseField(columnName = "voice_prompt", defaultValue = "1")
     private boolean voicePrompt;
 
-    //À¶ÑÀ¹ã²¥
+    //è“ç‰™å¹¿æ’­
     @DatabaseField(columnName = "broadcastNormallyOpen", defaultValue = "0")
     private boolean broadcastNormallyOpen;
 
-    //M1¿¨ NFC¿¨ÀàĞÍ
+    //M1å¡ NFCå¡ç±»å‹
     @DatabaseField(columnName = "support_m1", defaultValue = "0")
     private boolean m1Support;
 
-    //ÊÇ·ñ½ûÖ¹ÖÇÄÜËøĞ¾ 1Îª½ûÓÃ 0ÎªÆôÓÃ
+    //æ˜¯å¦ç¦æ­¢æ™ºèƒ½é”èŠ¯ 1ä¸ºç¦ç”¨ 0ä¸ºå¯ç”¨
     @DatabaseField(columnName = "invalid_intelligent_lock",defaultValue = "1")
     private boolean invalidIntelligentLock;
 
-    //»ØËøÊ±¼ä
+    //å›é”æ—¶é—´
     @DatabaseField(columnName = "rolled_back_time",defaultValue = "5" )
     private int rolledBackTime;
 
-    //Ê¡µç¿ªÊ¼Ê±¼ä
+    //çœç”µå¼€å§‹æ—¶é—´
     @DatabaseField(columnName = "power_saving_start_time",defaultValue = "2300" )
     private int powerSavingStartTime;
 
-    //Ê¡µç½áÊøÊ±¼ä
+    //çœç”µç»“æŸæ—¶é—´
     @DatabaseField(columnName = "power_saving_end_time",defaultValue = "700" )
     private int powerSavingEndTime;
 
-    //µç³Ø
+    //ç”µæ± 
     @DatabaseField(columnName = "battery",defaultValue = "0" )
     private int battery;
 
-    //ĞÅÏ¢¸üĞÂÊ±¼ä
+    //ä¿¡æ¯æ›´æ–°æ—¶é—´
     @DatabaseField(columnName = "status_update_time")
     private long updateTime;
 
