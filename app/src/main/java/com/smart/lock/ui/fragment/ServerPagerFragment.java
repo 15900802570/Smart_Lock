@@ -21,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
@@ -109,6 +110,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private boolean mStopScanByUser = false;
 
     private static long lastClickTime;
+
+    private View mAlertDialogView; //dialog
 
 
     public View initView() {
@@ -885,7 +888,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
         mDefaultDevice = DeviceInfoDao.getInstance(mActivity).queryFirstData("device_default", true);
 
         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-            Log.e(TAG, "mDefaultDevice ：" + mDefaultDevice.toString());
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
                 if (mDefaultDevice.getUserId() == 1)
                     msg = mCtx.getString(R.string.del_local_key_tips);
@@ -900,6 +902,43 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             if (mTipsDialog != null && mTipsDialog.isShowing())
                 mTipsDialog.cancelDownLoadDialog();
         }
+    }
+
+    private void showDialog(String msg) {
+
+        mAlertDialogView = getLayoutInflater().inflate(R.layout.dialog_prompt, null, false);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mCtx).setIcon(R.mipmap.ic_launcher).setTitle(getString(R.string.friend_tip_title))
+                .setView(mAlertDialogView)
+                .setMessage(msg).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mTipsDialog.cancelDownLoadDialog();
+                        try {
+                            Thread.sleep(20);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
+                        if (mDevice.getState() == Device.BLE_DISCONNECTED) {
+                            showMessage(mCtx.getString(R.string.unconnected_device));
+                            return;
+                        } else if (mDevice.getState() == Device.BLE_CONNECTION) {
+                            showMessage(mCtx.getString(R.string.bt_connecting));
+                            return;
+                        }
+
+                        bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 0);
+                        startIntent(DeviceKeyActivity.class, bundle);
+                    }
+                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+        builder.create().show();
+
     }
 
     /**
@@ -938,11 +977,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         startIntent(DeviceKeyActivity.class, bundle);
                     }
                 }).setNoClick(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mTipsDialog.cancelDownLoadDialog();
-                    }
-                })
+            @Override
+            public void onClick(View v) {
+                mTipsDialog.cancelDownLoadDialog();
+            }
+        })
                 .show();
     }
 

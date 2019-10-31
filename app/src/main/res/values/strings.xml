@@ -458,5 +458,5 @@
     <string name="delete_all_users_tips_1">You are about to delete other users</string>
     <string name="delete_all_users_tips_2">You will delete all normal users</string>
     <string name="device_help">Help</string>
-    <string name="common_problem">Common problem</string>
+    <string name="common_problem">Question and Answers</string>
 </resources>
