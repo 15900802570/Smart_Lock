@@ -24,9 +24,11 @@ import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.AdminFragment;
@@ -41,10 +43,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
         AdminFragment.OnFragmentInteractionListener,
@@ -143,7 +142,12 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.user_manager_setting, menu);
+        DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+        if (defaultStatus.isEnable_face()) {
+            getMenuInflater().inflate(R.menu.user_manager_with_face_setting, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.user_manager_with_nfc_setting, menu);
+        }
 //        mDeleteItem = menu.findItem(R.id.item_edit);
         return true;
     }
@@ -177,6 +181,13 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_NFC);
+                } else showMessage(getString(R.string.disconnect_ble));
+                break;
+            case R.id.del_all_face:
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    DialogUtils.closeDialog(mLoadDialog);
+                    mLoadDialog.show();
+                    mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FACE, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_FACE);
                 } else showMessage(getString(R.string.disconnect_ble));
                 break;
             case R.id.del_all_user:
@@ -317,6 +328,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     public void dispatchUiCallback(Message msg, Device device, int type) {
         mDevice = device;
         Bundle extra = msg.getData();
+        LogUtil.i(TAG, "type : " + msg.getType());
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
         if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short || serializable instanceof DeviceKey)) {
             DialogUtils.closeDialog(mLoadDialog);
@@ -335,11 +347,18 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                     return;
                 }
                 DeviceUser tempUser = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
+                DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
 
                 if (userInfo != null) {
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                    DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    // NFC 与 FACE 互斥
+                    if (defaultStatus.isEnable_face()) {
+                        DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
+                    } else {
+                        DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    }
+
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");
@@ -472,8 +491,11 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void dispatchErrorCode(byte errCode, Serializable serializable) {
-        LogUtil.i(TAG, "errCode : " + errCode);
+        LogUtil.i(TAG, "errCode123 : " + errCode);
         switch (errCode) {
+            case BleMsg.TYPE_DELETE_PASSWORD_SUCCESS:
+            case BleMsg.TYPE_DELETE_NFC_SUCCESS:
+            case BleMsg.TYPE_DELETE_FACE_SUCCESS:
             case BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS:
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;
@@ -486,13 +508,14 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                     showMessage(getString(R.string.delete_key_success));
                 }
                 break;
+            case BleMsg.TYPE_DELETE_FACE_FAILED:
             case BleMsg.TYPE_GROUP_DELETE_KEY_FAILED:
                 showMessage(getString(R.string.delete_key_failed));
                 break;
             case BleMsg.TYPE_DELETE_FP_SUCCESS:
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;
-                    LogUtil.d(TAG,"key : " + key.toString());
+                    LogUtil.d(TAG, "key : " + key.toString());
                     if (StringUtil.checkNotNull(mDefaultDevice.getDeviceNodeId())) {
                         ArrayList<DeviceUser> list = DeviceUserDao.getInstance(this).queryUsers(mDefaultDevice.getDeviceNodeId(), ConstantUtil.DEVICE_TEMP);
                         for (DeviceUser user : list) {

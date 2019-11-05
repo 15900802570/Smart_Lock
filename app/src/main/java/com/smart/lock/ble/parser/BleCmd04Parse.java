@@ -48,6 +48,7 @@ public class BleCmd04Parse implements BleCommandParse {
         byte[] unLockTime = new byte[1];
         byte[] tmpPwdSk;
         byte[] userState;
+        byte[] enableStatus = new byte[1]; //   启用状态
         byte[] powerSave = new byte[8];
         System.arraycopy(buf, 0, batPerscent, 0, 1);
         System.arraycopy(buf, 1, syncUsers, 0, 16);
@@ -60,16 +61,18 @@ public class BleCmd04Parse implements BleCommandParse {
             userState = new byte[ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 64);
             System.arraycopy(buf, 84, userState, 0, ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM);
+            System.arraycopy(buf, 84 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM - 1, enableStatus,0, 1);
             System.arraycopy(buf, 84 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM, powerSave, 0, 8);
         } else {
             tmpPwdSk = new byte[32 * 4];
             userState = new byte[ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM];
             System.arraycopy(buf, 20, tmpPwdSk, 0, 128);
             System.arraycopy(buf, 148, userState, 0, ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM);
+            System.arraycopy(buf, 148 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM - 1, enableStatus,0, 1); // 源临时用户最后一个字节
             System.arraycopy(buf, 148 + ConstantUtil.ADMIN_USR_NUM + ConstantUtil.COMMON_USR_NUM + ConstantUtil.TMP_USR_NUM, powerSave, 0, 8);
         }
-
-        return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState, powerSave);
+        userState[ConstantUtil.ADMIN_USR_NUM + ConstantUtil.TMP_USR_NUM] = 0;
+        return MessageCreator.getCmd04Message(getParseKey(), batPerscent[0], syncUsers, userStatus[0], stStatus[0], unLockTime[0], tmpPwdSk, userState, powerSave, enableStatus[0]);
     }
 
     @Override

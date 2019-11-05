@@ -363,6 +363,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         int userStatus = bundle.getByte(BleMsg.KEY_USER_STATUS, (byte) 0);
         int stStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
         int unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
+        int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
         byte[] syncUsers = bundle.getByteArray(BleMsg.KEY_SYNC_USERS);
         byte[] userState = bundle.getByteArray(BleMsg.KEY_USERS_STATE);
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
@@ -372,6 +373,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.d(TAG, "userState = " + Arrays.toString(userState));
         LogUtil.d(TAG, "tempSecret = " + Arrays.toString(tempSecret));
         LogUtil.d(TAG, "powerSave = " + Arrays.toString(powerSave));
+        LogUtil.d(TAG, "enableStatus = " + enableStatus);
 
         mDevice.setBattery(battery);
         mDevice.setUserStatus(userStatus);
@@ -379,6 +381,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setUnLockTime(unLockTime);
         mDevice.setSyncUsers(syncUsers);
         mDevice.setTempSecret(tempSecret);
+        mDevice.setEnableStatus(enableStatus);
         synchronized (this.mStateLock) {
             if (userStatus == ConstantUtil.USER_PAUSE) {
                 if (mDefaultUser != null) {
@@ -468,6 +471,15 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 } else {
                     mDefaultStatus.setBroadcastNormallyOpen(false);
                 }
+                //NFC/FACE 启用状态
+                LogUtil.d(TAG, "Enable 04 = "+ enableStatus);
+                if (enableStatus == 0) {
+                    mDefaultStatus.setEnable_face(false);
+                    mDefaultStatus.setUn_enable_nfc(false);
+                } else {
+                    mDefaultStatus.setEnable_face(true);
+                    mDefaultStatus.setUn_enable_nfc(true);
+                }
                 mDefaultStatus.setRolledBackTime(unLockTime);
                 // 获取省电时间段
                 if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
@@ -496,6 +508,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             extra.putByte(BleMsg.KEY_USER_STATUS, bundle.getByte(BleMsg.KEY_USER_STATUS, (byte) 0));
             extra.putByte(BleMsg.KEY_SETTING_STATUS, bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0));
             extra.putByte(BleMsg.KEY_UNLOCK_TIME, bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0));
+            extra.putByte(BleMsg.KEY_ENABLE_STATUS, bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0));
             extra.putByteArray(BleMsg.KEY_TMP_PWD_SK, bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK));
             extra.putByteArray(BleMsg.KEY_SYNC_USERS, bundle.getByteArray(BleMsg.KEY_SYNC_USERS));
             extra.putByteArray(BleMsg.KEY_USERS_STATE, bundle.getByteArray(BleMsg.KEY_USERS_STATE));
@@ -522,6 +535,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         int battery = bundle.getByte(BleMsg.KEY_BAT_PERSCENT, (byte) 0);
         int stStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
         int unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
+        int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
         byte[] syncUsers = bundle.getByteArray(BleMsg.KEY_SYNC_USERS);
         byte[] userState = bundle.getByteArray(BleMsg.KEY_USERS_STATE);
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
@@ -556,6 +570,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
+            mDevice.setEnableStatus(enableStatus);
 
             if (mDefaultStatus != null) {
                 mDefaultStatus.setBattery(battery);
@@ -600,6 +615,15 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     mDefaultStatus.setInvalidIntelligentLock(true);
                 } else {
                     mDefaultStatus.setInvalidIntelligentLock(false);
+                }
+                //NFC/FACE 启用状态
+                LogUtil.d(TAG, "EnableStatus = " + enableStatus);
+                if (enableStatus == 0) {
+                    mDefaultStatus.setEnable_face(false);
+                    mDefaultStatus.setUn_enable_nfc(false);
+                } else {
+                    mDefaultStatus.setEnable_face(true);
+                    mDefaultStatus.setUn_enable_nfc(true);
                 }
                 mDefaultStatus.setRolledBackTime(unLockTime);
                 // 获取省电时间段
@@ -1020,7 +1044,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
 
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                        mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                        // NFC 与 FACE 互斥
+                        if (mDefaultStatus.isEnable_face()) {
+                            mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
+                        } else {
+                            mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                        }
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");

@@ -299,6 +299,8 @@ public class DeviceKeyDao {
                     deviceKey.setKeyName(mContext.getResources().getString(R.string.fingerprint) + lockId);
                 else if (type == ConstantUtil.USER_NFC)
                     deviceKey.setKeyName(mContext.getResources().getString(R.string.card));
+                else if (type == ConstantUtil.USER_FACE)
+                    deviceKey.setKeyName(mContext.getResources().getString(R.string.face_manager));
 
                 deviceKey.setKeyType(type);
                 deviceKey.setLockId(lockId);

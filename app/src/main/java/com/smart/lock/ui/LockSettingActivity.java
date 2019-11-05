@@ -190,6 +190,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
+        if (mDeviceStatus.isUn_enable_nfc()){
+            mSetSupportCardTypeBs.setVisibility(View.GONE);
+        }
     }
 
     private void enableTest() {
@@ -699,9 +702,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        LogUtil.d(TAG, String.valueOf(state));
         if (state != BleMsg.STATE_CONNECTED) {
             DialogUtils.closeDialog(mWarningDialog);
-            DialogUtils.closeDialog(mWaitingDialog);
+            LogUtil.d(TAG, "Close2");
+//            DialogUtils.closeDialog(mWaitingDialog);
         }
     }
 
@@ -878,15 +883,26 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     ToastUtil.show(
                             LockSettingActivity.this,
                             R.string.restore_the_factory_settings_success,
-                            Toast.LENGTH_LONG);
+                            Toast.LENGTH_SHORT);
                     mBleManagerHelper.getBleCardService().disconnect();
                     finish();
                 } else {
                     finish();
                 }
-                mWaitingDialog.cancel();
+                DialogUtils.closeDialog(mWaitingDialog);
                 LogUtil.d(TAG, "恢复出厂设置成功");
                 break;
+            case BleMsg.TYPE_EQUIPMENT_BUSY:
+            case BleMsg.TYPE_DEVICE_BUSY:
+            case 0x3a: // 恢复出厂设置失败
+                DialogUtils.closeDialog(mWaitingDialog);
+                LogUtil.d(TAG, "恢复出厂设置失败");
+                ToastUtil.show(
+                        LockSettingActivity.this,
+                        R.string.restore_the_factory_settings_failed,
+                        Toast.LENGTH_LONG);
+                break;
+
             case 0x26: //设置卡片类型成功
                 mSetSupportOrdinaryCards = mTempSetSupportCards;
             case 0x27: //设置卡片类型失败
@@ -916,12 +932,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 if (mBleManagerHelper.getBleCardService() != null)
                     mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
                 showMessage(getString(R.string.plz_open_slide));
+                LogUtil.d(TAG, "Close1");
                 DialogUtils.closeDialog(mWarningDialog);
                 DialogUtils.closeDialog(mWaitingDialog);
                 break;
             default:
                 break;
         }
+        DialogUtils.closeDialog(mWarningDialog);
         DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
     }
 

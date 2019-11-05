@@ -41,6 +41,7 @@ public class ClientTransaction implements TimerListener, BleMessageListener {
      * @throws Exception
      */
     public boolean request() {
+        LogUtil.d(TAG,"request");
         return BleMsgProvider.send(this);
     }
 

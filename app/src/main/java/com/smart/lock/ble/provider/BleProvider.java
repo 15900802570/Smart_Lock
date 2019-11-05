@@ -272,11 +272,13 @@ public class BleProvider {
      * @see Message
      */
     private synchronized boolean offer(Object message) {
+        LogUtil.d(TAG, "offer");
         if (status == STATUS_RUNNING) {
             try {
                 if (message instanceof Message) {
                     Message msg = (Message) message;
                     int flag = onceSendMessageMap.get(msg.getType());
+                    LogUtil.d(TAG, "msg type ="+msg.getType());
                     switch (flag) {
                         case FLAG_TRUE:
                             Log.w(TAG, "Queue has message "
@@ -512,8 +514,10 @@ public class BleProvider {
                 Message m = parse.parse(cmdBuf);
 
                 if (m != null) {
+                    LogUtil.d(TAG, "cmdBuf_id ="+cmdBuf[0]);
                     if (m.getKey() != null) {
                         // 获取事务监听器
+                        LogUtil.d(TAG, " key"+m.getKey());
                         ClientTransaction ct = (ClientTransaction) removeBleMsgListener(m.getKey());
                         if (ct != null) {
                             Serializable serializable = ct.getMessage().getData().getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -660,7 +664,7 @@ public class BleProvider {
 
             while (sendThread == Thread.currentThread()) {
                 try {
-                    if (!mCheckTimeOut) {
+                    if (!mCheckTimeOut && !messageQueue.isEmpty()) {
                         Object obj = messageQueue.take();
                         if (obj instanceof Message) {
                             // 直接发送消息

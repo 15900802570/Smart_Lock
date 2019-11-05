@@ -85,6 +85,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private DialogFactory mTipsDialog; //未设置开锁信息提示框
 
     private int mBattery = 0;
+    private Boolean mEnableFace = false;
 
     public static final int BIND_DEVICE = 0; //用户已添加设备
     public static final int UNBIND_DEVICE = 1;//未添加设备
@@ -233,8 +234,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             mMyGridView.setNumColumns(3);
                         } else
                             mMyGridView.setNumColumns(2);
-                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission());
                         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+                        mEnableFace = mDefaultStatus.isEnable_face();
+                        LogUtil.d(TAG+"2", mDefaultStatus.toString());
+                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(),mEnableFace);
                         mMyGridView.setAdapter(mLockAdapter);
                     }
                 }
@@ -271,8 +274,9 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         mMyGridView.setNumColumns(3);
                     } else
                         mMyGridView.setNumColumns(2);
-                    mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission());
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
+                    LogUtil.d(TAG, mDefaultStatus.toString());
+                    mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultStatus.isEnable_face());
                     mMyGridView.setAdapter(mLockAdapter);
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 }
@@ -529,6 +533,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
                     startIntent(DeviceKeyActivity.class, bundle);
                     break;
+                case R.mipmap.icon_face:
+                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
+                    startIntent(DeviceKeyActivity.class, bundle);
+                    break;
                 case R.mipmap.icon_fingerprint:
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 1);
                     startIntent(DeviceKeyActivity.class, bundle);
@@ -570,7 +578,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     Bundle bundle = new Bundle();
                     if (mDefaultDevice != null) {
                         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
-                        startIntent(UserManagerActivity.class, bundle);
+                        startIntent(UserManagerActivity2.class, bundle);
                     }
 
                 }
@@ -775,7 +783,12 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_04:
                 LogUtil.i(TAG, "receiver 04!");
+                Bundle bundle = msg.getData();
                 mBattery = mDevice.getBattery(); //获取电池电量
+                int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
+                if (enableStatus == 3){
+                    mEnableFace = true;
+                }
                 sendMessage(BIND_DEVICE, null, 0);
                 if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
                     checkUserKey();

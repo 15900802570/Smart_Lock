@@ -506,6 +506,8 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._fingerprint_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_fingerprint));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
                         viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._nfc_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_nfc));
+                    }else if (logInfo.getLogType() == ConstantUtil.USER_FACE){
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._face_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_face));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
                         viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._remote_zh)+mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.remotely));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_TEMP_PWD) {

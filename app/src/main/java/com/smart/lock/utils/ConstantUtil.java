@@ -184,6 +184,10 @@ public class ConstantUtil {
 //     * NPM 锁默认名称
 //     */
 //    public static final String LOCK_DEFAULT_NAME = "iKEYhome";
+    /**
+     *
+     */
+    public static final String START_NUM_OF_FACE = "15866";
 
     /**
      * 门锁软件版本
@@ -256,6 +260,11 @@ public class ConstantUtil {
      * 用户卡片
      */
     public static final byte USER_NFC = 0x02;
+
+    /**
+     * 人脸识别
+     */
+    public static final byte USER_FACE = 0x0A;
 
     /**
      * 远程开锁

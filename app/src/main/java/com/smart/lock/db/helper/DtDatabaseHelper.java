@@ -25,7 +25,7 @@ import java.util.Map;
 public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     public static final String DB_NAME = "smart_lock.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
     private Context mCtx;
 
     public DtDatabaseHelper(Context context) {
@@ -52,24 +52,27 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, ConnectionSource connectionSource,
                           int oldVersion, int newVersion) {
         LogUtil.d("onUpgrade oldVersion=" + oldVersion + "  newVersion=" + newVersion);
-//        try {
-//            String sql1 = "";
-//            for (int i = oldVersion; i < newVersion; i++) {
-//                switch (i) {
-//                    case 1://数据库版本1 升级到 版本2
-//                        //对table 增加字段
-//                        sql1 = "alter table tb_device_key add test VARCHAR";
-//                        getDao(DeviceKey.class).executeRawNoArgs(sql1);
-//                        break;
-//                    case 2://数据库版本2 升级到 版本3
-//                        sql1 = "alter table tb_device_key add height integer";
-//                        getDao(DeviceKey.class).executeRawNoArgs(sql1);
-//                        break;
-//                }
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            for (int i = oldVersion; i < newVersion; i++) {
+                switch (i) {
+                    case 1://数据库版本1 升级到 版本2
+                        //新增设备启动状态 NFC 与FACE ，
+                        // enableNFC=0 时，表示NFC启用，
+                        String sql1 = "ALTER TABLE tb_device_status add un_enable_nfc INTEGER DEFAULT 0";
+                        // enableFace=1 时， 表示FACE启动   ***NFC与FACE刚好相反***
+                        // 一切为了兼容
+                        String sql2 = "ALTER TABLE tb_device_status add enable_face INTEGER DEFAULT 0";
+                        LogUtil.e("CREATE", "更新数据库");
+                        getDao(DeviceStatus.class).executeRawNoArgs(sql1);
+                        getDao(DeviceStatus.class).executeRawNoArgs(sql2);
+                        break;
+                    case 2://数据库版本2 升级到 版本3
+                        break;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 

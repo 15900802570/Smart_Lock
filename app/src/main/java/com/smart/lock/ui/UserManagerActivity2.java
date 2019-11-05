@@ -1,14 +1,11 @@
 package com.smart.lock.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -24,9 +21,11 @@ import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.AdminFragment;
@@ -35,7 +34,6 @@ import com.smart.lock.ui.fragment.MemberFragment;
 import com.smart.lock.ui.fragment.TempFragment;
 import com.smart.lock.ui.fragment.UsersFragment;
 import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -44,10 +42,7 @@ import com.smart.lock.widget.DialogFactory;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class UserManagerActivity2 extends AppCompatActivity implements View.OnClickListener, UiListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();
@@ -130,7 +125,14 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.user_manager_setting, menu);
+
+        DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
+        if (defaultStatus.isEnable_face()){
+            getMenuInflater().inflate(R.menu.user_manager_with_face_setting, menu);
+        }else {
+            getMenuInflater().inflate(R.menu.user_manager_with_nfc_setting, menu);
+        }
+
         return true;
     }
 
@@ -146,6 +148,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
             case R.id.del_all_pwd:
             case R.id.del_all_fp:
             case R.id.del_all_card:
+            case R.id.del_all_face:
             case R.id.del_all_user:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     showTipsDialog(item);
@@ -189,6 +192,13 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                     tips = getString(R.string.delete_all_nfc_tips_2);
                 }
                 break;
+            case R.id.del_all_face:
+                if (mDefaultDevice.getUserId() == 1) {
+                    tips = getString(R.string.delete_all_face_tips_1);
+                } else if (mDefaultDevice.getUserId() == 2) {
+                    tips = getString(R.string.delete_all_face_tips_2);
+                }
+                break;
             case R.id.del_all_user:
                 if (mDefaultDevice.getUserId() == 1) {
                     tips = getString(R.string.delete_all_users_tips_1);
@@ -220,6 +230,9 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                                 break;
                             case R.id.del_all_card:
                                 mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_CARD, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_NFC);
+                                break;
+                            case R.id.del_all_face:
+                                mBleManagerHelper.getBleCardService().sendCmd17(BleMsg.TYPE_DELETE_OTHER_USER_FACE, mDefaultDevice.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT, ConstantUtil.USER_FACE);
                                 break;
                             case R.id.del_all_user:
                                 mBleManagerHelper.getBleCardService().sendCmd13(BleMsg.TYPE_DELETE_ALL_USER, BleMsg.INT_DEFAULT_TIMEOUT);
@@ -489,6 +502,9 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
 
     private void dispatchErrorCode(byte errCode, Serializable serializable) {
         switch (errCode) {
+            case BleMsg.TYPE_DELETE_PASSWORD_SUCCESS:
+            case BleMsg.TYPE_DELETE_NFC_SUCCESS:
+            case BleMsg.TYPE_DELETE_FACE_SUCCESS:
             case BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS:
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;
@@ -504,6 +520,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                     showMessage(getString(R.string.delete_key_success));
                 }
                 break;
+            case BleMsg.TYPE_DELETE_FACE_FAILED:
             case BleMsg.TYPE_GROUP_DELETE_KEY_FAILED:
                 showMessage(getString(R.string.delete_key_failed));
                 break;
