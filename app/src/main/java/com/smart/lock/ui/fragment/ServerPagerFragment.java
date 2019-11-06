@@ -85,8 +85,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private DialogFactory mTipsDialog; //未设置开锁信息提示框
 
     private int mBattery = 0;
-    private Boolean mEnableFace = false;
-
+    private int mEnableFace = 0;
     public static final int BIND_DEVICE = 0; //用户已添加设备
     public static final int UNBIND_DEVICE = 1;//未添加设备
     public static final int DEVICE_CONNECTING = 2;//添加设备中
@@ -235,9 +234,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         } else
                             mMyGridView.setNumColumns(2);
                         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
-                        mEnableFace = mDefaultStatus.isEnable_face();
-                        LogUtil.d(TAG+"2", mDefaultStatus.toString());
-                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(),mEnableFace);
+                        LogUtil.d(TAG + "2", mDefaultStatus.toString());
+                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultStatus.isEnable_face());
                         mMyGridView.setAdapter(mLockAdapter);
                     }
                 }
@@ -785,19 +783,17 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 LogUtil.i(TAG, "receiver 04!");
                 Bundle bundle = msg.getData();
                 mBattery = mDevice.getBattery(); //获取电池电量
-                int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
-                if (enableStatus == 3){
-                    mEnableFace = true;
-                }
+                mEnableFace = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
+
                 sendMessage(BIND_DEVICE, null, 0);
-                if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
+                if (mEnableFace == 0 && mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
                     checkUserKey();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
 //                mBattery = mDevice.getBattery(); //获取电池电量
 //                sendMessage(BIND_DEVICE, null, 0);
-                if (mDevice.getConnectType() != Device.BLE_OTHER_CONNECT_TYPE) //非普通连接26检查设备开锁信息
+                if (mEnableFace == 0 && mDevice.getConnectType() != Device.BLE_OTHER_CONNECT_TYPE) //非普通连接26检查设备开锁信息
                     checkUserKey();
                 break;
             default:
