@@ -460,7 +460,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     if (mMode == DETECTING_LOCK) {
                         detectDevice(device);
                     } else if (mMode == SEARCH_LOCK || mMode == SET_DEV_INFO) {
-                        if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                        if (StringUtil.checkNotNull(device.getName()) && Arrays.asList(ConstantUtil.LOCK_DEFAULT_NAME).contains(device.getName())) {
                             Log.d(TAG, "device.getName() = " + device.getName());
                             addDevice(device);
                         }

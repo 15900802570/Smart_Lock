@@ -786,14 +786,14 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 mEnableFace = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
 
                 sendMessage(BIND_DEVICE, null, 0);
-                if (mEnableFace == 0 && mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
+                if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
                     checkUserKey();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");
 //                mBattery = mDevice.getBattery(); //获取电池电量
 //                sendMessage(BIND_DEVICE, null, 0);
-                if (mEnableFace == 0 && mDevice.getConnectType() != Device.BLE_OTHER_CONNECT_TYPE) //非普通连接26检查设备开锁信息
+                if (mDevice.getConnectType() != Device.BLE_OTHER_CONNECT_TYPE) //非普通连接26检查设备开锁信息
                     checkUserKey();
                 break;
             default:
@@ -898,7 +898,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
-                if (mDefaultDevice.getUserId() == 1)
+                if (mDefaultDevice.getUserId() == 1 && mEnableFace == 0)
                     msg = mCtx.getString(R.string.del_local_key_tips);
                 else msg = mCtx.getString(R.string.input_key_tips);
                 if (mTipsDialog != null && !mTipsDialog.isShowing())

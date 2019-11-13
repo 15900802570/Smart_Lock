@@ -859,10 +859,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mDeviceStatus.setIntelligentLockCore(true);
                 }
                 break;
-            case 0x1c:  //智能锁芯设置失败
+            case BleMsg.TYPE_SET_LOCK_CORE_FAILED:  //智能锁芯设置失败
                 break;
 
-            case 0x1d:  //防撬报警设置成功
+            case BleMsg.TYPE_SET_ANTI_PRYING_ALARM_SUCCESS:  //防撬报警设置成功
                 if (mDeviceStatus.isAntiPrizingAlarm()) {
                     mAntiPrizingAlarmTs.setChecked(false);
                     mDeviceStatus.setAntiPrizingAlarm(false);
@@ -871,14 +871,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mDeviceStatus.setAntiPrizingAlarm(true);
                 }
                 break;
-            case 0x1e:  //防撬报警设置失败
+            case BleMsg.TYPE_SET_ANTI_PRYING_ALARM_FAILED:  //防撬报警设置失败
                 break;
 
-            case 0x20:  //回锁时间设置成功
+            case BleMsg.TYPE_SET_TEMP_USER_LIFE_FAILED:  //回锁时间设置成功
                 mDeviceStatus.setRolledBackTime(mSetTime);
                 mSetRolledBackTimeBs.setBtnDes(mSetTime + LockSettingActivity.this.getResources().getString(R.string.s));
                 break;
-            case 0x22:  //恢复出厂设置成功
+            case BleMsg.TYPE_RESTORE_FACTORY_SETTINGS_SUCCESS:  //恢复出厂设置成功
                 if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
                     ToastUtil.show(
                             LockSettingActivity.this,
@@ -919,7 +919,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case 0x29:  //log打印设置失败
                 showMessage(getString(R.string.lock_log_set_failed));
                 break;
-            case 0x2f:  //蓝牙广播设备成功
+            case BleMsg.TYPE_SET_BROADCAST_NORMALLY_OPEN_SUCCESS:  //蓝牙广播设备成功
                 if (mDeviceStatus.isBroadcastNormallyOpen()) {
                     mBroadcastNormallyOpenTs.setChecked(false);
                     mDeviceStatus.setBroadcastNormallyOpen(false);

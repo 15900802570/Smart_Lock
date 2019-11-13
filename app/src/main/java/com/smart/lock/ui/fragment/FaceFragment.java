@@ -237,6 +237,9 @@ public class FaceFragment extends BaseFragment implements View.OnClickListener, 
                 showMessage(mCtx.getResources().getString(R.string.delete_face_failed));
                 break;
             case BleMsg.TYPE_DEV_KEY_REPETITION:
+                showMessage(getString(R.string.key_repetition));
+                mFaceAdapter.notifyDataSetChanged();
+                break;
             case BleMsg.TYPE_FACE_EXIST:
                 showMessage(getString(R.string.face_exist));
                 mFaceAdapter.notifyDataSetChanged();

@@ -45,7 +45,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class UserManagerActivity2 extends AppCompatActivity implements View.OnClickListener, UiListener {
-    private final static String TAG = UserManagerActivity.class.getSimpleName();
+    private final static String TAG = UserManagerActivity2.class.getSimpleName();
 
     private NoScrollViewPager mUserPermissionVp;
     private Toolbar mUserSetTb;
@@ -127,9 +127,9 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
     public boolean onCreateOptionsMenu(Menu menu) {
 
         DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        if (defaultStatus.isEnable_face()){
+        if (defaultStatus.isEnable_face()) {
             getMenuInflater().inflate(R.menu.user_manager_with_face_setting, menu);
-        }else {
+        } else {
             getMenuInflater().inflate(R.menu.user_manager_with_nfc_setting, menu);
         }
 
@@ -242,11 +242,11 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                         }
                     }
                 }).setNoClick(new View.OnClickListener() {
-                      @Override
-                      public void onClick(View v) {
-                          mTipsDialog.cancelDownLoadDialog();
-                      }
-                }).show();
+            @Override
+            public void onClick(View v) {
+                mTipsDialog.cancelDownLoadDialog();
+            }
+        }).show();
     }
 
     /**
@@ -334,15 +334,18 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
     public void dispatchUiCallback(Message msg, Device device, int type) {
         mDevice = device;
         Bundle extra = msg.getData();
+        LogUtil.d(TAG, "msg=" + msg.getType());
         Serializable serializable = extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
         if (serializable != null && !(serializable instanceof DeviceUser || serializable instanceof Short || serializable instanceof DeviceKey)) {
             DialogUtils.closeDialog(mLoadDialog);
             return;
         }
+        LogUtil.d(TAG, "msg222=" + msg+'\n'+serializable);
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
+                    LogUtil.d(TAG,"msg33= "+ errCode[3]);
                     dispatchErrorCode(errCode[3], serializable);
                 break;
 //            case Message.TYPE_BLE_RECEIVER_CMD_26:
@@ -518,6 +521,9 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                         }
                     }
                     showMessage(getString(R.string.delete_key_success));
+                }
+                else {
+                    showMessage("None");
                 }
                 break;
             case BleMsg.TYPE_DELETE_FACE_FAILED:
