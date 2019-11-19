@@ -110,7 +110,7 @@ public class MessageCreator {
      * @param unLockTime  回锁时间
      * @return
      */
-    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState, byte[] powerSave) {
+    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState, byte[] powerSave, byte enableStatus) {
         Message message = Message.obtain();
         message.setType(type);
         message.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
@@ -120,6 +120,7 @@ public class MessageCreator {
         bundle.putByte(BleMsg.KEY_USER_STATUS, userStatus);
         bundle.putByte(BleMsg.KEY_SETTING_STATUS, stStatus);
         bundle.putByte(BleMsg.KEY_UNLOCK_TIME, unLockTime);
+        bundle.putByte(BleMsg.KEY_ENABLE_STATUS, enableStatus);
         if (tmpPwdSk != null && tmpPwdSk.length != 0) {
             bundle.putByteArray(BleMsg.KEY_TMP_PWD_SK, tmpPwdSk);
         }
@@ -245,7 +246,9 @@ public class MessageCreator {
                 || errCode[3] == 0x0b || errCode[3] == 0x0c || errCode[3] == 0x0d
                 || errCode[3] == 0x0e || errCode[3] == 0x0f || errCode[3] == 0x10
                 || errCode[3] == 0x23 || errCode[3] == 0x24 || errCode[3] == 0x25
-                || errCode[3] == 0x2A || errCode[3] == BleMsg.TYPE_DEV_KEY_REPETITION) {
+                || errCode[3] == 0x2A || errCode[3] == BleMsg.TYPE_DEV_KEY_REPETITION ||
+                errCode[3] == 0x38 || errCode[3] == 0x3A || errCode[3] == 0x3B ||
+                errCode[3] == 0x3C || errCode[3] == 0x39 ) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_SET_USER_LIFE_SUCCESS ||
                 errCode[3] == BleMsg.TYPE_NO_AUTHORITY_1E ||
@@ -255,7 +258,7 @@ public class MessageCreator {
                 errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_13 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS ||
-                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED) {
+                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED || errCode[3] == 0x3D) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
         }
 

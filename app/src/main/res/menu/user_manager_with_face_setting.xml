@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.UserManagerActivity2">
+
+    <item
+        android:id="@+id/del_all_pwd"
+        android:orderInCategory="100"
+        android:title="@string/del_all_pwd"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/del_all_fp"
+        android:orderInCategory="100"
+        android:title="@string/del_all_fp"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/del_all_face"
+        android:orderInCategory="100"
+        android:title="@string/del_all_face"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/del_all_user"
+        android:orderInCategory="100"
+        android:title="@string/del_all_user"
+        app:showAsAction="never" />
+</menu>

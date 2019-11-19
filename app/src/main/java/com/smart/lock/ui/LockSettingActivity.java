@@ -190,6 +190,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
+        if (mDeviceStatus.isUn_enable_nfc()){
+            mSetSupportCardTypeBs.setVisibility(View.GONE);
+        }
     }
 
     private void enableTest() {
@@ -699,9 +702,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     @Override
     public void deviceStateChange(Device device, int state) {
         mDevice = device;
+        LogUtil.d(TAG, String.valueOf(state));
         if (state != BleMsg.STATE_CONNECTED) {
             DialogUtils.closeDialog(mWarningDialog);
-            DialogUtils.closeDialog(mWaitingDialog);
+            LogUtil.d(TAG, "Close2");
+//            DialogUtils.closeDialog(mWaitingDialog);
         }
     }
 
@@ -854,10 +859,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mDeviceStatus.setIntelligentLockCore(true);
                 }
                 break;
-            case 0x1c:  //智能锁芯设置失败
+            case BleMsg.TYPE_SET_LOCK_CORE_FAILED:  //智能锁芯设置失败
                 break;
 
-            case 0x1d:  //防撬报警设置成功
+            case BleMsg.TYPE_SET_ANTI_PRYING_ALARM_SUCCESS:  //防撬报警设置成功
                 if (mDeviceStatus.isAntiPrizingAlarm()) {
                     mAntiPrizingAlarmTs.setChecked(false);
                     mDeviceStatus.setAntiPrizingAlarm(false);
@@ -866,27 +871,38 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     mDeviceStatus.setAntiPrizingAlarm(true);
                 }
                 break;
-            case 0x1e:  //防撬报警设置失败
+            case BleMsg.TYPE_SET_ANTI_PRYING_ALARM_FAILED:  //防撬报警设置失败
                 break;
 
-            case 0x20:  //回锁时间设置成功
+            case BleMsg.TYPE_SET_TEMP_USER_LIFE_FAILED:  //回锁时间设置成功
                 mDeviceStatus.setRolledBackTime(mSetTime);
                 mSetRolledBackTimeBs.setBtnDes(mSetTime + LockSettingActivity.this.getResources().getString(R.string.s));
                 break;
-            case 0x22:  //恢复出厂设置成功
+            case BleMsg.TYPE_RESTORE_FACTORY_SETTINGS_SUCCESS:  //恢复出厂设置成功
                 if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
                     ToastUtil.show(
                             LockSettingActivity.this,
                             R.string.restore_the_factory_settings_success,
-                            Toast.LENGTH_LONG);
+                            Toast.LENGTH_SHORT);
                     mBleManagerHelper.getBleCardService().disconnect();
                     finish();
                 } else {
                     finish();
                 }
-                mWaitingDialog.cancel();
+                DialogUtils.closeDialog(mWaitingDialog);
                 LogUtil.d(TAG, "恢复出厂设置成功");
                 break;
+            case BleMsg.TYPE_EQUIPMENT_BUSY:
+            case BleMsg.TYPE_DEVICE_BUSY:
+            case 0x3a: // 恢复出厂设置失败
+                DialogUtils.closeDialog(mWaitingDialog);
+                LogUtil.d(TAG, "恢复出厂设置失败");
+                ToastUtil.show(
+                        LockSettingActivity.this,
+                        R.string.restore_the_factory_settings_failed,
+                        Toast.LENGTH_LONG);
+                break;
+
             case 0x26: //设置卡片类型成功
                 mSetSupportOrdinaryCards = mTempSetSupportCards;
             case 0x27: //设置卡片类型失败
@@ -903,7 +919,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case 0x29:  //log打印设置失败
                 showMessage(getString(R.string.lock_log_set_failed));
                 break;
-            case 0x2f:  //蓝牙广播设备成功
+            case BleMsg.TYPE_SET_BROADCAST_NORMALLY_OPEN_SUCCESS:  //蓝牙广播设备成功
                 if (mDeviceStatus.isBroadcastNormallyOpen()) {
                     mBroadcastNormallyOpenTs.setChecked(false);
                     mDeviceStatus.setBroadcastNormallyOpen(false);
@@ -916,12 +932,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 if (mBleManagerHelper.getBleCardService() != null)
                     mBleManagerHelper.getBleCardService().cancelCmd(Message.TYPE_BLE_SEND_CMD_19 + "#" + "single");
                 showMessage(getString(R.string.plz_open_slide));
+                LogUtil.d(TAG, "Close1");
                 DialogUtils.closeDialog(mWarningDialog);
                 DialogUtils.closeDialog(mWaitingDialog);
                 break;
             default:
                 break;
         }
+        DialogUtils.closeDialog(mWarningDialog);
         DeviceStatusDao.getInstance(LockSettingActivity.this).updateDeviceStatus(mDeviceStatus);
     }
 

@@ -7,8 +7,8 @@ import java.util.Set;
 
 public class ConstantUtil {
 
-        public static String BASE_URL = "https://api.dttsh.cn";
-//    public static String BASE_URL = "http://118.31.62.126:8093";
+    public static String BASE_URL = "https://api.dttsh.cn";
+    //    public static String BASE_URL = "http://118.31.62.126:8093";
     public static final String CHECK_FIRMWARE_VERSION = BASE_URL + "/api/v1.0/firmware/update";
     public static final String CHECK_APP_VERSION = BASE_URL + "/api/v1.0/application/update";
     /**
@@ -176,14 +176,14 @@ public class ConstantUtil {
     public static final String SMART_LOCK = "smart_lock";
 
     /**
-     * 智能门锁默认名称
+     * 智能门锁默认名称,支持所有名称
      */
-    public static final String LOCK_DEFAULT_NAME = "DTLOCKER";
+    public static final String[] LOCK_DEFAULT_NAME = {"DTLOCKER", "AILock", "iKEYhome"};
 
 //    /**
 //     * NPM 锁默认名称
 //     */
-//    public static final String LOCK_DEFAULT_NAME = "iKEYhome";
+//    public static final String[] LOCK_DEFAULT_NAME = {"iKEYhome"};
 
     /**
      * 门锁软件版本
@@ -256,6 +256,11 @@ public class ConstantUtil {
      * 用户卡片
      */
     public static final byte USER_NFC = 0x02;
+
+    /**
+     * 人脸识别
+     */
+    public static final byte USER_FACE = 0x0A;
 
     /**
      * 远程开锁

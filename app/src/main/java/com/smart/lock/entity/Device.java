@@ -63,6 +63,7 @@ public class Device {
     private int userStatus = 0; //当前用户状态，1字节，0-未启用，1-启用，2-暂停
     private int stStatus = 0; //设置状态字，1字节，低位第一位表示常开功能是否开启，低位第二位表示语音提示是否开启
     private int unLockTime = 0; //回锁时间，1字节，5s，8s，10s
+    private int enableStatus = 0; //nfc/face启用状态字
     private byte[] syncUsers = new byte[16]; //同步状态字，16字节
     private byte[] allStatus = new byte[100];//所有用户状态
     private byte[] tempSecret = new byte[4 * (mIs128Code ? 16 : 32)]; //临时秘钥储存
@@ -169,6 +170,14 @@ public class Device {
 
     public void setTempSecret(byte[] tempSecret) {
         this.tempSecret = tempSecret;
+    }
+
+    public int getEnableStatus() {
+        return enableStatus;
+    }
+
+    public void setEnableStatus(int enableStatus) {
+        this.enableStatus = enableStatus;
     }
 
     public void halt() {

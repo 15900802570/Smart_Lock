@@ -44,6 +44,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.ToastUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -462,7 +463,7 @@ public class RetrieveDeviceActivity extends BaseActivity implements UiListener, 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                    if (StringUtil.checkNotNull(device.getName()) && Arrays.asList(ConstantUtil.LOCK_DEFAULT_NAME).contains(device.getName())) {
                         Log.d(TAG, "device.getName() = " + device.getName());
                         addDevice(device);
                     }

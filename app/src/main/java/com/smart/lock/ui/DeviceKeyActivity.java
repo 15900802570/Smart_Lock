@@ -26,11 +26,11 @@ import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.CardFragment;
+import com.smart.lock.ui.fragment.FaceFragment;
 import com.smart.lock.ui.fragment.FingerprintFragment;
 import com.smart.lock.ui.fragment.PwdFragment;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.NoScrollViewPager;
 
 import java.util.ArrayList;
@@ -47,6 +47,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     private PwdFragment mPwdFragment;
     private CardFragment mCardFragment;
     private FingerprintFragment mFPFragment;
+    private FaceFragment mFaceFragment;
 
     private boolean mDeleteMode = false;
 
@@ -82,14 +83,20 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void initData() {
-        mTitleList = new ArrayList<>();
-        mTitleList.add(getString(R.string.password));
-        mTitleList.add(getString(R.string.fingerprint));
-        mTitleList.add(getString(R.string.card));
 
         mTempUser = (DeviceUser) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
+        DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         mBleManagerHelper = BleManagerHelper.getInstance(this);
+
+        mTitleList = new ArrayList<>();
+        mTitleList.add(getString(R.string.password));
+        mTitleList.add(getString(R.string.fingerprint));
+        if (deviceStatus.isEnable_face()) {
+            mTitleList.add(getString(R.string.face_manager));
+        } else {
+            mTitleList.add(getString(R.string.card));
+        }
 
         int currentItem = getIntent().getExtras().getInt(BleMsg.KEY_CURRENT_ITEM);
 
@@ -99,12 +106,19 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mPwdFragment.setTempUser(mTempUser);
         mFPFragment = new FingerprintFragment();
         mFPFragment.setTempUser(mTempUser);
-        mCardFragment = new CardFragment();
-        mCardFragment.setTempUser(mTempUser);
-
         mUsersList.add(mPwdFragment);
         mUsersList.add(mFPFragment);
-        mUsersList.add(mCardFragment);
+
+        if (deviceStatus.isEnable_face()) {
+            mFaceFragment = new FaceFragment();
+            mFaceFragment.setTempUser(mTempUser);
+            mUsersList.add(mFaceFragment);
+        } else {
+            mCardFragment = new CardFragment();
+            mCardFragment.setTempUser(mTempUser);
+            mUsersList.add(mCardFragment);
+        }
+
         mUserPagerAdapter = new UserPagerAdapter(getSupportFragmentManager());
         mUserPermissionVp.setAdapter(mUserPagerAdapter);
 
@@ -207,7 +221,12 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     public void onBackPressed() {
         DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         if (deviceStatus.isCombinationLock()) {
-            int counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();
+            int counter = 0;
+            if (deviceStatus.isEnable_face()) {
+                counter = mPwdFragment.getCounter() + mFaceFragment.getCounter() + mFPFragment.getCounter();
+            } else {
+                counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();
+            }
             if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && counter < 2) {
                 DialogUtils.createTipsDialogWithConfirm(this, getString(R.string.two_or_more_unlocking_keys_must_be_set)).show();
                 return;

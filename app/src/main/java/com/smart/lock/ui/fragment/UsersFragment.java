@@ -32,9 +32,11 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
+import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.DeviceKeyActivity;
@@ -434,14 +436,19 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                 if (userInfo != null) {
                     DeviceUser devUser = DeviceUserDao.getInstance(mCtx).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
-
+                    DeviceStatus defaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
                     devUser.setUserStatus(userInfo[0]);
 
                     if (devUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER)
                         checKMembers(userInfo, devUser);
 
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
-                    DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    // NFC 与 FACE 互斥
+                    if (defaultStatus.isEnable_face()) {
+                        DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
+                    } else {
+                        DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
+                    }
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[3], ConstantUtil.USER_FINGERPRINT, "1");
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[4], ConstantUtil.USER_FINGERPRINT, "2");
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[5], ConstantUtil.USER_FINGERPRINT, "3");

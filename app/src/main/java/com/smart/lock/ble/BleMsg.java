@@ -245,6 +245,11 @@ public class BleMsg {
     public static final String KEY_UNLOCK_TIME = "unLockTime";
 
     /**
+     * 设备启用状态
+     */
+    public static final String KEY_ENABLE_STATUS = "enableStatus";
+
+    /**
      * 临时密码加密秘钥
      */
     public static final String KEY_TMP_PWD_SK = "tmpPwdSk";
@@ -371,6 +376,11 @@ public class BleMsg {
     public static final byte TYPE_ENTER_OR_MODIFY_NFC_FAILED = 0x0e; //录入/修改NFC卡失败
     public static final byte TYPE_MODIFY_NFC_SUCCESS = 0x0f; //修改NFC卡成功
     public static final byte TYPE_DELETE_NFC_SUCCESS = 0x10; //删除NFC卡成功
+    public static final byte TYPE_DELETE_FACE_FAILED = 0x38; //删除FACE失败
+    public static final byte TYPE_FACE_EXIST = 0x39; // 人脸信息已存在
+    public static final byte TYPE_ENTER_OR_MODIFY_FACE_FAILED = 0x3b; //录入/修改FACE卡失败
+    public static final byte TYPE_MODIFY_FACE_SUCCESS = 0x3c; //修改FACE卡成功
+    public static final byte TYPE_DELETE_FACE_SUCCESS = 0x3d; //删除FACE卡成功
     public static final byte TYPE_GROUP_DELETE_USER_SUCCESS = 0x11; //群删用户成功
     public static final byte TYPE_GROUP_DELETE_USER_FAILED = 0x12; //群删用户失败
     public static final byte TYPE_GROUP_DELETE_KEY_SUCCESS = 0x13; //群删密钥成功
@@ -430,6 +440,7 @@ public class BleMsg {
     public static final byte TYPE_PASSWORD = 0x00; //密码
     public static final byte TYPE_FINGERPRINT = 0x01; //指纹
     public static final byte TYPE_CARD = 0x02; //NFC卡
+    public static final byte TYPE_FACE = 0x0A; //FACE
 
     /**
      * msg 15 CMD
@@ -449,6 +460,7 @@ public class BleMsg {
     public static final byte TYPE_DELETE_OTHER_USER_PASSWORD = 0x04;//删除所有其他用户密码
     public static final byte TYPE_DELETE_OTHER_USER_FINGERPRINT = 0x05;//删除所有其他用户指纹
     public static final byte TYPE_DELETE_OTHER_USER_CARD = 0x06;//删除所有其他用户NFC
+    public static final byte TYPE_DELETE_OTHER_USER_FACE = 0x0B;//删除所有其他用户FACE
 
 
     /**

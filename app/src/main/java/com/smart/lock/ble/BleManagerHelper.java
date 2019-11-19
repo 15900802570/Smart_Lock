@@ -319,7 +319,7 @@ public class BleManagerHelper {
                 return;
             }
             if (mConnectType == 2) {
-                if (StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                if (StringUtil.checkNotNull(device.getName()) && Arrays.asList(ConstantUtil.LOCK_DEFAULT_NAME).contains(device.getName())) {
                     LogUtil.d(TAG, "dev rssi = " + rssi);
                     mHandler.removeCallbacks(mRunnable);
                     mBtAdapter.stopLeScan(mLeScanCallback);
@@ -329,7 +329,7 @@ public class BleManagerHelper {
                 }
             } else {
                 LogUtil.d(TAG, "mBleMac :" + mBleMac + "\n" + "device " + device.getAddress());
-                if (!mBleMac.equals(device.getAddress()) && StringUtil.checkNotNull(device.getName()) && device.getName().equals(ConstantUtil.LOCK_DEFAULT_NAME)) {
+                if (!mBleMac.equals(device.getAddress()) && StringUtil.checkNotNull(device.getName()) && Arrays.asList(ConstantUtil.LOCK_DEFAULT_NAME).contains(device.getName())) {
                     BluetoothDev dev = new BluetoothDev();
                     dev.setDevMac(device.getAddress());
                     dev.setDevName(device.getName());

@@ -2,6 +2,7 @@ package com.smart.lock.db.bean;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.smart.lock.utils.LogUtil;
 
 import java.io.Serializable;
 @DatabaseTable(tableName = "tb_device_status")
@@ -65,6 +66,15 @@ public class DeviceStatus implements Serializable{
     //信息更新时间
     @DatabaseField(columnName = "status_update_time")
     private long updateTime;
+
+
+    //是否禁止智能锁芯 1为禁用 0为启用
+    @DatabaseField(columnName = "un_enable_nfc",defaultValue = "0")
+    private boolean un_enable_nfc;
+
+    //是否禁止智能锁芯 1为禁用 0为启用
+    @DatabaseField(columnName = "enable_face",defaultValue = "0")
+    private boolean enable_face;
 
     public long getUpdateTime() {
         return updateTime;
@@ -184,5 +194,30 @@ public class DeviceStatus implements Serializable{
 
     public void setInvalidIntelligentLock(boolean invalidIntelligentLock) {
         this.invalidIntelligentLock = invalidIntelligentLock;
+    }
+    public boolean isUn_enable_nfc() {
+        return un_enable_nfc;
+    }
+
+    public void setUn_enable_nfc(boolean un_enable_nfc) {
+        this.un_enable_nfc = un_enable_nfc;
+    }
+
+    public boolean isEnable_face() {
+        return enable_face;
+    }
+
+    public void setEnable_face(boolean enable_face) {
+        LogUtil.e("setEnable"+ enable_face);
+        this.enable_face = enable_face;
+    }
+
+    public String toString(){
+        return "DeviceStatus{" +
+                "id=" + id +
+                ", nodeId='" + devNodeId + '\'' +
+                ", enableFace='" + enable_face + '\'' +
+                ", UnenableNFC='" + un_enable_nfc + '\'' +
+                '}';
     }
 }

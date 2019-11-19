@@ -27,7 +27,7 @@
     <string name="bt_reconnect">重连</string>
     <string name="bt_connect_failed">连接失败</string>
     <string name="bt_connect_success">连接成功</string>
-    <string name="bt_connecting">连接中...</string>
+    <string name="bt_connecting">连接中&#8230;</string>
     <string name="bt_connected">已连接</string>
     <string name="bt_setting">设置</string>
     <string name="bt_update_time">更新于:</string>
@@ -77,9 +77,9 @@
     <string name="confirm">确认</string>
     <string name="cancel">取消</string>
     <string name="data_loading">请稍候</string>
-    <string name="checking_security">安全校验中...</string>
-    <string name="add_locking">生成设备中...</string>
-    <string name="retry_connect">连接超时,请重新操作...</string>
+    <string name="checking_security">安全校验中&#8230;</string>
+    <string name="add_locking">生成设备中&#8230;</string>
+    <string name="retry_connect">连接超时,请重新操作&#8230;</string>
     <string name="plz_set_lock_name">请设置门锁名称(最多支持6个字符):</string>
     <string name="lock_default_name">智能门锁</string>
     <string name="battery_0">0%</string>
@@ -263,7 +263,7 @@
     <string name="customer_service">官方电话</string>
     <string name="company">大唐半导体科技有限公司</string>
 
-    <string name="check_version">正在检查更新...</string>
+    <string name="check_version">正在检查更新&#8230;</string>
     <string name="current_version">当前版本:</string>
     <string name="update_version">更新版本:</string>
     <string name="isnew_version">当前已经是最新的版本了 </string>
@@ -342,13 +342,13 @@
     <string name="modify_name">修改呢称</string>
     <string name="cannot_be_empty_str">昵称不能为空</string>
     <string name="card">卡片</string>
-    <string name="_2019_03_15">2019-03-15</string>
-    <string name="_2019_03_14">2019-03-14</string>
+    <string name="_2019_03_15">2019&#8211;03&#8211;15</string>
+    <string name="_2019_03_14">2019&#8211;03&#8211;14</string>
     <string name="fp_verification_failed">指纹验证失败,请再试一次</string>
     <string name="upper_limit_of_fp_verification_times">指纹验证次数达到上限</string>
     <string name="fp_verification_succeeded">指纹验证成功</string>
     <string name="skip">跳过</string>
-    <string name="_1970_01_01">1970-01-01</string>
+    <string name="_1970_01_01">1970&#8211;01&#8211;01</string>
     <string name="input_timeout">录入超时</string>
     <string name="setting_dev_info">设置设备信息</string>
     <string name="plz_set_right_life_cycle">请设置有效的生命周期</string>
@@ -357,7 +357,7 @@
     <string name="please_retry">请在</string>
     <string name="retry_later">秒后重试</string>
     <string name="the_user_delete_by_admin">该账户已被管理员删除，请联系管理员.</string>
-    <string name="lock_reset">恢复出厂设置...</string>
+    <string name="lock_reset">恢复出厂设置&#8230;</string>
     <string name="remote_unlock">远程开锁</string>
     <string name="latest_version">最新版本:</string>
     <string name="support_types_of_card">支持的卡片类型</string>
@@ -387,7 +387,7 @@
     <string name="set_start_time">设置起始日期</string>
     <string name="set_end_time">设置结束日期</string>
     <string name="ble_broadcast_normally_open">蓝牙广播常开</string>
-    <string name="checking">正在检查...</string>
+    <string name="checking">正在检查&#8230;</string>
     <string name="plz_input">请录入</string>
     <string name="plz_modify">请修改</string>
     <string name="fingerprint_ota_update">指纹升级</string>
@@ -398,11 +398,11 @@
     <string name="input">录入</string>
     <string name="key_repetition">密钥重复</string>
     <string name="sn_warning">不支持该设备</string>
-    <string name="sync_data">数据同步中...</string>
+    <string name="sync_data">数据同步中&#8230;</string>
     <string name="create_temp_pwd">创建临时密码</string>
     <string name="_return">返回</string>
     <string name="self_repair">修复</string>
-    <string name="repair_">正在修复...</string>
+    <string name="repair_">正在修复&#8230;</string>
     <string name="more">更多</string>
     <string name="plz_open_slide">请打开滑盖</string>
     <string name="plz_open_slide_input_key">请打开滑盖,按键确认</string>
@@ -445,7 +445,7 @@
     <string name="back_warning">再次点击退出</string>
     <string name="version_empty">当前没有最新升级文件!</string>
     <string name="input_key_tips">请录入您的开锁信息,谢谢!</string>
-    <string name="del_local_key_tips">如您之前通过非蓝牙的方式录过开锁信息,这些信息已清除,请重新录入。谢谢!</string>
+    <string name="del_local_key_tips">如果您之前通过非蓝牙的方式录过开锁信息,这些信息已清除,请重新录入。谢谢!</string>
     <string name="retrieve_dev">找回设备</string>
     <string name="retrieve_title">找回设备</string>
     <string name="retrieve_dev_by_scan">通过扫描二维码找回设备</string>
@@ -453,9 +453,9 @@
     <string name="edit_device_name">修改设备名称</string>
     <string name="the"> </string>
     <string name="remotely"> </string>
-    <string name="by_pwd"> </string>
-    <string name="by_nfc"> </string>
-    <string name="by_fingerprint"> </string>
+    <string name="by_pwd">" "</string>
+    <string name="by_nfc">" "</string>
+    <string name="by_fingerprint">" "</string>
     <string name="_unlocked">打开</string>
     <string name="_through_zh">通过</string>
     <string name="_fingerprint_zh">指纹</string>
@@ -473,5 +473,21 @@
     <string name="delete_all_fp_tips_2">您将删除普通用户的所有指纹</string>
     <string name="delete_all_users_tips_1">您将删除其他用户</string>
     <string name="delete_all_users_tips_2">您将删除所有普通用户</string>
+    <string name="face_manager">人脸识别</string>
+    <string name="add_face">添加人脸信息</string>
+    <string name="add_face_tips">您已添加过人脸信息，请删除后添加</string>
+    <string name="add_face_failed">添加人脸失败</string>
+    <string name="add_face_success">添加人脸成功</string>
+    <string name="modify_face_success">更改人脸成功</string>
+    <string name="modify_face_failed">更改人脸失败</string>
+    <string name="delete_face_success">删除人脸成功</string>
+    <string name="del_all_face">删除所有人脸</string>
+    <string name="delete_all_face_tips_1">您将删除其他用户的所有人脸信息</string>
+    <string name="delete_all_face_tips_2">您将删除普通用户的所有人脸信息</string>
+    <string name="delete_face_failed">删除人脸失败</string>
+    <string name="face_exist">人脸信息已存在</string>
+    <string name="face_info">人脸信息</string>
+    <string name="by_face">" "</string>
+    <string name="_face_zh">人脸识别</string>
 
 </resources>

@@ -157,6 +157,7 @@ public class MeFragment extends BaseFragment implements View.OnClickListener {
 
         mHelpTv.setImage(R.mipmap.ic_device_management);
         mHelpTv.setDes(getString(R.string.common_problem));
+        mHelpTv.setVisibility(View.GONE);
         setHasOptionsMenu(true);
     }
 

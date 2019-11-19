@@ -23,7 +23,7 @@ public class LockManagerAdapter extends BaseAdapter {
     private ArrayList<Integer> mNames = new ArrayList();
     private int mPermission;
 
-    public LockManagerAdapter(Context context, GridView gridView, int permission) {
+    public LockManagerAdapter(Context context, GridView gridView, int permission, boolean isFace) {
         mContext = context;
         mGridView = gridView;
         mPermission = permission;
@@ -34,8 +34,13 @@ public class LockManagerAdapter extends BaseAdapter {
         mNames.add(Integer.valueOf(R.string.fingerprint_manager));
         mIcons.add(Integer.valueOf(R.mipmap.icon_fingerprint));
 
-        mNames.add(Integer.valueOf(R.string.card_manager));
-        mIcons.add(Integer.valueOf(R.mipmap.icon_nfc));
+        if (isFace) {
+            mNames.add(Integer.valueOf(R.string.face_manager));
+            mIcons.add(Integer.valueOf(R.mipmap.icon_face));
+        }else {
+            mNames.add(Integer.valueOf(R.string.card_manager));
+            mIcons.add(Integer.valueOf(R.mipmap.icon_nfc));
+        }
 
         mNames.add(Integer.valueOf(R.string.event_manager));
         mIcons.add(Integer.valueOf(R.mipmap.icon_events));

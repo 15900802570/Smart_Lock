@@ -167,7 +167,7 @@
     <string name="recovery">Recovery</string>
     <string name="recovery_user_success">Restore user successfully</string>
     <string name="recovery_user_failed">The recovery user fails, the user is outside the life cycle</string>
-    <string name="delete_key_success">Delete the NFC card successfully</string>
+    <string name="delete_key_success">Delete the unlock information successfully</string>
     <string name="delete_key_failed">Deleting the unlock information failed</string>
     <string name="delete_users_success">Group deletion user successfully</string>
     <string name="delete_users_failed">Group deletion user failed</string>
@@ -459,4 +459,20 @@
     <string name="delete_all_users_tips_2">You will delete all normal users</string>
     <string name="device_help">Help</string>
     <string name="common_problem">Question and Answers</string>
+    <string name="face_manager">Face</string>
+    <string name="add_face">New Face</string>
+    <string name="add_face_tips">You have added the Face, please delete and add</string>
+    <string name="add_face_failed">New Face  failed</string>
+    <string name="add_face_success">New Face successfully</string>
+    <string name="modify_face_success">Face modification successfully</string>
+    <string name="modify_face_failed">Face modification failed</string>
+    <string name="delete_face_success">Delete Face successfully</string>
+    <string name="del_all_face">Delete All Face</string>
+    <string name="delete_all_face_tips_1">You will delete all face information from other users</string>
+    <string name="delete_all_face_tips_2">You will delete all face information of normal users.</string>
+    <string name="delete_face_failed">Delete Face failed</string>
+    <string name="face_exist">Face information already exists</string>
+    <string name="face_info">Face</string>
+    <string name="by_face">&#160;through the Face.</string>
+    <string name="_face_zh"></string>
 </resources>
