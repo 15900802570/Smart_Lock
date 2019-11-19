@@ -579,6 +579,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                 mHandler.removeCallbacks(cancelDialog);
                 showMessage(mCtx.getString(R.string.add_user_success));
                 break;
+            case BleMsg.TYPE_EQUIPMENT_BUSY:
             case BleMsg.TYPE_ADD_USER_FAILED:
                 android.os.Message msg = new android.os.Message();
                 msg.what = BleMsg.TYPE_ADD_USER_FAILED;
