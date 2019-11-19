@@ -451,8 +451,8 @@
     <string name="retrieve_dev_by_scan">通过扫描二维码找回设备</string>
     <string name="retrieve_dev_by_search">通过搜索找回设备</string>
     <string name="edit_device_name">修改设备名称</string>
-    <string name="the"> </string>
-    <string name="remotely"> </string>
+    <string name="the">" "</string>
+    <string name="remotely">" "</string>
     <string name="by_pwd">" "</string>
     <string name="by_nfc">" "</string>
     <string name="by_fingerprint">" "</string>
@@ -489,5 +489,6 @@
     <string name="face_info">人脸信息</string>
     <string name="by_face">" "</string>
     <string name="_face_zh">人脸识别</string>
+    <string name="remote_unlock_failed">远程开锁失败</string>
 
 </resources>

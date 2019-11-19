@@ -101,6 +101,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             super.handleMessage(msg);
             switch (msg.what) {
                 case CHECK_USERS_STATE_TIME_OUT:
+                    LogUtil.d(TAG, "index = checkOutTimeOut");
                     DialogUtils.closeDialog(mLoadDialog);
                     break;
                 default:
@@ -183,6 +184,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 }
 
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    LogUtil.d(TAG, "index = connect3");
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.data_loading));
                     mLoadDialog.show();
@@ -502,6 +504,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                        LogUtil.d(TAG, "index = 校验完成");
                         DialogUtils.closeDialog(mLoadDialog);
                         if (mHandler.hasMessages(CHECK_USERS_STATE_TIME_OUT)) {
                             mHandler.removeMessages(CHECK_USERS_STATE_TIME_OUT);
@@ -545,7 +548,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
             byte[] lcTsEnd = new byte[4];
             System.arraycopy(userInfo, 40, lcTsEnd, 0, 4); //生命周期结束时间
 
-            LogUtil.d(TAG, "lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin, ":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd, ":"));
+//            LogUtil.d(TAG, "lcTsBegin : " + StringUtil.bytesToHexString(lcTsBegin, ":") + " lcTsEnd : " + StringUtil.bytesToHexString(lcTsEnd, ":"));
 
             String stBegin = StringUtil.byte2Int(stTsBegin);
             if (!stBegin.equals("0000")) {
@@ -778,7 +781,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 mLoadDialog.show();
                 android.os.Message msg = android.os.Message.obtain();
                 msg.what = CHECK_USERS_STATE_TIME_OUT;
-                mHandler.sendMessageDelayed(msg, 5 * 1000);
+                mHandler.sendMessageDelayed(msg, 18 * 1000);
             }
             for (DeviceUser user : mCheckUsers) {
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {

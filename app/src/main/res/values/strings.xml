@@ -475,4 +475,5 @@
     <string name="face_info">Face</string>
     <string name="by_face">&#160;through the Face.</string>
     <string name="_face_zh"></string>
+    <string name="remote_unlock_failed">Remote unlock failed</string>
 </resources>

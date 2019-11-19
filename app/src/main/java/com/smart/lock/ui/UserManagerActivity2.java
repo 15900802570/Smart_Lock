@@ -258,26 +258,26 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-    public void changeVisible() {
-        if (mDeleteMode) {
-//            mDeleteItem.setTitle(getString(R.string.edit));
-            mDeleteMode = false;
-        } else {
-//            mDeleteItem.setTitle(getString(R.string.edit_back));
-            mDeleteMode = true;
-        }
-        BaseFragment framentView = mUserPagerAdapter.getItem(mVpPosition);
-        if (framentView instanceof AdminFragment) {
-            AdminFragment adminFragment = (AdminFragment) framentView;
-            adminFragment.selectDelete(mDeleteMode);
-        } else if (framentView instanceof MemberFragment) {
-            MemberFragment mumberFragment = (MemberFragment) framentView;
-            mumberFragment.selectDelete(mDeleteMode);
-        } else if (framentView instanceof TempFragment) {
-            TempFragment tempFragment = (TempFragment) framentView;
-            tempFragment.selectDelete(mDeleteMode);
-        }
-    }
+//    public void changeVisible() {
+//        if (mDeleteMode) {
+////            mDeleteItem.setTitle(getString(R.string.edit));
+//            mDeleteMode = false;
+//        } else {
+////            mDeleteItem.setTitle(getString(R.string.edit_back));
+//            mDeleteMode = true;
+//        }
+//        BaseFragment framentView = mUserPagerAdapter.getItem(mVpPosition);
+//        if (framentView instanceof AdminFragment) {
+//            AdminFragment adminFragment = (AdminFragment) framentView;
+//            adminFragment.selectDelete(mDeleteMode);
+//        } else if (framentView instanceof MemberFragment) {
+//            MemberFragment mumberFragment = (MemberFragment) framentView;
+//            mumberFragment.selectDelete(mDeleteMode);
+//        } else if (framentView instanceof TempFragment) {
+//            TempFragment tempFragment = (TempFragment) framentView;
+//            tempFragment.selectDelete(mDeleteMode);
+//        }
+//    }
 
     @Override
     public void onClick(View v) {
@@ -521,9 +521,6 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                         }
                     }
                     showMessage(getString(R.string.delete_key_success));
-                }
-                else {
-                    showMessage("None");
                 }
                 break;
             case BleMsg.TYPE_DELETE_FACE_FAILED:

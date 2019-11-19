@@ -684,6 +684,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
             case BleMsg.TYPE_REMOTE_UNLOCK_SUCCESS:
                 showMessage(getString(R.string.remote_unlock_success));
                 break;
+            case BleMsg.TYPE_REMOTE_UNLOCK_FAILED:
+                showMessage(getString(R.string.remote_unlock_failed));
+                mIsLockBack = false;
+                break;
             default:
                 break;
         }

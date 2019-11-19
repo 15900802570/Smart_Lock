@@ -340,7 +340,8 @@ public class BleMsg {
     public static final byte TYPE_SET_BROADCAST_NAME_FAILED = 0x05; //配置广播名失败
     public static final byte TYPE_SET_POWER_SAVE_SUCCESS = 0x06; //配置省电时段成功
     public static final byte TYPE_SET_POWER_SAVE_FAILED = 0x07; //配置省电时段失败
-    public static final byte TYPE_USER_LIFE_UPDATE_FAIL = 0x07; //普通用户生命周期设置失败
+    public static final byte TYPE_USER_LIFE_UPDATE_FAIL = 0x08; //普通用户生命周期设置失败
+    public static final byte TYPE_REMOTE_UNLOCK_FAILED = 0x09; //远程开锁失败
 
 
     /**

@@ -160,6 +160,7 @@ public class FaceFragment extends BaseFragment implements View.OnClickListener, 
     public void deviceStateChange(Device device, int state) {
         switch (state) {
             case BleMsg.STATE_DISCONNECTED:
+                LogUtil.d(TAG,"close index =1");
                 DialogUtils.closeDialog(mLoadDialog);
                 DialogUtils.closeDialog(mCancelDialog);
                 showMessage(mCtx.getString(R.string.ble_disconnect));
@@ -191,6 +192,7 @@ public class FaceFragment extends BaseFragment implements View.OnClickListener, 
                 DeviceKey key = (DeviceKey) serializable;
                 LogUtil.d(TAG, "key = " + ((key == null) ? true : key.toString()));
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_FACE)) {
+                    LogUtil.d(TAG,"close index =00");
                     DialogUtils.closeDialog(mLoadDialog);
                     return;
                 }
@@ -210,6 +212,7 @@ public class FaceFragment extends BaseFragment implements View.OnClickListener, 
                     DeviceUserDao.getInstance(mCtx).updateDeviceUser(mTempUser);
                 }
                 mFaceAdapter.addItem(deviceKey);
+                LogUtil.d(TAG,"close index =11");
                 DialogUtils.closeDialog(mLoadDialog);
                 break;
             default:
@@ -252,6 +255,7 @@ public class FaceFragment extends BaseFragment implements View.OnClickListener, 
             default:
                 break;
         }
+        LogUtil.d(TAG,"close index =33");
         DialogUtils.closeDialog(mCancelDialog);
         DialogUtils.closeDialog(mLoadDialog);
     }
@@ -266,10 +270,12 @@ public class FaceFragment extends BaseFragment implements View.OnClickListener, 
         int exception = msg.getException();
         switch (exception) {
             case Message.EXCEPTION_TIMEOUT:
+                LogUtil.d(TAG,"close index =44");
                 DialogUtils.closeDialog(mLoadDialog);
                 LogUtil.e(msg.getType() + " can't receiver msg!");
                 break;
             case Message.EXCEPTION_SEND_FAIL:
+                LogUtil.d(TAG,"close index =55");
                 DialogUtils.closeDialog(mLoadDialog);
                 LogUtil.e(msg.getType() + " send failed!");
                 LogUtil.e(TAG, "msg exception : " + msg.toString());
