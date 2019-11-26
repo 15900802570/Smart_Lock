@@ -110,7 +110,9 @@ public class MessageCreator {
      * @param unLockTime  回锁时间
      * @return
      */
-    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus, byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState, byte[] powerSave, byte enableStatus) {
+    public static Message getCmd04Message(byte type, byte batPerscent, byte[] syncUsers, byte userStatus,
+                                          byte stStatus, byte unLockTime, byte[] tmpPwdSk, byte[] userState, byte[] powerSave,
+                                          byte enableStatus, byte stStatus2) {
         Message message = Message.obtain();
         message.setType(type);
         message.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
@@ -121,6 +123,7 @@ public class MessageCreator {
         bundle.putByte(BleMsg.KEY_SETTING_STATUS, stStatus);
         bundle.putByte(BleMsg.KEY_UNLOCK_TIME, unLockTime);
         bundle.putByte(BleMsg.KEY_ENABLE_STATUS, enableStatus);
+        bundle.putByte(BleMsg.KEY_SETTING_STATUS2, stStatus2);
         if (tmpPwdSk != null && tmpPwdSk.length != 0) {
             bundle.putByteArray(BleMsg.KEY_TMP_PWD_SK, tmpPwdSk);
         }
@@ -398,6 +401,26 @@ public class MessageCreator {
      * @return
      */
     public static Message getCmd3EMessage(byte type, byte[] errCode) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+        if (errCode[3] == 0x04) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_37 + "#" + "single");
+        } else
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
+
+        mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
+        return mMessage;
+    }
+
+    /**
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_42
+     *
+     * @param type    消息类型
+     * @param errCode 设备回复的错误编码
+     * @return
+     */
+    public static Message getCmd42Message(byte type, byte[] errCode) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();

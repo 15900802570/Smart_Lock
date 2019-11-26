@@ -230,6 +230,24 @@ public class Message implements Serializable {
     public static final byte TYPE_BLE_RECEIVER_CMD_3E = 0x3E;
 
     /**
+     * MSG 41 人脸OTA
+     */
+    public static final byte TYPE_BLE_SEND_CMD_41 = 0x41;
+    /**
+     * MSG 42 人脸OTA响应
+     */
+    public static final byte TYPE_BLE_RECEIVER_CMD_42 = 0x42;
+    /**
+     * MSG 41 人脸OTA 文件传输
+     */
+    public static final byte TYPE_BLE_SEND_CMD_43 = 0x43;
+
+    /**
+     * MSG 45 人脸锁设置长度可变密码。
+     */
+    public static final byte TYPE_BLE_SEND_CMD_45 = 0x45;
+
+    /**
      * OTA升级命令
      */
     public static final byte TYPE_BLE_SEND_OTA_CMD = 0x50;

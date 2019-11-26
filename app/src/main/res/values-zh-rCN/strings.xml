@@ -188,7 +188,7 @@
     <string name="del_all_nfc">删除所有卡片</string>
     <string name="del_all_user">删除所有用户</string>
     <string name="title_activity_settings">设置</string>
-    <string name="unenable">未启用</string>
+    <string name="unable">未启用</string>
     <string name="normal">正常</string>
     <string name="pause">暂停</string>
     <string name="recovery">恢复</string>
@@ -251,7 +251,7 @@
     <string name="use">使用</string>
     <string name="open">打开了</string>
     <string name="rejected_permission">您拒绝了权限申请</string>
-    <string name="unenable_ble">您放弃打开蓝牙</string>
+    <string name="unable_ble">您放弃打开蓝牙</string>
     <string name="disconnect_ble">连接已断开</string>
     <string name="ble_disconnect">蓝牙已断开，请重新连接</string>
     <string name="search_lock">搜索附近的门锁</string>
@@ -490,5 +490,9 @@
     <string name="by_face">" "</string>
     <string name="_face_zh">人脸识别</string>
     <string name="remote_unlock_failed">远程开锁失败</string>
+    <string name="infrared_induction">人体感应</string>
+    <string name="auto_close">自动关门</string>
+    <string name="auto_close_setting_failed">自动关门设置失败</string>
+    <string name="pwd_length_max">密码长度6～10位</string>
 
 </resources>

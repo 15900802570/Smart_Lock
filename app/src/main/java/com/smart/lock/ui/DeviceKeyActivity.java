@@ -86,13 +86,12 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
 
         mTempUser = (DeviceUser) Objects.requireNonNull(getIntent().getExtras()).getSerializable(BleMsg.KEY_TEMP_USER);
         mDefaultDevice = DeviceInfoDao.getInstance(this).queryFirstData("device_default", true);
-        DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         mBleManagerHelper = BleManagerHelper.getInstance(this);
 
         mTitleList = new ArrayList<>();
         mTitleList.add(getString(R.string.password));
         mTitleList.add(getString(R.string.fingerprint));
-        if (deviceStatus.isEnable_face()) {
+        if (mDefaultDevice.isEnable_face()) {
             mTitleList.add(getString(R.string.face_manager));
         } else {
             mTitleList.add(getString(R.string.card));
@@ -109,7 +108,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         mUsersList.add(mPwdFragment);
         mUsersList.add(mFPFragment);
 
-        if (deviceStatus.isEnable_face()) {
+        if (mDefaultDevice.isEnable_face()) {
             mFaceFragment = new FaceFragment();
             mFaceFragment.setTempUser(mTempUser);
             mUsersList.add(mFaceFragment);
@@ -222,7 +221,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
         DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
         if (deviceStatus.isCombinationLock()) {
             int counter = 0;
-            if (deviceStatus.isEnable_face()) {
+            if (mDefaultDevice.isEnable_face()) {
                 counter = mPwdFragment.getCounter() + mFaceFragment.getCounter() + mFPFragment.getCounter();
             } else {
                 counter = mPwdFragment.getCounter() + mCardFragment.getCounter() + mFPFragment.getCounter();

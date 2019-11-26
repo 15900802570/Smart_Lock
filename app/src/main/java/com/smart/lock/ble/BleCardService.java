@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
@@ -14,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.smart.lock.ble.listener.ClientTransaction;
@@ -22,24 +20,17 @@ import com.smart.lock.ble.listener.DeviceStateCallback;
 import com.smart.lock.ble.listener.MainEngine;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
-import com.smart.lock.ble.parser.OtaAESPacketParser;
 import com.smart.lock.ble.provider.BleProvider;
 import com.smart.lock.ble.provider.BleReceiver;
 import com.smart.lock.db.bean.DeviceKey;
 import com.smart.lock.db.bean.DeviceLog;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.entity.Device;
-import com.smart.lock.ui.OtaUpdateActivity;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.SendOTAData;
 import com.smart.lock.utils.StringUtil;
-import com.smart.lock.utils.SystemUtils;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 /**
@@ -753,7 +744,58 @@ public class BleCardService {
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();
     }
+    /**
+     * MSG 37是APK发给智能锁的指纹固件大小。
+     *
+     * @param size 指纹固件大小
+     * @return 是否发送成功
+     */
+    public boolean sendCmd41(byte cmdType,byte OTAType, int size, int timeOut) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_41);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
+        msg.setTimeout(timeOut);
+        Bundle bundle = msg.getData();
 
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        bundle.putByte(BleMsg.KEY_OTA_MODULE_TYPE, OTAType);
+        bundle.putInt(BleMsg.KEY_OTA_MODULE_TYPE, size);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
+    }
+    /**
+     * MSG 45 是APK通知智能锁新建或者修改长度可变密码的消息
+     *
+     * @param cmdType 命令类型
+     * @param pwdLen 秘钥类型
+     * @param userId  用户编号
+     * @param lockId  秘钥编号
+     * @param pwd     录入密码
+     * @return bool
+     */
+    public boolean sendCmd45(byte cmdType, short userId, byte lockId, byte pwdLen, String pwd, int timeOut) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_45);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_15 + "#" + "single"); //返回消息有MSG16来处理
+        msg.setTimeout(timeOut);
+
+        Bundle bundle = msg.getData();
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+        bundle.putByte(BleMsg.KEY_PWD_LEN, pwdLen);
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+        bundle.putByte(BleMsg.KEY_LOCK_ID, lockId);
+        bundle.putString(BleMsg.KEY_PWD, pwd);
+
+        DeviceKey deviceKey = new DeviceKey();
+        deviceKey.setKeyType(BleMsg.TYPE_PASSWORD);
+        deviceKey.setUserId(userId);
+        deviceKey.setLockId(String.valueOf(lockId));
+        bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
+    }
     /**
      * MSG 51阈值测试。
      *

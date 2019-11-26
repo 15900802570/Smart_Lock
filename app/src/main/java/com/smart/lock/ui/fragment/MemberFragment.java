@@ -577,7 +577,7 @@ public class MemberFragment extends BaseFragment implements View.OnClickListener
                 if (userInfo != null) {
                     ((MemberViewHolder) holder).mNameTv.setText(userInfo.getUserName());
                     if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                        ((MemberViewHolder) holder).mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
+                        ((MemberViewHolder) holder).mUserStateTv.setText(mCtx.getResources().getString(R.string.unable));
                         ((MemberViewHolder) holder).mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                         ((MemberViewHolder) holder).mSwipeLayout.setRightSwipeEnabled(false);
                     } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {

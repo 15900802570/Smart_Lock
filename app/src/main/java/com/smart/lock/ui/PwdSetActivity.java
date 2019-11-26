@@ -2,27 +2,20 @@ package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
+import android.text.InputFilter;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.listener.ClientTransaction;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
@@ -35,9 +28,6 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.widget.Controller;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class PwdSetActivity extends BaseActivity implements View.OnClickListener, UiListener {
     private static final String TAG = "PwdCreateActivity";
@@ -102,7 +92,12 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             mNodeId = mModifyDeviceKey.getDeviceNodeId();
             mTitleTv.setText(R.string.modify_pwd);
         }
-
+        if (mDefaultDevice.isEnable_face()) {
+            mFirstPwdEt.setHint(R.string.pwd_length_max);
+            mFirstPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
+            mSecondPwdEt.setHint(R.string.pwd_length_max);
+            mSecondPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
+        }
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
         mDevice = Device.getInstance(this);
@@ -124,9 +119,9 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
         final String secPwd = mSecondPwdEt.getText().toString().trim();
         final String userName = mUserNameEt.getText().toString().trim();
 
-        if (TextUtils.isEmpty(firstPwd) || firstPwd.length() != 6) {
+        if (TextUtils.isEmpty(firstPwd) || firstPwd.length() < 6) {
             mFirstPwdEt.setError(getString(R.string.valid_password));
-        } else if (TextUtils.isEmpty(secPwd) || secPwd.length() != 6) {
+        } else if (TextUtils.isEmpty(secPwd) || secPwd.length() < 6) {
             mSecondPwdEt.setError(getString(R.string.valid_password));
         } else if (!firstPwd.equals(secPwd)) {
             mSecondPwdEt.setError(getString(R.string.pwd_twice_error));
@@ -139,18 +134,30 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 if (count >= 0 && count < 1) {
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
-                    if (mTempUser != null)
-                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mTempUser.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
-                    else
-                        mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mDefaultDevice.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
-
+                    if (mTempUser != null) {
+                        if (mDefaultDevice.isEnable_face()) {
+                            mBleManagerHelper.getBleCardService().sendCmd45(BleMsg.CMD_TYPE_PWD_CREATE, mTempUser.getUserId(), (byte) 0, (byte) firstPwd.length(), firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mTempUser.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                        }
+                    } else {
+                        if (mDefaultDevice.isEnable_face()) {
+                            mBleManagerHelper.getBleCardService().sendCmd45(BleMsg.CMD_TYPE_PWD_CREATE, mDefaultDevice.getUserId(), (byte) 0, (byte) firstPwd.length(), firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mDefaultDevice.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                        }
+                    }
                 } else {
                     showMessage(getString(R.string.add_pwd_tips));
                 }
             } else {
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
-                mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_PASSWORD, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                if (mDefaultDevice.isEnable_face()) {
+                    mBleManagerHelper.getBleCardService().sendCmd45(BleMsg.CMD_TYPE_PWD_MODIFY, mModifyDeviceKey.getUserId(), (byte) 0, (byte) firstPwd.length(), firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                } else {
+                    mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_PASSWORD, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
+                }
             }
         }
     }
@@ -206,6 +213,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_16:
                 DeviceKey key = (DeviceKey) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                LogUtil.d(TAG,"TYPE = "+key.getKeyType());
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_PWD)) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;

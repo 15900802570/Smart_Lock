@@ -142,8 +142,7 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        if (defaultStatus.isEnable_face()) {
+        if (mDefaultDevice.isEnable_face()) {
             getMenuInflater().inflate(R.menu.user_manager_with_face_setting, menu);
         } else {
             getMenuInflater().inflate(R.menu.user_manager_with_nfc_setting, menu);
@@ -347,13 +346,12 @@ public class UserManagerActivity extends AppCompatActivity implements View.OnCli
                     return;
                 }
                 DeviceUser tempUser = DeviceUserDao.getInstance(this).queryUser(mDefaultDevice.getDeviceNodeId(), userIdTag);
-                DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
                 byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
 
                 if (userInfo != null) {
                     DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                     // NFC 与 FACE 互斥
-                    if (defaultStatus.isEnable_face()) {
+                    if (mDefaultDevice.isEnable_face()) {
                         DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
                     } else {
                         DeviceKeyDao.getInstance(this).checkDeviceKey(tempUser.getDevNodeId(), tempUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");

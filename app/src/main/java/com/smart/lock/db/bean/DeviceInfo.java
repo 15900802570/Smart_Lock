@@ -6,7 +6,6 @@ import com.j256.ormlite.table.DatabaseTable;
 import com.smart.lock.utils.LogUtil;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 @DatabaseTable(tableName = "tb_device_info")
 public class DeviceInfo implements Serializable {
@@ -97,6 +96,23 @@ public class DeviceInfo implements Serializable {
      */
     @DatabaseField(columnName = "device_index")
     private int deviceIndex;
+
+    //是否支持nfc 1为禁用 0为启用
+    @DatabaseField(columnName = "unable_nfc", defaultValue = "0")
+    private boolean unable_nfc;
+
+    //是否支持人脸 1为禁用 0为启用
+    @DatabaseField(columnName = "enable_face", defaultValue = "0")
+    private boolean enable_face;
+
+    //是否支持红外 0为不支持 1为支持
+    @DatabaseField(columnName = "enable_infrared", defaultValue = "0")
+    private boolean enableInfrared;
+
+    //是否支持红外 0为不支持 1为支持
+    @DatabaseField(columnName = "enable_variable_pwd", defaultValue = "0")
+    private boolean enableVariablePwd;
+
 
     public String getFpSwVersion() {
         return fpSwVersion;
@@ -322,6 +338,40 @@ public class DeviceInfo implements Serializable {
 
     public int getId() {
         return this.id;
+    }
+
+
+    public boolean isUnable_nfc() {
+        return unable_nfc;
+    }
+
+    public void setUnable_nfc(boolean unable_nfc) {
+        this.unable_nfc = unable_nfc;
+    }
+
+    public boolean isEnable_face() {
+        return enable_face;
+    }
+
+    public void setEnable_face(boolean enable_face) {
+        LogUtil.e("setEnable" + enable_face);
+        this.enable_face = enable_face;
+    }
+
+    public boolean isEnableInfrared() {
+        return enableInfrared;
+    }
+
+    public void setEnableInfrared(boolean enableInfrared) {
+        this.enableInfrared = enableInfrared;
+    }
+
+    public boolean isEnableVariablePwd() {
+        return enableVariablePwd;
+    }
+
+    public void setEnableVariablePwd(boolean enableVariablePwd) {
+        this.enableVariablePwd = enableVariablePwd;
     }
 
     @Override

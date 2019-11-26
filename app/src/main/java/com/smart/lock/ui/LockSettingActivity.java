@@ -33,7 +33,6 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
@@ -55,6 +54,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private ToggleSwitchDefineView mVoicePromptTs;
     private ToggleSwitchDefineView mLogEnableTs;
     private ToggleSwitchDefineView mBroadcastNormallyOpenTs;
+    private ToggleSwitchDefineView mInfraredEnableTs;
+    private ToggleSwitchDefineView mAutoCloseEnableTs;
 
     private BtnSettingDefineView mSetRolledBackTimeBs;
     private BtnSettingDefineView mSetSupportCardTypeBs;
@@ -118,6 +119,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mVoicePromptTs = findViewById(R.id.ts_voice_prompt);
         mLogEnableTs = findViewById(R.id.ts_log_enable);
         mBroadcastNormallyOpenTs = findViewById(R.id.ts_broadcast_normally_open);
+        mInfraredEnableTs = findViewById(R.id.ts_infrared_enable);
+        mAutoCloseEnableTs = findViewById(R.id.ts_auto_close_enable);
         mTitleTv = findViewById(R.id.tv_title);
 
         mSetRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
@@ -137,6 +140,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mLogEnableTs.setDes(getString(R.string.lock_log));
         mLogEnableTs.setVisibility(View.GONE); //测试使用
         mBroadcastNormallyOpenTs.setDes(getString(R.string.ble_broadcast_normally_open));
+        mInfraredEnableTs.setDes(getString(R.string.infrared_induction));
+        mAutoCloseEnableTs.setDes(getString(R.string.auto_close));
 
         mSetRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
         mSetSupportCardTypeBs.setDes(getString(R.string.support_types_of_card));
@@ -190,8 +195,16 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
-        if (mDeviceStatus.isUn_enable_nfc()){
+        if (mDefaultDevice.isUnable_nfc()){
             mSetSupportCardTypeBs.setVisibility(View.GONE);
+        }
+        if(!mDefaultDevice.isEnableVariablePwd()) {
+            mAutoCloseEnableTs.setVisibility(View.GONE);
+        }
+        if (mDefaultDevice.isEnableInfrared()){
+            mInfraredEnableTs.setVisibility(View.VISIBLE);
+        }else {
+            mInfraredEnableTs.setVisibility(View.GONE);
         }
     }
 
@@ -210,6 +223,8 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             mNormallyOpenTs.setChecked(mDeviceStatus.isNormallyOpen());
             mVoicePromptTs.setChecked(mDeviceStatus.isVoicePrompt());
             mBroadcastNormallyOpenTs.setChecked(mDeviceStatus.isBroadcastNormallyOpen());
+            mInfraredEnableTs.setChecked(mDeviceStatus.isInfraredEnable());
+            mAutoCloseEnableTs.setChecked(mDeviceStatus.isAutoCloseEnable());
 
             mSetTime = mDeviceStatus.getRolledBackTime();
             mSetRolledBackTimeBs.setBtnDes(mSetTime + getResources().getString(R.string.s));
@@ -281,6 +296,21 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             }
         });
 
+        //红外检测
+        mInfraredEnableTs.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doClick(R.string.infrared_induction);
+            }
+        });
+        //自动开门
+        mAutoCloseEnableTs.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doClick(R.string.auto_close);
+            }
+        });
+
         //门锁日志
         mLogEnableTs.getIv_switch_light().setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,6 +375,13 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
                 case R.id.ts_voice_prompt:          //语言提示
                     doClick(R.string.voice_prompt);
+                    break;
+
+                case R.id.ts_infrared_enable:          //语言提示
+                    doClick(R.string.infrared_induction);
+                    break;
+                case R.id.ts_auto_close_enable:          //语言提示
+                    doClick(R.string.auto_close);
                     break;
 
                 case R.id.ts_broadcast_normally_open://蓝牙广播
@@ -463,7 +500,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
                     case R.string.combination_lock:     //组合开锁
                         if (mDeviceStatus.isCombinationLock()) {
-                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_UNENABLE_COMBINATION_UNLOCK);
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_UNABLE_COMBINATION_UNLOCK);
                         } else {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_ENABLE_COMBINATION_UNLOCK);
                         }
@@ -474,6 +511,21 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_CLOSE);
                         } else {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_OPEN);
+                        }
+                        break;
+
+                    case R.string.infrared_induction:    //红外检测
+                        if (mDeviceStatus.isInfraredEnable()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INFRARED_INDUCTION_CLOSE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INFRARED_INDUCTION_OPEN);
+                        }
+                        break;
+                    case R.string.auto_close:    //自动开门
+                        if (mDeviceStatus.isAutoCloseEnable()) {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOORE_CLOSE);
+                        } else {
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOORE_OPEN);
                         }
                         break;
                     case R.string.voice_prompt:     //语言提示
@@ -488,14 +540,14 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         if (mLogEnableTs.isChecked()) {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_ENABLE);
                         } else {
-                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_UNENABLE);
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_LOCK_LOG_UNABLE);
                         }
                         break;
                     case R.string.ble_broadcast_normally_open: //蓝牙广播
                         if (mBroadcastNormallyOpenTs.isChecked()) {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_ENABLE);
                         } else {
-                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_UNENABLE);
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_BLE_NORMAL_OPEN_UNABLE);
                         }
                         break;
                 }
@@ -935,6 +987,26 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 LogUtil.d(TAG, "Close1");
                 DialogUtils.closeDialog(mWarningDialog);
                 DialogUtils.closeDialog(mWaitingDialog);
+                break;
+            case BleMsg.TYPE_INDRARED_INDUCTION_ENABLE:
+                mInfraredEnableTs.setChecked(true);
+                mDeviceStatus.setInfraredEnable(true);
+                break;
+            case BleMsg.TYPE_INDRARED_INDUCTION_UNABLE:
+                mInfraredEnableTs.setChecked(false);
+                mDeviceStatus.setInfraredEnable(false);
+                break;
+            case BleMsg.TYPE_AUTO_CLOSE_ENABLE_SUCCESS:
+                mAutoCloseEnableTs.setChecked(true);
+                mDeviceStatus.setAutoCloseEnable(true);
+                break;
+            case BleMsg.TYPE_AUTO_CLOSE_ENABLE_FAILED:
+            case BleMsg.TYPE_AUTO_CLOSE_UNABLE_FAILED:
+                    showMessage(getString(R.string.auto_close_setting_failed));
+                break;
+            case BleMsg.TYPE_AUTO_CLOSE_UNABLE_SUCCESS:
+                mAutoCloseEnableTs.setChecked(false);
+                mDeviceStatus.setAutoCloseEnable(false);
                 break;
             default:
                 break;

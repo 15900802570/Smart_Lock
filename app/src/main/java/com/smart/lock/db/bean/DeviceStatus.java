@@ -2,17 +2,17 @@ package com.smart.lock.db.bean;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
-import com.smart.lock.utils.LogUtil;
 
 import java.io.Serializable;
+
 @DatabaseTable(tableName = "tb_device_status")
-public class DeviceStatus implements Serializable{
+public class DeviceStatus implements Serializable {
 
     @DatabaseField(generatedId = true, columnName = "_id")
     private int id;
 
     //设备ID
-    @DatabaseField(columnName = "dev_node_id",canBeNull = false)
+    @DatabaseField(columnName = "dev_node_id", canBeNull = false)
     private String devNodeId;
 
     //智能锁芯
@@ -44,37 +44,36 @@ public class DeviceStatus implements Serializable{
     private boolean m1Support;
 
     //是否禁止智能锁芯 1为禁用 0为启用
-    @DatabaseField(columnName = "invalid_intelligent_lock",defaultValue = "1")
+    @DatabaseField(columnName = "invalid_intelligent_lock", defaultValue = "1")
     private boolean invalidIntelligentLock;
 
     //回锁时间
-    @DatabaseField(columnName = "rolled_back_time",defaultValue = "5" )
+    @DatabaseField(columnName = "rolled_back_time", defaultValue = "5")
     private int rolledBackTime;
 
     //省电开始时间
-    @DatabaseField(columnName = "power_saving_start_time",defaultValue = "2300" )
+    @DatabaseField(columnName = "power_saving_start_time", defaultValue = "2300")
     private int powerSavingStartTime;
 
     //省电结束时间
-    @DatabaseField(columnName = "power_saving_end_time",defaultValue = "700" )
+    @DatabaseField(columnName = "power_saving_end_time", defaultValue = "700")
     private int powerSavingEndTime;
 
     //电池
-    @DatabaseField(columnName = "battery",defaultValue = "0" )
+    @DatabaseField(columnName = "battery", defaultValue = "0")
     private int battery;
 
     //信息更新时间
     @DatabaseField(columnName = "status_update_time")
     private long updateTime;
 
+    //自动开门状态 0为禁用 1为启用
+    @DatabaseField(columnName = "autoCloseEnable", defaultValue = "0")
+    private boolean autoCloseEnable;
 
-    //是否禁止智能锁芯 1为禁用 0为启用
-    @DatabaseField(columnName = "un_enable_nfc",defaultValue = "0")
-    private boolean un_enable_nfc;
-
-    //是否禁止智能锁芯 1为禁用 0为启用
-    @DatabaseField(columnName = "enable_face",defaultValue = "0")
-    private boolean enable_face;
+    //红外状态 0为禁用 1为启用
+    @DatabaseField(columnName = "infraredEnable", defaultValue = "0")
+    private boolean infraredEnable;
 
     public long getUpdateTime() {
         return updateTime;
@@ -195,29 +194,27 @@ public class DeviceStatus implements Serializable{
     public void setInvalidIntelligentLock(boolean invalidIntelligentLock) {
         this.invalidIntelligentLock = invalidIntelligentLock;
     }
-    public boolean isUn_enable_nfc() {
-        return un_enable_nfc;
+
+    public boolean isAutoCloseEnable() {
+        return autoCloseEnable;
     }
 
-    public void setUn_enable_nfc(boolean un_enable_nfc) {
-        this.un_enable_nfc = un_enable_nfc;
+    public void setAutoCloseEnable(boolean autoCloseEnable) {
+        this.autoCloseEnable = autoCloseEnable;
     }
 
-    public boolean isEnable_face() {
-        return enable_face;
-    }
-
-    public void setEnable_face(boolean enable_face) {
-        LogUtil.e("setEnable"+ enable_face);
-        this.enable_face = enable_face;
-    }
-
-    public String toString(){
+    public String toString() {
         return "DeviceStatus{" +
                 "id=" + id +
-                ", nodeId='" + devNodeId + '\'' +
-                ", enableFace='" + enable_face + '\'' +
-                ", UnenableNFC='" + un_enable_nfc + '\'' +
+                ", nodeId='" + devNodeId + '\''+
                 '}';
+    }
+
+    public boolean isInfraredEnable() {
+        return infraredEnable;
+    }
+
+    public void setInfraredEnable(boolean infraredEnable) {
+        this.infraredEnable = infraredEnable;
     }
 }

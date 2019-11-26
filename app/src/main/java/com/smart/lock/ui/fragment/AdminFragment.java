@@ -1,10 +1,8 @@
 package com.smart.lock.ui.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -531,7 +529,7 @@ public class AdminFragment extends BaseFragment implements View.OnClickListener,
             if (userInfo != null) {
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                    holder.mUserStateTv.setText(mContext.getString(R.string.unenable));
+                    holder.mUserStateTv.setText(mContext.getString(R.string.unable));
                     holder.mSwipeLayout.setRightSwipeEnabled(false);
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {

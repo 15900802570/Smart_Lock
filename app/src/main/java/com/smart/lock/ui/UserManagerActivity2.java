@@ -126,8 +126,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        DeviceStatus defaultStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        if (defaultStatus.isEnable_face()) {
+        if (mDefaultDevice.isEnable_face()) {
             getMenuInflater().inflate(R.menu.user_manager_with_face_setting, menu);
         } else {
             getMenuInflater().inflate(R.menu.user_manager_with_nfc_setting, menu);

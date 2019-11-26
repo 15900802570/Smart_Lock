@@ -157,8 +157,8 @@
     <string name="del_all_user">Delete all users</string>
     <string name="normal">Normal</string>
     <string name="pause">Suspend</string>
-    <string name="invalid">Invalied</string>
-    <string name="unenable">Not enabled</string>
+    <string name="invalid">Invalid</string>
+    <string name="unable">Not enabled</string>
     <string name="create_user">New User</string>
     <string name="add_user_tips">Records are full, please delete and add</string>
     <string name="mine_certify_select">Selected</string>
@@ -313,7 +313,7 @@
     <string name="default_dev_delete_failed">Default devices cannot be deleted under multiple devices</string>
     <string name="modify_name">Modify the Name</string>
     <string name="cannot_be_empty_str">Nickname cannot be empty</string>
-    <string name="unenable_ble">Bluetooth is not turned on</string>
+    <string name="unable_ble">Bluetooth is not turned on</string>
     <string name="user_pwd">Password</string>
     <string name="user_confirm">Confirm</string>
     <string name="enter_pwd_again">Please enter the password again</string>
@@ -476,4 +476,8 @@
     <string name="by_face">&#160;through the Face.</string>
     <string name="_face_zh"></string>
     <string name="remote_unlock_failed">Remote unlock failed</string>
+    <string name="infrared_induction">Infrared induction</string>
+    <string name="auto_close">Automatic closing</string>
+    <string name="auto_close_setting_failed">Automatic door closing setting failed</string>
+    <string name="pwd_length_max">max 10 characters</string>
 </resources>

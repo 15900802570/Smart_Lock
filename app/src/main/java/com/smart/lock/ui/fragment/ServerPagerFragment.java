@@ -85,7 +85,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     private DialogFactory mTipsDialog; //未设置开锁信息提示框
 
     private int mBattery = 0;
-    private int mEnableFace = 0;
     public static final int BIND_DEVICE = 0; //用户已添加设备
     public static final int UNBIND_DEVICE = 1;//未添加设备
     public static final int DEVICE_CONNECTING = 2;//添加设备中
@@ -235,7 +234,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             mMyGridView.setNumColumns(2);
                         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                         LogUtil.d(TAG + "2", mDefaultStatus.toString());
-                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultStatus.isEnable_face());
+                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnable_face());
                         mMyGridView.setAdapter(mLockAdapter);
                     }
                 }
@@ -274,7 +273,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         mMyGridView.setNumColumns(2);
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                     LogUtil.d(TAG, mDefaultStatus.toString());
-                    mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultStatus.isEnable_face());
+                    mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnable_face());
                     mMyGridView.setAdapter(mLockAdapter);
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 }
@@ -787,8 +786,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 LogUtil.i(TAG, "receiver 04!");
                 Bundle bundle = msg.getData();
                 mBattery = mDevice.getBattery(); //获取电池电量
-                mEnableFace = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
-
                 sendMessage(BIND_DEVICE, null, 0);
                 if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
                     checkUserKey();
@@ -902,9 +899,12 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
 
         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
             if (DeviceKeyDao.getInstance(mCtx).queryUserDeviceKey(mDefaultDevice.getDeviceNodeId(), mDefaultDevice.getUserId()).size() == 0) {
+                /* 在最新固件中，本地信息会直接添加到管理员中，不需要这个提示
                 if (mDefaultDevice.getUserId() == 1 && mEnableFace == 0)
                     msg = mCtx.getString(R.string.del_local_key_tips);
-                else msg = mCtx.getString(R.string.input_key_tips);
+                else
+                 */
+                msg = mCtx.getString(R.string.input_key_tips);
                 if (mTipsDialog != null && !mTipsDialog.isShowing())
                     showTipsDialog(msg);
             } else {

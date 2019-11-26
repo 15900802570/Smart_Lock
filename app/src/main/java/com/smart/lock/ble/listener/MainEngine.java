@@ -25,17 +25,13 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
-import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Objects;
 
@@ -364,6 +360,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         int stStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
         int unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
         int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
+        int stStatus2 = bundle.getByte(BleMsg.KEY_SETTING_STATUS2, (byte) 0);
         byte[] syncUsers = bundle.getByteArray(BleMsg.KEY_SYNC_USERS);
         byte[] userState = bundle.getByteArray(BleMsg.KEY_USERS_STATE);
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
@@ -420,7 +417,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 || mDevice.getConnectType() == Device.BLE_SCAN_AUTH_CODE_CONNECT
                 || mDevice.getConnectType() == Device.BLE_RETRIEVE_CONNECT)) {
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
-            mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getDeviceNodeId(), 1)); //第一字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getDeviceNodeId(), 2));//第二字节状态字
@@ -429,77 +425,32 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDeviceUserDao.checkUserState(mDevInfo.getDeviceNodeId(), userState); //开锁信息状态字
 
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
+
+
+            if ((enableStatus & 1) == 1) {  //是否支持NFC
+                mDevInfo.setUnable_nfc(true);
+            } else {
+                mDevInfo.setUnable_nfc(false);
+            }
+            if ((enableStatus & 2) == 2) { //是否支持人脸识别
+                mDevInfo.setEnable_face(true);
+            } else {
+                mDevInfo.setEnable_face(false);
+            }
+            if ((enableStatus & 4) == 4) { //是否支持红外
+                mDevInfo.setEnableInfrared(true);
+            } else {
+                mDevInfo.setEnableInfrared(false);
+            }
+            if ((enableStatus & 8) == 8) { //是否支持可变密码
+                mDevInfo.setEnableVariablePwd(true);
+            } else {
+                mDevInfo.setEnableVariablePwd(false);
+            }
+
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
             getUserInfo();
-
-            if (mDefaultStatus != null) {
-                mDefaultStatus.setBattery(battery);
-                mDefaultStatus.setUpdateTime(System.currentTimeMillis() / 1000);
-
-                if ((stStatus & 1) == 1) {  //常开功能
-                    mDefaultStatus.setNormallyOpen(true);
-                } else {
-                    mDefaultStatus.setNormallyOpen(false);
-                }
-                if ((stStatus & 2) == 2) {  //语音提示
-                    mDefaultStatus.setVoicePrompt(true);
-                } else {
-                    mDefaultStatus.setVoicePrompt(false);
-                }
-                if ((stStatus & 4) == 4) {  //智能锁芯
-                    mDefaultStatus.setIntelligentLockCore(true);
-                } else {
-                    mDefaultStatus.setIntelligentLockCore(false);
-                }
-                if ((stStatus & 8) == 8) {  //防撬开关
-                    mDefaultStatus.setAntiPrizingAlarm(true);
-                } else {
-                    mDefaultStatus.setAntiPrizingAlarm(false);
-                }
-                if ((stStatus & 16) == 16) {    //组合开锁
-                    mDefaultStatus.setCombinationLock(true);
-                } else {
-                    mDefaultStatus.setCombinationLock(false);
-                }
-                if ((stStatus & 32) == 32) {    //支持M1卡
-                    mDefaultStatus.setM1Support(true);
-                } else {
-                    mDefaultStatus.setM1Support(false);
-                }
-                if ((stStatus & 64) == 64) {    //蓝牙广播
-                    mDefaultStatus.setBroadcastNormallyOpen(true);
-                } else {
-                    mDefaultStatus.setBroadcastNormallyOpen(false);
-                }
-                //NFC/FACE 启用状态
-                LogUtil.d(TAG, "Enable 04 = "+ enableStatus);
-                if (enableStatus == 0) {
-                    mDefaultStatus.setEnable_face(false);
-                    mDefaultStatus.setUn_enable_nfc(false);
-                } else {
-                    mDefaultStatus.setEnable_face(true);
-                    mDefaultStatus.setUn_enable_nfc(true);
-                }
-                mDefaultStatus.setRolledBackTime(unLockTime);
-                // 获取省电时间段
-                if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
-                    mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
-                    mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
-                } else {
-                    byte[] startPowerSave = new byte[4];
-                    byte[] endPowerSave = new byte[4];
-                    System.arraycopy(powerSave, 4, startPowerSave, 0, 4);
-                    System.arraycopy(powerSave, 0, endPowerSave, 0, 4);
-                    String startTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(startPowerSave) + "000");
-                    String endTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(endPowerSave) + "000");
-                    LogUtil.d(TAG, "powerSave = " + '\n' +
-                            "startStamp = " + startTimeStr + "\n" +
-                            "endStamp = " + endTimeStr);
-                    mDefaultStatus.setPowerSavingStartTime(Integer.valueOf(startTimeStr.substring(11, 13)) * 100 + Integer.valueOf(startTimeStr.substring(14, 16)));
-                    mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
-                }
-                DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
-            }
+            setStatus(mDevInfo.getDeviceNodeId(), battery, stStatus, unLockTime, powerSave, stStatus2);
         } else {
             mCheckMsg = new Message();
             Bundle extra = mCheckMsg.getData();
@@ -509,6 +460,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             extra.putByte(BleMsg.KEY_SETTING_STATUS, bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0));
             extra.putByte(BleMsg.KEY_UNLOCK_TIME, bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0));
             extra.putByte(BleMsg.KEY_ENABLE_STATUS, bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0));
+            extra.putByte(BleMsg.KEY_SETTING_STATUS2, bundle.getByte(BleMsg.KEY_SETTING_STATUS2, (byte) 0));
             extra.putByteArray(BleMsg.KEY_TMP_PWD_SK, bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK));
             extra.putByteArray(BleMsg.KEY_SYNC_USERS, bundle.getByteArray(BleMsg.KEY_SYNC_USERS));
             extra.putByteArray(BleMsg.KEY_USERS_STATE, bundle.getByteArray(BleMsg.KEY_USERS_STATE));
@@ -536,6 +488,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         int stStatus = bundle.getByte(BleMsg.KEY_SETTING_STATUS, (byte) 0);
         int unLockTime = bundle.getByte(BleMsg.KEY_UNLOCK_TIME, (byte) 0);
         int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
+        int stStatus2 = bundle.getByte(BleMsg.KEY_SETTING_STATUS2, (byte) 0);
         byte[] syncUsers = bundle.getByteArray(BleMsg.KEY_SYNC_USERS);
         byte[] userState = bundle.getByteArray(BleMsg.KEY_USERS_STATE);
         byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
@@ -560,7 +513,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         if (mDevInfo != null) {
             mDefaultUser = mDeviceUserDao.queryOrCreateByNodeId(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), StringUtil.bytesToHexString(mDevice.getTempAuthCode()));
-            mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mDevInfo.getDeviceNodeId());
 
             checkUserId(mDeviceUserDao.checkUserStatus(status1, mDevInfo.getBleMac(), 1)); //第一字节状态字
             checkUserId(mDeviceUserDao.checkUserStatus(status2, mDevInfo.getBleMac(), 2));//第二字节状态字
@@ -569,83 +521,121 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDeviceUserDao.checkUserState(mDevInfo.getBleMac(), userState); //开锁信息状态字
 
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
-            mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
-            mDevice.setEnableStatus(enableStatus);
 
-            if (mDefaultStatus != null) {
-                mDefaultStatus.setBattery(battery);
-                mDefaultStatus.setUpdateTime(System.currentTimeMillis() / 1000);
-
-                if ((stStatus & 1) == 1) {  //常开功能
-                    mDefaultStatus.setNormallyOpen(true);
-                } else {
-                    mDefaultStatus.setNormallyOpen(false);
-                }
-                if ((stStatus & 2) == 2) {  //语音提示
-                    mDefaultStatus.setVoicePrompt(true);
-                } else {
-                    mDefaultStatus.setVoicePrompt(false);
-                }
-                if ((stStatus & 4) == 4) {  //智能锁芯
-                    mDefaultStatus.setIntelligentLockCore(true);
-                } else {
-                    mDefaultStatus.setIntelligentLockCore(false);
-                }
-                if ((stStatus & 8) == 8) {  //防撬开关
-                    mDefaultStatus.setAntiPrizingAlarm(true);
-                } else {
-                    mDefaultStatus.setAntiPrizingAlarm(false);
-                }
-                if ((stStatus & 16) == 16) {    //组合开锁
-                    mDefaultStatus.setCombinationLock(true);
-                } else {
-                    mDefaultStatus.setCombinationLock(false);
-                }
-                if ((stStatus & 32) == 32) {    //支持M1卡
-                    mDefaultStatus.setM1Support(true);
-                } else {
-                    mDefaultStatus.setM1Support(false);
-                }
-                if ((stStatus & 64) == 64) {    //蓝牙广播
-                    mDefaultStatus.setBroadcastNormallyOpen(true);
-                } else {
-                    mDefaultStatus.setBroadcastNormallyOpen(false);
-                }
-                if ((stStatus & 128) == 128) {    //是否禁止智能锁芯 1位禁用 0位启用
-                    mDefaultStatus.setInvalidIntelligentLock(true);
-                } else {
-                    mDefaultStatus.setInvalidIntelligentLock(false);
-                }
-                //NFC/FACE 启用状态
-                LogUtil.d(TAG, "EnableStatus = " + enableStatus);
-                if (enableStatus == 0) {
-                    mDefaultStatus.setEnable_face(false);
-                    mDefaultStatus.setUn_enable_nfc(false);
-                } else {
-                    mDefaultStatus.setEnable_face(true);
-                    mDefaultStatus.setUn_enable_nfc(true);
-                }
-                mDefaultStatus.setRolledBackTime(unLockTime);
-                // 获取省电时间段
-                if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
-                    mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
-                    mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
-                } else {
-                    byte[] startPowerSave = new byte[4];
-                    byte[] endPowerSave = new byte[4];
-                    System.arraycopy(powerSave, 4, startPowerSave, 0, 4);
-                    System.arraycopy(powerSave, 0, endPowerSave, 0, 4);
-                    String startTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(startPowerSave) + "000");
-                    String endTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(endPowerSave) + "000");
-
-                    LogUtil.d(TAG, "powerSave = " + '\n' + "startStamp = " + startTimeStr + "\n" + "endStamp = " + endTimeStr);
-
-                    mDefaultStatus.setPowerSavingStartTime(Integer.valueOf(startTimeStr.substring(11, 13)) * 100 + Integer.valueOf(startTimeStr.substring(14, 16)));
-                    mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
-                }
-                DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
+            if ((enableStatus & 1) == 1) {  //NFC
+                mDevInfo.setUnable_nfc(true);
+            } else {
+                mDevInfo.setUnable_nfc(false);
             }
+            if ((enableStatus & 2) == 2) { //是否支持人脸识别
+                mDevInfo.setEnable_face(true);
+            } else {
+                mDevInfo.setEnable_face(false);
+            }
+            if ((enableStatus & 4) == 4) { //是否支持红外
+                mDevInfo.setEnableInfrared(true);
+            } else {
+                mDevInfo.setEnableInfrared(false);
+            }
+            if ((enableStatus & 8) == 8) { //是否支持可变密码
+                mDevInfo.setEnableVariablePwd(true);
+            } else {
+                mDevInfo.setEnableVariablePwd(false);
+            }
+            mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
+            setStatus(mDevInfo.getDeviceNodeId(), battery, stStatus, unLockTime, powerSave, stStatus2);
         }
+    }
+
+    /**
+     * 设置启用状态
+     */
+    private void setStatus(String nodeId, int battery, int stStatus, int unLockTime, byte[] powerSave, int stStatus2) {
+
+
+        mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(nodeId);
+        //NFC/FACE 启用状态
+        LogUtil.d(TAG, "EnableStatus = " + stStatus2+ "String = "+ nodeId);
+        LogUtil.d(TAG, "EnableStatus = " + mDefaultStatus.getDevNodeId());
+        if (mDefaultStatus != null) {
+
+            mDefaultStatus.setBattery(battery);
+            mDefaultStatus.setUpdateTime(System.currentTimeMillis() / 1000);
+
+            if ((stStatus & 1) == 1) {  //常开功能
+                mDefaultStatus.setNormallyOpen(true);
+            } else {
+                mDefaultStatus.setNormallyOpen(false);
+            }
+            if ((stStatus & 2) == 2) {  //语音提示
+                mDefaultStatus.setVoicePrompt(true);
+            } else {
+                mDefaultStatus.setVoicePrompt(false);
+            }
+            if ((stStatus & 4) == 4) {  //智能锁芯
+                mDefaultStatus.setIntelligentLockCore(true);
+            } else {
+                mDefaultStatus.setIntelligentLockCore(false);
+            }
+            if ((stStatus & 8) == 8) {  //防撬开关
+                mDefaultStatus.setAntiPrizingAlarm(true);
+            } else {
+                mDefaultStatus.setAntiPrizingAlarm(false);
+            }
+            if ((stStatus & 16) == 16) {    //组合开锁
+                mDefaultStatus.setCombinationLock(true);
+            } else {
+                mDefaultStatus.setCombinationLock(false);
+            }
+            if ((stStatus & 32) == 32) {    //支持M1卡
+                mDefaultStatus.setM1Support(true);
+            } else {
+                mDefaultStatus.setM1Support(false);
+            }
+            if ((stStatus & 64) == 64) {    //蓝牙广播
+                mDefaultStatus.setBroadcastNormallyOpen(true);
+            } else {
+                mDefaultStatus.setBroadcastNormallyOpen(false);
+            }
+            if ((stStatus & 128) == 128) {    //是否禁止智能锁芯 1位禁用 0位启用
+                mDefaultStatus.setInvalidIntelligentLock(true);
+            } else {
+                mDefaultStatus.setInvalidIntelligentLock(false);
+            }
+            // 自动开门状态
+            if ((stStatus2 & 8) == 8) { // 自动关门状态
+                mDefaultStatus.setAutoCloseEnable(true);
+            } else {
+                mDefaultStatus.setAutoCloseEnable(false);
+            }
+            if ((stStatus2 & 16) == 16) { // 红外状态
+                mDefaultStatus.setInfraredEnable(true);
+            } else {
+                mDefaultStatus.setInfraredEnable(false);
+            }
+
+            mDefaultStatus.setRolledBackTime(unLockTime);
+            // 获取省电时间段
+            if (Arrays.equals(powerSave, new byte[]{0, 0, 0, 0, 0, 0, 0, 0})) {
+                mDefaultStatus.setPowerSavingStartTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
+                mDefaultStatus.setPowerSavingEndTime(ConstantUtil.INVALID_POWER_SAVE_TIME); //无效时间 表示关闭
+            } else {
+                byte[] startPowerSave = new byte[4];
+                byte[] endPowerSave = new byte[4];
+                System.arraycopy(powerSave, 4, startPowerSave, 0, 4);
+                System.arraycopy(powerSave, 0, endPowerSave, 0, 4);
+                String startTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(startPowerSave) + "000");
+                String endTimeStr = DateTimeUtil.stampToDate(StringUtil.byte2Int(endPowerSave) + "000");
+
+                LogUtil.d(TAG, "powerSave = " + '\n' + "startStamp = " + startTimeStr + "\n" + "endStamp = " + endTimeStr);
+
+                mDefaultStatus.setPowerSavingStartTime(Integer.valueOf(startTimeStr.substring(11, 13)) * 100 + Integer.valueOf(startTimeStr.substring(14, 16)));
+                mDefaultStatus.setPowerSavingEndTime(Integer.valueOf(endTimeStr.substring(11, 13)) * 100 + Integer.valueOf(endTimeStr.substring(14, 16)));
+            }
+            DeviceStatusDao.getInstance(mCtx).updateDeviceStatus(mDefaultStatus);
+        }
+
+
     }
 
     /**
@@ -1038,14 +1028,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_26:
                     LogUtil.i(TAG, "receiver msg 26,check device key!");
-                    short userId = (short) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
+                    short userId = (short) (extra.getSerializable(BleMsg.KEY_SERIALIZABLE) != null ? extra.getSerializable(BleMsg.KEY_SERIALIZABLE) : 0);
                     if (userId == mDevInfo.getUserId()) {
                         byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                         LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
 
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                         // NFC 与 FACE 互斥
-                        if (mDefaultStatus.isEnable_face()) {
+                        if (mDevInfo.isEnable_face()) {
                             mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
                         } else {
                             mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");

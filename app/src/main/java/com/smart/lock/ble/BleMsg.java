@@ -145,6 +145,16 @@ public class BleMsg {
     public static final String KEY_CMD_TYPE = "cmdType";
 
     /**
+     * OTA module命令类型
+     */
+    public static final String KEY_OTA_MODULE_TYPE = "OTAType";
+
+    /**
+     * OTA命令类型
+     */
+    public static final String KEY_KPD_SIZE = "KPDSize";
+
+    /**
      * 秘钥类型
      */
     public static final String KEY_TYPE = "keyType";
@@ -158,6 +168,11 @@ public class BleMsg {
      * 锁体密钥编号
      */
     public static final String KEY_LOCK_ID = "lockId";
+
+    /**
+     * 锁体密钥编号
+     */
+    public static final String KEY_PWD_LEN = "pwdLen";
 
 
     /**
@@ -238,6 +253,11 @@ public class BleMsg {
      * 设备电设置状态字，1字节，低位第一位表示常开功能是否开启，低位第二位表示语音提示是否开启
      */
     public static final String KEY_SETTING_STATUS = "stStatus";
+
+    /**
+     * 附件设备状态子
+     */
+    public static final String KEY_SETTING_STATUS2 = "stStatus2";
 
     /**
      * 设备回锁时间
@@ -418,6 +438,13 @@ public class BleMsg {
     public static final byte TYPE_SELF_REPAIR_COMPLETE = 0x36; //设备恢复完成（成功或失败需要再次发请求检测一次才知道）
     public static final byte TYPE_OPEN_SLIDE = 0x37;//请打开滑盖
 
+    public static final byte TYPE_INDRARED_INDUCTION_ENABLE = 0x3E;//启动红外感应
+    public static final byte TYPE_INDRARED_INDUCTION_UNABLE = 0x3F;//关闭红外感应
+    public static final byte TYPE_AUTO_CLOSE_ENABLE_SUCCESS = 0x40;//自动关门开启成功
+    public static final byte TYPE_AUTO_CLOSE_ENABLE_FAILED = 0x41;//自动关门开启失败
+    public static final byte TYPE_AUTO_CLOSE_UNABLE_SUCCESS = 0x42;//自动关门关闭成功
+    public static final byte TYPE_AUTO_CLOSE_UNABLE_FAILED = 0x43;//自动关门关闭失败
+
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断
     public static final int REGISTER_SUCCESS = 102; //注册成功
@@ -450,6 +477,7 @@ public class BleMsg {
     public static final byte CMD_TYPE_DELETE = 0x01; //删除
     public static final byte CMD_TYPE_MODIFY = 0x02; //修改
     public static final byte CMD_TYPE_CANCEL_CREATE = 0x03; //取消录入
+
 
     /**
      * msg 17 type
@@ -498,7 +526,7 @@ public class BleMsg {
      */
     public static final byte TYPE_DETECTION_LOCK_EQUIPMENT = 0x00;//开锁设备检测，通过MSG1A返回检测结果给APK
     public static final byte TYPE_ENABLE_COMBINATION_UNLOCK = 0x01;//组合开锁功能启用
-    public static final byte TYPE_UNENABLE_COMBINATION_UNLOCK = 0x02;//组合开锁功能关闭
+    public static final byte TYPE_UNABLE_COMBINATION_UNLOCK = 0x02;//组合开锁功能关闭
     public static final byte TYPE_NORMALLY_OPEN = 0x03;//常开功能启用
     public static final byte TYPE_NORMALLY_CLOSE = 0x04;//常开功能关闭
     public static final byte TYPE_VOICE_PROMPT_OPEN = 0x05;//语音提示开启
@@ -513,14 +541,19 @@ public class BleMsg {
     public static final byte TYPE_ANTI_PRYING_ALARM_OPEN = 0x0e;//防撬报警开启
     public static final byte TYPE_ANTI_PRYING_ALARM_CLOSE = 0x0f;//防撬报警关闭
     public static final byte TYPE_LOCK_LOG_ENABLE = 0x12;//log打印开启
-    public static final byte TYPE_LOCK_LOG_UNENABLE = 0x13;//log打印关闭
+    public static final byte TYPE_LOCK_LOG_UNABLE = 0x13;//log打印关闭
     public static final byte TYPE_EXIT_OTA_UPDATE = 0x14;//退出ota升级
     public static final byte TYPE_BLE_NORMAL_OPEN_ENABLE = 0x15;//log打印开启
-    public static final byte TYPE_BLE_NORMAL_OPEN_UNENABLE = 0x16;//log打印关闭
+    public static final byte TYPE_BLE_NORMAL_OPEN_UNABLE = 0x16;//log打印关闭
     public static final byte TYPE_OTA_FINRGERPRINT_UPDATE = 0x17;//指纹ota升级
     public static final byte TYPE_STOP_OTA_FINRGERPRINT_UPDATE = 0x18;//停止指纹ota升级
     public static final byte TYPE_CHECK_FINGERPRINT_VERSION = 0x19;//查询指纹ota固件版本
     public static final byte TYPE_SELF_REPAIR = 0x1A;//开锁设备修复 通过1E回复
+
+    public static final byte TYPE_INFRARED_INDUCTION_OPEN = 0x1E;//红外感应开启
+    public static final byte TYPE_INFRARED_INDUCTION_CLOSE = 0x1F;//红外感应关闭
+    public static final byte TYPE_AUTO_OPEN_DOORE_OPEN = 0x20;//自动关门门开启
+    public static final byte TYPE_AUTO_OPEN_DOORE_CLOSE = 0x21;//自动关门关闭
 
     public static final byte TYPE_RAPID_OTA = 0x1b;//快速OTA升级
     public static final byte TYPE_RAPID_OTA_FP = 0x1c;//快速指纹OTA升级
@@ -534,4 +567,10 @@ public class BleMsg {
     public static final byte TYPE_DEVICE_BUSY = 0x04; //设备忙
     public static final byte TYPE_AUTH_CODE_ERROR = 0x05; //鉴权码错误
     public static final byte TYPE_USER_SUSPENDED = 0x06; //用户已暂停
+
+    /**
+     * msg 44 CMD
+     */
+    public static final byte CMD_TYPE_PWD_CREATE = 0x00; //新增
+    public static final byte CMD_TYPE_PWD_MODIFY = 0x01; //修改
 }

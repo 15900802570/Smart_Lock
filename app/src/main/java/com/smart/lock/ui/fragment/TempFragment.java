@@ -3,7 +3,6 @@ package com.smart.lock.ui.fragment;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,7 +10,6 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +37,6 @@ import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.TempUserActivity;
 import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.StringUtil;
@@ -47,7 +44,6 @@ import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.io.Serializable;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -499,7 +495,7 @@ public class TempFragment extends BaseFragment implements View.OnClickListener, 
                 holder.mNameTv.setBackgroundDrawable(new ColorDrawable(mContext.getResources().getColor(R.color.white)));
                 holder.mNameTv.setText(userInfo.getUserName());
                 if (userInfo.getUserStatus() == ConstantUtil.USER_UNENABLE) {
-                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unenable));
+                    holder.mUserStateTv.setText(mCtx.getResources().getString(R.string.unable));
                     holder.mSwipeLayout.setRightSwipeEnabled(false);
                     holder.mUserStateTv.setTextColor(mContext.getResources().getColor(R.color.red));
                 } else if (userInfo.getUserStatus() == ConstantUtil.USER_ENABLE) {
