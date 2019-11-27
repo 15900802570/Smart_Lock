@@ -15,6 +15,8 @@ import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
+import com.smart.lock.db.bean.DeviceInfo;
+import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
@@ -66,6 +68,10 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
         mBleManagerHelper.addUiListener(this);
         mWaitingDialog = DialogUtils.createLoadingDialog(this, getString(R.string.checking));
         mWaitingDialogWithRepair = DialogUtils.createLoadingDialog(this, getString(R.string.repair_));
+        DeviceInfo deviceInfo = DeviceInfoDao.getInstance(this).queryFirstData(DeviceInfoDao.DEVICE_DEFAULT,true);
+        if (deviceInfo.isEnableFace()){
+            ((TextView)findViewById(R.id.tv_self_check_nfc)).setText(R.string.face_manager);
+        }
     }
 
     private void initEvent() {

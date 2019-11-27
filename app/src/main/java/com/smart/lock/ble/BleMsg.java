@@ -145,6 +145,11 @@ public class BleMsg {
     public static final String KEY_CMD_TYPE = "cmdType";
 
     /**
+     * 当前时区
+     */
+    public static final String KEY_TIME_ZONE= "timeZone";
+
+    /**
      * OTA module命令类型
      */
     public static final String KEY_OTA_MODULE_TYPE = "OTAType";
@@ -153,6 +158,11 @@ public class BleMsg {
      * OTA命令类型
      */
     public static final String KEY_KPD_SIZE = "KPDSize";
+
+    /**
+     * KDP OTA命令返回Code
+     */
+    public static final String KEY_KDP_RSP_CODE = "KPDCode";
 
     /**
      * 秘钥类型

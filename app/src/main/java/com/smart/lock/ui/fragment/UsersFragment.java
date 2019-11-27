@@ -443,7 +443,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
 
                     DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                     // NFC 与 FACE 互斥
-                    if (mDefaultDevice.isEnable_face()) {
+                    if (mDefaultDevice.isEnableFace()) {
                         DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
                     } else {
                         DeviceKeyDao.getInstance(mCtx).checkDeviceKey(devUser.getDevNodeId(), devUser.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");

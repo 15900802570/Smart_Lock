@@ -92,7 +92,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             mNodeId = mModifyDeviceKey.getDeviceNodeId();
             mTitleTv.setText(R.string.modify_pwd);
         }
-        if (mDefaultDevice.isEnable_face()) {
+        if (mDefaultDevice.isEnableFace()) {
             mFirstPwdEt.setHint(R.string.pwd_length_max);
             mFirstPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
             mSecondPwdEt.setHint(R.string.pwd_length_max);
@@ -135,13 +135,13 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                     DialogUtils.closeDialog(mLoadDialog);
                     mLoadDialog.show();
                     if (mTempUser != null) {
-                        if (mDefaultDevice.isEnable_face()) {
+                        if (mDefaultDevice.isEnableFace()) {
                             mBleManagerHelper.getBleCardService().sendCmd45(BleMsg.CMD_TYPE_PWD_CREATE, mTempUser.getUserId(), (byte) 0, (byte) firstPwd.length(), firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
                         } else {
                             mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mTempUser.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     } else {
-                        if (mDefaultDevice.isEnable_face()) {
+                        if (mDefaultDevice.isEnableFace()) {
                             mBleManagerHelper.getBleCardService().sendCmd45(BleMsg.CMD_TYPE_PWD_CREATE, mDefaultDevice.getUserId(), (byte) 0, (byte) firstPwd.length(), firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
                         } else {
                             mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_CREATE, BleMsg.TYPE_PASSWORD, mDefaultDevice.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
@@ -153,7 +153,7 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             } else {
                 DialogUtils.closeDialog(mLoadDialog);
                 mLoadDialog.show();
-                if (mDefaultDevice.isEnable_face()) {
+                if (mDefaultDevice.isEnableFace()) {
                     mBleManagerHelper.getBleCardService().sendCmd45(BleMsg.CMD_TYPE_PWD_MODIFY, mModifyDeviceKey.getUserId(), (byte) 0, (byte) firstPwd.length(), firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);
                 } else {
                     mBleManagerHelper.getBleCardService().sendCmd15(BleMsg.CMD_TYPE_MODIFY, BleMsg.TYPE_PASSWORD, mModifyDeviceKey.getUserId(), (byte) 0, firstPwd, BleMsg.INT_DEFAULT_TIMEOUT);

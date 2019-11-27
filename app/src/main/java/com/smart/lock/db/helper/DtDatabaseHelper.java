@@ -56,30 +56,35 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
             for (int i = oldVersion; i < newVersion; i++) {
                 switch (i) {
                     case 1://数据库版本1 升级到 版本2
-
                         //新增设备启动状态 NFC 与FACE ，
                         // tb_device_info enableNFC=0 时，表示NFC启用，
-                        String sql1 = "ALTER TABLE tb_device_info add unable_nfc INTEGER DEFAULT 0";
+                        String info1 = "ALTER TABLE tb_device_info add unable_nfc INTEGER DEFAULT 0";
                         // tb_device_info enableFace=1 时， 表示FACE启动   ***NFC与FACE刚好相反***
-                        // 一切为了兼容
-                        String sql2 = "ALTER TABLE tb_device_info add enable_face INTEGER DEFAULT 0";
-
-                        //tb_device_info enable_infrared 是否支持红外
-                        String sql3 = "ALTER TABLE tb_device_info add enable_infrared INTEGER DEFAULT 0";
-
-                        //tb_device_info enable_ 是否支持密码长度可变
-                        String sql4 = "ALTER TABLE tb_device_info add enable_variable_pwd INTEGER DEFAULT 0";
-                        getDao(DeviceInfo.class).executeRawNoArgs(sql1);
-                        getDao(DeviceInfo.class).executeRawNoArgs(sql2);
-                        getDao(DeviceInfo.class).executeRawNoArgs(sql3);
-                        getDao(DeviceInfo.class).executeRawNoArgs(sql4);
+                        String info2 = "ALTER TABLE tb_device_info add enable_face INTEGER DEFAULT 0";
+                        //enable_infrared 是否支持红外
+                        String info3 = "ALTER TABLE tb_device_info add enable_infrared INTEGER DEFAULT 0";
+                        //enable_pwd 是否支持密码长度可变
+                        String info4 = "ALTER TABLE tb_device_info add enable_variable_pwd INTEGER DEFAULT 0";
+                        // SCPU
+                        String info5 = "ALTER TABLE tb_device_info add face_scpu_version TEXT";
+                        // NCPU
+                        String info6 = "ALTER TABLE tb_device_info add face_ncpu_version TEXT";
+                        //DataModule
+                        String info7 = "ALTER TABLE tb_device_info add face_module_version TEXT";
+                        getDao(DeviceInfo.class).executeRawNoArgs(info1);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info2);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info3);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info4);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info5);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info6);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info7);
 
                         //tb_device_status autoOpen 自动开锁开关
-                        String sql5 = "ALTER TABLE tb_device_status add autoCloseEnable INTEGER DEFAULT 0";
+                        String status1 = "ALTER TABLE tb_device_status add auto_close_enable INTEGER DEFAULT 0";
                         //tb_device_status 红外开关
-                        String sql6 = "ALTER TABLE tb_device_status add infraredEnable INTEGER DEFAULT 0";
-                        getDao(DeviceStatus.class).executeRawNoArgs(sql5);
-                        getDao(DeviceStatus.class).executeRawNoArgs(sql6);
+                        String status2 = "ALTER TABLE tb_device_status add infrared_enable INTEGER DEFAULT 0";
+                        getDao(DeviceStatus.class).executeRawNoArgs(status1);
+                        getDao(DeviceStatus.class).executeRawNoArgs(status2);
                         break;
                     case 2://数据库版本2 升级到 版本3
                         break;

@@ -7,9 +7,9 @@ import com.smart.lock.ble.message.MessageCreator;
 import java.util.Arrays;
 
 /**
- * 智能锁使用MSG 41 人脸OTA命令响应；
+ * 智能锁使用MSG 44 人脸OTA命令响应；
  */
-public class BleCmd42Parse implements BleCommandParse {
+public class BleCmd44Parse implements BleCommandParse {
     @Override
     public String getTag() {
         return this.getClass().getName();
@@ -32,18 +32,19 @@ public class BleCmd42Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
-
-        byte[] rsp = new byte[1];
         byte[] moduleType = new byte[1];
-        System.arraycopy(buf, 0, rsp, 0, 1);
-        System.arraycopy(buf, 1, moduleType, 1, 2);
+        int swLen = Integer.parseInt(String.valueOf(buf[1]), 10);
+        byte[] swVer = new byte[swLen];
+
+        System.arraycopy(buf, 0, moduleType, 0, 1);
+        System.arraycopy(buf, 2, swVer, 0, swLen);
 
 
-        return MessageCreator.getCmd42Message(getParseKey(), rsp[0], moduleType[0]);
+        return MessageCreator.getCmd44Message(getParseKey(), moduleType[0], swVer);
     }
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEIVER_CMD_42;
+        return Message.TYPE_BLE_RECEIVER_CMD_44;
     }
 }

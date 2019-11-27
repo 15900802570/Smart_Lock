@@ -1,3 +1,4 @@
+
 package com.smart.lock.ble.parser;
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
@@ -7,9 +8,10 @@ import com.smart.lock.ble.message.MessageCreator;
 import java.util.Arrays;
 
 /**
- * 智能锁使用MSG 41 人脸OTA命令响应；
+ * MSG 4E是智能锁在log传输过程中上报的消息。
  */
-public class BleCmd42Parse implements BleCommandParse {
+public class BleCmd4EParse implements BleCommandParse {
+
     @Override
     public String getTag() {
         return this.getClass().getName();
@@ -17,7 +19,6 @@ public class BleCmd42Parse implements BleCommandParse {
 
     @Override
     public Message parse(byte[] cmd) {
-
         //计算命令长度
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
@@ -32,18 +33,13 @@ public class BleCmd42Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
+        byte[] errCode = Arrays.copyOfRange(buf, 0, 4);
 
-        byte[] rsp = new byte[1];
-        byte[] moduleType = new byte[1];
-        System.arraycopy(buf, 0, rsp, 0, 1);
-        System.arraycopy(buf, 1, moduleType, 1, 2);
-
-
-        return MessageCreator.getCmd42Message(getParseKey(), rsp[0], moduleType[0]);
+        return MessageCreator.getCmd3EMessage(getParseKey(), errCode);
     }
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEIVER_CMD_42;
+        return Message.TYPE_BLE_RECEIVER_CMD_4E;
     }
 }

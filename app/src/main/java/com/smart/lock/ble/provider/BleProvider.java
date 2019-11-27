@@ -13,7 +13,7 @@ import com.smart.lock.ble.creator.BleCmd05Creator;
 import com.smart.lock.ble.creator.BleCmd2DCreator;
 import com.smart.lock.ble.creator.BleCmd37Creator;
 import com.smart.lock.ble.creator.BleCmd41Creator;
-import com.smart.lock.ble.creator.BleCmd43Creator;
+import com.smart.lock.ble.creator.BleCmd47Creator;
 import com.smart.lock.ble.creator.BleCmd61Creator;
 import com.smart.lock.ble.listener.BleMessageListener;
 import com.smart.lock.ble.BleMsg;
@@ -50,6 +50,9 @@ import com.smart.lock.ble.parser.BleCmd26Parse;
 import com.smart.lock.ble.parser.BleCmd2EParse;
 import com.smart.lock.ble.parser.BleCmd32Parse;
 import com.smart.lock.ble.parser.BleCmd3EParse;
+import com.smart.lock.ble.parser.BleCmd42Parse;
+import com.smart.lock.ble.parser.BleCmd44Parse;
+import com.smart.lock.ble.parser.BleCmd4EParse;
 import com.smart.lock.ble.parser.BleCmd62Parse;
 import com.smart.lock.ble.parser.BleCommandParse;
 import com.smart.lock.entity.Device;
@@ -612,8 +615,8 @@ public class BleProvider {
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_33, new BleCmd33Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_37, new BleCmd37Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_41, new BleCmd41Creator());
-        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_43, new BleCmd43Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_45, new BleCmd45Creator());
+        bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_47, new BleCmd47Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_CMD_61, new BleCmd61Creator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_CMD, new BleCmdOtaDataCreator());
         bleCreatorMap.put(Message.TYPE_BLE_SEND_OTA_DATA, new BleCmdOtaDataCreator());
@@ -634,6 +637,9 @@ public class BleProvider {
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_26, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_32, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_3E, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_42, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_44, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_4E, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_62, mBleMessageListener);
 
         //填充ble指令接收器映射表
@@ -651,6 +657,9 @@ public class BleProvider {
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_2E, new BleCmd2EParse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_32, new BleCmd32Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_3E, new BleCmd3EParse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_42, new BleCmd42Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_44, new BleCmd44Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_4E, new BleCmd4EParse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_62, new BleCmd62Parse());
     }
 

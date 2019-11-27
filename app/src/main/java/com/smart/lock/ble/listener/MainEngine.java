@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ListIterator;
 import java.util.Objects;
+import java.util.TimeZone;
 
 public class MainEngine implements BleMessageListener, DeviceStateCallback, Handler.Callback {
 
@@ -58,6 +59,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     private static final int MSG_CHANGE_GATT_STATE = 5;//GATT State
     private static final String MSG_RECEIVER = "receiver_msg";
     private static final int RUN_ON_UI_THREAD = 3; //UI线程
+    private static final int SET_TIMEZONE_TIMEOUT = 47; //时区设置失败后重新设置
     private Handler mHandler;
     private Message mCheckMsg = null;
     private final Object mStateLock = new Object();
@@ -428,14 +430,15 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
 
             if ((enableStatus & 1) == 1) {  //是否支持NFC
-                mDevInfo.setUnable_nfc(true);
+                mDevInfo.setUnableNfc(true);
             } else {
-                mDevInfo.setUnable_nfc(false);
+                mDevInfo.setUnableNfc(false);
             }
             if ((enableStatus & 2) == 2) { //是否支持人脸识别
-                mDevInfo.setEnable_face(true);
+                mDevInfo.setEnableFace(true);
+
             } else {
-                mDevInfo.setEnable_face(false);
+                mDevInfo.setEnableFace(false);
             }
             if ((enableStatus & 4) == 4) { //是否支持红外
                 mDevInfo.setEnableInfrared(true);
@@ -523,14 +526,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             mDevInfo.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
 
             if ((enableStatus & 1) == 1) {  //NFC
-                mDevInfo.setUnable_nfc(true);
+                mDevInfo.setUnableNfc(true);
             } else {
-                mDevInfo.setUnable_nfc(false);
+                mDevInfo.setUnableNfc(false);
             }
             if ((enableStatus & 2) == 2) { //是否支持人脸识别
-                mDevInfo.setEnable_face(true);
+                mDevInfo.setEnableFace(true);
             } else {
-                mDevInfo.setEnable_face(false);
+                mDevInfo.setEnableFace(false);
             }
             if ((enableStatus & 4) == 4) { //是否支持红外
                 mDevInfo.setEnableInfrared(true);
@@ -555,7 +558,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(nodeId);
         //NFC/FACE 启用状态
-        LogUtil.d(TAG, "EnableStatus = " + stStatus2+ "String = "+ nodeId);
+        LogUtil.d(TAG, "EnableStatus = " + stStatus2 + "String = " + nodeId);
         LogUtil.d(TAG, "EnableStatus = " + mDefaultStatus.getDevNodeId());
         if (mDefaultStatus != null) {
 
@@ -603,12 +606,12 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mDefaultStatus.setInvalidIntelligentLock(false);
             }
             // 自动开门状态
-            if ((stStatus2 & 8) == 8) { // 自动关门状态
+            if ((stStatus2 & 1) == 1) { // 自动关门状态
                 mDefaultStatus.setAutoCloseEnable(true);
             } else {
                 mDefaultStatus.setAutoCloseEnable(false);
             }
-            if ((stStatus2 & 16) == 16) { // 红外状态
+            if ((stStatus2 & 2) == 2) { // 红外状态
                 mDefaultStatus.setInfraredEnable(true);
             } else {
                 mDefaultStatus.setInfraredEnable(false);
@@ -648,6 +651,23 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         } else
             LogUtil.e(TAG, "devInfo is null!");
 
+    }
+
+    /**
+     * 设置时区
+     */
+    private void setTimeZone() {
+        LogUtil.i(TAG, "send msg 47");
+        LogUtil.d(TAG, "int = " + TimeZone.getDefault().getDSTSavings() + '\n' +
+                "string = " + TimeZone.getDefault().getDisplayName() + '\n' +
+                "string =" + TimeZone.getDefault().getRawOffset() + '\n' +
+                "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT) + '\n' +
+                "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.LONG) + '\n' +
+                "String = " + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT)
+        );
+        int timeZone = TimeZone.getDefault().getRawOffset() / 3600000;
+        mService.sendCmd47((byte) timeZone, BleMsg.INT_DEFAULT_TIMEOUT);
+        sendMessage(SET_TIMEZONE_TIMEOUT,null,10*1000);
     }
 
     /**
@@ -893,6 +913,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     uiListeners.clear();
                 }
                 break;
+            case SET_TIMEZONE_TIMEOUT:
+                setTimeZone();
+                break;
             default:
                 break;
         }
@@ -1035,7 +1058,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
                         // NFC 与 FACE 互斥
-                        if (mDevInfo.isEnable_face()) {
+                        if (mDevInfo.isEnableFace()) {
                             mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_FACE, "1");
                         } else {
                             mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[2], ConstantUtil.USER_NFC, "1");
@@ -1099,6 +1122,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         uiListeners.clear();
                     }
                     break;
+                case Message.TYPE_BLE_RECEIVER_CMD_4E:
+                    final byte[] errCode = message.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
+                    if (errCode != null && errCode[3] == 0) {
+                        mHandler.removeMessages(SET_TIMEZONE_TIMEOUT);
+                    }
+                    break;
+
                 default:
                     Log.w(TAG, "Message type : " + type + " can not be handler");
                     break;

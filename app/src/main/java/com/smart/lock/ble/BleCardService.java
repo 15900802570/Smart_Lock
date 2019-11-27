@@ -745,7 +745,7 @@ public class BleCardService {
         return ct.request();
     }
     /**
-     * MSG 37是APK发给智能锁的指纹固件大小。
+     * MSG 41是APK发给智能锁的指纹固件大小。
      *
      * @param size 指纹固件大小
      * @return 是否发送成功
@@ -792,6 +792,24 @@ public class BleCardService {
         deviceKey.setUserId(userId);
         deviceKey.setLockId(String.valueOf(lockId));
         bundle.putSerializable(BleMsg.KEY_SERIALIZABLE, deviceKey);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
+    }
+    /**
+     * MSG 47是APK发给智能锁的时区。
+     *
+     * @param timeZone 时区（-12～+12）
+     * @return 是否发送成功
+     */
+    public boolean sendCmd47(byte timeZone, int timeOut) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_47);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_47 + "#" + "single");
+        msg.setTimeout(timeOut);
+        Bundle bundle = msg.getData();
+
+        bundle.putByte(BleMsg.KEY_TIME_ZONE, timeZone);
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();

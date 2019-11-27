@@ -21,11 +21,9 @@ import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceKey;
-import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
 import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.db.dao.DeviceKeyDao;
-import com.smart.lock.db.dao.DeviceStatusDao;
 import com.smart.lock.db.dao.DeviceUserDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.fragment.AdminFragment;
@@ -126,7 +124,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        if (mDefaultDevice.isEnable_face()) {
+        if (mDefaultDevice.isEnableFace()) {
             getMenuInflater().inflate(R.menu.user_manager_with_face_setting, menu);
         } else {
             getMenuInflater().inflate(R.menu.user_manager_with_nfc_setting, menu);

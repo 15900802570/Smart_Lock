@@ -49,6 +49,15 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "fp_sw_version")
     private String fpSwVersion;
 
+    @DatabaseField(columnName = "face_scpu_version")
+    private String faceSCPUVersion;
+
+    @DatabaseField(columnName = "face_ncpu_version")
+    private String faceNCPUVersion;
+
+    @DatabaseField(columnName = "face_module_version")
+    private String faceModuleVersion;
+
     @DatabaseField(columnName = "device_status")
     private String deviceStatus;
 
@@ -99,11 +108,11 @@ public class DeviceInfo implements Serializable {
 
     //是否支持nfc 1为禁用 0为启用
     @DatabaseField(columnName = "unable_nfc", defaultValue = "0")
-    private boolean unable_nfc;
+    private boolean unableNfc;
 
     //是否支持人脸 1为禁用 0为启用
     @DatabaseField(columnName = "enable_face", defaultValue = "0")
-    private boolean enable_face;
+    private boolean enableFace;
 
     //是否支持红外 0为不支持 1为支持
     @DatabaseField(columnName = "enable_infrared", defaultValue = "0")
@@ -183,7 +192,7 @@ public class DeviceInfo implements Serializable {
     }
 
     public void setDeviceDefault(boolean deviceDefault) {
-        LogUtil.d("SetDefault","logID = "+this.getBleMac());
+        LogUtil.d("SetDefault", "logID = " + this.getBleMac());
         this.deviceDefault = deviceDefault;
     }
 
@@ -341,21 +350,21 @@ public class DeviceInfo implements Serializable {
     }
 
 
-    public boolean isUnable_nfc() {
-        return unable_nfc;
+    public boolean isUnableNfc() {
+        return unableNfc;
     }
 
-    public void setUnable_nfc(boolean unable_nfc) {
-        this.unable_nfc = unable_nfc;
+    public void setUnableNfc(boolean unableNfc) {
+        this.unableNfc = unableNfc;
     }
 
-    public boolean isEnable_face() {
-        return enable_face;
+    public boolean isEnableFace() {
+        return enableFace;
     }
 
-    public void setEnable_face(boolean enable_face) {
-        LogUtil.e("setEnable" + enable_face);
-        this.enable_face = enable_face;
+    public void setEnableFace(boolean enableFace) {
+        LogUtil.e("setEnable" + enableFace);
+        this.enableFace = enableFace;
     }
 
     public boolean isEnableInfrared() {
@@ -372,6 +381,30 @@ public class DeviceInfo implements Serializable {
 
     public void setEnableVariablePwd(boolean enableVariablePwd) {
         this.enableVariablePwd = enableVariablePwd;
+    }
+
+    public String getFaceSCPUVersion() {
+        return faceSCPUVersion;
+    }
+
+    public void setFaceSCPUVersion(String faceSCPUVersion) {
+        this.faceSCPUVersion = faceSCPUVersion;
+    }
+
+    public String getFaceNCPUVersion() {
+        return faceNCPUVersion;
+    }
+
+    public String getFaceModuleVersion() {
+        return faceModuleVersion;
+    }
+
+    public void setFaceModuleVersion(String faceModuleVersion) {
+        this.faceModuleVersion = faceModuleVersion;
+    }
+
+    public void setFaceNCPUVersion(String faceNCPUVersion) {
+        this.faceNCPUVersion = faceNCPUVersion;
     }
 
     @Override

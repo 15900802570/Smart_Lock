@@ -195,7 +195,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
-        if (mDefaultDevice.isUnable_nfc()){
+        if (mDefaultDevice.isUnableNfc()){
             mSetSupportCardTypeBs.setVisibility(View.GONE);
         }
         if(!mDefaultDevice.isEnableVariablePwd()) {

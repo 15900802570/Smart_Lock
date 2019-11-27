@@ -12,8 +12,8 @@ import com.smart.lock.utils.StringUtil;
 
 import java.util.Arrays;
 
-public class BleCmd43Creator implements BleCreator {
-    private static final String TAG = BleCmd43Creator.class.getSimpleName();
+public class BleCmd47Creator implements BleCreator {
+    private static final String TAG = BleCmd47Creator.class.getSimpleName();
 
     @Override
     public String getTag() {
@@ -25,38 +25,26 @@ public class BleCmd43Creator implements BleCreator {
 
         Bundle data = message.getData();
 
-        byte cmdType = data.getByte(BleMsg.KEY_CMD_TYPE); //0x00：新增 0x01：删除 0x02：修改
-
-        byte OTAType = data.getByte(BleMsg.KEY_OTA_MODULE_TYPE);
-
-        int size = data.getInt(BleMsg.KEY_KPD_SIZE);
+        int timeZone = data.getByte(BleMsg.KEY_TIME_ZONE); // 当前时区
 
         short cmdLen = 16;
         byte[] cmd = new byte[128];
 
-        cmd[0] = 0x43;
+        cmd[0] = 0x47;
         byte[] buf = new byte[16];
         StringUtil.short2Bytes(cmdLen, buf);
         System.arraycopy(buf, 0, cmd, 1, 2);
 
+        // 填充字节
         byte[] cmdBuf = new byte[16];
 
-        cmdBuf[0] = cmdType;
-        cmdBuf[1] = OTAType;
-
-        LogUtil.d(TAG, "cmd=" + cmdType + '\n' +
-                "ota =" + OTAType);
-
-        if (size != 0) {
-            byte[] sizeBuf = new byte[4];
-            StringUtil.int2Bytes(size, sizeBuf);
-            System.arraycopy(sizeBuf, 0, cmdBuf, 2, 6);
-        } else {
-            Arrays.fill(cmdBuf, 2, 6, (byte) 0xffffffff);
-        }
+        cmdBuf[0] = (byte) timeZone;
 
 
-        Arrays.fill(cmdBuf, 7, 16, (byte) 0x0A);
+        LogUtil.d(getTag(), "cmdBuf = " + Arrays.toString(cmdBuf));
+        LogUtil.d(getTag(), "timeZone = " + timeZone);
+
+        Arrays.fill(cmdBuf, 1, 16, (byte) 15);
 
         try {
             if (MessageCreator.mIs128Code)

@@ -2,7 +2,6 @@ package com.smart.lock.ui.fragment;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,24 +14,20 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smart.lock.R;
 import com.smart.lock.adapter.LockManagerAdapter;
-import com.smart.lock.adapter.ViewPagerAdapter;
 import com.smart.lock.ble.AutoConnectBle;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.DeviceListener;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
-import com.smart.lock.ble.message.MessageCreator;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.bean.DeviceUser;
@@ -44,11 +39,8 @@ import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
-import com.smart.lock.ui.LockDetectingActivity;
 import com.smart.lock.ui.LockSettingActivity;
-import com.smart.lock.ui.LpcdTestActivity;
 import com.smart.lock.ui.TempPwdActivity;
-import com.smart.lock.ui.UserManagerActivity;
 import com.smart.lock.ui.UserManagerActivity2;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
@@ -234,7 +226,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                             mMyGridView.setNumColumns(2);
                         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                         LogUtil.d(TAG + "2", mDefaultStatus.toString());
-                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnable_face());
+                        mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnableFace());
                         mMyGridView.setAdapter(mLockAdapter);
                     }
                 }
@@ -273,7 +265,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         mMyGridView.setNumColumns(2);
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                     LogUtil.d(TAG, mDefaultStatus.toString());
-                    mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnable_face());
+                    mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnableFace());
                     mMyGridView.setAdapter(mLockAdapter);
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());
                 }

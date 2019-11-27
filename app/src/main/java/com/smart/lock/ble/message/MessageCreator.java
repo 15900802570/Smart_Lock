@@ -4,11 +4,7 @@ package com.smart.lock.ble.message;
 import android.os.Bundle;
 
 import com.smart.lock.ble.BleMsg;
-import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.StringUtil;
-
-import java.util.Arrays;
 
 /**
  * 该方法类由传入的type生成对应的message消息
@@ -417,15 +413,53 @@ public class MessageCreator {
      * 获取消息Message.TYPE_BLE_RECEIVER_CMD_42
      *
      * @param type    消息类型
-     * @param errCode 设备回复的错误编码
-     * @return
+     * @param rspCode 设备发送消息回复
+     * @param moduleType OTA module
+     * @return null
      */
-    public static Message getCmd42Message(byte type, byte[] errCode) {
+    public static Message getCmd42Message(byte type, byte rspCode, byte moduleType) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
-        if (errCode[3] == 0x04) {
-            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_37 + "#" + "single");
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
+
+        mBundle.putByte(BleMsg.KEY_KDP_RSP_CODE, rspCode);
+        mBundle.putByte(BleMsg.KEY_OTA_MODULE_TYPE, moduleType);
+        return mMessage;
+    }
+
+    /**
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_44
+     *
+     * @param type    消息类型
+     * @param swVer 设备版本信息
+     * @param moduleType OTA module
+     * @return null
+     */
+    public static Message getCmd44Message(byte type, byte moduleType ,byte[] swVer) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+        mMessage.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
+
+        mBundle.putByte(BleMsg.KEY_OTA_MODULE_TYPE, moduleType);
+        mBundle.putByteArray(BleMsg.KEY_SW_VER, swVer);
+        return mMessage;
+    }
+
+    /**
+     * 获取消息Message.TYPE_BLE_RECEIVER_CMD_4E
+     *
+     * @param type    消息类型
+     * @param errCode 设备回复的错误编码
+     * @return Message
+     */
+    public static Message getCmd4EMessage(byte type, byte[] errCode) {
+        Message mMessage = Message.obtain();
+        mMessage.setType(type);
+        Bundle mBundle = mMessage.getData();
+        if (errCode[3] == 0x00) {
+            mMessage.setKey(Message.TYPE_BLE_SEND_CMD_47 + "#" + "single");
         } else
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
 

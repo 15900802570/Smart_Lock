@@ -36,7 +36,7 @@ public class DeviceStatus implements Serializable {
     private boolean voicePrompt;
 
     //蓝牙广播
-    @DatabaseField(columnName = "broadcastNormallyOpen", defaultValue = "0")
+    @DatabaseField(columnName = "broadcast_normally_open", defaultValue = "0")
     private boolean broadcastNormallyOpen;
 
     //M1卡 NFC卡类型
@@ -68,11 +68,11 @@ public class DeviceStatus implements Serializable {
     private long updateTime;
 
     //自动开门状态 0为禁用 1为启用
-    @DatabaseField(columnName = "autoCloseEnable", defaultValue = "0")
+    @DatabaseField(columnName = "auto_close_enable", defaultValue = "0")
     private boolean autoCloseEnable;
 
     //红外状态 0为禁用 1为启用
-    @DatabaseField(columnName = "infraredEnable", defaultValue = "0")
+    @DatabaseField(columnName = "infrared_enable", defaultValue = "0")
     private boolean infraredEnable;
 
     public long getUpdateTime() {
