@@ -1,7 +1,6 @@
 package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothGatt;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,20 +24,16 @@ import com.daimajia.swipe.SwipeLayout;
 import com.smart.lock.R;
 import com.smart.lock.action.AbstractTransaction;
 import com.smart.lock.action.CheckOtaAction;
-import com.smart.lock.action.CheckVersionAction;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.UiListener;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
-import com.smart.lock.db.dao.DeviceKeyDao;
 import com.smart.lock.entity.Device;
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.DialogUtils;
-import com.smart.lock.utils.FileUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
@@ -221,7 +215,21 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 if (errCode != null)
                     dispatchErrorCode(errCode[3]);
                 break;
-
+            case Message.TYPE_BLE_RECEIVER_CMD_44:
+                String majorVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_MAJOR_VERSION));
+                String nCPUVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_NCPU_VERSION));
+                String sCPUVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_SCPU_VERSION));
+                String moduleVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_MODULE_VERSION));
+                mDefaultDev.setFaceMainVersion(majorVer);
+                mDefaultDev.setFaceNCPUVersion(nCPUVer);
+                mDefaultDev.setFaceSCPUVersion(sCPUVer);
+                mDefaultDev.setFaceModuleVersion(moduleVer);
+                DeviceInfoDao.getInstance(this).updateDeviceInfo(mDefaultDev);
+                LogUtil.d(TAG, "FACE VERSION : major=" + majorVer + '\n' +
+                        "nCPU = " + nCPUVer + '\n' +
+                        "sCPU = " + sCPUVer + '\n' +
+                        "module = " + moduleVer);
+                break;
             default:
                 break;
         }
@@ -268,6 +276,17 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             showMessage(getString(R.string.unconnected_device));
     }
 
+    private void checkFaceVersion() {
+        LogUtil.d(TAG, "SEND 41");
+        if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.TYPE_CHECK_FACE_VERSION,
+                    (byte) 0,
+                    0,
+                    BleMsg.INT_DEFAULT_TIMEOUT);
+        } else
+            showMessage(getString(R.string.unconnected_device));
+    }
+
     private void checkDevVersion(boolean hasFp) {
         if (mDefaultDev != null && !mCheckFpVersion) {
             mVersionAction.setUrl(ConstantUtil.CHECK_FIRMWARE_VERSION);
@@ -287,6 +306,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
                 mVersionAction.setFpCurZone(ret);
             }
+//            if (mDefaultDev.isEnableFace()) {
+//                mVersionAction.setFaceMainCurVer(mDefaultDev.getFaceMainVersion());
+//                mVersionAction.setFaceNCpuCurVer(mDefaultDev.getFaceNCPUVersion());
+//                mVersionAction.setFaceSCpuCurVer(mDefaultDev.getFaceSCPUVersion());
+//            }
 
             mVersionAction.setTransferPayResponse(tCheckDevResponse);
             mVersionAction.transStart(this);
@@ -307,6 +331,9 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         isHide = true;
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+            if (mDefaultDev.isEnableFace()) {
+                checkFaceVersion();
+            }
         } else
             showMessage(getString(R.string.unconnected_device));
     }
@@ -327,7 +354,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             versionModel.type = ConstantUtil.OTA_LOCK_SW_VERSION;
             versionModel.versionCode = 0;
             models.add(versionModel);
-            if (mHadFP){
+            if (mHadFP) {
                 VersionModel versionModel2 = new VersionModel();
                 versionModel2.type = ConstantUtil.OTA_FP_SW_VERSION;
                 versionModel2.versionCode = 0;
@@ -398,6 +425,9 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                     mCheckFpVersion = true;
                     mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_CHECK_VERSION);
+                    if (mDefaultDev.isEnableFace()) {
+                        checkFaceVersion();
+                    }
                 } else
                     showMessage(getString(R.string.unconnected_device));
                 break;
@@ -450,8 +480,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         @Override
         public void onBindViewHolder(@NonNull final ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final VersionModel model = mVersionList.get(position);
+            LogUtil.d(TAG, "length =" + mVersionList.size());
             LogUtil.d(TAG, "mDefaultDev : " + mDefaultDev.toString());
-            int swLen = 0;
             if (model != null) {
 //                int len = model.versionName.length();
 //                int code = 0;
@@ -464,26 +494,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 } else if (model.type.equals(ConstantUtil.OTA_LOCK_SW_VERSION)) {
                     viewHolder.mType.setImageResource(R.mipmap.ota_lock);
                     viewHolder.mNameTv.setText(R.string.lock_default_name);
-//                    if (StringUtil.checkNotNull(mDefaultDev.getDeviceSwVersion())) {
-//                        swLen = mDefaultDev.getDeviceSwVersion().length();
-//                        if (len >= 5 && swLen >= 5) {
-//                            String[] tempList = mDefaultDev.getDeviceSwVersion().split("_");
-//                            if (tempList.length >= 2) {
-//                                code = StringUtil.compareVersion(model.versionName, tempList[tempList.length - 2]);
-//                                LogUtil.d(TAG, "code = " + code + '\n' + "temp = " + tempList[tempList.length - 2]);
-//                            } else {
-//                                code = -1;
-//                            }
-//                        }
-//                    }
+                } else if (model.type.equals(ConstantUtil.OTA_FACE_SW_VERSION)) {
+                    viewHolder.mType.setImageResource(R.mipmap.icon_face);
+                    viewHolder.mNameTv.setText(R.string.face_manager);
                 }
 
-//                if (0 == code || code == -1) {
-//                    viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
-//                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.black));
-//                } else {
-
-//                }
                 if (model.versionCode != 0) {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
                     viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.red));

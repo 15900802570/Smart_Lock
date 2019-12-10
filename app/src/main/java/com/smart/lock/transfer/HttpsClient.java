@@ -220,6 +220,7 @@ public class HttpsClient {
             if (map != null) {
                 String jsonRequest = JsonUtil.jsonObj2Sting(map);
                 StringEntity entity = new StringEntity(jsonRequest, "UTF-8");
+                LogUtil.d(TAG, "json=" + jsonRequest);
                 request.setEntity(entity);
             }
             // 发送请求
@@ -239,7 +240,7 @@ public class HttpsClient {
                 LogUtil.i(TAG, "response is not 200");
                 errInfo += Integer.toString(response.getStatusLine().getStatusCode());
                 errInfo += " : ";
-
+                LogUtil.d(TAG, "error = " + response);
                 if (response.getStatusLine().getStatusCode() == 405) {
 
                     JSONObject object = processResult(inputStreamToString(response.getEntity().getContent()));
@@ -250,7 +251,7 @@ public class HttpsClient {
                             e.printStackTrace();
                         }
                     }
-                }else if (response.getStatusLine().getStatusCode() == 401) {
+                } else if (response.getStatusLine().getStatusCode() == 401) {
 //                    PreferencesUtils.putBoolean(context, ConstantUtil.KEY_AUTO_LOGIN, false);
 //                    if (!context.getClass().equals(LoginActivity.class)) {
 //                        Intent intent = new Intent();
@@ -334,7 +335,7 @@ public class HttpsClient {
                             e.printStackTrace();
                         }
                     }
-                }else if (response.getStatusLine().getStatusCode() == 401) {
+                } else if (response.getStatusLine().getStatusCode() == 401) {
 //                    PreferencesUtils.putBoolean(context, ConstantUtil.KEY_AUTO_LOGIN, false);
 //                    if (!context.getClass().equals(LoginActivity.class)) {
 //                        Intent intent = new Intent();
@@ -417,8 +418,8 @@ public class HttpsClient {
         HttpPost request = new HttpPost(url);
         request.setHeader("Content-Type", "application/json");
         request.setHeader("charset", "Unicode");
-         request.setHeader("connection","keep-alive");
-         request.setHeader("Keep-Alive","120");
+        request.setHeader("connection", "keep-alive");
+        request.setHeader("Keep-Alive", "120");
         BasicHttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, CONN_TIME_OUT * 1000);/* 连接超时 */
         HttpConnectionParams.setSoTimeout(params, RECV_TIME_OUT * 1000);/* 请求超时 */
@@ -459,7 +460,7 @@ public class HttpsClient {
                             e.printStackTrace();
                         }
                     }
-                }else if (response.getStatusLine().getStatusCode() == 401) {
+                } else if (response.getStatusLine().getStatusCode() == 401) {
 //                    PreferencesUtils.putBoolean(context, ConstantUtil.KEY_AUTO_LOGIN, false);
 //                    if (!context.getClass().equals(LoginActivity.class)) {
 //                        Intent intent = new Intent();
@@ -499,6 +500,7 @@ public class HttpsClient {
 
     /**
      * PUT方式
+     *
      * @param url
      * @param jsonObj
      * @param context
@@ -509,8 +511,8 @@ public class HttpsClient {
         HttpPut request = new HttpPut(url);
         request.setHeader("Content-Type", "application/json");
         request.setHeader("charset", "Unicode");
-        request.setHeader("connection","keep-alive");
-        request.setHeader("Keep-Alive","120");
+        request.setHeader("connection", "keep-alive");
+        request.setHeader("Keep-Alive", "120");
         BasicHttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, CONN_TIME_OUT * 1000);/* 连接超时 */
         HttpConnectionParams.setSoTimeout(params, RECV_TIME_OUT * 1000);/* 请求超时 */
@@ -550,7 +552,7 @@ public class HttpsClient {
                             e.printStackTrace();
                         }
                     }
-                }else if (response.getStatusLine().getStatusCode() == 401) {
+                } else if (response.getStatusLine().getStatusCode() == 401) {
 //                    PreferencesUtils.putBoolean(context, ConstantUtil.KEY_AUTO_LOGIN, false);
 //                    if (!context.getClass().equals(LoginActivity.class)) {
 //                        Intent intent = new Intent();

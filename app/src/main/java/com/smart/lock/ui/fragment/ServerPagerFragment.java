@@ -225,7 +225,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                         } else
                             mMyGridView.setNumColumns(2);
                         mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
-                        LogUtil.d(TAG + "2", mDefaultStatus.toString());
+//                        LogUtil.d(TAG + "2", mDefaultStatus.toString());
                         mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnableFace());
                         mMyGridView.setAdapter(mLockAdapter);
                     }
@@ -264,7 +264,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     } else
                         mMyGridView.setNumColumns(2);
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
-                    LogUtil.d(TAG, mDefaultStatus.toString());
+                    if (mDefaultStatus == null) {
+                        LogUtil.e(TAG, "错误");
+                        LogUtil.e(TAG,"mNode = "+ mNodeId);
+                    }
+//                    LogUtil.d(TAG, mDefaultStatus.toString());
                     mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnableFace());
                     mMyGridView.setAdapter(mLockAdapter);
                     mLockNameTv.setText(mDefaultDevice.getDeviceName());

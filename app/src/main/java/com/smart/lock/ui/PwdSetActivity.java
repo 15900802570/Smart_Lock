@@ -92,11 +92,11 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
             mNodeId = mModifyDeviceKey.getDeviceNodeId();
             mTitleTv.setText(R.string.modify_pwd);
         }
-        if (mDefaultDevice.isEnableFace()) {
-            mFirstPwdEt.setHint(R.string.pwd_length_max);
-            mFirstPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
-            mSecondPwdEt.setHint(R.string.pwd_length_max);
-            mSecondPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
+        if (mDefaultDevice.isEnableVariablePwd()) {
+            mFirstPwdEt.setHint(getString(R.string._pwd_length_max) + mDefaultDevice.getMaxPwdLen() + getString(R.string.pwd_length_max));
+            mFirstPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mDefaultDevice.getMaxPwdLen())});
+            mSecondPwdEt.setHint(getString(R.string._pwd_length_max) + mDefaultDevice.getMaxPwdLen() + getString(R.string.pwd_length_max));
+            mSecondPwdEt.setFilters(new InputFilter[]{new InputFilter.LengthFilter(mDefaultDevice.getMaxPwdLen())});
         }
         mBleManagerHelper = BleManagerHelper.getInstance(this);
         mBleManagerHelper.addUiListener(this);
@@ -213,7 +213,6 @@ public class PwdSetActivity extends BaseActivity implements View.OnClickListener
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_16:
                 DeviceKey key = (DeviceKey) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
-                LogUtil.d(TAG,"TYPE = "+key.getKeyType());
                 if (key == null || (key.getKeyType() != ConstantUtil.USER_PWD)) {
                     DialogUtils.closeDialog(mLoadDialog);
                     return;

@@ -97,6 +97,10 @@ public class Message implements Serializable {
 
     //MSG 05是没有安全连接直接设置SN/MAC/IMEI的消息，调试使用
     public static final byte TYPE_BLE_SEND_CMD_05 = 0x05;
+    /**
+     * MSG 06 APK与智能锁连接后，密码长度定义
+     */
+    public static final byte TYPE_BLE_RECEIVER_CMD_06 = 0x06;
 
     /**
      * MSG 0E APK与智能锁连接失败后的错误消息， 明文传输

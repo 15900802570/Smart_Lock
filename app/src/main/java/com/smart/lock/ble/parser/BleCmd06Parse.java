@@ -1,16 +1,20 @@
+
 package com.smart.lock.ble.parser;
+
 
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 
+import static com.smart.lock.ble.message.MessageCreator.mIs128Code;
+
 /**
- * 智能锁使用MSG 41 人脸OTA命令响应；
+ * MSG 06是智能锁在配置基本信息过程中给服务器上报的消息。
  */
-public class BleCmd42Parse implements BleCommandParse {
+public class BleCmd06Parse implements BleCommandParse {
+
     @Override
     public String getTag() {
         return this.getClass().getName();
@@ -18,14 +22,13 @@ public class BleCmd42Parse implements BleCommandParse {
 
     @Override
     public Message parse(byte[] cmd) {
-
         //计算命令长度
         int packetLen = (cmd[1]) * 256 + ((cmd[2] < 0 ? (256 + cmd[2]) : cmd[2]) + 5);
         byte[] pdu = Arrays.copyOfRange(cmd, 3, packetLen - 2);
-
         byte[] buf = new byte[packetLen - 5];
+
         try {
-            if (MessageCreator.mIs128Code)
+            if (mIs128Code)
                 AES_ECB_PKCS7.AES128Decode(pdu, buf, MessageCreator.m128AK);
             else
                 AES_ECB_PKCS7.AES256Decode(pdu, buf, MessageCreator.m256AK);
@@ -33,18 +36,15 @@ public class BleCmd42Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
+        byte[] minPwdLen =  Arrays.copyOfRange(buf, 0, 1);
+        byte[] maxPwdLen = Arrays.copyOfRange(buf, 1, 2);
 
-        byte[] rsp = new byte[1];
-        byte[] moduleType = new byte[1];
-        System.arraycopy(buf, 0, rsp, 0, 1);
-        System.arraycopy(buf, 1, moduleType, 0, 1);
-
-
-        return MessageCreator.getCmd42Message(getParseKey(), rsp[0], moduleType[0]);
+        return MessageCreator.getCmd06Message(getParseKey(), minPwdLen[0], maxPwdLen[0]);
     }
 
     @Override
     public byte getParseKey() {
-        return Message.TYPE_BLE_RECEIVER_CMD_42;
+        return Message.TYPE_BLE_RECEIVER_CMD_06;
     }
+
 }

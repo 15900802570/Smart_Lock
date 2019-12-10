@@ -62,6 +62,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
     private static final int SET_TIMEZONE_TIMEOUT = 47; //时区设置失败后重新设置
     private Handler mHandler;
     private Message mCheckMsg = null;
+    private Message mPwdLenMsg = null;
     private final Object mStateLock = new Object();
 
     public MainEngine(Context context, BleCardService service) {
@@ -199,6 +200,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.halt();
         if (mCheckMsg != null) {
             mCheckMsg.recycle();
+        }
+        if (mPwdLenMsg != null) {
+            mPwdLenMsg.recycle();
         }
     }
 
@@ -446,9 +450,16 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mDevInfo.setEnableInfrared(false);
             }
             if ((enableStatus & 8) == 8) { //是否支持可变密码
+                LogUtil.d(TAG, "支持可变密码");
                 mDevInfo.setEnableVariablePwd(true);
             } else {
-                mDevInfo.setEnableVariablePwd(false);
+                LogUtil.d(TAG, "不支持可变密码");
+                mDevInfo.setEnableVariablePwd(true);
+            }
+            if ((enableStatus & 16) == 16) { //是否支持全自动锁
+                mDevInfo.setEnableAutoLock(true);
+            } else {
+                mDevInfo.setEnableAutoLock(false);
             }
 
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
@@ -478,6 +489,28 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mUiListener.dispatchUiCallback(msg, mDevice, BleMsg.REGISTER_SUCCESS);
             }
             uiListeners.clear();
+        }
+    }
+
+    //解析MSG06
+    private void setPwdLen(Message message) {
+        Bundle bundle = message.getData();
+        int minPwdLen = bundle.getByte(BleMsg.KEY_MIN_PWD_LEN, (byte) 0);
+        int maxPwdLen = bundle.getByte(BleMsg.KEY_MAX_PWD_LEN, (byte) 0);
+        LogUtil.d(TAG, "min =" + minPwdLen + '\n' +
+                "max =" + maxPwdLen);
+        if (mDevInfo != null) {
+            mDevInfo.setMinPwdLen(minPwdLen);
+            mDevInfo.setMaxPwdLen(maxPwdLen);
+            DeviceInfoDao.getInstance(mCtx).updateDeviceInfo(mDevInfo);
+            if (mPwdLenMsg != null) {
+                mPwdLenMsg.recycle();
+            }
+        } else {
+            mPwdLenMsg = new Message();
+            Bundle extra = mPwdLenMsg.getData();
+            extra.putByte(BleMsg.KEY_MIN_PWD_LEN, bundle.getByte(BleMsg.KEY_MIN_PWD_LEN, (byte) 0));
+            extra.putByte(BleMsg.KEY_MAX_PWD_LEN, bundle.getByte(BleMsg.KEY_MAX_PWD_LEN, (byte) 0));
         }
     }
 
@@ -542,8 +575,15 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             }
             if ((enableStatus & 8) == 8) { //是否支持可变密码
                 mDevInfo.setEnableVariablePwd(true);
+                LogUtil.d(TAG, "支持可变密码");
             } else {
-                mDevInfo.setEnableVariablePwd(false);
+                LogUtil.d(TAG, "不支持可变密码");
+                mDevInfo.setEnableVariablePwd(true);
+            }
+            if ((enableStatus & 16) == 16) { //是否支持全自动锁
+                mDevInfo.setEnableAutoLock(true);
+            } else {
+                mDevInfo.setEnableAutoLock(false);
             }
             mDeviceInfoDao.updateDeviceInfo(mDevInfo); //数据库更新锁信息
             setStatus(mDevInfo.getDeviceNodeId(), battery, stStatus, unLockTime, powerSave, stStatus2);
@@ -657,17 +697,19 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      * 设置时区
      */
     private void setTimeZone() {
-        LogUtil.i(TAG, "send msg 47");
-        LogUtil.d(TAG, "int = " + TimeZone.getDefault().getDSTSavings() + '\n' +
-                "string = " + TimeZone.getDefault().getDisplayName() + '\n' +
-                "string =" + TimeZone.getDefault().getRawOffset() + '\n' +
-                "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT) + '\n' +
-                "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.LONG) + '\n' +
-                "String = " + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT)
-        );
-        int timeZone = TimeZone.getDefault().getRawOffset() / 3600000;
-        mService.sendCmd47((byte) timeZone, BleMsg.INT_DEFAULT_TIMEOUT);
-        sendMessage(SET_TIMEZONE_TIMEOUT,null,10*1000);
+        if (mDevInfo != null && mDevInfo.isEnableFace()) {
+            LogUtil.i(TAG, "send msg 47");
+            LogUtil.d(TAG, "int = " + TimeZone.getDefault().getDSTSavings() + '\n' +
+                    "string = " + TimeZone.getDefault().getDisplayName() + '\n' +
+                    "string =" + TimeZone.getDefault().getRawOffset() + '\n' +
+                    "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT) + '\n' +
+                    "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.LONG) + '\n' +
+                    "String = " + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT)
+            );
+            int timeZone = -TimeZone.getDefault().getRawOffset() / 1000;
+            mService.sendCmd47(timeZone, BleMsg.INT_DEFAULT_TIMEOUT);
+            sendMessage(SET_TIMEZONE_TIMEOUT, null, 10 * 1000);
+        }
     }
 
     /**
@@ -845,6 +887,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 break;
             case MSG_ADD_USER_SUCCESS:
                 if (mCheckMsg != null) checkDevInfo(mCheckMsg);
+                if (mPwdLenMsg != null) setPwdLen(mCheckMsg);
                 break;
             case MSG_CHANGE_GATT_STATE:
                 int state = msg.getData().getInt("gatt_state", -1);
@@ -942,6 +985,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     uiListeners.clear();
                 }
             }
+            LogUtil.d(TAG, "type = " + type);
 
             switch (type) {
                 case Message.TYPE_BLE_RECEIVER_CMD_02:
@@ -955,6 +999,10 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                 case Message.TYPE_BLE_RECEIVER_CMD_04:
                     registerCallBack(message);
+                    break;
+                case Message.TYPE_BLE_RECEIVER_CMD_06:
+                    LogUtil.d(TAG, "receive 06");
+                    setPwdLen(message);
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_12:
                     DeviceUser addUser = (DeviceUser) extra.getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -1018,6 +1066,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_1A:
                 case Message.TYPE_BLE_RECEIVER_CMD_1C:
+                case Message.TYPE_BLE_RECEIVER_CMD_44:
                 case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 case Message.TYPE_BLE_RECEIVER_CMD_16:
                 case Message.TYPE_BLE_RECEIVER_CMD_0E:
@@ -1100,6 +1149,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                             uiListeners.clear();
                         }
                     }
+                    setTimeZone();
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_32:
                     LogUtil.i(TAG, "receiver 32!");
@@ -1126,6 +1176,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     final byte[] errCode = message.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                     if (errCode != null && errCode[3] == 0) {
                         mHandler.removeMessages(SET_TIMEZONE_TIMEOUT);
+                        LogUtil.d(TAG, "设置时区成功");
                     }
                     break;
 

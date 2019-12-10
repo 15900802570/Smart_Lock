@@ -744,13 +744,14 @@ public class BleCardService {
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();
     }
+
     /**
      * MSG 41是APK发给智能锁的指纹固件大小。
      *
-     * @param size 指纹固件大小
+     * @param size 指纹固件大小,
      * @return 是否发送成功
      */
-    public boolean sendCmd41(byte cmdType,byte OTAType, int size, int timeOut) {
+    public boolean sendCmd41(byte cmdType, byte OTAType, int size, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_41);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
@@ -758,17 +759,18 @@ public class BleCardService {
         Bundle bundle = msg.getData();
 
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
-        bundle.putByte(BleMsg.KEY_OTA_MODULE_TYPE, OTAType);
-        bundle.putInt(BleMsg.KEY_OTA_MODULE_TYPE, size);
+        bundle.putByte(BleMsg.KEY_FACE_MODULE_VERSION, OTAType);
+        bundle.putInt(BleMsg.KEY_FACE_FIRMWARE_SIZE, size);
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();
     }
+
     /**
      * MSG 45 是APK通知智能锁新建或者修改长度可变密码的消息
      *
      * @param cmdType 命令类型
-     * @param pwdLen 秘钥类型
+     * @param pwdLen  秘钥类型
      * @param userId  用户编号
      * @param lockId  秘钥编号
      * @param pwd     录入密码
@@ -796,24 +798,25 @@ public class BleCardService {
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();
     }
+
     /**
      * MSG 47是APK发给智能锁的时区。
      *
      * @param timeZone 时区（-12～+12）
      * @return 是否发送成功
      */
-    public boolean sendCmd47(byte timeZone, int timeOut) {
+    public boolean sendCmd47(int timeZone, int timeOut) {
         Message msg = Message.obtain();
         msg.setType(Message.TYPE_BLE_SEND_CMD_47);
         msg.setKey(Message.TYPE_BLE_SEND_CMD_47 + "#" + "single");
         msg.setTimeout(timeOut);
         Bundle bundle = msg.getData();
-
-        bundle.putByte(BleMsg.KEY_TIME_ZONE, timeZone);
+        bundle.putInt(BleMsg.KEY_TIME_ZONE, timeZone);
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
         return ct.request();
     }
+
     /**
      * MSG 51阈值测试。
      *

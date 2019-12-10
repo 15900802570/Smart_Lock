@@ -25,7 +25,7 @@ public class BleCmd47Creator implements BleCreator {
 
         Bundle data = message.getData();
 
-        int timeZone = data.getByte(BleMsg.KEY_TIME_ZONE); // 当前时区
+        int timeZone = data.getInt(BleMsg.KEY_TIME_ZONE); // 当前时区
 
         short cmdLen = 16;
         byte[] cmd = new byte[128];
@@ -37,14 +37,14 @@ public class BleCmd47Creator implements BleCreator {
 
         // 填充字节
         byte[] cmdBuf = new byte[16];
-
-        cmdBuf[0] = (byte) timeZone;
-
+        byte[] timeZoneBuf = new byte[4];
 
         LogUtil.d(getTag(), "cmdBuf = " + Arrays.toString(cmdBuf));
         LogUtil.d(getTag(), "timeZone = " + timeZone);
+        StringUtil.int2Bytes(timeZone, timeZoneBuf);
+        System.arraycopy(timeZoneBuf, 0, cmdBuf, 0, 4);
 
-        Arrays.fill(cmdBuf, 1, 16, (byte) 15);
+        Arrays.fill(cmdBuf, 4, 16, (byte) 0x0C);
 
         try {
             if (MessageCreator.mIs128Code)

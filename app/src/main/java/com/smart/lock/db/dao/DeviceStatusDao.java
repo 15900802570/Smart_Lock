@@ -5,6 +5,7 @@ import android.content.Context;
 import com.j256.ormlite.dao.Dao;
 import com.smart.lock.db.bean.DeviceStatus;
 import com.smart.lock.db.helper.DtDatabaseHelper;
+import com.smart.lock.utils.LogUtil;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class DeviceStatusDao {
             e.printStackTrace();
         }
     }
+
     public synchronized void insert(DeviceStatus deviceStatus) {
         try {
             dao.create(deviceStatus);
@@ -98,6 +100,7 @@ public class DeviceStatusDao {
             return -1;
         }
     }
+
     /**
      * @return -1:删除数据异常 0：无数据
      */

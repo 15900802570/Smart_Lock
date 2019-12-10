@@ -49,6 +49,9 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "fp_sw_version")
     private String fpSwVersion;
 
+    @DatabaseField(columnName = "face_main_version")
+    private String faceMainVersion;
+
     @DatabaseField(columnName = "face_scpu_version")
     private String faceSCPUVersion;
 
@@ -118,10 +121,21 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "enable_infrared", defaultValue = "0")
     private boolean enableInfrared;
 
-    //是否支持红外 0为不支持 1为支持
+    //是否支持红外 0-不支持 1-支持
     @DatabaseField(columnName = "enable_variable_pwd", defaultValue = "0")
     private boolean enableVariablePwd;
 
+    //是否支持全自动锁 0-不支持 1-支持
+    @DatabaseField(columnName = "enable_auto_lock", defaultValue = "0")
+    private boolean enableAutoLock;
+
+    //最短密码长度
+    @DatabaseField(columnName = "min_pwd_len", defaultValue = "6")
+    private int minPwdLen;
+
+    //最长密码长度
+    @DatabaseField(columnName = "max_pwd_len", defaultValue = "6")
+    private int maxPwdLen;
 
     public String getFpSwVersion() {
         return fpSwVersion;
@@ -407,6 +421,30 @@ public class DeviceInfo implements Serializable {
         this.faceNCPUVersion = faceNCPUVersion;
     }
 
+    public boolean isEnableAutoLock() {
+        return enableAutoLock;
+    }
+
+    public void setEnableAutoLock(boolean enableAutoLock) {
+        this.enableAutoLock = enableAutoLock;
+    }
+
+    public int getMaxPwdLen() {
+        return maxPwdLen;
+    }
+
+    public void setMaxPwdLen(int maxPwdLen) {
+        this.maxPwdLen = maxPwdLen;
+    }
+
+    public int getMinPwdLen() {
+        return minPwdLen;
+    }
+
+    public void setMinPwdLen(int minPwdLen) {
+        this.minPwdLen = minPwdLen;
+    }
+
     @Override
     public String toString() {
         return "DeviceInfo{" +
@@ -439,5 +477,13 @@ public class DeviceInfo implements Serializable {
                 ", tempSecret='" + tempSecret + '\'' +
                 ", deviceIndex=" + deviceIndex +
                 '}';
+    }
+
+    public String getFaceMainVersion() {
+        return faceMainVersion;
+    }
+
+    public void setFaceMainVersion(String faceMainVersion) {
+        this.faceMainVersion = faceMainVersion;
     }
 }

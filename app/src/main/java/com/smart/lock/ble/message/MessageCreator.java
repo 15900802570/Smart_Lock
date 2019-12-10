@@ -139,6 +139,24 @@ public class MessageCreator {
     }
 
     /**
+     * MSG 06 连接错误消息
+     *
+     * @param type      消息类型
+     * @param minPwdLen 密码最小长度
+     * @param maxPwdLen 密码最大长度
+     * @return Message
+     */
+    public static Message getCmd06Message(byte type, byte minPwdLen, byte maxPwdLen) {
+        Message message = Message.obtain();
+        message.setType(type);
+        message.setKey(Message.TYPE_BLE_SEND_CMD_03 + "#" + "single");
+        Bundle mBundle = message.getData();
+        mBundle.putByte(BleMsg.KEY_MIN_PWD_LEN, minPwdLen);
+        mBundle.putByte(BleMsg.KEY_MAX_PWD_LEN, maxPwdLen);
+        return message;
+    }
+
+    /**
      * MSG 0E 连接错误消息
      *
      * @param type      消息类型
@@ -259,7 +277,7 @@ public class MessageCreator {
                 errCode[3] == BleMsg.TYPE_GROUP_DELETE_USER_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_13 + "#" + "single");
         } else if (errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS ||
-                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED   ) {
+                errCode[3] == BleMsg.TYPE_GROUP_DELETE_KEY_FAILED) {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_17 + "#" + "single");
         }
 
@@ -358,6 +376,7 @@ public class MessageCreator {
     public static Message getCmd26Message(byte type, byte[] msg) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
+        LogUtil.e(TAG,"RECEIVE 26");
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
         Bundle mBundle = mMessage.getData();
 
@@ -412,8 +431,8 @@ public class MessageCreator {
     /**
      * 获取消息Message.TYPE_BLE_RECEIVER_CMD_42
      *
-     * @param type    消息类型
-     * @param rspCode 设备发送消息回复
+     * @param type       消息类型
+     * @param rspCode    设备发送消息回复
      * @param moduleType OTA module
      * @return null
      */
@@ -424,26 +443,33 @@ public class MessageCreator {
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
 
         mBundle.putByte(BleMsg.KEY_KDP_RSP_CODE, rspCode);
-        mBundle.putByte(BleMsg.KEY_OTA_MODULE_TYPE, moduleType);
+        mBundle.putByte(BleMsg.KEY_FACE_MODULE_VERSION, moduleType);
         return mMessage;
     }
 
     /**
      * 获取消息Message.TYPE_BLE_RECEIVER_CMD_44
      *
-     * @param type    消息类型
-     * @param swVer 设备版本信息
-     * @param moduleType OTA module
+     * @param type      消息类型
+     * @param majorVer  主版本号
+     * @param nCpuVer   nCPU
+     * @param sCpuVer   sCPU
+     * @param moduleVer module
      * @return null
      */
-    public static Message getCmd44Message(byte type, byte moduleType ,byte[] swVer) {
+    public static Message getCmd44Message(byte type,
+                                          byte[] majorVer,
+                                          byte[] nCpuVer,
+                                          byte[] sCpuVer,
+                                          byte[] moduleVer) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
-
-        mBundle.putByte(BleMsg.KEY_OTA_MODULE_TYPE, moduleType);
-        mBundle.putByteArray(BleMsg.KEY_SW_VER, swVer);
+        mBundle.putByteArray(BleMsg.KEY_FACE_MAJOR_VERSION, majorVer);
+        mBundle.putByteArray(BleMsg.KEY_FACE_NCPU_VERSION, nCpuVer);
+        mBundle.putByteArray(BleMsg.KEY_FACE_SCPU_VERSION, sCpuVer);
+        mBundle.putByteArray(BleMsg.KEY_FACE_MODULE_VERSION, moduleVer);
         return mMessage;
     }
 

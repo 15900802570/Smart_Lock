@@ -3,6 +3,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 
@@ -32,15 +33,25 @@ public class BleCmd44Parse implements BleCommandParse {
             e.printStackTrace();
         }
 
-        byte[] moduleType = new byte[1];
-        int swLen = Integer.parseInt(String.valueOf(buf[1]), 10);
-        byte[] swVer = new byte[swLen];
+        int majorLen = Integer.parseInt(String.valueOf(buf[0]), 10);
+        int nCpuLen = Integer.parseInt(String.valueOf(buf[1 + majorLen]), 10);
+        int sCpuLen = Integer.parseInt(String.valueOf(buf[2 + majorLen + nCpuLen]), 10);
+        int moduleLen = Integer.parseInt(String.valueOf(buf[3 + majorLen + nCpuLen + sCpuLen]), 10);
+        byte[] majorVer = new byte[majorLen];
+        byte[] nCpuVer = new byte[nCpuLen];
+        byte[] sCpuVer = new byte[sCpuLen];
+        byte[] moduleVer = new byte[moduleLen];
+        System.arraycopy(buf, 1, majorVer, 0, majorLen);
+        System.arraycopy(buf, 2 + majorLen, nCpuVer, 0, nCpuLen);
+        System.arraycopy(buf, 3 + majorLen + nCpuLen, sCpuVer, 0, sCpuLen);
+        System.arraycopy(buf, 4 + majorLen + nCpuLen + sCpuLen, moduleVer, 0, moduleLen);
 
-        System.arraycopy(buf, 0, moduleType, 0, 1);
-        System.arraycopy(buf, 2, swVer, 0, swLen);
 
+//        System.arraycopy(buf, 0, moduleType, 0, 1);
+//        System.arraycopy(buf, 2, swVer, 0, swLen);
+        LogUtil.d("CheckOta","receive 44");
 
-        return MessageCreator.getCmd44Message(getParseKey(), moduleType[0], swVer);
+        return MessageCreator.getCmd44Message(getParseKey(), majorVer, nCpuVer,sCpuVer,moduleVer);
     }
 
     @Override

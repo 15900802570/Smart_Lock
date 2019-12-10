@@ -33,6 +33,11 @@ public class CheckOtaAction extends AbstractTransaction {
         String fpType;
         String fpCurVer;
         String fpCurZone;
+        String faceType;
+        String faceMainCurVer;
+        String faceNCpuCurVer;
+        String faceSCpuCurVer;
+        String faceModuleCurVer;
 
     }
 
@@ -94,6 +99,26 @@ public class CheckOtaAction extends AbstractTransaction {
 
     public void setExtension(String extension) {
         this.sendData.extension = extension;
+    }
+
+    public void setFaceType(String faceType) {
+        this.sendData.faceType = faceType;
+    }
+
+    public void setFaceMainCurVer(String faceMainCurVer) {
+        this.sendData.faceMainCurVer = faceMainCurVer;
+    }
+
+    public void setFaceNCpuCurVer(String faceNCpuCurVer) {
+        this.sendData.faceNCpuCurVer = faceNCpuCurVer;
+    }
+
+    public void setFaceSCpuCurVer(String faceSCpuCurVer) {
+        this.sendData.faceSCpuCurVer = faceSCpuCurVer;
+    }
+
+    public void setFaceModuleCurVer(String faceModuleCurVer) {
+        this.sendData.faceModuleCurVer = faceModuleCurVer;
     }
 
     public class CheckVersionRespond {
@@ -171,12 +196,13 @@ public class CheckOtaAction extends AbstractTransaction {
                             versionModel.msg = devObj.getString("msg");
                             respondData.models.add(versionModel);
                         }
-                    }else {
+                    } else {
                         VersionModel versionModel = new VersionModel();
                         versionModel.type = ConstantUtil.OTA_LOCK_SW_VERSION;
                         versionModel.versionCode = 0;
                         respondData.models.add(versionModel);
                     }
+
                     JSONObject fpObj = null;
                     if (object.has("fingerprint")) {
                         fpObj = object.getJSONObject("fingerprint");
@@ -193,12 +219,37 @@ public class CheckOtaAction extends AbstractTransaction {
                             versionModel.zone = fpObj.getString("zone");
                             respondData.models.add(versionModel);
                         }
-                    }else {
+                    } else {
                         VersionModel versionModel = new VersionModel();
                         versionModel.type = ConstantUtil.OTA_FP_SW_VERSION;
                         versionModel.versionCode = 0;
                         respondData.models.add(versionModel);
                     }
+/*
+                    JSONObject faceObj = null;
+                    if (object.has("face")) {
+                        faceObj = object.getJSONObject("face");
+                        if (faceObj != null) {
+                            VersionModel versionModel = new VersionModel();
+                            versionModel.type = ConstantUtil.OTA_FACE_SW_VERSION;
+                            versionModel.fileName = faceObj.getString("filename");
+                            versionModel.updateDate = faceObj.getString("updateDate");
+                            versionModel.versionCode = faceObj.getInt("versionCode");
+                            versionModel.versionName = faceObj.getString("version");
+                            versionModel.msg = faceObj.getString("msg");
+                            versionModel.path = faceObj.getString("path");
+                            versionModel.sha1 = faceObj.getString("sha1");
+                            versionModel.zone = faceObj.getString("zone");
+                            respondData.models.add(versionModel);
+                        }
+                    } else {
+                        VersionModel versionModel = new VersionModel();
+                        versionModel.type = ConstantUtil.OTA_FACE_SW_VERSION;
+                        versionModel.versionCode = 0;
+                        respondData.models.add(versionModel);
+                    }
+*/
+                    LogUtil.d(TAG, "length =" + respondData.models.size());
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

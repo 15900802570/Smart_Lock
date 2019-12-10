@@ -150,14 +150,27 @@ public class BleMsg {
     public static final String KEY_TIME_ZONE= "timeZone";
 
     /**
-     * OTA module命令类型
+     * FACE_Version major
      */
-    public static final String KEY_OTA_MODULE_TYPE = "OTAType";
+    public static final String KEY_FACE_MAJOR_VERSION = "FaceMajor";
+
+    /**
+     * FACE Version nCPU
+     */
+    public static final String KEY_FACE_NCPU_VERSION = "FaceNCPU";
+    /**
+     * FACE Version sCPU
+     */
+    public static final String KEY_FACE_SCPU_VERSION = "FaceSCPU";
+    /**
+     * FACE Vsrsion module
+     */
+    public static final String KEY_FACE_MODULE_VERSION = "FaceModule";
 
     /**
      * OTA命令类型
      */
-    public static final String KEY_KPD_SIZE = "KPDSize";
+    public static final String KEY_FACE_FIRMWARE_SIZE = "KPDSize";
 
     /**
      * KDP OTA命令返回Code
@@ -168,6 +181,15 @@ public class BleMsg {
      * 秘钥类型
      */
     public static final String KEY_TYPE = "keyType";
+
+    /**
+     * 密码最小长度
+     */
+    public static final String KEY_MIN_PWD_LEN = "minPwdLen";
+    /**
+     * 密码最大长度
+     */
+    public static final String KEY_MAX_PWD_LEN = "maxPwdLen";
 
     /**
      * 设备回复的错误编码
@@ -579,7 +601,12 @@ public class BleMsg {
     public static final byte TYPE_USER_SUSPENDED = 0x06; //用户已暂停
 
     /**
-     * msg 44 CMD
+     * msg 41 CMD
+     */
+    public static final byte TYPE_CHECK_FACE_VERSION = 0x03;//查询人脸ota固件版本
+    public static final byte TYPE_FACE_FIRMWARE_SIZE = 0x05;//查询人脸ota固件大小
+    /**
+     * msg 45 CMD
      */
     public static final byte CMD_TYPE_PWD_CREATE = 0x00; //新增
     public static final byte CMD_TYPE_PWD_MODIFY = 0x01; //修改

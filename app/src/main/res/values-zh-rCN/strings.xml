@@ -493,6 +493,8 @@
     <string name="infrared_induction">人体感应</string>
     <string name="auto_close">自动关门</string>
     <string name="auto_close_setting_failed">自动关门设置失败</string>
-    <string name="pwd_length_max">密码长度6～10位</string>
+    <string name="_pwd_length_max">密码长度</string>
+    <string name="pwd_length_max">位</string>
+    <string name="tip_of_normal_open">常开功能已启用，请注意及时回锁或者关闭常开功能，否则您的门锁可能处于可直接开门状态！</string>
 
 </resources>

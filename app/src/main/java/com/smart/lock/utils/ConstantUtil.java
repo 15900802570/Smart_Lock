@@ -190,9 +190,15 @@ public class ConstantUtil {
      */
     public static final String OTA_LOCK_SW_VERSION = "lockSwVersion";
     /**
-     * 门锁软件版本
+     * 指纹软件版本
      */
     public static final String OTA_FP_SW_VERSION = "fingerprintSwVersion";
+
+    /**
+     * 人脸软件版本
+     */
+    public static final String OTA_FACE_SW_VERSION = "faceSwVersion";
+
 
     /**
      * 修改

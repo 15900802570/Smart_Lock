@@ -217,7 +217,7 @@ public class DeviceKeyActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onBackPressed() {
         DeviceStatus deviceStatus = DeviceStatusDao.getInstance(this).queryOrCreateByNodeId(mDefaultDevice.getDeviceNodeId());
-        if (deviceStatus.isCombinationLock()) {
+        if (deviceStatus != null && deviceStatus.isCombinationLock()) {
             int counter = 0;
             if (mDefaultDevice.isEnableFace()) {
                 counter = mPwdFragment.getCounter() + mFaceFragment.getCounter() + mFPFragment.getCounter();

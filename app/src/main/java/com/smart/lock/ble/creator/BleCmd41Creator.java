@@ -27,9 +27,9 @@ public class BleCmd41Creator implements BleCreator {
 
         byte cmdType = data.getByte(BleMsg.KEY_CMD_TYPE); //0x00：新增 0x01：删除 0x02：修改
 
-        byte OTAType = data.getByte(BleMsg.KEY_OTA_MODULE_TYPE);
+        byte OTAType = data.getByte(BleMsg.KEY_FACE_MODULE_VERSION);
 
-        int size = data.getInt(BleMsg.KEY_KPD_SIZE);
+        int size = data.getInt(BleMsg.KEY_FACE_FIRMWARE_SIZE);
 
         short cmdLen = 16;
         byte[] cmd = new byte[128];
@@ -45,12 +45,14 @@ public class BleCmd41Creator implements BleCreator {
         cmdBuf[1] = OTAType;
 
         LogUtil.d(TAG, "cmd=" + cmdType + '\n' +
-                "ota =" + OTAType);
+                "ota =" + OTAType + '\n' +
+                "size =" + size);
 
         if (size != 0) {
             byte[] sizeBuf = new byte[4];
             StringUtil.int2Bytes(size, sizeBuf);
-            System.arraycopy(sizeBuf, 0, cmdBuf, 2, 6);
+            System.arraycopy(sizeBuf, 0, cmdBuf, 2, 4);
+//            Arrays.fill(cmdBuf, 2, 6, (byte) size);
         } else {
             Arrays.fill(cmdBuf, 2, 6, (byte) 0xffffffff);
         }

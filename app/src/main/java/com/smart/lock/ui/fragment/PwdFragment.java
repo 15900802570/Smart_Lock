@@ -66,7 +66,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
             case R.id.tv_add:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     int count = DeviceKeyDao.getInstance(mCtx).queryDeviceKey(mNodeId, mTempUser == null ? mDefaultDevice.getUserId() : mTempUser.getUserId(), ConstantUtil.USER_PWD).size();
-                    if (count >= 0 && count < 1) {
+                    if (count == 0) {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(BleMsg.KEY_DEFAULT_DEVICE, mDefaultDevice);
                         bundle.putSerializable(BleMsg.KEY_TEMP_USER, mTempUser);
@@ -260,7 +260,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 viewHolder.mCreateTime.setText(DateTimeUtil.timeStamp2Date(String.valueOf(pwdInfo.getKeyActiveTime()), "yyyy-MM-dd HH:mm:ss"));
 
                 viewHolder.mEditorNameDialog = DialogUtils.createEditorDialog(getContext(), getString(R.string.modify_name), pwdInfo.getKeyName());
-                final EditText editText =   viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
+                final EditText editText = viewHolder.mEditorNameDialog.findViewById(R.id.editor_et);
                 editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(8)});
 
                 viewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
@@ -298,7 +298,7 @@ public class PwdFragment extends BaseFragment implements View.OnClickListener, U
                 viewHolder.mEditorNameDialog.findViewById(R.id.dialog_confirm_btn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        final String newName =  editText.getText().toString();
+                        final String newName = editText.getText().toString();
                         if (!newName.isEmpty()) {
                             viewHolder.mNameTv.setText(newName);
                             pwdInfo.setKeyName(newName);

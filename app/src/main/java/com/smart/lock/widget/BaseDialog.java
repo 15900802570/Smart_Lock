@@ -120,7 +120,7 @@ public class BaseDialog extends Dialog {
                 btNo.setVisibility(View.GONE);
                 btOk.setVisibility(View.VISIBLE);
                 LayoutParams btOkLin_ = new LayoutParams(
-                        LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT, 1f);
+                        LayoutParams.MATCH_PARENT, 120, 11);
 //                btOkLin_.setMargins(ps, ps, ps, ps);
                 btOk.setLayoutParams(btOkLin_);
                 btOk.setBackgroundResource(R.drawable.selector_button_dialog_confirm);

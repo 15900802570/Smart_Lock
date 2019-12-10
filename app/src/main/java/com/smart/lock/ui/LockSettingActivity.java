@@ -195,16 +195,21 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if ((mDefaultDevice.getDeviceNodeId()).substring(0, 7).equals("1586102") || mDeviceStatus.isInvalidIntelligentLock()) {
             mIntelligentLockTs.setVisibility(View.GONE);
         }
-        if (mDefaultDevice.isUnableNfc()){
+        if (mDefaultDevice.isUnableNfc()) {
             mSetSupportCardTypeBs.setVisibility(View.GONE);
         }
-        if(!mDefaultDevice.isEnableVariablePwd()) {
+        if (!mDefaultDevice.isEnableVariablePwd()) {
             mAutoCloseEnableTs.setVisibility(View.GONE);
         }
-        if (mDefaultDevice.isEnableInfrared()){
+        if (mDefaultDevice.isEnableInfrared()) {
             mInfraredEnableTs.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             mInfraredEnableTs.setVisibility(View.GONE);
+        }
+        if (mDefaultDevice.isEnableAutoLock()) {
+            mSetRolledBackTimeBs.setVisibility(View.GONE);
+        } else {
+            mSetRolledBackTimeBs.setVisibility(View.VISIBLE);
         }
     }
 
@@ -509,7 +514,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                     case R.string.normally_open:    //常开功能
                         if (mDeviceStatus.isNormallyOpen()) {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_CLOSE);
+
                         } else {
+                            DialogUtils.createTipsDialogWithConfirm(this, getString(R.string.tip_of_normal_open)).show();
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_NORMALLY_OPEN);
                         }
                         break;
@@ -521,7 +528,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_INFRARED_INDUCTION_OPEN);
                         }
                         break;
-                    case R.string.auto_close:    //自动开门
+                    case R.string.auto_close:    //自动关门
                         if (mDeviceStatus.isAutoCloseEnable()) {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOORE_CLOSE);
                         } else {
@@ -1002,7 +1009,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 break;
             case BleMsg.TYPE_AUTO_CLOSE_ENABLE_FAILED:
             case BleMsg.TYPE_AUTO_CLOSE_UNABLE_FAILED:
-                    showMessage(getString(R.string.auto_close_setting_failed));
+                showMessage(getString(R.string.auto_close_setting_failed));
                 break;
             case BleMsg.TYPE_AUTO_CLOSE_UNABLE_SUCCESS:
                 mAutoCloseEnableTs.setChecked(false);

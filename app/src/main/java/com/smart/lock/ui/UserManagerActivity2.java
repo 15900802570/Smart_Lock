@@ -502,9 +502,6 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
 
     private void dispatchErrorCode(byte errCode, Serializable serializable) {
         switch (errCode) {
-            case BleMsg.TYPE_DELETE_PASSWORD_SUCCESS:
-            case BleMsg.TYPE_DELETE_NFC_SUCCESS:
-            case BleMsg.TYPE_DELETE_FACE_SUCCESS:
             case BleMsg.TYPE_GROUP_DELETE_KEY_SUCCESS:
                 if (serializable instanceof DeviceKey) {
                     DeviceKey key = (DeviceKey) serializable;

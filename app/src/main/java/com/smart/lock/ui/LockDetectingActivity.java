@@ -140,7 +140,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     DialogUtils.closeDialog(mLoadDialog);
                     LogUtil.d(TAG, "mSearchAddDev : " + mSearchAddDev + " mMode : " + mMode);
                     if (mMode == SEARCH_LOCK && mSearchAddDev) {
-                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_press_setting));
+                        mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_wait_lock_call_back));
 //                        mLoadDialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
 //
 //                            @Override

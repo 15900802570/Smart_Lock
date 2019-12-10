@@ -38,6 +38,7 @@ import com.smart.lock.ble.creator.BleCreator;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.parser.BleCmd02Parse;
 import com.smart.lock.ble.parser.BleCmd04Parse;
+import com.smart.lock.ble.parser.BleCmd06Parse;
 import com.smart.lock.ble.parser.BleCmd0EParse;
 import com.smart.lock.ble.parser.BleCmd12Parse;
 import com.smart.lock.ble.parser.BleCmd14Parse;
@@ -284,7 +285,7 @@ public class BleProvider {
                 if (message instanceof Message) {
                     Message msg = (Message) message;
                     int flag = onceSendMessageMap.get(msg.getType());
-                    LogUtil.d(TAG, "msg type ="+msg.getType());
+                    LogUtil.d(TAG, "msg type =" + msg.getType());
                     switch (flag) {
                         case FLAG_TRUE:
                             Log.w(TAG, "Queue has message "
@@ -318,6 +319,8 @@ public class BleProvider {
     public synchronized void onReceiveBle(byte[] command) {
 
         if (status == STATUS_RUNNING) {
+            LogUtil.e(TAG,"RECEIVE = "+ Arrays.toString(command));
+            LogUtil.e(TAG,"RECEIVE = "+ StringUtil.byteArrayToHexStr(command));
             try {
                 bleCommandQueue.offer(command, OFFER_SEND_QUEUE_TIMEOUT, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
@@ -500,10 +503,12 @@ public class BleProvider {
         if (mRspLength < mPacketLength || mPacketLength <= 0) {
             return;
         }
-
+//        LogUtil.e(TAG, "hashCode =" + hashCode());
+//        LogUtil.e(TAG, "bug=" + Arrays.toString(command) + '\n' + "len = " + command.length);
+//        LogUtil.e(TAG, "mRspBuf=" + Arrays.toString(mRspBuf) + '\n' + "len = " + mRspBuf.length);
         byte[] cmdBuf = new byte[mPacketLength];
         System.arraycopy(mRspBuf, 0, cmdBuf, 0, mPacketLength);
-
+//        LogUtil.e(TAG, "cmdBuf" + Arrays.toString(cmdBuf) + '\n' + "len = " + cmdBuf.length);
         if (!checkCrc(cmdBuf)) {
             LogUtil.e(TAG, "crc error!");
             return;
@@ -520,10 +525,10 @@ public class BleProvider {
                 Message m = parse.parse(cmdBuf);
 
                 if (m != null) {
-                    LogUtil.d(TAG, "cmdBuf_id ="+cmdBuf[0]);
+                    LogUtil.d(TAG, "cmdBuf_id =" + cmdBuf[0]);
                     if (m.getKey() != null) {
                         // 获取事务监听器
-                        LogUtil.d(TAG, " key"+m.getKey());
+                        LogUtil.d(TAG, " key" + m.getKey());
                         ClientTransaction ct = (ClientTransaction) removeBleMsgListener(m.getKey());
                         if (ct != null) {
                             Serializable serializable = ct.getMessage().getData().getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -625,6 +630,7 @@ public class BleProvider {
         // 填充ble指令监听器映射表
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_02, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_04, mBleMessageListener);
+        messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_06, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_0E, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1A, mBleMessageListener);
         messageListenerMap.put(Message.TYPE_BLE_RECEIVER_CMD_1C, mBleMessageListener);
@@ -649,6 +655,7 @@ public class BleProvider {
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_1E, new BleCmd1EParse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_02, new BleCmd02Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_04, new BleCmd04Parse());
+        bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_06, new BleCmd06Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_12, new BleCmd12Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_14, new BleCmd14Parse());
         bleCommandParseMap.put(Message.TYPE_BLE_RECEIVER_CMD_16, new BleCmd16Parse());

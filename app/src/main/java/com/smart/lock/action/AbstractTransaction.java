@@ -141,6 +141,7 @@ public abstract class AbstractTransaction {
                 Bundle bundle = new Bundle();
                 InputStream inputStream = HttpsClient.put(url, transeContent, context);
                 responseCode = HttpsClient.getResponseCode();
+                LogUtil.d(TAG, "responseCode = " + responseCode);
                 if (inputStream != null) {
                     LogUtil.i(TAG, "inputstream is not null ");
                     if (transParse(inputStream, TransType.PUT)) {
@@ -190,6 +191,7 @@ public abstract class AbstractTransaction {
                 Bundle bundle = new Bundle();
                 InputStream inputStream = HttpsClient.post(url, mapTranseContent, context);
                 responseCode = HttpsClient.getResponseCode();
+                LogUtil.d(TAG, "responseCode = " + responseCode);
                 if (inputStream != null) {
                     LogUtil.i(TAG, "inputstream is not null ");
                     if (transParse(inputStream, TransType.POST)) {
@@ -477,7 +479,7 @@ public abstract class AbstractTransaction {
     }
 
     public void initParamData(Map<String, Object> map) {
-        LogUtil.d(TAG,"requst map : " + map.toString());
+        LogUtil.d(TAG, "requst map : " + map.toString());
     }
 
 }

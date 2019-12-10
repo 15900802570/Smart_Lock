@@ -65,12 +65,20 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
                         String info3 = "ALTER TABLE tb_device_info add enable_infrared INTEGER DEFAULT 0";
                         //enable_pwd 是否支持密码长度可变
                         String info4 = "ALTER TABLE tb_device_info add enable_variable_pwd INTEGER DEFAULT 0";
+                        //enable_auto_lock 是否支持全自动锁
+                        String info5 = "ALTER TABLE tb_device_info add enable_auto_lock INTEGER DEFAULT 0";
+                        //min_pwd_len 密码最短长度
+                        String info6 = "ALTER TABLE tb_device_info add min_pwd_len INTEGER DEFAULT 6";
+                        //max_pwd_len 密码最长长度
+                        String info7 = "ALTER TABLE tb_device_info add max_pwd_len INTEGER DEFAULT 6";
+                        // Main
+                        String info8 = "ALTER TABLE tb_device_info add face_main_version TEXT";
                         // SCPU
-                        String info5 = "ALTER TABLE tb_device_info add face_scpu_version TEXT";
+                        String info9 = "ALTER TABLE tb_device_info add face_scpu_version TEXT";
                         // NCPU
-                        String info6 = "ALTER TABLE tb_device_info add face_ncpu_version TEXT";
+                        String info10 = "ALTER TABLE tb_device_info add face_ncpu_version TEXT";
                         //DataModule
-                        String info7 = "ALTER TABLE tb_device_info add face_module_version TEXT";
+                        String info11 = "ALTER TABLE tb_device_info add face_module_version TEXT";
                         getDao(DeviceInfo.class).executeRawNoArgs(info1);
                         getDao(DeviceInfo.class).executeRawNoArgs(info2);
                         getDao(DeviceInfo.class).executeRawNoArgs(info3);
@@ -78,14 +86,36 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
                         getDao(DeviceInfo.class).executeRawNoArgs(info5);
                         getDao(DeviceInfo.class).executeRawNoArgs(info6);
                         getDao(DeviceInfo.class).executeRawNoArgs(info7);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info8);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info9);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info10);
+                        getDao(DeviceInfo.class).executeRawNoArgs(info11);
 
-                        //tb_device_status autoOpen 自动开锁开关
-                        String status1 = "ALTER TABLE tb_device_status add auto_close_enable INTEGER DEFAULT 0";
-                        //tb_device_status 红外开关
-                        String status2 = "ALTER TABLE tb_device_status add infrared_enable INTEGER DEFAULT 0";
-                        getDao(DeviceStatus.class).executeRawNoArgs(status1);
-                        getDao(DeviceStatus.class).executeRawNoArgs(status2);
-                        break;
+                        String dropOldTable = "DROP TABLE tb_device_status";
+                        String createStatus = "CREATE TABLE `new_tb_device_status` (`dev_node_id` VARCHAR NOT NULL , " +
+                                "`battery` INTEGER DEFAULT 0 , " +
+                                "`status_update_time` BIGINT , " +
+                                "`combination_lock` SMALLINT DEFAULT 0 , " +
+                                "`anti_prizing_alarm` SMALLINT DEFAULT 0 , " +
+                                "`_id` INTEGER PRIMARY KEY AUTOINCREMENT ," +
+                                " `intelligent_lock_core` SMALLINT DEFAULT 0 ," +
+                                " `invalid_intelligent_lock` SMALLINT DEFAULT 0 , " +
+                                "`support_m1` SMALLINT DEFAULT 0 , " +
+                                "`normally_open` SMALLINT DEFAULT 0 , " +
+                                "`power_saving_end_time` INTEGER DEFAULT 700 ," +
+                                " `power_saving_start_time` INTEGER DEFAULT 2300 ," +
+                                " `rolled_back_time` INTEGER DEFAULT 5 ," +
+                                " `broadcast_normally_open` SMALLINT DEFAULT 0 ," + //为了修改这个字段名称
+                                " `voice_prompt` SMALLINT DEFAULT 0 ," +
+                                " auto_close_enable INTEGER DEFAULT 0," + //tb_device_status autoOpen 自动开锁开关
+                                " infrared_enable INTEGER DEFAULT 0)";    //tb_device_status 红外开关
+//                        String migrate = "INSERT INTO new_tb_device_status SELECT * FROM tb_device_status";
+                        getDao(DeviceStatus.class).executeRawNoArgs(dropOldTable);
+                        getDao(DeviceStatus.class).executeRawNoArgs(createStatus);
+//                        getDao(DeviceStatus.class).executeRawNoArgs(migrate);
+
+//                        getDao(DeviceStatus.class).executeRawNoArgs(renameTable);
+                        //不能break，
                     case 2://数据库版本2 升级到 版本3
                         break;
                 }
