@@ -121,7 +121,7 @@ public class DeviceInfo implements Serializable {
     @DatabaseField(columnName = "enable_infrared", defaultValue = "0")
     private boolean enableInfrared;
 
-    //是否支持红外 0-不支持 1-支持
+    //支持密码可变 0-不支持 1-支持
     @DatabaseField(columnName = "enable_variable_pwd", defaultValue = "0")
     private boolean enableVariablePwd;
 

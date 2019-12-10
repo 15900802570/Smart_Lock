@@ -454,7 +454,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 mDevInfo.setEnableVariablePwd(true);
             } else {
                 LogUtil.d(TAG, "不支持可变密码");
-                mDevInfo.setEnableVariablePwd(true);
+                mDevInfo.setEnableVariablePwd(false);
             }
             if ((enableStatus & 16) == 16) { //是否支持全自动锁
                 mDevInfo.setEnableAutoLock(true);
@@ -578,7 +578,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                 LogUtil.d(TAG, "支持可变密码");
             } else {
                 LogUtil.d(TAG, "不支持可变密码");
-                mDevInfo.setEnableVariablePwd(true);
+                mDevInfo.setEnableVariablePwd(false);
             }
             if ((enableStatus & 16) == 16) { //是否支持全自动锁
                 mDevInfo.setEnableAutoLock(true);
