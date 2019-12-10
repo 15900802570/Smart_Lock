@@ -198,7 +198,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if (mDefaultDevice.isUnableNfc()) {
             mSetSupportCardTypeBs.setVisibility(View.GONE);
         }
-        if (!mDefaultDevice.isEnableVariablePwd()) {
+        if (!mDefaultDevice.isEnableAutoLock()) {
             mAutoCloseEnableTs.setVisibility(View.GONE);
         }
         if (mDefaultDevice.isEnableInfrared()) {
