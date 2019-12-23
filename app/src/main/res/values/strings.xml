@@ -489,6 +489,8 @@
     <string name="event_of_user">Operate record</string>
     <string name="add_unlock_info">New unlock information</string>
     <string name="del_unlock_info">Delete Unlock Information</string>
-    <string name="add">add</string>
-    <string name="_de"></string>
+    <string name="add">was created </string>
+    <string name="_de">\'s</string>
+    <string name="successfully">successfully</string>
+    <string name="_deleted">deleted</string>
 </resources>

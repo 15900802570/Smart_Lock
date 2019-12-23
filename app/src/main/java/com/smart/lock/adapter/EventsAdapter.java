@@ -32,7 +32,7 @@ public class EventsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public ArrayList<DeviceLog> mLogList;
     private Boolean mVisible = false;
     public ArrayList<DeviceLog> mDeleteLogs = new ArrayList<>();
-    public boolean mAllDelete = false;
+    private boolean mAllDelete = false;
     private static final int TYPE_HEADER = 0;  //说明是带有Header的
     private static final int TYPE_FOOTER = 1;  //说明是带有Footer的
     private static final int TYPE_NORMAL = 2;  //说明是不带有header和footer的
@@ -147,15 +147,15 @@ public class EventsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 mViewHolder.mEventType.setTextColor(mContext.getResources().getColor(R.color.color_text));
                 mViewHolder.mEventType.setText(R.string.add_unlock_info);
                 if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.add) + " " + mContext.getString(R.string.the) + logUser + " " + mContext.getString(R.string.password));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.password) + mContext.getString(R.string.add) + mContext.getString(R.string.successfully));
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.add) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.fingerprint));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string.add) + mContext.getString(R.string.successfully));
                 } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.add) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.nfc));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.nfc) + mContext.getString(R.string.add) + mContext.getString(R.string.successfully));
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FACE) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.add) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.face_manager));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.face_manager) + mContext.getString(R.string.add) + mContext.getString(R.string.successfully));
                 } else {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.add) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.unlock_key));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.unlock_key) + mContext.getString(R.string.add) + mContext.getString(R.string.successfully));
                 }
 
             } else if (logInfo.getLogState() == BleMsg.STATE_DEL_LOCK_INFO) {
@@ -163,15 +163,15 @@ public class EventsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 mViewHolder.mEventType.setText(R.string.del_unlock_info);
                 mViewHolder.mEventType.setTextColor(mContext.getResources().getColor(R.color.red));
                 if (logInfo.getLogType() == ConstantUtil.USER_PWD) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.delete) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.password));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.password) + mContext.getString(R.string._deleted) + mContext.getString(R.string.successfully));
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FINGERPRINT) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.delete) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.fingerprint));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.fingerprint) + mContext.getString(R.string._deleted) + mContext.getString(R.string.successfully));
                 } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.delete) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.nfc));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.nfc) + mContext.getString(R.string._deleted) + mContext.getString(R.string.successfully));
                 } else if (logInfo.getLogType() == ConstantUtil.USER_FACE) {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.delete) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.face_manager));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.face_manager) + mContext.getString(R.string._deleted) + mContext.getString(R.string.successfully));
                 } else {
-                    mViewHolder.mEventInfo.setText(mContext.getString(R.string.delete) + " " + mContext.getString(R.string.the) + logUser + " " +mContext.getString(R.string.unlock_key));
+                    mViewHolder.mEventInfo.setText(logUser + mContext.getString(R.string._de) + mContext.getString(R.string.unlock_key) + mContext.getString(R.string._deleted) + mContext.getString(R.string.successfully));
                 }
             } else { // 门锁事件显示
                 if (logInfo.getUserId() == 0 && Integer.parseInt(logInfo.getLockId()) == -3) {

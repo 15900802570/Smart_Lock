@@ -505,5 +505,7 @@
     <string name="del_unlock_info">删除开锁信息</string>
     <string name="add">添加</string>
     <string name="_de">的</string>
+    <string name="successfully">成功</string>
+    <string name="_deleted">删除</string>
 
 </resources>
