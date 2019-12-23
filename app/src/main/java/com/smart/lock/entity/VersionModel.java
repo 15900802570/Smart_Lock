@@ -37,4 +37,24 @@ public class VersionModel implements Serializable {
     //文件分区,与请求zone相反
     public String zone;
 
+    /*
+    face 固件专用
+     */
+    public String mainVersion;
+    //nCPU
+    public String nCpuFilename;
+    public String nCpuVersion;
+    public String nCpuSHA1;
+    public String nCpuPath;
+    //sCPU
+    public String sCpuFilename;
+    public String sCpuVersion;
+    public String sCpuSHA1;
+    public String sCpuPath;
+    //module
+    public String moduleFilename;
+    public String moduleVersion;
+    public String moduleSHA1;
+    public String modulePath;
+
 }

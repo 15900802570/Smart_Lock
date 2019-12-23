@@ -16,9 +16,9 @@
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
+            android:background="@drawable/selector_normal"
             android:paddingStart="@dimen/x30dp"
             android:paddingEnd="@dimen/x30dp"
-            android:background="@drawable/selector_normal"
             android:src="@mipmap/btn_back" />
 
         <TextView
@@ -35,12 +35,12 @@
             android:id="@+id/tv_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/x25dp"
-            android:layout_toRightOf="@+id/tv_message_title"
             android:layout_centerInParent="true"
+            android:layout_toRightOf="@+id/tv_message_title"
             android:gravity="center"
+            android:paddingStart="@dimen/x25dp"
             android:textSize="@dimen/checkbox_delete_msg_size"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/edit_tv"
@@ -69,11 +69,11 @@
             android:layout_height="match_parent"
             android:background="@color/list_view_bg_grey"
             android:divider="@null"
+            android:fitsSystemWindows="true"
             android:paddingStart="@dimen/x10dp"
             android:paddingEnd="@dimen/x10dp"
             android:scrollbarSize="@dimen/y10dp"
             android:scrollbarStyle="insideOverlay"
-            android:fitsSystemWindows="true"
             android:scrollbars="vertical" />
 
         <com.scwang.smartrefresh.layout.footer.ClassicsFooter
@@ -123,14 +123,53 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="@dimen/x37dp"
+            android:layout_marginEnd="@dimen/y174dp"
             android:background="@mipmap/delete"
             android:gravity="center"
             android:text="@string/delete"
             android:textColor="#ffbd9744"
             android:textSize="@dimen/checkbox_delete_msg_size" />
 
+        <TextView
+            android:id="@+id/back_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/y32dp"
+            android:background="@mipmap/delete"
+            android:gravity="center"
+            android:onClick="onClick"
+            android:text="@string/edit_back"
+            android:textColor="#ffbd9744"
+            android:textSize="@dimen/checkbox_delete_msg_size" />
+
+
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_open_album"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="@dimen/y0dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_open_album"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/y20dp"
+            android:drawableTop="@drawable/ic_photo"
+            android:gravity="center_horizontal"
+            android:text="@string/open_album"
+            android:textSize="@dimen/d12sp"
+            android:onClick="onClick"
+            android:visibility="visible" />
+
+    </LinearLayout>
 
 
 </RelativeLayout>

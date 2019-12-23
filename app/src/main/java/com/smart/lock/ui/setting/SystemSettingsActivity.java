@@ -336,8 +336,8 @@ public class SystemSettingsActivity extends BaseFPActivity implements View.OnCli
                 startActivity(lpcdIntent);
                 break;
             case R.id.next_multi_language:
-                Intent langnageIntent = new Intent(this, LanguageActivity.class);
-                startActivity(langnageIntent);
+                Intent languageIntent = new Intent(this, LanguageActivity.class);
+                startActivity(languageIntent);
                 break;
             default:
                 doOnClick(v.getId());

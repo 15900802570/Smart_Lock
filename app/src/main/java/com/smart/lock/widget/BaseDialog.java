@@ -9,14 +9,11 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.smart.lock.R;
-import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.SystemUtils;
 
 
 public class BaseDialog extends Dialog {
@@ -88,7 +85,7 @@ public class BaseDialog extends Dialog {
      */
     private void initView() {
         this.setCancelable(backKey);
-        layout = findViewById(R.id.dialog_prompt_view);
+        layout = findViewById(R.id.dialog_tips_view);
         title = findViewById(R.id.dialog_title);
         msg = findViewById(R.id.dialog_msg);
         btOk = findViewById(R.id.confirmBtn);
@@ -119,11 +116,7 @@ public class BaseDialog extends Dialog {
             case DIALOG_OK_BUTTON_VISIBLE:
                 btNo.setVisibility(View.GONE);
                 btOk.setVisibility(View.VISIBLE);
-                LayoutParams btOkLin_ = new LayoutParams(
-                        LayoutParams.MATCH_PARENT, 120, 11);
-//                btOkLin_.setMargins(ps, ps, ps, ps);
-                btOk.setLayoutParams(btOkLin_);
-                btOk.setBackgroundResource(R.drawable.selector_button_dialog_confirm);
+                btOk.getLayoutParams().width = LayoutParams.MATCH_PARENT;
                 break;
             case DIALOG_OK_AND_NO_BUTTON_VISIBLE:
                 btNo.setVisibility(View.VISIBLE);

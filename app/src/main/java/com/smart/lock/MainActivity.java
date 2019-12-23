@@ -32,6 +32,8 @@ import com.smart.lock.ui.fragment.MeFragment;
 import com.smart.lock.ui.fragment.ServerPagerFragment;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LanguageType;
+import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.SystemUtils;

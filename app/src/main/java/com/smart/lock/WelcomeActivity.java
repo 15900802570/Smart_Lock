@@ -302,7 +302,7 @@ public class WelcomeActivity extends AppCompatActivity implements PermissionInte
     private void jLockScreenActivity(Activity mActivity) {
         int param;
         try {
-            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD,"").isEmpty()) {
+            if (!SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD, "").isEmpty()) {
                 param = ConstantUtil.LOGIN_PASSWORD;
             } else {
                 param = ConstantUtil.SETTING_PASSWORD;

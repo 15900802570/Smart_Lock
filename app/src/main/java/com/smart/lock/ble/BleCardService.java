@@ -726,6 +726,22 @@ public class BleCardService {
         return ct.request();
     }
 
+    public boolean sendCmd33(final byte cmdType, final short userId, int logId, int timeOut) {
+        Message msg = Message.obtain();
+        msg.setType(Message.TYPE_BLE_SEND_CMD_33);
+        msg.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
+        msg.setTimeout(timeOut);
+        Bundle bundle = msg.getData();
+        bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
+
+        bundle.putShort(BleMsg.KEY_USER_ID, userId);
+
+        bundle.putInt(BleMsg.KEY_LOG_ID, logId);
+
+        ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);
+        return ct.request();
+    }
+
     /**
      * MSG 37是APK发给智能锁的指纹固件大小。
      *
@@ -759,7 +775,7 @@ public class BleCardService {
         Bundle bundle = msg.getData();
 
         bundle.putByte(BleMsg.KEY_CMD_TYPE, cmdType);
-        bundle.putByte(BleMsg.KEY_FACE_MODULE_VERSION, OTAType);
+        bundle.putByte(BleMsg.KEY_FACE_OTA_MODULE, OTAType);
         bundle.putInt(BleMsg.KEY_FACE_FIRMWARE_SIZE, size);
 
         ClientTransaction ct = new ClientTransaction(msg, mEngine, mBleProvider);

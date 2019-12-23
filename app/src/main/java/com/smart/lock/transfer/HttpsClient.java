@@ -168,7 +168,7 @@ public class HttpsClient {
             LogUtil.i(TAG, "StatusCode=" + response.getStatusLine().getStatusCode());
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 request.abort(); // 终止请求
-                LogUtil.i(TAG, "response is not 200");
+                LogUtil.i(TAG, "response is not 200 =" + response.getStatusLine().getStatusCode());
                 errInfo += Integer.toString(response.getStatusLine().getStatusCode());
                 return null;
             }
@@ -237,7 +237,7 @@ public class HttpsClient {
             LogUtil.i(TAG, "StatusCode=" + response.getStatusLine().getStatusCode());
             if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                 request.abort(); // 终止请求
-                LogUtil.i(TAG, "response is not 200");
+                LogUtil.i(TAG, "response is not 200 ="+response.getStatusLine().getStatusCode());
                 errInfo += Integer.toString(response.getStatusLine().getStatusCode());
                 errInfo += " : ";
                 LogUtil.d(TAG, "error = " + response);

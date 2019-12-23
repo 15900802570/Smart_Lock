@@ -154,6 +154,8 @@ public class ConstantUtil {
 
     public static final String SERIALIZABLE_DEV_VERSION_MODEL = "devVersionModel";
 
+    public static final String SERIALIZABLE_FACE_VERSION_MODEL = "faceVersionModel";
+
     public static final String LOCK_DIR_NAME = "SmartLock_DT"; //门锁文件夹
 
     public static final String APP_DIR_NAME = "app"; //app下载文件夹
@@ -308,6 +310,12 @@ public class ConstantUtil {
         String FP_TYPE = "fpType";
         String FP_CUR_VER = "fpCurVer";
         String FP_CUR_ZONE = "fpCurZone";
+        String FACE= "face";
+        String FACE_TYPE = "faceType";
+        String FACE_MAIN_VER = "mainCurVer";
+        String FACE_NCPU_VER = "nCpuCurVer";
+        String FACE_SCPU_VER = "sCpuCurVer";
+        String FACE_MODULE_VER = "moduleCurVer";
     }
 
     public static final String[] HOUR = {

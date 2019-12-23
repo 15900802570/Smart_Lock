@@ -160,7 +160,7 @@ public class CheckOtaAction extends AbstractTransaction {
 
         LogUtil.i(XML_TAG, "json:" + json);
         try {
-            resloveCheckVersionResult(json);
+            resolveCheckVersionResult(json);
         } catch (JSONException e) {
             e.printStackTrace();
             return false;
@@ -171,7 +171,7 @@ public class CheckOtaAction extends AbstractTransaction {
         return true;
     }
 
-    private void resloveCheckVersionResult(String response) throws JSONException, IOException {
+    private void resolveCheckVersionResult(String response) throws JSONException, IOException {
         JSONObject object = super.processResult(response);
         if (object == null) {
             respondData.respCode = HttpCodeHelper.HTTP_REQUEST_ERROR;
@@ -225,21 +225,38 @@ public class CheckOtaAction extends AbstractTransaction {
                         versionModel.versionCode = 0;
                         respondData.models.add(versionModel);
                     }
-/*
+
                     JSONObject faceObj = null;
                     if (object.has("face")) {
                         faceObj = object.getJSONObject("face");
                         if (faceObj != null) {
                             VersionModel versionModel = new VersionModel();
                             versionModel.type = ConstantUtil.OTA_FACE_SW_VERSION;
-                            versionModel.fileName = faceObj.getString("filename");
-                            versionModel.updateDate = faceObj.getString("updateDate");
                             versionModel.versionCode = faceObj.getInt("versionCode");
-                            versionModel.versionName = faceObj.getString("version");
-                            versionModel.msg = faceObj.getString("msg");
-                            versionModel.path = faceObj.getString("path");
-                            versionModel.sha1 = faceObj.getString("sha1");
-                            versionModel.zone = faceObj.getString("zone");
+                            versionModel.updateDate = faceObj.getString("updateDate");
+                            versionModel.mainVersion = faceObj.getString("version");
+                            JSONObject faceModuleObj;
+                            if (faceObj.has("nCPU")) {
+                                faceModuleObj = faceObj.getJSONObject("nCPU");
+                                versionModel.nCpuFilename = faceModuleObj.getString("fileName");
+                                versionModel.nCpuVersion = faceModuleObj.getString("version");
+                                versionModel.nCpuSHA1 = faceModuleObj.getString("sha1");
+                                versionModel.nCpuPath = faceModuleObj.getString("path");
+                            }
+                            if (faceObj.has("sCPU")) {
+                                faceModuleObj = faceObj.getJSONObject("sCPU");
+                                versionModel.sCpuFilename = faceModuleObj.getString("fileName");
+                                versionModel.sCpuVersion = faceModuleObj.getString("version");
+                                versionModel.sCpuSHA1 = faceModuleObj.getString("sha1");
+                                versionModel.sCpuPath = faceModuleObj.getString("path");
+                            }
+                            if (faceObj.has("module")) {
+                                faceModuleObj = faceObj.getJSONObject("module");
+                                versionModel.moduleFilename = faceModuleObj.getString("fileName");
+                                versionModel.moduleVersion = faceModuleObj.getString("version");
+                                versionModel.moduleSHA1 = faceModuleObj.getString("sha1");
+                                versionModel.modulePath = faceModuleObj.getString("path");
+                            }
                             respondData.models.add(versionModel);
                         }
                     } else {
@@ -248,8 +265,12 @@ public class CheckOtaAction extends AbstractTransaction {
                         versionModel.versionCode = 0;
                         respondData.models.add(versionModel);
                     }
-*/
                     LogUtil.d(TAG, "length =" + respondData.models.size());
+                }else {
+                    VersionModel versionModel = new VersionModel();
+                    versionModel.type = ConstantUtil.OTA_LOCK_SW_VERSION;
+                    versionModel.versionCode = 0;
+                    respondData.models.add(versionModel);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -265,10 +286,21 @@ public class CheckOtaAction extends AbstractTransaction {
         paramCheckVersion.put(ParamName.DEV_CUR_VER, sendData.devCurVer);
         paramCheckVersion.put(ParamName.IS_TEST, sendData.isTest);
         Map<String, Object> fingerprint = new HashMap<>();
-        fingerprint.put(ParamName.FP_TYPE, sendData.fpType);
-        fingerprint.put(ParamName.FP_CUR_VER, sendData.fpCurVer);
-        fingerprint.put(ParamName.FP_CUR_ZONE, sendData.fpCurZone);
-        paramCheckVersion.put(ParamName.FINGERPRINT, fingerprint);
+        if(sendData.fpCurVer !=null &&sendData.fpCurZone!=null &&sendData.fpType!=null) {
+            fingerprint.put(ParamName.FP_TYPE, sendData.fpType);
+            fingerprint.put(ParamName.FP_CUR_VER, sendData.fpCurVer);
+            fingerprint.put(ParamName.FP_CUR_ZONE, sendData.fpCurZone);
+            paramCheckVersion.put(ParamName.FINGERPRINT, fingerprint);
+        }
+        Map<String, Object> face = new HashMap<>();
+        face.put(ParamName.FACE_TYPE, sendData.faceType);
+        face.put(ParamName.FACE_MAIN_VER, sendData.faceMainCurVer);
+        face.put(ParamName.FACE_NCPU_VER, sendData.faceType + "_" + sendData.faceNCpuCurVer);
+        face.put(ParamName.FACE_SCPU_VER, sendData.faceType + "_" + sendData.faceSCpuCurVer);
+        if (sendData.faceModuleCurVer != null) {
+            face.put(ParamName.FACE_MODULE_VER, sendData.faceType + "_" + sendData.faceModuleCurVer);
+        }
+        paramCheckVersion.put(ParamName.FACE, face);
 
         super.initParamData(paramCheckVersion);
         return paramCheckVersion;

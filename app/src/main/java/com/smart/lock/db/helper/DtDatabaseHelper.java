@@ -92,7 +92,7 @@ public class DtDatabaseHelper extends OrmLiteSqliteOpenHelper {
                         getDao(DeviceInfo.class).executeRawNoArgs(info11);
 
                         String dropOldTable = "DROP TABLE tb_device_status";
-                        String createStatus = "CREATE TABLE `new_tb_device_status` (`dev_node_id` VARCHAR NOT NULL , " +
+                        String createStatus = "CREATE TABLE `tb_device_status` (`dev_node_id` VARCHAR NOT NULL , " +
                                 "`battery` INTEGER DEFAULT 0 , " +
                                 "`status_update_time` BIGINT , " +
                                 "`combination_lock` SMALLINT DEFAULT 0 , " +

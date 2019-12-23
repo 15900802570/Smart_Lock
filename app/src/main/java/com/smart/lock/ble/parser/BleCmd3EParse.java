@@ -4,6 +4,7 @@ package com.smart.lock.ble.parser;
 import com.smart.lock.ble.AES_ECB_PKCS7;
 import com.smart.lock.ble.message.Message;
 import com.smart.lock.ble.message.MessageCreator;
+import com.smart.lock.utils.LogUtil;
 
 import java.util.Arrays;
 

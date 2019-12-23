@@ -78,10 +78,12 @@
                         android:layout_marginEnd="@dimen/x15dp">
 
                         <ImageView
+                            android:id="@+id/iv_next_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_next_activity" />
+                            android:src="@drawable/ic_next_activity"
+                            android:visibility="gone"/>
                     </LinearLayout>
 
                 </RelativeLayout>

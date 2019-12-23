@@ -1,6 +1,7 @@
 package com.smart.lock.ui.login;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
@@ -23,6 +24,8 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.R;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
+import com.smart.lock.utils.LanguageType;
+import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.SystemUtils;
@@ -251,15 +254,15 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 //重新输入密码
                 mInfoTv.setText(getString(R.string.please_input_pwd_again));
                 type = ConstantUtil.SURE_SETTING_PASSWORD;
-                fBuffer.delete(0,fBuffer.length());
+                fBuffer.delete(0, fBuffer.length());
                 fBuffer.append(input);//保存第一次输入的密码
                 startTimer();
-                if(notCancel){
+                if (notCancel) {
                     mReturnTv.setVisibility(View.VISIBLE);
                 }
                 break;
             case ConstantUtil.LOGIN_PASSWORD: //登录
-                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD,""))) {
+                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD, ""))) {
                     if (mNumCounter < 3) {
                         SharedPreferenceUtil.getInstance(LockScreenActivity.this).writeInt(ConstantUtil.NUM_COUNTER, ++mNumCounter);
                     } else {
@@ -293,7 +296,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 break;
             case ConstantUtil.MODIFY_PASSWORD:
                 LogUtil.d("修改密码");
-                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD,""))) {
+                if (!input.equals(SharedPreferenceUtil.getInstance(LockScreenActivity.this).readString(ConstantUtil.NUM_PWD, ""))) {
                     shakes();
                 } else {
                     type = ConstantUtil.SETTING_PASSWORD;
@@ -347,7 +350,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
      * 设置所有字符
      */
     private void setAllText(boolean flag) {
-        String pwd = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD,"");
+        String pwd = SharedPreferenceUtil.getInstance(this).readString(ConstantUtil.NUM_PWD, "");
         clearText();
         if (flag) {
             setText(pwd.substring(0, 1));
@@ -412,7 +415,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
                 deleteText();//删除刚刚输入的内容
                 break;
             case R.id.tv_return:
-                if (type == ConstantUtil.SURE_SETTING_PASSWORD){
+                if (type == ConstantUtil.SURE_SETTING_PASSWORD) {
                     type = ConstantUtil.SETTING_PASSWORD;
                     mInfoTv.setText(getString(R.string.please_input_pwd_first));
                 }
@@ -449,7 +452,7 @@ public class LockScreenActivity extends BaseFPActivity implements View.OnClickLi
     public void onBackPressed() {
         if (notCancel) {
             ToastUtil.showLong(this, getString(R.string.setting_password_for_security));
-            if (type == ConstantUtil.SURE_SETTING_PASSWORD){
+            if (type == ConstantUtil.SURE_SETTING_PASSWORD) {
                 type = ConstantUtil.SETTING_PASSWORD;
                 mInfoTv.setText(getString(R.string.please_input_pwd_first));
             }

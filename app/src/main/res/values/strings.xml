@@ -482,4 +482,13 @@
     <string name="pwd_length_max">characters</string>
     <string name="tip_of_normal_open">The normally open function has been enabled, please pay attention to the time to unlock or close the normally open function, otherwise your door lock may be in a state where the door can be opened directly!</string>
     <string name="_pwd_length_max">" "</string>
+    <string name="open_album">Open album</string>
+    <string name="open_album_success">Open album successfully</string>
+    <string name="open_album_failed">Failed to open album</string>
+    <string name="face_ota_update">Firmware update for Face</string>
+    <string name="event_of_user">Operate record</string>
+    <string name="add_unlock_info">New unlock information</string>
+    <string name="del_unlock_info">Delete Unlock Information</string>
+    <string name="add">add</string>
+    <string name="_de"></string>
 </resources>

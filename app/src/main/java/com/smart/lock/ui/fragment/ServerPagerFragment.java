@@ -39,6 +39,7 @@ import com.smart.lock.db.helper.DtComFunHelper;
 import com.smart.lock.entity.Device;
 import com.smart.lock.ui.DeviceKeyActivity;
 import com.smart.lock.ui.EventsActivity;
+import com.smart.lock.ui.EventsActivity2;
 import com.smart.lock.ui.LockSettingActivity;
 import com.smart.lock.ui.TempPwdActivity;
 import com.smart.lock.ui.UserManagerActivity2;
@@ -523,9 +524,6 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     startIntent(DeviceKeyActivity.class, bundle);
                     break;
                 case R.mipmap.icon_nfc:
-                    bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
-                    startIntent(DeviceKeyActivity.class, bundle);
-                    break;
                 case R.mipmap.icon_face:
                     bundle.putInt(BleMsg.KEY_CURRENT_ITEM, 2);
                     startIntent(DeviceKeyActivity.class, bundle);
@@ -535,7 +533,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     startIntent(DeviceKeyActivity.class, bundle);
                     break;
                 case R.mipmap.icon_events:
-                    startIntent(EventsActivity.class, bundle);
+                    startIntent(EventsActivity2.class, bundle);
                     break;
                 case R.mipmap.icon_userguanl:
                     if (ActivityCompat.checkSelfPermission(mActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
@@ -783,8 +781,8 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 Bundle bundle = msg.getData();
                 mBattery = mDevice.getBattery(); //获取电池电量
                 sendMessage(BIND_DEVICE, null, 0);
-                if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
-                    checkUserKey();
+//                if (mDevice.getConnectType() == Device.BLE_OTHER_CONNECT_TYPE)  //普通连接04检查设备开锁信息
+//                    checkUserKey();
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_26:
                 LogUtil.i(TAG, "receiver 26!");

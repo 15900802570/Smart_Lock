@@ -88,9 +88,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         logMsg.what = RECEIVER_LOG_TIME_OUT;
                         mHandler.sendMessageDelayed(logMsg, 10 * 1000);
                         if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_LOCK_LOG, mDefaultDevice.getUserId());
                         } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_LOCK_LOG, mDefaultDevice.getUserId());
                         }
                     } else if (countTimeOut >= 2) {
                         countTimeOut = 0;
@@ -168,13 +168,18 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             msg.what = RECEIVER_LOG_TIME_OUT;
             mHandler.sendMessageDelayed(msg, 10 * 1000);
             if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
+                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_LOCK_LOG, mDefaultDevice.getUserId());
             } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_LOCK_LOG, mDefaultDevice.getUserId());
             }
         } else {
             showMessage(getString(R.string.disconnect_ble));
             finish();
+        }
+        if (mDefaultDevice.isEnableFace()) {
+            findViewById(R.id.ll_open_album).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.ll_open_album).setVisibility(View.GONE);
         }
     }
 
@@ -185,6 +190,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             case R.id.iv_back_sysset:
                 finish();
                 break;
+            case R.id.back_tv:
             case R.id.edit_tv:
                 if (mEditTv.getText().toString().equals(getString(R.string.edit))) {
                     changeVisible(true);
@@ -196,9 +202,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     mEventAdapter.chioseALLDelete(false);
                     mSelectCb.setChecked(false);
                     if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                        mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryKeyLockEvent("node_id", mNodeId);
                     } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                        mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogLockEvent(mNodeId, mDefaultDevice.getUserId());
                     }
 
                     mEventAdapter.setDataSource(mLogs);
@@ -213,11 +219,18 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         mLoadDialog.show();
                         for (DeviceLog devLog : mEventAdapter.mDeleteLogs) {
                             int logId = devLog.getLogId();
-                            mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_LOG, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
+                            mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_SINGLE_LOCK_LOG, mDefaultDevice.getUserId(), logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
                         }
                     } else {
                         showMessage(getString(R.string.plz_choise_del_log));
                     }
+                } else {
+                    showMessage(getString(R.string.disconnect_ble));
+                }
+                break;
+            case R.id.tv_open_album:
+                if (mDevice.getState() == Device.BLE_CONNECTED) {
+                    mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_OPEN_ALBUM);
                 } else {
                     showMessage(getString(R.string.disconnect_ble));
                 }
@@ -236,9 +249,15 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     private void changeVisible(boolean delete) {
         mEventAdapter.chioseItemDelete(delete);
         if (delete) {
+            if (mDefaultDevice.isEnableFace()) {
+                findViewById(R.id.ll_open_album).setVisibility(View.GONE);
+            }
             mEditTv.setText(R.string.edit_back);
             mSelectEventRl.setVisibility(View.VISIBLE);
         } else {
+            if (mDefaultDevice.isEnableFace()) {
+                findViewById(R.id.ll_open_album).setVisibility(View.VISIBLE);
+            }
             mEditTv.setText(R.string.edit);
             mSelectEventRl.setVisibility(View.GONE);
 
@@ -291,6 +310,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         mDevice = device;
         Bundle bundle = msg.getData();
         switch (msg.getType()) {
+            case Message.TYPE_BLE_RECEIVER_CMD_1E:
             case Message.TYPE_BLE_RECEIVER_CMD_3E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null) {
@@ -327,9 +347,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                 }
                 DialogUtils.closeDialog(mLoadDialog);
                 if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                    mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
+                    mLogs = DeviceLogDao.getInstance(mCtx).queryKeyLockEvent("node_id", mNodeId);
                 } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                    mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+                    mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogLockEvent(mNodeId, mDefaultDevice.getUserId());
                 }
 
                 mEventAdapter.setDataSource(mLogs);
@@ -349,9 +369,9 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     mSelectCb.setChecked(false);
 
                     if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                        mLogs = DeviceLogDao.getInstance(mCtx).queryKey("node_id", mNodeId);
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryKeyLockEvent("node_id", mNodeId);
                     } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                        mLogs = DeviceLogDao.getInstance(mCtx).queryUserLog(mNodeId, mDefaultDevice.getUserId());
+                        mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogLockEvent(mNodeId, mDefaultDevice.getUserId());
                     }
 
                     mEventAdapter.setDataSource(mLogs);
@@ -367,6 +387,12 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             case BleMsg.TYPE_NO_AUTHORITY_3E:
                 showMessage(mCtx.getString(R.string.no_authority));
                 DialogUtils.closeDialog(mLoadDialog);
+                break;
+            case BleMsg.TYPE_OPEN_ALBUM_SUCCESS:
+                showMessage(mCtx.getString(R.string.open_album_success));
+                break;
+            case BleMsg.TYPE_OPEN_ALBUM_FAILED:
+                showMessage(mCtx.getString(R.string.open_album_failed));
                 break;
             default:
                 break;
@@ -390,7 +416,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     public class EventsAdapter extends RecyclerView.Adapter<EventsAdapter.MyViewHolder> {
         private Context mContext;
         public ArrayList<DeviceLog> mLogList;
-        private Boolean mVisiBle = false;
+        private Boolean mVisible = false;
         public ArrayList<DeviceLog> mDeleteLogs = new ArrayList<>();
         public boolean mAllDelete = false;
         public static final int TYPE_HEADER = 0;  //说明是带有Header的
@@ -506,14 +532,14 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                         viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._fingerprint_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_fingerprint));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_NFC) {
                         viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._nfc_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_nfc));
-                    }else if (logInfo.getLogType() == ConstantUtil.USER_FACE){
+                    } else if (logInfo.getLogType() == ConstantUtil.USER_FACE) {
                         viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._through_zh) + mContext.getString(R.string._face_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.by_face));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_REMOTE) {
-                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._remote_zh)+mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.remotely));
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._remote_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string.remotely));
                     } else if (logInfo.getLogType() == ConstantUtil.USER_TEMP_PWD) {
-                        viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + " "+mContext.getString(R.string.open)+ " " + devInfo.getDeviceName());
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.temp_pwd) + " " + mContext.getString(R.string.open) + " " + devInfo.getDeviceName());
                     } else if (logInfo.getLogType() == ConstantUtil.USER_COMBINATION_LOCK) {
-                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) +logUser + mContext.getString(R.string._combination_lock_zh)+mContext.getString(R.string._unlocked) + devInfo.getDeviceName()+ mContext.getString(R.string._combination_lock) );
+                        viewHolder.mEventInfo.setText(mContext.getString(R.string.the) + logUser + mContext.getString(R.string._combination_lock_zh) + mContext.getString(R.string._unlocked) + devInfo.getDeviceName() + mContext.getString(R.string._combination_lock));
                     }
                 }
 
@@ -530,7 +556,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
                     }
                 });
 
-                if (mVisiBle)
+                if (mVisible)
                     viewHolder.mDeleteRl.setVisibility(View.VISIBLE);
                 else
                     viewHolder.mDeleteRl.setVisibility(View.GONE);
@@ -554,7 +580,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
         }
 
         public void chioseItemDelete(boolean visible) {
-            mVisiBle = visible;
+            mVisible = visible;
         }
 
         public void chioseALLDelete(boolean allDelete) {

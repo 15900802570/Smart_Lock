@@ -18,7 +18,7 @@ public class DeviceLogDao {
     private Context mContext;
     private static DeviceLogDao instance;
 
-    public static String DEVICE_NODE_ID ="node_id";
+    public static String DEVICE_NODE_ID = "node_id";
 
     protected DeviceLogDao(Context context) {
         this.mContext = context;
@@ -59,7 +59,7 @@ public class DeviceLogDao {
         }
     }
 
-    
+
     public void updateDeviceLog(DeviceLog info) {
         try {
             dao.update(info);
@@ -170,10 +170,16 @@ public class DeviceLogDao {
     }
 
 
-    public ArrayList<DeviceLog> queryKey(String key, Object valus) {
+    public ArrayList<DeviceLog> queryKeyUserEvent(String key, Object valus) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
         try {
-            list = (ArrayList<DeviceLog>) dao.queryBuilder().orderBy("log_id", false).where().eq(key, valus).query();
+            list = (ArrayList<DeviceLog>) dao.queryBuilder()
+                    .orderBy("log_id", false)
+                    .where()
+                    .eq(key, valus)
+                    .and()
+                    .ge("log_state", 4)
+                    .query();
             if (list != null) {
                 return list;
             }
@@ -183,10 +189,58 @@ public class DeviceLogDao {
         return list;
     }
 
-    public ArrayList<DeviceLog> queryUserLog(Object nodeId, Object userId) {
+    public ArrayList<DeviceLog> queryKeyLockEvent(String key, Object valus) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
         try {
-            list = (ArrayList<DeviceLog>) dao.queryBuilder().orderBy("log_id", false).where().eq(DEVICE_NODE_ID, nodeId).and().eq("user_id", userId).query();
+            list = (ArrayList<DeviceLog>) dao.queryBuilder()
+                    .orderBy("log_id", false)
+                    .where()
+                    .eq(key, valus)
+                    .and()
+                    .le("log_state", 3)
+                    .query();
+            if (list != null) {
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public ArrayList<DeviceLog> queryUserLogLockEvent(Object nodeId, Object userId) {
+        ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
+        try {
+            list = (ArrayList<DeviceLog>) dao.queryBuilder()
+                    .orderBy("log_id", false)
+                    .where()
+                    .eq(DEVICE_NODE_ID, nodeId)
+                    .and()
+                    .eq("user_id", userId)
+                    .and()
+                    .le("log_state", 3)
+                    .query();
+            if (list != null) {
+                return list;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public ArrayList<DeviceLog> queryUserLogUserEvent(Object nodeId, Object userId) {
+        ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
+        try {
+            list = (ArrayList<DeviceLog>) dao.queryBuilder()
+                    .orderBy("log_id", false)
+                    .where()
+                    .eq(DEVICE_NODE_ID, nodeId)
+                    .and()
+                    .eq("user_id", userId)
+                    .and()
+                    .gt("log_state", 3)
+                    .query();
             if (list != null) {
                 return list;
             }

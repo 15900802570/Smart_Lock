@@ -14,6 +14,7 @@ import android.util.Log;
 import java.util.Locale;
 
 /**
+ *
  */
 public class LanguageUtil {
 
@@ -48,7 +49,6 @@ public class LanguageUtil {
     }
 
 
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static Locale getLocaleByLanguage(String language) {
         Locale locale = Locale.SIMPLIFIED_CHINESE;
@@ -63,6 +63,7 @@ public class LanguageUtil {
 
     public static Context attachBaseContext(Context context, String language) {
         Log.d(TAG, "attachBaseContext: " + Build.VERSION.SDK_INT);
+        Log.d(TAG, "attachBaseContext: " + Build.VERSION_CODES.N);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return updateResources(context, language);
         } else {

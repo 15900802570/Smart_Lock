@@ -147,7 +147,7 @@ public class BleMsg {
     /**
      * 当前时区
      */
-    public static final String KEY_TIME_ZONE= "timeZone";
+    public static final String KEY_TIME_ZONE = "timeZone";
 
     /**
      * FACE_Version major
@@ -165,7 +165,7 @@ public class BleMsg {
     /**
      * FACE Vsrsion module
      */
-    public static final String KEY_FACE_MODULE_VERSION = "FaceModule";
+    public static final String KEY_FACE_OTA_MODULE = "FaceModule";
 
     /**
      * OTA命令类型
@@ -470,12 +470,15 @@ public class BleMsg {
     public static final byte TYPE_SELF_REPAIR_COMPLETE = 0x36; //设备恢复完成（成功或失败需要再次发请求检测一次才知道）
     public static final byte TYPE_OPEN_SLIDE = 0x37;//请打开滑盖
 
-    public static final byte TYPE_INDRARED_INDUCTION_ENABLE = 0x3E;//启动红外感应
-    public static final byte TYPE_INDRARED_INDUCTION_UNABLE = 0x3F;//关闭红外感应
+    public static final byte TYPE_INFRARED_INDUCTION_ENABLE = 0x3E;//启动红外感应
+    public static final byte TYPE_INFRARED_INDUCTION_UNABLE = 0x3F;//关闭红外感应
     public static final byte TYPE_AUTO_CLOSE_ENABLE_SUCCESS = 0x40;//自动关门开启成功
     public static final byte TYPE_AUTO_CLOSE_ENABLE_FAILED = 0x41;//自动关门开启失败
     public static final byte TYPE_AUTO_CLOSE_UNABLE_SUCCESS = 0x42;//自动关门关闭成功
     public static final byte TYPE_AUTO_CLOSE_UNABLE_FAILED = 0x43;//自动关门关闭失败
+
+    public static final byte TYPE_OPEN_ALBUM_SUCCESS = 0x45;//打开相册成功
+    public static final byte TYPE_OPEN_ALBUM_FAILED = 0x46;//打开相册失败
 
     public static final int SCAN_DEV_FIALED = 100;//未搜索到设备
     public static final int STATE_DISCONNECTED = 101;//连接中断
@@ -534,9 +537,26 @@ public class BleMsg {
     /**
      * MSG 31 type
      */
-    public static final byte TYPE_QUERY_USER_LOG = 0x00; //查询某个用户日志
-    public static final byte TYPE_QUERY_ALL_USERS_LOG = 0x01; //查询所有用户日志，仅管理员有效，否则返回MSG3E错误
+    public static final byte TYPE_QUERY_LOCK_LOG = 0x00; //查询某个用户日志
+    public static final byte TYPE_QUERY_ALL_LOCK_LOG = 0x01; //查询所有用户日志，仅管理员有效，否则返回MSG3E错误
+    public static final byte TYPE_QUERY_USER_LOG = 0x02; //查询某个用户的用户事件
+    public static final byte TYPE_QUERY_ALL_USERS_LOG = 0x03; //查询所有用户的用户事件，仅管理员有效，否则返回MSG3E错误
 
+    /**
+     * MSG 32 TYPE
+     */
+    public static final byte STATE_ADD_LOCK_INFO = 0x04;//添加门锁信息
+    public static final byte STATE_DEL_LOCK_INFO = 0x05;//添加门锁信息
+
+    /**
+     * MSG 35 cmd
+     */
+    public static final byte CMD_OTA_DATA_35 = 0x35; //OTA数据传输第一个字符
+
+    /**
+     * MSG 35 cmd
+     */
+    public static final byte CMD_OTA_DATA_43 = 0x43; //OTA数据传输第一个字符
     /**
      * MSG 3E type
      */
@@ -549,9 +569,13 @@ public class BleMsg {
     /**
      * MSG 33 type
      */
-    public static final byte TYPE_DELETE_ALL_LOGS = 0x00; //删除所有日志
-    public static final byte TYPE_DELETE_USER_LOGS = 0x01; //按USR_ID删除所有日志
-    public static final byte TYPE_DELETE_LOG = 0x02; //删除单条日志
+    public static final byte TYPE_DELETE_ALL_LOCK_LOGS = 0x00; //删除所有日志
+    public static final byte TYPE_DELETE_LOCK_ID_LOGS = 0x01; //按USR_ID删除所有日志
+    public static final byte TYPE_DELETE_SINGLE_LOCK_LOG = 0x02; //删除单条日志
+
+    public static final byte TYPE_DELETE_ALL_USER_LOGS = 0x03; //删除所有日志
+    public static final byte TYPE_DELETE_ID_USER_LOGS = 0x04; //按USR_ID删除所有日志
+    public static final byte TYPE_DELETE_SINGLE_USER_LOG = 0x05; //删除单条日志
 
     /**
      * msg 19 type
@@ -587,6 +611,8 @@ public class BleMsg {
     public static final byte TYPE_AUTO_OPEN_DOORE_OPEN = 0x20;//自动关门门开启
     public static final byte TYPE_AUTO_OPEN_DOORE_CLOSE = 0x21;//自动关门关闭
 
+    public static final byte TYPE_OPEN_ALBUM = 0x22;//打开抓拍相册
+
     public static final byte TYPE_RAPID_OTA = 0x1b;//快速OTA升级
     public static final byte TYPE_RAPID_OTA_FP = 0x1c;//快速指纹OTA升级
 
@@ -603,8 +629,27 @@ public class BleMsg {
     /**
      * msg 41 CMD
      */
-    public static final byte TYPE_CHECK_FACE_VERSION = 0x03;//查询人脸ota固件版本
-    public static final byte TYPE_FACE_FIRMWARE_SIZE = 0x05;//查询人脸ota固件大小
+    public static final byte CMD_START_FACE_OTA = 0x01;//开始OTA升级
+    public static final byte CMD_STOP_FACE_OTA = 0x02;//停止OTA升级
+    public static final byte CMD_CHECK_FACE_VERSION = 0x03;//查询人脸ota固件版本
+    public static final byte CMD_JOIN_FACE_OTA = 0x04;//进入OTA模式
+    public static final byte CMD_FACE_FIRMWARE_SIZE = 0x05;//查询人脸ota固件大小
+
+    public static final byte TYPE_FACE_SCPU_OTA = 0x01;//开始SCPU OTA升级
+    public static final byte TYPE_FACE_NCPU_OTA = 0x02;//开始NCPU OTA升级
+    /**
+     * msg 42 TYPE
+     */
+    public static final byte RSP_FACE_OTA_SUCCESS = 0x01;//OTA升级成功
+    public static final byte RSP_FACE_OTA_FAILED = 0x02;//OTA升级失败
+    public static final byte RSP_FACE_OTA_REFUSE = 0x03;//OTA升级成功
+    public static final byte RSP_FACE_OTA_ALLOW = 0x04;//OTA升级失败
+    public static final byte RSP_FACE_OTA_BUSY = 0x05;//OTA升级 设备忙
+    public static final byte RSP_FACE_OTA_GET_SIZE = 0x06;//OTA升级 收到大小
+
+    public static final byte TYPE_FACE_OTA_SCPU = 0x01;//NCPU
+    public static final byte TYPE_FACE_OTA_NCPU = 0x02;//SCPU
+    public static final byte TYPE_FACE_OTA_MODULE = 0x03;//MODULE
     /**
      * msg 45 CMD
      */

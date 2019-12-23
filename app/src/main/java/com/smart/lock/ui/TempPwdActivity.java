@@ -433,8 +433,7 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             switch (viewType) {
-                case TYPE_HEAD:
-                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+
                 case TYPE_BODY:
                     View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_recycler_temp_pwd,
                             parent,
@@ -443,8 +442,8 @@ public class TempPwdActivity extends AppCompatActivity implements View.OnClickLi
                     swipeLayout.setClickToClose(true);
                     swipeLayout.setRightSwipeEnabled(true);
                     return new MyViewHolder(inflate);
+                case TYPE_HEAD:
                 case TYPE_FOOT:
-                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
                 default:
                     return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
             }

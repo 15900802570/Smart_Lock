@@ -27,7 +27,7 @@ public class BleCmd41Creator implements BleCreator {
 
         byte cmdType = data.getByte(BleMsg.KEY_CMD_TYPE); //0x00：新增 0x01：删除 0x02：修改
 
-        byte OTAType = data.getByte(BleMsg.KEY_FACE_MODULE_VERSION);
+        byte OTAType = data.getByte(BleMsg.KEY_FACE_OTA_MODULE);
 
         int size = data.getInt(BleMsg.KEY_FACE_FIRMWARE_SIZE);
 

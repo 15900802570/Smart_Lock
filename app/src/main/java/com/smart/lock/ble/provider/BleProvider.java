@@ -320,7 +320,7 @@ public class BleProvider {
 
         if (status == STATUS_RUNNING) {
             LogUtil.e(TAG,"RECEIVE = "+ Arrays.toString(command));
-            LogUtil.e(TAG,"RECEIVE = "+ StringUtil.byteArrayToHexStr(command));
+//            LogUtil.e(TAG,"RECEIVE = "+ StringUtil.byteArrayToHexStr(command));
             try {
                 bleCommandQueue.offer(command, OFFER_SEND_QUEUE_TIMEOUT, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {

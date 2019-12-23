@@ -951,7 +951,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 DialogUtils.closeDialog(mWaitingDialog);
                 LogUtil.d(TAG, "恢复出厂设置成功");
                 break;
-            case BleMsg.TYPE_EQUIPMENT_BUSY:
             case BleMsg.TYPE_DEVICE_BUSY:
             case 0x3a: // 恢复出厂设置失败
                 DialogUtils.closeDialog(mWaitingDialog);
@@ -995,11 +994,11 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 DialogUtils.closeDialog(mWarningDialog);
                 DialogUtils.closeDialog(mWaitingDialog);
                 break;
-            case BleMsg.TYPE_INDRARED_INDUCTION_ENABLE:
+            case BleMsg.TYPE_INFRARED_INDUCTION_ENABLE:
                 mInfraredEnableTs.setChecked(true);
                 mDeviceStatus.setInfraredEnable(true);
                 break;
-            case BleMsg.TYPE_INDRARED_INDUCTION_UNABLE:
+            case BleMsg.TYPE_INFRARED_INDUCTION_UNABLE:
                 mInfraredEnableTs.setChecked(false);
                 mDeviceStatus.setInfraredEnable(false);
                 break;

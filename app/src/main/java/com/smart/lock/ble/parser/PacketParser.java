@@ -34,13 +34,33 @@ public class PacketParser implements BleCommandParse {
 
     public void set(byte[] data, byte[] sha1) {
         this.clear();
-        if (data == null || sha1 ==null){
+        if (data == null || sha1 == null) {
             LogUtil.e(TAG, "data or sha1 is null");
-        }else {
+        } else {
             LogUtil.d(TAG, "data : " + data.length + " sha1 : " + sha1.length);
             this.data = new byte[data.length + sha1.length];
             System.arraycopy(sha1, 0, this.data, 0, sha1.length);
             System.arraycopy(data, 0, this.data, sha1.length, data.length);
+
+            int length = this.data.length;
+            int size = 495;
+
+            if (length % size == 0) {
+                total = length / size;
+            } else {
+                total = (int) Math.floor(length / size + 1);
+            }
+        }
+    }
+
+    public void set(byte[] data) {
+        this.clear();
+        if (data == null) {
+            LogUtil.e(TAG, "data  is null");
+        } else {
+            LogUtil.d(TAG, "data : " + data.length);
+            this.data = new byte[data.length];
+            System.arraycopy(data, 0, this.data, 0, data.length);
 
             int length = this.data.length;
             int size = 495;
@@ -72,15 +92,15 @@ public class PacketParser implements BleCommandParse {
         return this.index + 1;
     }
 
-    public byte[] getNextPacket() {
+    public byte[] getNextPacket(byte cmd) {
         int index = this.getNextPacketIndex();
-        byte[] packet = this.getPacket(index);
+        byte[] packet = this.getPacket(index, cmd);
         this.index = index;
 
         return packet;
     }
 
-    public byte[] getPacket(int index) {
+    public byte[] getPacket(int index, byte cmd) {
 
         int length = this.data.length;
         int size = 495;
@@ -97,7 +117,7 @@ public class PacketParser implements BleCommandParse {
         }
         packetSize = packetSize + 5;
         byte[] packet = new byte[packetSize];
-        packet[0] = 0x35;
+        packet[0] = cmd;
         short cmdLen = (short) (packetSize - 5);
         byte[] buf = new byte[48];
         StringUtil.short2Bytes(cmdLen, buf);
@@ -107,7 +127,7 @@ public class PacketParser implements BleCommandParse {
 
         short crc = StringUtil.crc16(packet, packetSize - 2);
         StringUtil.short2Bytes(crc, buf);
-        System.arraycopy(buf, 0, packet, packetSize -2 , 2);
+        System.arraycopy(buf, 0, packet, packetSize - 2, 2);
 
         LogUtil.d("ota packet ---> index : " + index + " total : " + this.total + " content : " + StringUtil.bytesToHexString(packet, ":"));
         return packet;

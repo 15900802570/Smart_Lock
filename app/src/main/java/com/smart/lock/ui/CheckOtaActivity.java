@@ -40,6 +40,7 @@ import com.smart.lock.utils.StringUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class CheckOtaActivity extends AppCompatActivity implements View.OnClickListener, UiListener {
     private static final String TAG = CheckOtaActivity.class.getSimpleName();
@@ -67,6 +68,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     public static final int CHECK_FP_VERSION = 1001;
     public static final int CHECK_DEV_VERSION = 1002;
+    public static final int CHECK_FACE_VERSION = 1003;
 
     private boolean isHide = false;
     private boolean mCheckFpVersion = false;
@@ -219,7 +221,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 String majorVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_MAJOR_VERSION));
                 String nCPUVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_NCPU_VERSION));
                 String sCPUVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_SCPU_VERSION));
-                String moduleVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_MODULE_VERSION));
+                String moduleVer = StringUtil.asciiDeBytesToCharString(extra.getByteArray(BleMsg.KEY_FACE_OTA_MODULE));
                 mDefaultDev.setFaceMainVersion(majorVer);
                 mDefaultDev.setFaceNCPUVersion(nCPUVer);
                 mDefaultDev.setFaceSCPUVersion(sCPUVer);
@@ -279,7 +281,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
     private void checkFaceVersion() {
         LogUtil.d(TAG, "SEND 41");
         if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
-            mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.TYPE_CHECK_FACE_VERSION,
+            mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_CHECK_FACE_VERSION,
                     (byte) 0,
                     0,
                     BleMsg.INT_DEFAULT_TIMEOUT);
@@ -306,11 +308,13 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 mVersionAction.setFpCurVer(mDefaultDev.getFpSwVersion());
                 mVersionAction.setFpCurZone(ret);
             }
-//            if (mDefaultDev.isEnableFace()) {
-//                mVersionAction.setFaceMainCurVer(mDefaultDev.getFaceMainVersion());
-//                mVersionAction.setFaceNCpuCurVer(mDefaultDev.getFaceNCPUVersion());
-//                mVersionAction.setFaceSCpuCurVer(mDefaultDev.getFaceSCPUVersion());
-//            }
+            if (mDefaultDev.isEnableFace()) {
+                mVersionAction.setFaceType(mDefaultDev.getFaceMainVersion().split("_")[0]);
+                mVersionAction.setFaceMainCurVer(mDefaultDev.getFaceMainVersion());
+                mVersionAction.setFaceNCpuCurVer(mDefaultDev.getFaceNCPUVersion());
+                mVersionAction.setFaceSCpuCurVer(mDefaultDev.getFaceSCPUVersion());
+                mVersionAction.setFaceSCpuCurVer(mDefaultDev.getFaceModuleVersion());
+            }
 
             mVersionAction.setTransferPayResponse(tCheckDevResponse);
             mVersionAction.transStart(this);
@@ -359,6 +363,12 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 versionModel2.type = ConstantUtil.OTA_FP_SW_VERSION;
                 versionModel2.versionCode = 0;
                 models.add(versionModel2);
+            }
+            if (mDefaultDev.isEnableFace()) {
+                VersionModel versionModel3 = new VersionModel();
+                versionModel3.type = ConstantUtil.OTA_FACE_SW_VERSION;
+                versionModel3.versionCode = 0;
+                models.add(versionModel3);
             }
             sendMessage(RECEIVER_OTA_VERSION, null, 0);
             mOtaAdapter.setDataSource(models);
@@ -453,13 +463,21 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             mContext = context;
         }
 
-        public void setDataSource(ArrayList<VersionModel> versionList) {
+        public void setDataSource(@NonNull ArrayList<VersionModel> versionList) {
             mVersionList = versionList;
-            for (VersionModel model : mVersionList) {
-                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION) && !mHadFP) {
-                    mVersionList.remove(model);
+//            for (VersionModel model : mVersionList) {
+//                if (model.type.equals(ConstantUtil.OTA_FP_SW_VERSION) && !mHadFP) {
+//                    mVersionList.remove(model);
+//                }
+//            }
+            Iterator<VersionModel> iterator = mVersionList.iterator();
+            while (iterator.hasNext()) {
+                VersionModel versionModel = iterator.next();
+                if (versionModel.type.equals(ConstantUtil.OTA_FP_SW_VERSION) && !mHadFP) {
+                    iterator.remove();
                 }
             }
+
         }
 
         public void addItem(VersionModel model) {
@@ -481,7 +499,6 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         public void onBindViewHolder(@NonNull final ViewHolder viewHolder, @SuppressLint("RecyclerView") final int position) {
             final VersionModel model = mVersionList.get(position);
             LogUtil.d(TAG, "length =" + mVersionList.size());
-            LogUtil.d(TAG, "mDefaultDev : " + mDefaultDev.toString());
             if (model != null) {
 //                int len = model.versionName.length();
 //                int code = 0;
@@ -498,9 +515,10 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     viewHolder.mType.setImageResource(R.mipmap.icon_face);
                     viewHolder.mNameTv.setText(R.string.face_manager);
                 }
-
+                LogUtil.d(TAG, "model type=" + model.type+'\n'+"versionCode = "+model.versionCode);
                 if (model.versionCode != 0) {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
+                    viewHolder.mNextIconIv.setVisibility(View.VISIBLE);
                     viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.red));
                     viewHolder.mSwipeLayout.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -518,6 +536,11 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                                     intent.putExtras(bundle);
                                     intent.setClass(mContext, OtaUpdateActivity.class);
                                     CheckOtaActivity.this.startActivityForResult(intent, CHECK_DEV_VERSION);
+                                } else if (model.type.equals(ConstantUtil.OTA_FACE_SW_VERSION)) {
+                                    bundle.putSerializable(ConstantUtil.SERIALIZABLE_FACE_VERSION_MODEL, model);
+                                    intent.putExtras(bundle);
+                                    intent.setClass(mContext, FaceOtaUpdateActivity.class);
+                                    CheckOtaActivity.this.startActivityForResult(intent, CHECK_FACE_VERSION);
                                 }
 
                             } else
@@ -541,8 +564,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
             TextView mNameTv;
             TextView mSwVersion;
             ImageView mType;
-            ImageButton mEditIbtn;
-            LinearLayout mNextActivityLl;
+            ImageButton mEditIBtn;
+            ImageView mNextIconIv;
 
             public ViewHolder(View itemView) {
                 super(itemView);
@@ -550,9 +573,9 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                 mSwipeLayout = (SwipeLayout) itemView;
                 mType = itemView.findViewById(R.id.iv_type);
                 mNameTv = itemView.findViewById(R.id.tv_name);
-                mEditIbtn = itemView.findViewById(R.id.ib_edit);
+                mEditIBtn = itemView.findViewById(R.id.ib_edit);
                 mSwVersion = itemView.findViewById(R.id.tv_sw_version);
-                mNextActivityLl = itemView.findViewById(R.id.ll_next_activity);
+                mNextIconIv = itemView.findViewById(R.id.iv_next_icon);
             }
         }
     }

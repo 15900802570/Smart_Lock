@@ -496,5 +496,14 @@
     <string name="_pwd_length_max">密码长度</string>
     <string name="pwd_length_max">位</string>
     <string name="tip_of_normal_open">常开功能已启用，请注意及时回锁或者关闭常开功能，否则您的门锁可能处于可直接开门状态！</string>
+    <string name="open_album">打开相册</string>
+    <string name="open_album_failed">打开相册失败</string>
+    <string name="open_album_success">打开相册成功</string>
+    <string name="face_ota_update">人脸识别固件升级</string>
+    <string name="event_of_user">用户事件</string>
+    <string name="add_unlock_info">添加开锁信息</string>
+    <string name="del_unlock_info">删除开锁信息</string>
+    <string name="add">添加</string>
+    <string name="_de">的</string>
 
 </resources>

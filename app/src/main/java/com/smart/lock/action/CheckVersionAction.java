@@ -3,6 +3,7 @@ package com.smart.lock.action;
 
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
+import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.ConstantUtil.ParamName;
 import com.smart.lock.utils.LogUtil;
 
@@ -97,7 +98,7 @@ public class CheckVersionAction extends AbstractTransaction {
 
         LogUtil.i(XML_TAG, "json:" + json);
         try {
-            resloveCheckVersionResult(json);
+            resolveCheckVersionResult(json);
         } catch (JSONException e) {
             e.printStackTrace();
             return false;
@@ -108,7 +109,7 @@ public class CheckVersionAction extends AbstractTransaction {
         return true;
     }
 
-    void resloveCheckVersionResult(String response) throws JSONException, IOException {
+    private void resolveCheckVersionResult(String response) throws JSONException, IOException {
         JSONObject object = super.processResult(response);
         if (object == null) {
             respondData.respCode = HttpCodeHelper.HTTP_REQUEST_ERROR;
@@ -127,6 +128,11 @@ public class CheckVersionAction extends AbstractTransaction {
                     versionModel.path = object.getString("path");
                     versionModel.msg = object.getString("msg");
                     respondData.model = versionModel;
+                }else {
+                    VersionModel versionModel = new VersionModel();
+                    versionModel.type = ConstantUtil.OTA_FACE_SW_VERSION;
+                    versionModel.versionCode = 0;
+                    respondData.model=versionModel;
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

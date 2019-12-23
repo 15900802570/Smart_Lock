@@ -261,8 +261,14 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             keyName = mCtx.getString(R.string.fingerprint);
         } else if (type[0] == 2) {
             keyName = mCtx.getString(R.string.card);
-        } else {
+        } else if (type[0] == 7) {
             keyName = mCtx.getString(R.string.remote);
+        } else if (type[0] == 8) {
+            keyName = mCtx.getString(R.string.temp_pwd);
+        } else if (type[0] == 9) {
+            keyName = mCtx.getString(R.string.combination_lock);
+        } else if (type[0] == 10) {
+            keyName = mCtx.getString(R.string.face_manager);
         }
 
         devLog.setLockId(String.valueOf(lockId[0]));
@@ -746,27 +752,32 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
      */
     private synchronized DeviceUser createDeviceUser(short userId, String path, String authCode) {
         LogUtil.d(TAG, "Create User" + userId);
-        DeviceUser user = new DeviceUser();
-        user.setDevNodeId(mDevInfo.getDeviceNodeId());
-        user.setCreateTime(System.currentTimeMillis() / 1000);
-        user.setUserId(userId);
-        user.setUserStatus(ConstantUtil.USER_UNENABLE);
-        user.setAuthCode(authCode);
-        LogUtil.d(TAG, "userId : " + userId);
-        if (userId < 101) {
-            user.setUserPermission(ConstantUtil.DEVICE_MASTER);
-            user.setUserName(mCtx.getString(R.string.administrator) + userId);
-        } else if (userId < 201) {
-            user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
-            user.setUserName(mCtx.getString(R.string.members) + userId);
-        } else {
-            user.setUserPermission(ConstantUtil.DEVICE_TEMP);
-            user.setUserName(mCtx.getString(R.string.tmp_user) + userId);
-        }
+        DeviceUser tempUser = DeviceUserDao.getInstance(mCtx).queryUser(mDevInfo.getDeviceNodeId(), userId);
+        if (tempUser == null) {
+            DeviceUser user = new DeviceUser();
+            user.setDevNodeId(mDevInfo.getDeviceNodeId());
+            user.setCreateTime(System.currentTimeMillis() / 1000);
+            user.setUserId(userId);
+            user.setUserStatus(ConstantUtil.USER_UNENABLE);
+            user.setAuthCode(authCode);
+            LogUtil.d(TAG, "userId : " + userId);
+            if (userId < 101) {
+                user.setUserPermission(ConstantUtil.DEVICE_MASTER);
+                user.setUserName(mCtx.getString(R.string.administrator) + userId);
+            } else if (userId < 201) {
+                user.setUserPermission(ConstantUtil.DEVICE_MEMBER);
+                user.setUserName(mCtx.getString(R.string.members) + userId);
+            } else {
+                user.setUserPermission(ConstantUtil.DEVICE_TEMP);
+                user.setUserName(mCtx.getString(R.string.tmp_user) + userId);
+            }
 
-        user.setQrPath(path);
-        DeviceUserDao.getInstance(mCtx).insert(user);
-        return user;
+            user.setQrPath(path);
+            DeviceUserDao.getInstance(mCtx).insert(user);
+            return user;
+        } else {
+            return tempUser;
+        }
     }
 
     /**
@@ -1066,6 +1077,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_1A:
                 case Message.TYPE_BLE_RECEIVER_CMD_1C:
+                case Message.TYPE_BLE_RECEIVER_CMD_42:
                 case Message.TYPE_BLE_RECEIVER_CMD_44:
                 case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 case Message.TYPE_BLE_RECEIVER_CMD_16:
@@ -1100,7 +1112,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_26:
                     LogUtil.i(TAG, "receiver msg 26,check device key!");
-                    short userId = (short) (extra.getSerializable(BleMsg.KEY_SERIALIZABLE) != null ? extra.getSerializable(BleMsg.KEY_SERIALIZABLE) : 0);
+                    short userId = (short) ((extra.getSerializable(BleMsg.KEY_SERIALIZABLE) != null ? extra.getSerializable(BleMsg.KEY_SERIALIZABLE) : 0));
                     if (userId == mDevInfo.getUserId()) {
                         byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                         LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));

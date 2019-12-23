@@ -6,6 +6,8 @@ import android.os.Bundle;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.utils.LogUtil;
 
+import java.util.Arrays;
+
 /**
  * 该方法类由传入的type生成对应的message消息
  */
@@ -376,7 +378,7 @@ public class MessageCreator {
     public static Message getCmd26Message(byte type, byte[] msg) {
         Message mMessage = Message.obtain();
         mMessage.setType(type);
-        LogUtil.e(TAG,"RECEIVE 26");
+        LogUtil.e(TAG, "RECEIVE 26");
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_25 + "#" + "single");
         Bundle mBundle = mMessage.getData();
 
@@ -423,7 +425,6 @@ public class MessageCreator {
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_37 + "#" + "single");
         } else
             mMessage.setKey(Message.TYPE_BLE_SEND_CMD_33 + "#" + "single");
-
         mBundle.putByteArray(BleMsg.KEY_ERROR_CODE, errCode);
         return mMessage;
     }
@@ -441,9 +442,9 @@ public class MessageCreator {
         mMessage.setType(type);
         Bundle mBundle = mMessage.getData();
         mMessage.setKey(Message.TYPE_BLE_SEND_CMD_41 + "#" + "single");
-
+        LogUtil.e("FaceOtaUpdateActivity", " 42 rsp=" + rspCode + '\n' + "moduleType=" + moduleType);
         mBundle.putByte(BleMsg.KEY_KDP_RSP_CODE, rspCode);
-        mBundle.putByte(BleMsg.KEY_FACE_MODULE_VERSION, moduleType);
+        mBundle.putByte(BleMsg.KEY_FACE_OTA_MODULE, moduleType);
         return mMessage;
     }
 
@@ -469,7 +470,7 @@ public class MessageCreator {
         mBundle.putByteArray(BleMsg.KEY_FACE_MAJOR_VERSION, majorVer);
         mBundle.putByteArray(BleMsg.KEY_FACE_NCPU_VERSION, nCpuVer);
         mBundle.putByteArray(BleMsg.KEY_FACE_SCPU_VERSION, sCpuVer);
-        mBundle.putByteArray(BleMsg.KEY_FACE_MODULE_VERSION, moduleVer);
+        mBundle.putByteArray(BleMsg.KEY_FACE_OTA_MODULE, moduleVer);
         return mMessage;
     }
 
