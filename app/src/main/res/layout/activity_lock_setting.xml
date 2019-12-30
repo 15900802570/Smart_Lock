@@ -111,6 +111,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="onClick"/>
+            <com.smart.lock.widget.BtnSettingDefineView
+                android:id="@+id/bs_auto_close_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="onClick"/>
 
             <com.smart.lock.widget.BtnSettingDefineView
                 android:id="@+id/bs_support_card_type"

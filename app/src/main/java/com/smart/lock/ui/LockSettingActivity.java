@@ -1,18 +1,17 @@
 package com.smart.lock.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetDialog;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
@@ -43,6 +42,7 @@ import com.smart.lock.widget.ToggleSwitchDefineView;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class LockSettingActivity extends AppCompatActivity implements UiListener, TimePickerDefineDialog.onTimePickerListener {
     private final String TAG = LockSettingActivity.class.getSimpleName();
@@ -57,6 +57,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private ToggleSwitchDefineView mInfraredEnableTs;
     private ToggleSwitchDefineView mAutoCloseEnableTs;
 
+    private BtnSettingDefineView mAutoCloseTimeBs;
     private BtnSettingDefineView mSetRolledBackTimeBs;
     private BtnSettingDefineView mSetSupportCardTypeBs;
     private BtnSettingDefineView mSetPowerSavingTimeBs;
@@ -96,11 +97,27 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     private int[] mTimePickerValue = {23, 0, 7, 0};
     private int[] mTempTimePickerValue = {12, 12, 12, 12};
     private int TIME_PICKER_CODE = 1;
+    private final int RESET_TIMEOUT = 0;
 
     private Device mDevice;
     private int mCount = 0; //打开测试条例
 
     private static long lastClickTime;
+
+    @SuppressLint("HandlerLeak")
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == RESET_TIMEOUT) {
+                DialogUtils.closeDialog(mWaitingDialog);
+                ToastUtil.show(
+                        LockSettingActivity.this,
+                        R.string.restore_the_factory_settings_failed,
+                        Toast.LENGTH_LONG);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +141,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mTitleTv = findViewById(R.id.tv_title);
 
         mSetRolledBackTimeBs = findViewById(R.id.bs_rolled_back_time);
+        mAutoCloseTimeBs = findViewById(R.id.bs_auto_close_time);
         mSetSupportCardTypeBs = findViewById(R.id.bs_support_card_type);
         mSetPowerSavingTimeBs = findViewById(R.id.bs_set_power_saving_time);
 
@@ -144,6 +162,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mAutoCloseEnableTs.setDes(getString(R.string.auto_close));
 
         mSetRolledBackTimeBs.setDes(getResources().getString(R.string.rolled_back_time));
+        mAutoCloseTimeBs.setDes(getResources().getString(R.string.auto_close_time));
         mSetSupportCardTypeBs.setDes(getString(R.string.support_types_of_card));
         mSetPowerSavingTimeBs.setDes(getString(R.string.power_saving_time_period));
 
@@ -152,11 +171,6 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         mOtaUpdateNa.setDes(getResources().getString(R.string.ota_update));
         mOtaUpdateNa.setVisibility(View.VISIBLE);
         mFactoryResetNa.setDes(getResources().getString(R.string.restore_the_factory_settings));
-
-        mSetTimesBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
-        mSetRolledBackTime5sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_5s);
-        mSetRolledBackTime8sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_8s);
-        mSetRolledBackTime10sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_10s);
 
         mSetSupportCardBottomDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_support_card, R.id.design_bottom_sheet);
         mSetSafetyCardTv = mSetSupportCardBottomDialog.findViewById(R.id.set_support_safety_card);
@@ -208,8 +222,21 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         }
         if (mDefaultDevice.isEnableAutoLock()) {
             mSetRolledBackTimeBs.setVisibility(View.GONE);
+            mAutoCloseTimeBs.setVisibility(View.VISIBLE);
+            mSetTimesBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
+            Objects.requireNonNull((TextView) (mSetTimesBottomSheetDialog.findViewById(R.id.tv_set_time_title))).setText(R.string.auto_close_time);
+            mSetRolledBackTime5sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_5s);
+            Objects.requireNonNull(mSetRolledBackTime5sTv).setText(R.string.s_15);
+            mSetRolledBackTime8sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_8s);
+            Objects.requireNonNull(mSetRolledBackTime8sTv).setText(R.string.s_30);
+            Objects.requireNonNull(mSetTimesBottomSheetDialog.findViewById(R.id.set_time_10s)).setVisibility(View.GONE);
         } else {
             mSetRolledBackTimeBs.setVisibility(View.VISIBLE);
+            mAutoCloseTimeBs.setVisibility(View.GONE);
+            mSetTimesBottomSheetDialog = DialogUtils.createBottomSheetDialog(this, R.layout.bottom_sheet_set_unlock_time, R.id.design_bottom_sheet);
+            mSetRolledBackTime5sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_5s);
+            mSetRolledBackTime8sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_8s);
+            mSetRolledBackTime10sTv = mSetTimesBottomSheetDialog.findViewById(R.id.set_time_10s);
         }
     }
 
@@ -233,6 +260,12 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
             mSetTime = mDeviceStatus.getRolledBackTime();
             mSetRolledBackTimeBs.setBtnDes(mSetTime + getResources().getString(R.string.s));
+            if (mDeviceStatus.isAutoCloseEnable()) {
+                mAutoCloseTimeBs.setVisibility(View.VISIBLE);
+                mAutoCloseTimeBs.setBtnDes(mSetTime + getResources().getString(R.string.s));
+            } else {
+                mAutoCloseTimeBs.setVisibility(View.GONE);
+            }
 
             mSetSupportOrdinaryCards = mDeviceStatus.isM1Support();
             mSetSupportCardTypeBs.setBtnDes(mSetSupportOrdinaryCards ? getString(R.string.ordinary_card) : getString(R.string.safety_card));
@@ -392,7 +425,19 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 case R.id.ts_broadcast_normally_open://蓝牙广播
                     doClick(R.string.ble_broadcast_normally_open);
                     break;
-
+                case R.id.bs_auto_close_time:
+                    switch (mSetTime) {
+                        case 15:
+                            mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                            mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            break;
+                        case 30:
+                            mSetRolledBackTime5sTv.setTextColor(getResources().getColor(R.color.gray1));
+                            mSetRolledBackTime8sTv.setTextColor(getResources().getColor(R.color.lite_blue));
+                            break;
+                    }
+                    mSetTimesBottomSheetDialog.show();      //显示弹窗
+                    break;
                 case R.id.bs_rolled_back_time:      //设置回锁时间
                     switch (mSetTime) {
                         case 5:
@@ -530,9 +575,9 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         break;
                     case R.string.auto_close:    //自动关门
                         if (mDeviceStatus.isAutoCloseEnable()) {
-                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOORE_CLOSE);
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOOR_CLOSE);
                         } else {
-                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOORE_OPEN);
+                            mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOOR_OPEN);
                         }
                         break;
                     case R.string.voice_prompt:     //语言提示
@@ -570,24 +615,43 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
     public void setOnClick(View view) {
         switch (view.getId()) {
             case R.id.set_time_5s:
-                LogUtil.d(TAG, "set_time_5s");
-                if (mDeviceStatus.getRolledBackTime() != 5) {
-                    mSetTime = 5;
-                    mBleManagerHelper.getBleCardService().sendCmd1D((byte) 5);
+                if (mDefaultDevice.isEnableFace()) {
+                    LogUtil.d(TAG, "set_time_15s");
+                    if (mDeviceStatus.getRolledBackTime() != 15) {
+                        mSetTime = 15;
+                        mBleManagerHelper.getBleCardService().sendCmd1D((byte) 15);
+                    }
+                } else {
+                    LogUtil.d(TAG, "set_time_5s");
+                    if (mDeviceStatus.getRolledBackTime() != 5) {
+                        mSetTime = 5;
+                        mBleManagerHelper.getBleCardService().sendCmd1D((byte) 5);
+                    }
                 }
                 break;
             case R.id.set_time_8s:
-                LogUtil.d(TAG, "set_time_8s");
-                if (mDeviceStatus.getRolledBackTime() != 8) {
-                    mSetTime = 8;
-                    mBleManagerHelper.getBleCardService().sendCmd1D((byte) 8);
+                if (mDefaultDevice.isEnableFace()) {
+                    LogUtil.d(TAG, "set_time_30s");
+                    if (mDeviceStatus.getRolledBackTime() != 30) {
+                        mSetTime = 30;
+                        mBleManagerHelper.getBleCardService().sendCmd1D((byte) 30);
+                    }
+
+                } else {
+                    LogUtil.d(TAG, "set_time_8s");
+                    if (mDeviceStatus.getRolledBackTime() != 8) {
+                        mSetTime = 8;
+                        mBleManagerHelper.getBleCardService().sendCmd1D((byte) 8);
+                    }
                 }
                 break;
             case R.id.set_time_10s:
-                LogUtil.d(TAG, "set_time_10s");
-                if (mDeviceStatus.getRolledBackTime() != 10) {
-                    mSetTime = 10;
-                    mBleManagerHelper.getBleCardService().sendCmd1D((byte) 10);
+                if (!mDefaultDevice.isEnableFace()) {
+                    LogUtil.d(TAG, "set_time_10s");
+                    if (mDeviceStatus.getRolledBackTime() != 10) {
+                        mSetTime = 10;
+                        mBleManagerHelper.getBleCardService().sendCmd1D((byte) 10);
+                    }
                 }
                 break;
             case R.id.set_support_ordinary_card:
@@ -630,8 +694,10 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 break;
             case R.id.warning_confirm_btn:
                 mWaitingDialog = DialogUtils.createLoadingDialog(this, getResources().getString(R.string.lock_reset));
+
                 mWarningDialog.setCancelable(true);
                 mWaitingDialog.show();
+                mHandler.sendEmptyMessageDelayed(RESET_TIMEOUT, 15 * 1000);
                 mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_RESTORE_FACTORY_SETTINGS);
                 break;
         }
@@ -669,6 +735,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
 
     }
 
+    /*
     private void askForPermission() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Need Permission!");
@@ -688,6 +755,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         });
         builder.create().show();
     }
+    */
 
     @Override
     protected void onDestroy() {
@@ -936,6 +1004,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case BleMsg.TYPE_SET_TEMP_USER_LIFE_FAILED:  //回锁时间设置成功
                 mDeviceStatus.setRolledBackTime(mSetTime);
                 mSetRolledBackTimeBs.setBtnDes(mSetTime + LockSettingActivity.this.getResources().getString(R.string.s));
+                mAutoCloseTimeBs.setBtnDes(mSetTime + LockSettingActivity.this.getResources().getString(R.string.s));
                 break;
             case BleMsg.TYPE_RESTORE_FACTORY_SETTINGS_SUCCESS:  //恢复出厂设置成功
                 if (DtComFunHelper.restoreFactorySettings(this, mDefaultDevice)) {
@@ -1005,6 +1074,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case BleMsg.TYPE_AUTO_CLOSE_ENABLE_SUCCESS:
                 mAutoCloseEnableTs.setChecked(true);
                 mDeviceStatus.setAutoCloseEnable(true);
+                mAutoCloseTimeBs.setVisibility(View.VISIBLE);
                 break;
             case BleMsg.TYPE_AUTO_CLOSE_ENABLE_FAILED:
             case BleMsg.TYPE_AUTO_CLOSE_UNABLE_FAILED:
@@ -1013,6 +1083,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             case BleMsg.TYPE_AUTO_CLOSE_UNABLE_SUCCESS:
                 mAutoCloseEnableTs.setChecked(false);
                 mDeviceStatus.setAutoCloseEnable(false);
+                mAutoCloseTimeBs.setVisibility(View.GONE);
                 break;
             default:
                 break;

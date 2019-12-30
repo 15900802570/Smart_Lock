@@ -337,13 +337,13 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
             DialogUtils.closeDialog(mLoadDialog);
             return;
         }
-        LogUtil.d(TAG, "msg222=" + msg+'\n'+serializable);
+        LogUtil.d(TAG, "msg222=" + msg + '\n' + serializable);
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = msg.getData().getByteArray(BleMsg.KEY_ERROR_CODE);
                 if (errCode != null)
-                    LogUtil.d(TAG,"msg33= "+ errCode[3]);
-                    dispatchErrorCode(errCode[3], serializable);
+                    LogUtil.d(TAG, "msg33= " + errCode[3]);
+                dispatchErrorCode(errCode[3], serializable);
                 break;
 //            case Message.TYPE_BLE_RECEIVER_CMD_26:
 //                short userIdTag = (short) serializable;
@@ -517,6 +517,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                     showMessage(getString(R.string.delete_key_success));
                 }
                 break;
+            case BleMsg.TYPE_DELETE_FP_FAILED:
             case BleMsg.TYPE_DELETE_FACE_FAILED:
             case BleMsg.TYPE_GROUP_DELETE_KEY_FAILED:
                 showMessage(getString(R.string.delete_key_failed));
@@ -538,9 +539,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                     }
                 }
                 break;
-            case BleMsg.TYPE_DELETE_FP_FAILED:
-                showMessage(getString(R.string.delete_key_failed));
-                break;
+
             case BleMsg.TYPE_GROUP_DELETE_USER_SUCCESS:
                 ArrayList<DeviceUser> users = DeviceUserDao.getInstance(this).queryDeviceUsers(mDefaultDevice.getDeviceNodeId());
                 for (DeviceUser user : users) {
@@ -552,18 +551,18 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
                 }
 
                 for (int i = 0; i < mUsersList.size(); i++) {
-                    BaseFragment framentView = mUserPagerAdapter.getItem(i);
-                    if (framentView instanceof AdminFragment) {
-                        AdminFragment adminFragment = (AdminFragment) framentView;
+                    BaseFragment fragmentView = mUserPagerAdapter.getItem(i);
+                    if (fragmentView instanceof AdminFragment) {
+                        AdminFragment adminFragment = (AdminFragment) fragmentView;
                         adminFragment.refreshView();
-                    } else if (framentView instanceof MemberFragment) {
-                        MemberFragment mumberFragment = (MemberFragment) framentView;
-                        mumberFragment.refreshView();
-                    } else if (framentView instanceof TempFragment) {
-                        TempFragment tempFragment = (TempFragment) framentView;
+                    } else if (fragmentView instanceof MemberFragment) {
+                        MemberFragment numberFragment = (MemberFragment) fragmentView;
+                        numberFragment.refreshView();
+                    } else if (fragmentView instanceof TempFragment) {
+                        TempFragment tempFragment = (TempFragment) fragmentView;
                         tempFragment.refreshView();
-                    } else if (framentView instanceof UsersFragment) {
-                        UsersFragment usersFragment = (UsersFragment) framentView;
+                    } else if (fragmentView instanceof UsersFragment) {
+                        UsersFragment usersFragment = (UsersFragment) fragmentView;
                         usersFragment.refreshView();
                     }
                 }

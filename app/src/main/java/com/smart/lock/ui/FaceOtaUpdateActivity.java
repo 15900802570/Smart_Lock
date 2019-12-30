@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothGatt;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -261,7 +262,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
 
 
     private void initView() {
-        ((TextView)(findViewById(R.id.tv_message_title))).setText(R.string.face_ota_update);
+        ((TextView) (findViewById(R.id.tv_message_title))).setText(R.string.face_ota_update);
         ivBack = findViewById(R.id.iv_back_sysset);
         mStartBt = findViewById(R.id.version_start);
         mConnStatus = findViewById(R.id.connect_status);
@@ -354,9 +355,9 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
         try {
             String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
             mNCPUPath = dir + mNCPUFileName;
-            mSCPUPath = dir + mNCPUFileName;
+            mSCPUPath = dir + mSCPUFileName;
 
-            tempPath = mNCPUPath + ".temp";
+            tempPath = mSCPUPath + ".temp";
             FileUtil.clearFiles(dir);
         } catch (Exception e) {
             e.printStackTrace();
@@ -381,7 +382,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
     }
 
     public void toDownload(boolean mastDownload) {
-        File file = new File(mNCPUPath);
+        File file = new File(mSCPUPath);
         if (file.exists()) {
             downloadSize = 0;
             fileSize = 0;
@@ -421,12 +422,12 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
      * 文件下载
      */
     private void downloadFile() {
-        LogUtil.e(TAG, "下载 URL= " + mNCPUDownloadUrl);
+        LogUtil.e(TAG, "下载 URL= " + mSCPUDownloadUrl);
         isSuccess = true;
         FileOutputStream fos = null;
         InputStream is = null;
         try {
-            URL u = new URL(mNCPUDownloadUrl);
+            URL u = new URL(mSCPUDownloadUrl);
             URLConnection conn = u.openConnection();
             conn.connect();
             is = conn.getInputStream();
@@ -474,7 +475,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
         if (!tempFile.exists()) {
             return;
         }
-        File newFile = new File(mNCPUPath);
+        File newFile = new File(mSCPUPath);
         if (!newFile.exists()) {
             try {
                 newFile.createNewFile();
@@ -564,7 +565,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                 // update ready status
                 mDfuReady |= status;
 
-            if (FileUtil.fileExists(mNCPUPath)) {
+            if (FileUtil.fileExists(mSCPUPath)) {
                 mDfuReady |= Device.DFU_FW_LOADED;
             } else {
                 mDfuReady &= ~Device.DFU_FW_LOADED;
@@ -726,7 +727,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
         mConnStatus.setText(R.string.connect_ota_mode);
         if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
             mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_JOIN_FACE_OTA,
-                    BleMsg.TYPE_FACE_NCPU_OTA,
+                    BleMsg.TYPE_FACE_SCPU_OTA,
                     0,
                     BleMsg.INT_DEFAULT_TIMEOUT);
         } else {
@@ -738,13 +739,15 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
         LogUtil.e(TAG, "开始更新");
         mStartBt.setEnabled(false);
         mConnStatus.setText(R.string.start_update);
-        gCmdBytes = FileUtil.loadFirmware(mNCPUPath);
+        gCmdBytes = FileUtil.loadFirmware(mSCPUPath);
         mOtaParser.set(gCmdBytes, mSha1);
         if (Device.getInstance(this).getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
+            LogUtil.e(TAG,"CMD = "+ BleMsg.CMD_START_FACE_OTA+"\nTYPE = "+BleMsg.TYPE_FACE_SCPU_OTA);
             mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_START_FACE_OTA,
-                    BleMsg.TYPE_FACE_NCPU_OTA,
+                    BleMsg.TYPE_FACE_SCPU_OTA,
                     0,
                     BleMsg.INT_DEFAULT_TIMEOUT);
+
         } else {
             showMessage(getString(R.string.plz_reconnect));
         }
@@ -785,6 +788,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
     public void dispatchUiCallback(Message msg, Device device, int type) {
         mDevice = device;
         Bundle extra = msg.getData();
+        LogUtil.d(TAG,"rsp = "+ msg.getType());
         switch (msg.getType()) {
             case Message.TYPE_BLE_RECEIVER_CMD_1E:
                 final byte[] errCode = extra.getByteArray(BleMsg.KEY_ERROR_CODE);
@@ -800,6 +804,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                     mConnStatus.setText(R.string.ota_complete);
                     mOtaMode = false;//异常断开，重置ota模式
                 } else if (mOtaMode) {
+                    LogUtil.e(TAG,"");
                     updateVersion();
                 } else {
                     downloadSize = 0;
@@ -815,7 +820,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
             case Message.TYPE_BLE_RECEIVER_CMD_42:
                 byte repCode = extra.getByte(BleMsg.KEY_KDP_RSP_CODE);
                 byte moduleType = extra.getByte(BleMsg.KEY_FACE_OTA_MODULE);
-                LogUtil.e(TAG, "CMD 42 respCode = " + repCode);
+                LogUtil.e(TAG, "CMD 42 respCode = " + repCode + "\nModule type =" + moduleType);
                 switch (repCode) {
                     // 0x01
                     case BleMsg.RSP_FACE_OTA_SUCCESS:
@@ -838,9 +843,11 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                         break;
                     default:
                         break;
-
-
                 }
+                break;
+            case BleMsg.TYPE_NO_AUTHORITY_1E:
+                mOtaMode = true;
+                updateVersion();
                 break;
             default:
                 break;
@@ -881,8 +888,12 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                 } else {
                     mStartBt.setEnabled(false);
                     if (mOtaMode) {
+                        LogUtil.e(TAG, "传输大小");
                         if (mDevice.getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
-                            mBleManagerHelper.getBleCardService().sendCmd37((gCmdBytes.length + mSha1.length), BleMsg.INT_DEFAULT_TIMEOUT);
+                            mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_FACE_FIRMWARE_SIZE,
+                                    BleMsg.TYPE_FACE_SCPU_OTA,
+                                    (gCmdBytes.length),
+                                    BleMsg.INT_DEFAULT_TIMEOUT);
                         } else {
                             showMessage(getString(R.string.plz_reconnect));
                         }

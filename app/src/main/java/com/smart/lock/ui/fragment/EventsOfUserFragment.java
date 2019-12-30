@@ -112,7 +112,7 @@ public class EventsOfUserFragment extends BaseFragment {
         if (deviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
             mLogs = DeviceLogDao.getInstance(mCtx).queryKeyUserEvent("node_id", nodeId);
         } else if (deviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-            mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogUserEvent(nodeId, mDefaultDevice.getUserId());
+            mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogUserEvent(nodeId, deviceInfo.getUserId());
         }
         LogUtil.d(TAG, "receiver size = " + mLogs.size());
         mEventsOfUserAdapter.setDataSource(mLogs);
@@ -135,7 +135,6 @@ public class EventsOfUserFragment extends BaseFragment {
             mEventsOfUserAdapter.setDataSource(mLogs);
             mEventsOfUserAdapter.notifyDataSetChanged();
             DialogUtils.closeDialog(mLoadDialog);
-
             return true;
         } else {
             return false;

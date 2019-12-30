@@ -29,7 +29,7 @@ import java.util.TimerTask;
  * 交易公共父类
  */
 @SuppressLint("HandlerLeak")
-public abstract class AbstractTransaction {
+public abstract class  AbstractTransaction {
 
     // 交易类型
     public enum TransType {

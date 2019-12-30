@@ -493,4 +493,7 @@
     <string name="_de">\'s</string>
     <string name="successfully">successfully</string>
     <string name="_deleted">deleted</string>
+    <string name="auto_close_time">Automatic closing time</string>
+    <string name="s_15">15s</string>
+    <string name="s_30">30s</string>
 </resources>

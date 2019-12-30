@@ -248,8 +248,8 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
         DeviceLog devLog = new DeviceLog();
         devLog.setUserId(Short.parseShort(StringUtil.bytesToHexString(userId), 16));
-        devLog.setLogId(Integer.parseInt(StringUtil.bytesToHexString(logId), 16));
-        devLog.setLogTime(Long.parseLong(StringUtil.bytesToHexString(time), 16));
+        devLog.setLogId(Integer.parseInt(Objects.requireNonNull(StringUtil.bytesToHexString(logId)), 16));
+        devLog.setLogTime(Long.parseLong(Objects.requireNonNull(StringUtil.bytesToHexString(time)), 16));
         devLog.setNodeId(StringUtil.bytesToHexString(nodeId));
         devLog.setLogState(state[0]);
         String keyName = "";
@@ -817,7 +817,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevInfo.setDeviceDate(System.currentTimeMillis() / 1000);
         DeviceInfoDao.getInstance(mCtx).setNoDefaultDev();
         mDevInfo.setDeviceDefault(true);
-        mDevInfo.setDeviceName(mCtx.getString(R.string.lock_default_name) + String.valueOf(DeviceInfoDao.getInstance(mCtx).queryCount() + 1));
+        int mCount = (int) (DeviceInfoDao.getInstance(mCtx).queryCount());
+        for (int i = 1; i <= mCount + 2; i++) {
+            if (DeviceInfoDao.getInstance(mCtx).queryByField(DeviceInfoDao.DEVICE_NAME, mCtx.getString(R.string.lock_default_name) + i) == null) {
+                mDevInfo.setDeviceName(mCtx.getString(R.string.lock_default_name) + i);
+                break;
+            }
+        }
         mDevInfo.setDeviceSecret(randCode);
         mDeviceInfoDao.insert(mDevInfo);
 
@@ -1010,6 +1016,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
 
                 case Message.TYPE_BLE_RECEIVER_CMD_04:
                     registerCallBack(message);
+                    setTimeZone();
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_06:
                     LogUtil.d(TAG, "receive 06");
@@ -1100,21 +1107,13 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         timer.reSetTimeOut(timeOut);
                     }
                     break;
-                case Message.TYPE_BLE_RECEIVER_CMD_2E:
-
-                    synchronized (mUiListeners) {
-                        uiListeners.addAll(mUiListeners);
-                        for (UiListener uiListener : uiListeners) {
-                            uiListener.dispatchUiCallback(message, mDevice, -1);
-                        }
-                        uiListeners.clear();
-                    }
-                    break;
                 case Message.TYPE_BLE_RECEIVER_CMD_26:
                     LogUtil.i(TAG, "receiver msg 26,check device key!");
-                    short userId = (short) ((extra.getSerializable(BleMsg.KEY_SERIALIZABLE) != null ? extra.getSerializable(BleMsg.KEY_SERIALIZABLE) : 0));
+                    short userId = (short) ((extra.getSerializable(BleMsg.KEY_SERIALIZABLE) != null ? extra.getSerializable(BleMsg.KEY_SERIALIZABLE) : (short) 0));
+                    byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+                    LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
                     if (userId == mDevInfo.getUserId()) {
-                        byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
+//                        byte[] userInfo = extra.getByteArray(BleMsg.KEY_USER_MSG);
                         LogUtil.d(TAG, "user info : " + Arrays.toString(userInfo));
 
                         mDeviceKeyDao.checkDeviceKey(mDevInfo.getDeviceNodeId(), mDevInfo.getUserId(), userInfo[1], ConstantUtil.USER_PWD, "1");
@@ -1161,7 +1160,6 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                             uiListeners.clear();
                         }
                     }
-                    setTimeZone();
                     break;
                 case Message.TYPE_BLE_RECEIVER_CMD_32:
                     LogUtil.i(TAG, "receiver 32!");
@@ -1174,8 +1172,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                         uiListeners.clear();
                     }
                     break;
+                case Message.TYPE_BLE_RECEIVER_CMD_2E:
                 case Message.TYPE_BLE_RECEIVER_CMD_3E:
-                    LogUtil.i(TAG, "receiver 3e!");
+                    LogUtil.i(TAG, "receiver 2E/3E!");
                     synchronized (mUiListeners) {
                         uiListeners.addAll(mUiListeners);
                         for (UiListener uiListener : uiListeners) {

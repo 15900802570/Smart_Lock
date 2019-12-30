@@ -731,7 +731,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         private int countFoot = 2;
         private Context mContext;
         private ArrayList<DeviceUser> mUserList;
-        private Boolean mVisiBle = false;
+        private Boolean mVisible = false;
         public ArrayList<DeviceUser> mDeleteUsers = new ArrayList<>();
         public boolean mAllDelete = false;
 
@@ -768,6 +768,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                 DeviceUser user = userListIterator.next();
                 if (user.getUserId() == mDefaultUser.getUserId() || user.getUserId() == 1 && mDefaultUser.getUserId() != 1) {
                     userListIterator.remove();
+                    mBleManagerHelper.getBleCardService().sendCmd25(mDefaultUser.getUserId(), BleMsg.INT_DEFAULT_TIMEOUT);
                 } else mCheckUsers.add(user);
             }
             mUserList.add(0, mDefaultUser);
@@ -794,8 +795,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
             switch (viewType) {
-                case TYPE_HEAD:
-                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+
                 case TYPE_BODY:
                     View inflate = LayoutInflater.from(mContext).inflate(R.layout.item_user, parent, false);
                     SwipeLayout swipelayout = inflate.findViewById(R.id.item_ll_user);
@@ -803,7 +803,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                     swipelayout.setRightSwipeEnabled(true);
                     return new UserViewHolder(inflate);
                 case TYPE_FOOT:
-                    return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
+                case TYPE_HEAD:
                 default:
                     return new FootViewHolder(LayoutInflater.from(mContext).inflate(R.layout.item_recycle_foot, parent, false));
             }
@@ -826,7 +826,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
         }
 
         public void choiceItemDelete(boolean visible) {
-            mVisiBle = visible;
+            mVisible = visible;
         }
 
         public void choiceALLDelete(boolean allDelete) {
@@ -1019,7 +1019,7 @@ public class UsersFragment extends BaseFragment implements View.OnClickListener,
                             }
                         });
 
-                        if (mVisiBle)
+                        if (mVisible)
                             ((UserViewHolder) holder).mDeleteRl.setVisibility(View.VISIBLE);
                         else
                             ((UserViewHolder) holder).mDeleteRl.setVisibility(View.GONE);

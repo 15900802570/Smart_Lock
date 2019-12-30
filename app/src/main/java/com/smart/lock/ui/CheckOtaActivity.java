@@ -377,6 +377,9 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
         @Override
         public void transComplete() {
+            if (mVersionAction.respondData.models.size() == 3 && !mDefaultDev.isEnableFace()) {
+                mVersionAction.respondData.models.remove(2);
+            }
             if (HttpCodeHelper.RESPONSE_SUCCESS.equals(mVersionAction.respondData.respCode)) {
                 sendMessage(RECEIVER_OTA_VERSION, null, 0);
                 mOtaAdapter.setDataSource(mVersionAction.respondData.models);
@@ -515,7 +518,7 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                     viewHolder.mType.setImageResource(R.mipmap.icon_face);
                     viewHolder.mNameTv.setText(R.string.face_manager);
                 }
-                LogUtil.d(TAG, "model type=" + model.type+'\n'+"versionCode = "+model.versionCode);
+                LogUtil.d(TAG, "model type=" + model.type + '\n' + "versionCode = " + model.versionCode);
                 if (model.versionCode != 0) {
                     viewHolder.mSwVersion.setText(mContext.getString(R.string.new_dev_version));
                     viewHolder.mNextIconIv.setVisibility(View.VISIBLE);

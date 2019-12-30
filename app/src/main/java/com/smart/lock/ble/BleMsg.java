@@ -608,8 +608,8 @@ public class BleMsg {
 
     public static final byte TYPE_INFRARED_INDUCTION_OPEN = 0x1E;//红外感应开启
     public static final byte TYPE_INFRARED_INDUCTION_CLOSE = 0x1F;//红外感应关闭
-    public static final byte TYPE_AUTO_OPEN_DOORE_OPEN = 0x20;//自动关门门开启
-    public static final byte TYPE_AUTO_OPEN_DOORE_CLOSE = 0x21;//自动关门关闭
+    public static final byte TYPE_AUTO_OPEN_DOOR_OPEN = 0x20;//自动关门门开启
+    public static final byte TYPE_AUTO_OPEN_DOOR_CLOSE = 0x21;//自动关门关闭
 
     public static final byte TYPE_OPEN_ALBUM = 0x22;//打开抓拍相册
 

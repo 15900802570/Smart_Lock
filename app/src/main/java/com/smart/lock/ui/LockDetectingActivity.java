@@ -95,6 +95,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     private Device mDevice;
     private Context mCtx;
     private SmartRefreshLayout mRefreshLayout;
+    private final int DIALOG_TIMEOUT = 999;
 
     //back time
     private long mBackPressedTime;
@@ -169,6 +170,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 //
 //                        });
                         mLoadDialog.show();
+                        mHandler.sendEmptyMessageDelayed(DIALOG_TIMEOUT, 20 * 1000);
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPT_NO_SCAN_QR_ADD_USER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                     } else if (mDevice != null && mDevice.getConnectType() == Device.BLE_SCAN_QR_CONNECT_TYPE) {
                         mLoadDialog = DialogUtils.createLoadingDialog(mCtx, getString(R.string.plz_wait_lock_call_back));
@@ -200,6 +202,7 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
 //
 //                        });
                         mLoadDialog.show();
+                        mHandler.sendEmptyMessageDelayed(DIALOG_TIMEOUT, 20 * 1000);
                         mBleManagerHelper.getBleCardService().sendCmd11(BleMsg.TYPE_SCAN_QR_ADD_MASTER, (short) 0, BleMsg.INT_DEFAULT_TIMEOUT);
                     }
                     break;
@@ -235,6 +238,10 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
                     if (mDevice.getState() != Device.BLE_DISCONNECTED)
                         mBleManagerHelper.getBleCardService().disconnect();
                     mSearchAddDev = false;
+                    break;
+                case DIALOG_TIMEOUT:
+                    DialogUtils.closeDialog(mLoadDialog);
+                    DialogUtils.closeDialog(mCancelDialog);
                     break;
                 default:
                     break;

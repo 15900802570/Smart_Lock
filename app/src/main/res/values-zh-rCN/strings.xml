@@ -507,5 +507,8 @@
     <string name="_de">的</string>
     <string name="successfully">成功</string>
     <string name="_deleted">删除</string>
+    <string name="auto_close_time">自动关门时间</string>
+    <string name="s_15">15秒</string>
+    <string name="s_30">30秒</string>
 
 </resources>

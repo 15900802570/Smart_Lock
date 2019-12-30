@@ -1,6 +1,7 @@
 
 package com.smart.lock.action;
 
+import com.smart.lock.entity.Device;
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
@@ -151,6 +152,7 @@ public class CheckOtaAction extends AbstractTransaction {
          * 采用pull解析方式：XmlPullParser采用驱动解析，占用内存少，无需一次性加载数据
          */
         String json = null;
+        LogUtil.e(TAG,"respCode ="+respondData.respCode);
         if (inputStream == null) {
             respondData.respCode = HttpCodeHelper.ERROR;
             return false;

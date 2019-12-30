@@ -2,7 +2,6 @@ package com.smart.lock.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -14,7 +13,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -75,12 +73,15 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
     private DialogFactory mTipsDialog; //删除提示框
 
     private final static int RECEIVER_LOG_TIME_OUT = 15;
+    private final static int HAS_NOT_USER_EVENTS = 16;
     private int countTimeOut = 0;
     private int mDialogCount = 0;
     protected CheckBox mSelectCb;
     protected TextView mTipTv;
     protected TextView mBack;
     protected TextView mDelTv;
+
+    protected Boolean mDoUserEventsDone = false;
 
 
     @SuppressLint("HandlerLeak")
@@ -98,7 +99,6 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
 //                    mCountTv.setText(String.valueOf(count));
                     break;
                 case RECEIVER_LOG_TIME_OUT:
-//                    mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
                     if (mHandler.hasMessages(RECEIVER_LOG_TIME_OUT)) {
                         mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
                     }
@@ -121,6 +121,13 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
                     } else {
                         showMessage(getString(R.string.disconnect_ble));
                     }
+                    break;
+                case HAS_NOT_USER_EVENTS:
+                    if (mHandler.hasMessages(RECEIVER_LOG_TIME_OUT)) {
+                        mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
+                    }
+                    countTimeOut = 1;
+                    DialogUtils.closeDialog(mLoadDialog);
                     break;
                 default:
                     break;
@@ -224,56 +231,47 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
                 }
             }
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mEventsVp.setOnCapturedPointerListener(new View.OnCapturedPointerListener() {
-                @Override
-                public boolean onCapturedPointer(View view, MotionEvent motionEvent) {
-                    mSelectEventRl.setVisibility(View.GONE);
-                    mEventsOfLockFragment.cancelDelete();
-                    mEventsOfUserFragment.cancelDelete();
-                    return false;
-                }
-            });
-        } else {
-            mEventsVp.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageScrolled(int i, float v, int i1) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        mEventsVp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int i, float v, int i1) {
 
-                }
+            }
 
-                @Override
-                public void onPageSelected(int i) {
-                    mSelectEventRl.setVisibility(View.GONE);
-                    mEventsOfLockFragment.cancelDelete();
-                    mEventsOfUserFragment.cancelDelete();
+            @Override
+            public void onPageSelected(int i) {
+                mSelectEventRl.setVisibility(View.GONE);
+                mEventsOfLockFragment.cancelDelete();
+                mEventsOfUserFragment.cancelDelete();
+                if (i == 1 && !mDoUserEventsDone) {
+                    //查询用户事件
+                    if (mDevice.getState() == Device.BLE_CONNECTED) {
+                        mLoadDialog.show();
+                        android.os.Message msg = android.os.Message.obtain();
+                        msg.what = RECEIVER_LOG_TIME_OUT;
+                        mHandler.sendMessageDelayed(msg, 10 * 1000);
+                        if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
+                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
+                        } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
+                            mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
+                        }
+                        mDoUserEventsDone = true;
+                    } else {
+                        showMessage(getString(R.string.disconnect_ble));
+                        finish();
+                    }
                 }
+            }
 
-                @Override
-                public void onPageScrollStateChanged(int i) {
-                }
-            });
-        }
+            @Override
+            public void onPageScrollStateChanged(int i) {
 
+            }
+        });
     }
 
     private void initEvent() {
         mEventsVp.addOnPageChangeListener(this);
-
-        //查询用户事件
-        if (mDevice.getState() == Device.BLE_CONNECTED) {
-            mLoadDialog.show();
-            android.os.Message msg = android.os.Message.obtain();
-            msg.what = RECEIVER_LOG_TIME_OUT;
-            mHandler.sendMessageDelayed(msg, 10 * 1000);
-            if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
-                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_ALL_USERS_LOG, mDefaultDevice.getUserId());
-            } else if (mDeviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-                mBleManagerHelper.getBleCardService().sendCmd31(BleMsg.TYPE_QUERY_USER_LOG, mDefaultDevice.getUserId());
-            }
-        } else {
-            showMessage(getString(R.string.disconnect_ble));
-            finish();
-        }
         //查询开锁事件
         if (mDevice.getState() == Device.BLE_CONNECTED) {
             mLoadDialog.show();
@@ -381,14 +379,15 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
                 if (mHandler.hasMessages(RECEIVER_LOG_TIME_OUT)) {
                     mHandler.removeMessages(RECEIVER_LOG_TIME_OUT);
                 }
-                if (mDialogCount++ >= 1) {
-                    mDialogCount = 0;
-                    DialogUtils.closeDialog(mLoadDialog);
-                }
-
-
+//                if (mDialogCount++ >= 1) {
+//                    mDialogCount = 0;
+                DialogUtils.closeDialog(mLoadDialog);
+//                } else {
+//                    mHandler.sendEmptyMessageDelayed(HAS_NOT_USER_EVENTS, 10 * 1000);
+//                }
                 mEventsOfUserFragment.getLogsOver(mNodeId, mDefaultDevice, mDeviceUser);
                 mEventsOfLockFragment.getLogsOver(mNodeId, mDefaultDevice, mDeviceUser);
+
                 break;
             case BleMsg.TYPE_DELETE_LOG_SUCCESS:
 //                mDelDeVLog = (DeviceLog) bundle.getSerializable(BleMsg.KEY_SERIALIZABLE);
@@ -397,10 +396,14 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
 //                }
                 if (mEventsOfUserFragment.delLogSuccess(mDeviceUser, bundle)) {
                     DialogUtils.closeDialog(mLoadDialog);
+                    mEventsOfUserFragment.cancelDelete();
                 }
                 if (mEventsOfLockFragment.delLogSuccess(mDeviceUser, bundle)) {
                     DialogUtils.closeDialog(mLoadDialog);
+                    mEventsOfLockFragment.cancelDelete();
                 }
+                mSelectEventRl.setVisibility(View.GONE);
+
                 break;
             case BleMsg.TYPE_DELETE_LOG_FAILED:
                 showMessage(this.getString(R.string.del_log_failed));
@@ -478,7 +481,10 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void deviceStateChange(Device device, int state) {
-
+        mDevice = device;
+        if (state == BleMsg.STATE_DISCONNECTED) {
+            DialogUtils.closeDialog(mLoadDialog);
+        }
     }
 
     @Override
@@ -544,7 +550,7 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
 
     private class EventsPagerAdapter extends FragmentPagerAdapter {
 
-        public EventsPagerAdapter(FragmentManager fm) {
+        EventsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

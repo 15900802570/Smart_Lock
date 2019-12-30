@@ -103,7 +103,7 @@ public class EventsOfLockFragment extends BaseFragment {
         if (deviceUser.getUserPermission() == ConstantUtil.DEVICE_MASTER) {
             mLogs = DeviceLogDao.getInstance(mCtx).queryKeyLockEvent("node_id", nodeId);
         } else if (deviceUser.getUserPermission() == ConstantUtil.DEVICE_MEMBER) {
-            mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogLockEvent(nodeId, mDefaultDevice.getUserId());
+            mLogs = DeviceLogDao.getInstance(mCtx).queryUserLogLockEvent(nodeId, deviceInfo.getUserId());
         }
         LogUtil.d(TAG, "receiver size = " + mLogs.size());
         mEventsOfLockAdapter.setDataSource(mLogs);
