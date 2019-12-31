@@ -174,6 +174,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
             }
         } else {
             showMessage(getString(R.string.disconnect_ble));
+            mBleManagerHelper.removeUiListener(this);
             finish();
         }
         if (mDefaultDevice.isEnableFace()) {
@@ -188,6 +189,7 @@ public class EventsActivity extends BaseListViewActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.iv_back_sysset:
+                mBleManagerHelper.removeUiListener(this);
                 finish();
                 break;
             case R.id.back_tv:

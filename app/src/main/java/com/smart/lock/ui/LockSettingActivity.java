@@ -393,6 +393,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
         if (mDevice.getState() == Device.BLE_CONNECTED || view.getId() == R.id.iv_back) {
             switch (view.getId()) {
                 case R.id.iv_back:
+                    mBleManagerHelper.removeUiListener(this);
                     finish();
                     break;
                 case R.id.ts_intelligent_lock:  //智能锁芯

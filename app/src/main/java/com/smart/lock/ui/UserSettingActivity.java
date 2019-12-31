@@ -201,6 +201,7 @@ public class UserSettingActivity extends BaseActivity implements View.OnClickLis
         mUsetSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBleManagerHelper.removeUiListener(UserSettingActivity.this);
                 finish();
             }
         });

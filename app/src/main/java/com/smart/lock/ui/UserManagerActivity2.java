@@ -114,6 +114,7 @@ public class UserManagerActivity2 extends AppCompatActivity implements View.OnCl
         mUserSetTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBleManagerHelper.removeUiListener(UserManagerActivity2.this);
                 finish();
             }
         });

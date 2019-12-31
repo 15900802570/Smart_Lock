@@ -245,14 +245,16 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         LogUtil.d(TAG, "state = " + Arrays.toString(state));
         LogUtil.d(TAG, "type = " + Arrays.toString(type));
         LogUtil.d(TAG, "lockId = " + Arrays.toString(lockId));
+        try {
+            DeviceLog devLog = new DeviceLog();
+            devLog.setUserId(Short.parseShort(StringUtil.bytesToHexString(userId), 16));
+            devLog.setLogId(Integer.parseInt(Objects.requireNonNull(StringUtil.bytesToHexString(logId)), 16));
+            devLog.setLogTime(Long.parseLong(Objects.requireNonNull(StringUtil.bytesToHexString(time)), 16));
+            devLog.setNodeId(StringUtil.bytesToHexString(nodeId));
+            devLog.setLogState(state[0]);
+            String keyName = "";
 
-        DeviceLog devLog = new DeviceLog();
-        devLog.setUserId(Short.parseShort(StringUtil.bytesToHexString(userId), 16));
-        devLog.setLogId(Integer.parseInt(Objects.requireNonNull(StringUtil.bytesToHexString(logId)), 16));
-        devLog.setLogTime(Long.parseLong(Objects.requireNonNull(StringUtil.bytesToHexString(time)), 16));
-        devLog.setNodeId(StringUtil.bytesToHexString(nodeId));
-        devLog.setLogState(state[0]);
-        String keyName = "";
+
 
         devLog.setLogType(type[0]);
         if (type[0] == 0) {
@@ -284,6 +286,9 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
         mDevice.setDisconnectBle(true);
 
         DeviceLogDao.getInstance(mCtx).insert(devLog);
+        }catch (  java.lang.NumberFormatException e){
+            LogUtil.d("解析错误");
+        }
     }
 
     /**

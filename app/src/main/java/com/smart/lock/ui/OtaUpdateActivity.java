@@ -265,6 +265,7 @@ public class OtaUpdateActivity extends Activity implements View.OnClickListener,
         mVersionModel = (VersionModel) getIntent().getSerializableExtra(ConstantUtil.SERIALIZABLE_DEV_VERSION_MODEL);
         if (mVersionModel == null) {
             showMessage("没有可更新的文件");
+            mBleManagerHelper.removeUiListener(this);
             finish();
         } else {
             mFileName = mVersionModel.fileName;

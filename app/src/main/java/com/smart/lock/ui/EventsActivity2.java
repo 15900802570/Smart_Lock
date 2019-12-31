@@ -355,6 +355,7 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
         mEventsTb.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mBleManagerHelper.removeUiListener(EventsActivity2.this);
                 finish();
 //                LogUtil.d(TAG, "OnBack");
             }

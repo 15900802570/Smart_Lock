@@ -219,6 +219,9 @@ public class EventsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 mViewHolder.mDeleteRl.setVisibility(View.GONE);
 
             mViewHolder.mDeleteCb.setChecked(mAllDelete);
+            if(mDeleteLogs!=null && mDeleteLogs.indexOf(logInfo)!=-1){
+                mViewHolder.mDeleteCb.setChecked(true);
+            }
 
         }
     }

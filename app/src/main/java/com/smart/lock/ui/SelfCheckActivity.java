@@ -104,6 +104,7 @@ public class SelfCheckActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_self_check_back:
+                mBleManagerHelper.removeUiListener(this);
                 finish();
                 break;
             case R.id.btn_self_check_check:
