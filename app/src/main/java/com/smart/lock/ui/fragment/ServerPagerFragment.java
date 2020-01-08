@@ -267,7 +267,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     mDefaultStatus = DeviceStatusDao.getInstance(mCtx).queryOrCreateByNodeId(mNodeId);
                     if (mDefaultStatus == null) {
                         LogUtil.e(TAG, "错误");
-                        LogUtil.e(TAG,"mNode = "+ mNodeId);
+                        LogUtil.e(TAG, "mNode = " + mNodeId);
                     }
 //                    LogUtil.d(TAG, mDefaultStatus.toString());
                     mLockAdapter = new LockManagerAdapter(mCtx, mMyGridView, mDefaultUser.getUserPermission(), mDefaultDevice.isEnableFace());
@@ -619,8 +619,10 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 showMessage(getString(R.string.device_busy));
                 break;
             // 鉴权码失败和用户不存在均视为用户已被删除
-            case BleMsg.TYPE_USER_NOT_EXIST:
             case BleMsg.TYPE_AUTH_CODE_ERROR:
+                break;
+            case BleMsg.TYPE_USER_NOT_EXIST:
+
                 userHadBeenDelete();
                 if (ServerPagerFragment.this.getParentFragment() != null) {
                     (ServerPagerFragment.this.getParentFragment()).onResume();

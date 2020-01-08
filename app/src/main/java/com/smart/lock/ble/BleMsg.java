@@ -634,6 +634,7 @@ public class BleMsg {
     public static final byte CMD_CHECK_FACE_VERSION = 0x03;//查询人脸ota固件版本
     public static final byte CMD_JOIN_FACE_OTA = 0x04;//进入OTA模式
     public static final byte CMD_FACE_FIRMWARE_SIZE = 0x05;//查询人脸ota固件大小
+    public static final byte CMD_FACE_OTA_DONE = 0x06;//查询人脸ota固件大小
 
     public static final byte TYPE_FACE_SCPU_OTA = 0x01;//开始SCPU OTA升级
     public static final byte TYPE_FACE_NCPU_OTA = 0x02;//开始NCPU OTA升级
@@ -642,10 +643,11 @@ public class BleMsg {
      */
     public static final byte RSP_FACE_OTA_SUCCESS = 0x01;//OTA升级成功
     public static final byte RSP_FACE_OTA_FAILED = 0x02;//OTA升级失败
-    public static final byte RSP_FACE_OTA_REFUSE = 0x03;//OTA升级成功
-    public static final byte RSP_FACE_OTA_ALLOW = 0x04;//OTA升级失败
+    public static final byte RSP_FACE_OTA_REFUSE = 0x03;//拒绝OTA升级
+    public static final byte RSP_FACE_OTA_ALLOW = 0x04;//允许OTA升级
     public static final byte RSP_FACE_OTA_BUSY = 0x05;//OTA升级 设备忙
     public static final byte RSP_FACE_OTA_GET_SIZE = 0x06;//OTA升级 收到大小
+    public static final byte RSP_FACE_OTA_FILE_DONE = 0x07;//收到完整文件
 
     public static final byte TYPE_FACE_OTA_SCPU = 0x01;//NCPU
     public static final byte TYPE_FACE_OTA_NCPU = 0x02;//SCPU

@@ -64,14 +64,16 @@ public class EventsOfLockFragment extends BaseFragment {
         return mEventsOfLockAdapter.getItemCount();
     }
 
-    public void doDelete(short userId) {
+    public boolean doDelete(short userId) {
         if (mEventsOfLockAdapter.mDeleteLogs.size() != 0) {
             for (DeviceLog devLog : mEventsOfLockAdapter.mDeleteLogs) {
                 int logId = devLog.getLogId();
                 mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_SINGLE_LOCK_LOG, userId, logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
             }
+            return true;
         } else {
             showMessage(getString(R.string.plz_choise_del_log));
+            return false;
         }
     }
 

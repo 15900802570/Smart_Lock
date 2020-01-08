@@ -34,9 +34,11 @@ import com.smart.lock.entity.Device;
 import com.smart.lock.entity.VersionModel;
 import com.smart.lock.transfer.HttpCodeHelper;
 import com.smart.lock.utils.ConstantUtil;
+import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
+import com.smart.lock.utils.ToastUtil;
 import com.smart.lock.widget.SpacesItemDecoration;
 
 import java.util.ArrayList;
@@ -98,8 +100,8 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ota_update_file);
         initView();
-        initEvent();
         initDate();
+        initEvent();
     }
 
     private void initView() {
@@ -131,6 +133,10 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
 
     private void initEvent() {
         ivBack.setOnClickListener(this);
+        if (mDevice.getBattery() <= 30 && !SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
+//            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
+            DialogUtils.createTipsDialogWithConfirm(this,getString(R.string.battery_low)).show();
+        }
     }
 
     private void refreshView(int action) {

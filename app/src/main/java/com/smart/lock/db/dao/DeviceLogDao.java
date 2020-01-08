@@ -169,6 +169,23 @@ public class DeviceLogDao {
         return list;
     }
 
+    public boolean checkLogIsExist(int logId, short userId, String nodeId) {
+        ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();
+        try {
+            list = (ArrayList<DeviceLog>) dao.queryBuilder()
+                    .where()
+                    .eq("log_id", logId)
+                    .and()
+                    .eq("user_id", userId)
+                    .and()
+                    .eq(DEVICE_NODE_ID, nodeId)
+                    .query();
+            return list.size() != 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     public ArrayList<DeviceLog> queryKeyUserEvent(String key, Object valus) {
         ArrayList<DeviceLog> list = new ArrayList<DeviceLog>();

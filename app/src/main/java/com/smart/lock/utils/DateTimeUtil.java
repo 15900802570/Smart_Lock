@@ -938,7 +938,7 @@ public class DateTimeUtil {
      * 临时密码失效时间计算
      */
     public static long getFailureTime(long createdTime, int randomNum) {
-        return (long) Math.ceil(createdTime / 1800.0 + 1 + Math.floor(randomNum / 40) * 2) * 1800;
+        return (long) Math.ceil(createdTime / 1800.0 - 1 + Math.ceil((float)randomNum / 40.0) * 2) * 1800;
     }
 
     /**

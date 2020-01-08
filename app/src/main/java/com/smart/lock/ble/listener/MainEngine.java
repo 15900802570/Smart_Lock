@@ -255,38 +255,38 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
             String keyName = "";
 
 
+            devLog.setLogType(type[0]);
+            if (type[0] == 0) {
+                keyName = mCtx.getString(R.string.password);
+            } else if (type[0] == 1) {
+                keyName = mCtx.getString(R.string.fingerprint);
+            } else if (type[0] == 2) {
+                keyName = mCtx.getString(R.string.card);
+            } else if (type[0] == 7) {
+                keyName = mCtx.getString(R.string.remote);
+            } else if (type[0] == 8) {
+                keyName = mCtx.getString(R.string.temp_pwd);
+            } else if (type[0] == 9) {
+                keyName = mCtx.getString(R.string.combination_lock);
+            } else if (type[0] == 10) {
+                keyName = mCtx.getString(R.string.face_manager);
+            }
 
-        devLog.setLogType(type[0]);
-        if (type[0] == 0) {
-            keyName = mCtx.getString(R.string.password);
-        } else if (type[0] == 1) {
-            keyName = mCtx.getString(R.string.fingerprint);
-        } else if (type[0] == 2) {
-            keyName = mCtx.getString(R.string.card);
-        } else if (type[0] == 7) {
-            keyName = mCtx.getString(R.string.remote);
-        } else if (type[0] == 8) {
-            keyName = mCtx.getString(R.string.temp_pwd);
-        } else if (type[0] == 9) {
-            keyName = mCtx.getString(R.string.combination_lock);
-        } else if (type[0] == 10) {
-            keyName = mCtx.getString(R.string.face_manager);
-        }
+            devLog.setLockId(String.valueOf(lockId[0]));
+            DeviceKey deviceKey = DeviceKeyDao.getInstance(mCtx).queryByLockId(StringUtil.bytesToHexString(nodeId), StringUtil.bytesToHexString(userId), String.valueOf(lockId[0]), type[0]);
+            if (deviceKey != null)
+                devLog.setKeyName(deviceKey.getKeyName());
+            else if (type[0] == ConstantUtil.USER_REMOTE)
+                devLog.setKeyName(keyName);
+            else
+                devLog.setKeyName(keyName + String.valueOf(lockId[0]));
 
-        devLog.setLockId(String.valueOf(lockId[0]));
-        DeviceKey deviceKey = DeviceKeyDao.getInstance(mCtx).queryByLockId(StringUtil.bytesToHexString(nodeId), StringUtil.bytesToHexString(userId), String.valueOf(lockId[0]), type[0]);
-        if (deviceKey != null)
-            devLog.setKeyName(deviceKey.getKeyName());
-        else if (type[0] == ConstantUtil.USER_REMOTE)
-            devLog.setKeyName(keyName);
-        else
-            devLog.setKeyName(keyName + String.valueOf(lockId[0]));
-
-        LogUtil.d(TAG, "devLog = " + devLog.toString());
-        mDevice.setDisconnectBle(true);
-
-        DeviceLogDao.getInstance(mCtx).insert(devLog);
-        }catch (  java.lang.NumberFormatException e){
+            LogUtil.d(TAG, "devLog = " + devLog.toString());
+            mDevice.setDisconnectBle(true);
+            if (!DeviceLogDao.getInstance(mCtx).checkLogIsExist(devLog.getLogId(), devLog.getUserId(), devLog.getNodeId())) {
+                DeviceLogDao.getInstance(mCtx).insert(devLog);
+            }
+        } catch (java.lang.NumberFormatException e) {
             LogUtil.d("解析错误");
         }
     }
@@ -717,7 +717,7 @@ public class MainEngine implements BleMessageListener, DeviceStateCallback, Hand
                     "String = " + TimeZone.getDefault().getDisplayName(false, TimeZone.LONG) + '\n' +
                     "String = " + TimeZone.getDefault().getDisplayName(true, TimeZone.SHORT)
             );
-            int timeZone = -TimeZone.getDefault().getRawOffset() / 1000;
+            int timeZone = TimeZone.getDefault().getRawOffset() / 1000;
             mService.sendCmd47(timeZone, BleMsg.INT_DEFAULT_TIMEOUT);
             sendMessage(SET_TIMEZONE_TIMEOUT, null, 10 * 1000);
         }

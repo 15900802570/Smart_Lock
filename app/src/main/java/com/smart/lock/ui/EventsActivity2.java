@@ -291,7 +291,7 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mDefaultDevice.isEnableFace()) {
+        if (mDefaultDevice.isEnableFace() && mDeviceUser.getUserId() <= 2) {
             getMenuInflater().inflate(R.menu.events_management_with_face, menu);
         } else {
             getMenuInflater().inflate(R.menu.events_management, menu);
@@ -346,7 +346,7 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initActionBar() {
-        mTitleTv.setText(R.string.unlock_key);
+        mTitleTv.setText(R.string.event_manager);
 
         mEventsTb.setNavigationIcon(R.mipmap.btn_back);
 
@@ -441,11 +441,15 @@ public class EventsActivity2 extends AppCompatActivity implements View.OnClickLi
             case R.id.del_tv:
                 if (mDevice.getState() == Device.BLE_CONNECTED) {
                     DialogUtils.closeDialog(mLoadDialog);
-                    mLoadDialog.show();
+
                     if (mEventsVp.getCurrentItem() == 0) {
-                        mEventsOfLockFragment.doDelete(mDeviceUser.getUserId());
+                        if (mEventsOfLockFragment.doDelete(mDeviceUser.getUserId())) {
+                            mLoadDialog.show();
+                        }
                     } else if (mEventsVp.getCurrentItem() == 1) {
-                        mEventsOfUserFragment.doDelete(mDeviceUser.getUserId());
+                        if (mEventsOfUserFragment.doDelete(mDeviceUser.getUserId())) {
+                            mLoadDialog.show();
+                        }
                     }
                 } else {
                     showMessage(getString(R.string.disconnect_ble));

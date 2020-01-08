@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +34,7 @@ import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LogUtil;
+import com.smart.lock.utils.SharedPreferenceUtil;
 import com.smart.lock.utils.StringUtil;
 import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
@@ -492,16 +495,16 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 case R.id.next_ota_update:     //固件更新
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                             && ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                        if (!SystemUtils.isNetworkAvailable(this)) {
+//                        if (!SystemUtils.isNetworkAvailable(this)) {
+//                            ToastUtil.show(this, getString(R.string.plz_open_wifi), Toast.LENGTH_LONG);
+//                            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+//                            return;
+//                        }
+                        if ( !checkedNetwork()){
                             ToastUtil.show(this, getString(R.string.plz_open_wifi), Toast.LENGTH_LONG);
-                            startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
                             return;
                         }
 
-//                        if (mDevice.getBattery() <= 35 && !SharedPreferenceUtil.getInstance(this).readBoolean(ConstantUtil.IS_DMT_TEST)) {
-//                            ToastUtil.show(this, getString(R.string.battery_low), Toast.LENGTH_LONG);
-//                            return;
-//                        }
                         if (mDefaultDevice != null && mDevice.getState() == Device.BLE_CONNECTED) {
                             Intent intent = new Intent(this, CheckOtaActivity.class);
                             startActivity(intent);
@@ -521,6 +524,21 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
             setStatus();
         }
     }
+    /**
+     * 检查网络是否连接
+     * @return Bool
+     */
+    private boolean checkedNetwork() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo mobNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        NetworkInfo wifiNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        if (!mobNetworkInfo.isConnected() && !wifiNetworkInfo.isConnected()) {
+            return false;
+        }
+        return true;
+    }
+
 
     private void doClick(int value) {
         long curClickTime = System.currentTimeMillis();
@@ -575,6 +593,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                         }
                         break;
                     case R.string.auto_close:    //自动关门
+                        LogUtil.d(TAG,"autoClose"+ mDeviceStatus.isAutoCloseEnable());
                         if (mDeviceStatus.isAutoCloseEnable()) {
                             mBleManagerHelper.getBleCardService().sendCmd19(BleMsg.TYPE_AUTO_OPEN_DOOR_CLOSE);
                         } else {
@@ -609,6 +628,15 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 setStatus();
             }
             lastClickTime = curClickTime;
+        }else {
+            mIntelligentLockTs.setChecked(mDeviceStatus.isIntelligentLockCore());
+            mAntiPrizingAlarmTs.setChecked(mDeviceStatus.isAntiPrizingAlarm());
+            mCombinationLockTs.setChecked(mDeviceStatus.isCombinationLock());
+            mNormallyOpenTs.setChecked(mDeviceStatus.isNormallyOpen());
+            mVoicePromptTs.setChecked(mDeviceStatus.isVoicePrompt());
+            mBroadcastNormallyOpenTs.setChecked(mDeviceStatus.isBroadcastNormallyOpen());
+            mInfraredEnableTs.setChecked(mDeviceStatus.isInfraredEnable());
+            mAutoCloseEnableTs.setChecked(mDeviceStatus.isAutoCloseEnable());
         }
 
     }
@@ -1076,9 +1104,17 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                 mAutoCloseEnableTs.setChecked(true);
                 mDeviceStatus.setAutoCloseEnable(true);
                 mAutoCloseTimeBs.setVisibility(View.VISIBLE);
+                mAutoCloseTimeBs.setBtnDes(mDeviceStatus.getRolledBackTime()+LockSettingActivity.this.getResources().getString(R.string.s));
                 break;
             case BleMsg.TYPE_AUTO_CLOSE_ENABLE_FAILED:
             case BleMsg.TYPE_AUTO_CLOSE_UNABLE_FAILED:
+                mAutoCloseEnableTs.setChecked(mDeviceStatus.isAutoCloseEnable());
+                if (mDeviceStatus.isAutoCloseEnable()) {
+                    mAutoCloseTimeBs.setVisibility(View.VISIBLE);
+                    mAutoCloseTimeBs.setBtnDes(mDeviceStatus.getRolledBackTime()+LockSettingActivity.this.getResources().getString(R.string.s));
+                } else {
+                    mAutoCloseTimeBs.setVisibility(View.GONE);
+                }
                 showMessage(getString(R.string.auto_close_setting_failed));
                 break;
             case BleMsg.TYPE_AUTO_CLOSE_UNABLE_SUCCESS:

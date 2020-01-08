@@ -67,7 +67,7 @@ public class EventsOfUserFragment extends BaseFragment {
         mEventsOfUserAdapter.notifyDataSetChanged();
     }
 
-    public void doDelete(short userId) {
+    public boolean doDelete(short userId) {
         if (mEventsOfUserAdapter.mDeleteLogs.size() != 0) {
 //            if (mEventsOfUserAdapter.mAllDelete) {
 //                mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_ALL_USER_LOGS, userId, 0, BleMsg.INT_DEFAULT_TIMEOUT);
@@ -77,11 +77,10 @@ public class EventsOfUserFragment extends BaseFragment {
                 mBleManagerHelper.getBleCardService().sendCmd33(BleMsg.TYPE_DELETE_SINGLE_USER_LOG, userId, logId, devLog, BleMsg.INT_DEFAULT_TIMEOUT);
             }
 //            }
-            mEventsOfUserAdapter.mDeleteLogs.clear();
-            mEventsOfUserAdapter.chooseItemDelete(true);
-            mEventsOfUserAdapter.notifyDataSetChanged();
+            return true;
         } else {
             showMessage(getString(R.string.plz_choise_del_log));
+            return false;
         }
     }
 

@@ -288,7 +288,7 @@
     <string name="check_app_version">Check For Update</string>
     <string name="after_down">Background download</string>
     <string name="checking_version">Checking for update</string>
-    <string name="plz_open_wifi">Open wifi, please</string>
+    <string name="plz_open_wifi">Please connect to the network</string>
     <string name="please_input_pwd_first">Enter your new password</string>
     <string name="please_input_old_pwd">Enter your old password</string>
     <string name="setting_password_for_security">To ensure security, please set a password</string>
@@ -430,7 +430,7 @@
     <string name="password_is_required">The number of fingerprint verification reaches the upper limit</string>
     <string name="data_loading">Please wait</string>
     <string name="delete_fp_success">Delete fingerprint successfully</string>
-    <string name="battery_low">The battery of lock is too low. Please replace.</string>
+    <string name="battery_low">Low battery\nLow battery may cause upgrade to fail</string>
     <string name="set_date_error">The start date cannot be greater than or equal to the end date</string>
     <string name="note_name_error">Alias cannot be empty</string>
     <string name="time_period_repeat">Time period repeat, please check</string>

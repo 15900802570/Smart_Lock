@@ -318,7 +318,7 @@
     <string name="check_app_version">检查更新</string>
     <string name="after_down">后台下载 </string>
     <string name="checking_version">检查版本中 </string>
-    <string name="plz_open_wifi">请打开WIFI </string>
+    <string name="plz_open_wifi">请连接网络</string>
     <string name="please_input_pwd_first">请输入新密码</string>
     <string name="please_input_old_pwd">请输入旧密码</string>
     <string name="setting_password_for_security">为确保安全，请设置密码</string>
@@ -435,7 +435,7 @@
     <string name="plz_enter_pwd_or_touch_id">指纹或输入密码</string>
     <string name="password_is_required">指纹验证次数达到上限</string>
 
-    <string name="battery_low">电量低,请更换电池后升级</string>
+    <string name="battery_low">电量低\n 电量过低可能导致升级失败</string>
     <string name="set_date_error">起始日期不能大于或等于结束日期</string>
     <string name="time_period_repeat">时间段重复，请检查!</string>
     <string name="note_name_error">备注名不能为空</string>

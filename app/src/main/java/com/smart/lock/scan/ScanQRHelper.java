@@ -208,7 +208,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         }
     }
 
-    private void disconnect(){
+    private void disconnect() {
         mBleManagerHelper = BleManagerHelper.getInstance(mActivity);
         mDevice = Device.getInstance(mActivity);
         switch (mDevice.getState()) { //断开已连接的蓝牙
@@ -412,7 +412,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     /**
      * 创建设备
      */
-    private DeviceInfo createDevice() {
+    private DeviceInfo createDevice(Message msg) {
 
         LogUtil.d(TAG, "New Device2 : " + '\n' +
                 "UserId = " + mUserId + '\n' +
@@ -447,6 +447,47 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
 
         mNewDevice.setDeviceSecret(mRandCode);
         DeviceInfoDao.getInstance(mActivity).insert(mNewDevice);
+
+        Bundle bundle = msg.getData();
+
+        if (bundle == null)
+            return null;
+        LogUtil.d(TAG, "bundle : " + bundle.toString());
+        LogUtil.i(TAG, "check lock info!");
+        int enableStatus = bundle.getByte(BleMsg.KEY_ENABLE_STATUS, (byte) 0);
+        byte[] tempSecret = bundle.getByteArray(BleMsg.KEY_TMP_PWD_SK);
+
+        if (mNewDevice != null) {
+            mNewDevice.setTempSecret(StringUtil.bytesToHexString(tempSecret)); //设置临时秘钥
+            if ((enableStatus & 1) == 1) {  //NFC
+                mNewDevice.setUnableNfc(true);
+            } else {
+                mNewDevice.setUnableNfc(false);
+            }
+            if ((enableStatus & 2) == 2) { //是否支持人脸识别
+                mNewDevice.setEnableFace(true);
+            } else {
+                mNewDevice.setEnableFace(false);
+            }
+            if ((enableStatus & 4) == 4) { //是否支持红外
+                mNewDevice.setEnableInfrared(true);
+            } else {
+                mNewDevice.setEnableInfrared(false);
+            }
+            if ((enableStatus & 8) == 8) { //是否支持可变密码
+                mNewDevice.setEnableVariablePwd(true);
+                LogUtil.d(TAG, "支持可变密码");
+            } else {
+                LogUtil.d(TAG, "不支持可变密码");
+                mNewDevice.setEnableVariablePwd(false);
+            }
+            if ((enableStatus & 16) == 16) { //是否支持全自动锁
+                mNewDevice.setEnableAutoLock(true);
+            } else {
+                mNewDevice.setEnableAutoLock(false);
+            }
+            DeviceInfoDao.getInstance(mActivity).updateDeviceInfo(mNewDevice); //数据库更新锁信息
+        }
         return mNewDevice;
     }
 
@@ -488,6 +529,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
     @Override
     public void dispatchUiCallback(Message msg, Device device, int type) {
         mDevice = device;
+        LogUtil.e(TAG, "RECEIVE_MSG =" + msg);
         if (mDevice != null && type == BleMsg.USER_PAUSE) {
             DialogUtils.closeDialog(mLoadDialog);
             return;
@@ -516,9 +558,9 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
                     LogUtil.d(TAG, "deviceInfo = " + deviceInfo + '\n' +
                             "mNodeId = " + mNodeId);
                     if (deviceInfo == null) {
-                        onAuthenticationSuccess(createDevice());
+                        onAuthenticationSuccess(createDevice(msg));
                     }
-                }else {
+                } else {
                     onAuthenticationSuccess(Device.getInstance(mActivity).getDevInfo());
                 }
 
@@ -543,7 +585,7 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         int exception = msg.getException();
 
         LogUtil.e(TAG, "msg exception : " + msg.toString());
-        if (exception == Message.EXCEPTION_TIMEOUT){
+        if (exception == Message.EXCEPTION_TIMEOUT) {
             return;
         }
         onAuthenticationFailed((byte) 0);
