@@ -213,11 +213,6 @@ public class ScanQRHelper implements UiListener, PermissionInterface {
         mDevice = Device.getInstance(mActivity);
         switch (mDevice.getState()) { //断开已连接的蓝牙
             case Device.BLE_CONNECTED:
-                if (mBleManagerHelper.getBleCardService() != null) {
-                    mDevice.setDisconnectBle(true);
-                    mBleManagerHelper.getBleCardService().disconnect();
-                }
-                break;
             case Device.BLE_CONNECTION:
                 if (mBleManagerHelper.getBleCardService() != null) {
                     mDevice.setDisconnectBle(true);

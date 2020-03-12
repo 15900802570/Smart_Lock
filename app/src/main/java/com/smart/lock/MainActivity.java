@@ -30,6 +30,7 @@ import com.smart.lock.ui.fragment.BaseFragment;
 import com.smart.lock.ui.fragment.HomeFragment;
 import com.smart.lock.ui.fragment.MeFragment;
 import com.smart.lock.ui.fragment.ServerPagerFragment;
+import com.smart.lock.ui.setting.DeviceManagementActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.utils.LanguageType;
@@ -147,6 +148,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (Device.getInstance(this).getState() == Device.BLE_CONNECTED) {
+            mBleManagerHelper.getBleCardService().disconnect();
+        }
         BleManagerHelper.getInstance(this).stopService();
     }
 

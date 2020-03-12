@@ -10,6 +10,7 @@ import android.util.ArrayMap;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleCardService;
 import com.smart.lock.ble.BleManagerHelper;
+import com.smart.lock.ble.BleMsg;
 import com.smart.lock.ble.listener.DeviceStateCallback;
 
 public class SendOTAData implements DeviceStateCallback, Handler.Callback {
@@ -119,13 +120,13 @@ public class SendOTAData implements DeviceStateCallback, Handler.Callback {
 //                if (!ret) {
 //                    send(count);
 //                }
-
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (this.cmd[0] != BleMsg.CMD_OTA_DATA_43) {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-
                 send(index++);
                 break;
         }

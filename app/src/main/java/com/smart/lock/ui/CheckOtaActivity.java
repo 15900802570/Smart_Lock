@@ -558,6 +558,12 @@ public class CheckOtaActivity extends AppCompatActivity implements View.OnClickL
                         }
                     });
                 }
+                else {
+                    viewHolder.mSwVersion.setText(mContext.getString(R.string.ready_new_version));
+                    viewHolder.mNextIconIv.setVisibility(View.GONE);
+                    viewHolder.mSwVersion.setTextColor(getResources().getColor(R.color.black));
+                    viewHolder.mSwipeLayout.setClickable(false);
+                }
             }
         }
 

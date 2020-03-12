@@ -496,4 +496,5 @@
     <string name="auto_close_time">Automatic closing time</string>
     <string name="s_15">15s</string>
     <string name="s_30">30s</string>
+    <string name="no_updated_file">No updateable files</string>
 </resources>

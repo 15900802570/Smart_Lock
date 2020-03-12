@@ -291,7 +291,7 @@
     <string name="downloading">正在下载</string>
     <string name="start_update">开始更新</string>
     <string name="new_dev_version">有新的版本可以更新</string>
-    <string name="ready_new_version">已经是最新的版本</string>
+    <string name="ready_new_version">已经是最新版本</string>
     <string name="check_sd_has_new_version">检查到已有最新版本</string>
     <string name="ready_download">下载准备 </string>
     <string name="device_nodeid">设备编号:</string>
@@ -510,5 +510,6 @@
     <string name="auto_close_time">自动关门时间</string>
     <string name="s_15">15秒</string>
     <string name="s_30">30秒</string>
+    <string name="no_updated_file">没有可更新文件</string>
 
 </resources>

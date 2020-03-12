@@ -642,7 +642,8 @@ public class LockDetectingActivity extends BaseActivity implements View.OnClickL
     @Override
     public void sendFailed(Message msg) {
         int exception = msg.getException();
-
+        if (mDevice == null)
+            mDevice = Device.getInstance(LockDetectingActivity.this);
         if (mBleManagerHelper.getBleCardService() != null && mDevice.getState() != Device.BLE_DISCONNECTED) {
             mDevice.setState(Device.BLE_DISCONNECTED);
             mBleManagerHelper.getBleCardService().disconnect();

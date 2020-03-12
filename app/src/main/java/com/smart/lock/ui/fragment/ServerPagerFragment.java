@@ -410,6 +410,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
     public void onDestroy() {
         super.onDestroy();
         mBleManagerHelper.removeUiListener(this);
+        mBleManagerHelper.getBleCardService().disconnect();
     }
 
     @Override
@@ -463,7 +464,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                     break;
                 case R.id.one_click_unlock_ib:
                     if (mDevice != null && mDevice.getState() == Device.BLE_CONNECTED)
-                        if (!mIsLockBack) {
+                        if (!mIsLockBack || mDefaultDevice.isEnableFace()) {
 //                        mInstructionBtn.setEnabled(false);
                             if (mNodeId.getBytes().length == 15)
                                 mNodeId = "0" + mNodeId;
@@ -620,7 +621,7 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
                 break;
             // 鉴权码失败和用户不存在均视为用户已被删除
             case BleMsg.TYPE_AUTH_CODE_ERROR:
-                break;
+//                break;
             case BleMsg.TYPE_USER_NOT_EXIST:
 
                 userHadBeenDelete();

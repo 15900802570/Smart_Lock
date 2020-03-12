@@ -215,6 +215,14 @@
                     android:layout_marginRight="@dimen/frame_inner_margin"
                     android:gravity="center"
                     android:textColor="@color/black" />
+                <TextView
+                    android:id="@+id/update_num"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginLeft="@dimen/frame_inner_margin"
+                    android:layout_marginRight="@dimen/frame_inner_margin"
+                    android:textColor="@color/black" />
 
                 <ProgressBar
                     android:id="@+id/progress_bar"

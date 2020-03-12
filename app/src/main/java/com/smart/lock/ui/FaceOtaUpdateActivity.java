@@ -113,6 +113,8 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
 
     private TextView mLatestVersion;
 
+    private TextView mUpdateNum;
+
     /**
      * 升级状态
      */
@@ -151,6 +153,8 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
      * 文件一共的大小
      */
     int fileSize = 0;
+    int fileTotalNum = 1;
+    int setNum = 0;
 
     /**
      * 已经下载的大小
@@ -162,6 +166,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
     public static final int DOWNLOAD_OK = 2;
     public static final int DOWNLOAD_ERROR = 3;
     public static final int NOT_NETWORK = 4;
+    public static final int SET_FILE_NUM = 5;
 
     /**
      * 下载成功标志
@@ -247,6 +252,10 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                     showMessage(getString(R.string.net_error));
                     isSuccess = false;
                     break;
+                case SET_FILE_NUM:
+                    setUpdateFileNum(setNum);
+                    break;
+
             }
             super.handleMessage(msg);
         }
@@ -275,6 +284,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
         mUpdateMsg = findViewById(R.id.update_content);
         mCurrentVersion = findViewById(R.id.tv_current_version);
         mLatestVersion = findViewById(R.id.tv_latest_version);
+        mUpdateNum = findViewById(R.id.update_num);
     }
 
     private void initEvent() {
@@ -299,7 +309,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
         }
 
         if (mVersionModel == null) {
-            showMessage("没有可更新的文件");
+            showMessage(getString(R.string.no_updated_file));
             finish();
         } else {
             mNCPUFileName = mVersionModel.nCpuFilename;
@@ -313,14 +323,25 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
             }
             mUpdateMsg.setText(mVersionModel.msg);
 
+            if (mVersionModel.sCpuPath != null && mVersionModel.nCpuPath != null) {
+                fileTotalNum = 2;
+                setUpdateFileNum(0);
+            } else {
+                mUpdateNum.setVisibility(View.GONE);
+            }
 
             String[] curVerArray = mDefaultDev.getFaceMainVersion().split("_");
-            String[] devVerVerArray = mDefaultDev.getFaceMainVersion().split("_");
+            String[] devVerVerArray = mVersionModel.mainVersion.split("_");
 
-            LogUtil.d(TAG, "curVer =" + mDefaultDev.getFaceMainVersion() + '\n' + "dev=" + mDefaultDev.getFaceMainVersion());
+            LogUtil.d(TAG, "curVer =" + mDefaultDev.getFaceMainVersion() + '\n' + "dev=" + mVersionModel.mainVersion);
 
             String surVer = curVerArray[1].trim();
-            String devVer = devVerVerArray[1].trim();
+            String devVer;
+            if (devVerVerArray.length >= 2) {
+                devVer = devVerVerArray[1].trim();
+            } else {
+                devVer = devVerVerArray[0].trim();
+            }
 
             LogUtil.d(TAG, "surVer " + surVer + " devVer : " + devVer);
 
@@ -360,11 +381,11 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
     private void getPath() {
         try {
             String dir = FileUtil.createDir(this, ConstantUtil.DEV_DIR_NAME) + File.separator;
-            mNCPUPath = dir + mNCPUFileName;
-            mSCPUPath = dir + mSCPUFileName;
+            mNCPUPath = mNCPUFileName == null ? null : dir + mNCPUFileName;
+            mSCPUPath = mSCPUFileName == null ? null : dir + mSCPUFileName;
 
-            tempSCpuPath = mSCPUPath + ".temp";
-            tempNCpuPath = mNCPUPath + ".temp";
+            tempSCpuPath = mSCPUPath == null ? null : mSCPUPath + ".temp";
+            tempNCpuPath = mNCPUPath == null ? null : mNCPUPath + ".temp";
             FileUtil.clearFiles(dir);
         } catch (Exception e) {
             e.printStackTrace();
@@ -389,9 +410,15 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
     }
 
     public void toDownload(boolean mastDownload) {
-        File file = new File(mSCPUPath);
-        File file1 = new File(mNCPUPath);
-        if (file.exists() || file1.exists()) {
+        File file;
+        if (mSCPUPath != null || mNCPUPath != null) {
+            file = mSCPUPath == null ? new File(mNCPUPath) : new File(mSCPUPath);
+        } else {
+            showMessage(getString(R.string.no_updated_file));
+            finish();
+            return;
+        }
+        if (file.exists()) {
             downloadSize = 0;
             fileSize = 0;
             mStartBt.setText(R.string.start_update);
@@ -422,6 +449,22 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                 mStartBt.setVisibility(View.VISIBLE);
                 mStartBt.setEnabled(true);
                 mPb.setProgress(0);
+            }
+        }
+    }
+
+    private void setUpdateFileNum(int num) {
+        if (fileTotalNum == 2) {
+            switch (num) {
+                case 0:
+                    mUpdateNum.setText("0/2");
+                    break;
+                case 1:
+                    mUpdateNum.setText("1/2");
+                    break;
+                case 2:
+                    mUpdateNum.setText("2/2");
+                    break;
             }
         }
     }
@@ -457,7 +500,8 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
 
                     } else if (url.equals(mNCPUDownloadUrl)) {
                         downFile = new File(tempNCpuPath);
-
+                        setNum = 1;
+                        sendMessage(SET_FILE_NUM);
                     } else {
                         break;
                     }
@@ -487,6 +531,8 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                 }
             }
         }
+        setNum = 2;
+        sendMessage(SET_FILE_NUM);
         if (isSuccess) {
             copyFile();
             sendMessage(DOWNLOAD_OK);
@@ -600,7 +646,7 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                 // update ready status
                 mDfuReady |= status;
 
-            if (FileUtil.fileExists(mSCPUPath) || FileUtil.fileExists(mSCPUPath)) {
+            if (FileUtil.fileExists(mSCPUPath) || FileUtil.fileExists(mNCPUPath)) {
                 mDfuReady |= Device.DFU_FW_LOADED;
             } else {
                 mDfuReady &= ~Device.DFU_FW_LOADED;
@@ -629,10 +675,10 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
     private void setDataSize(int model) {
         // write start command - 0 to 1580 command handle;
 
-        if (model == BleMsg.TYPE_FACE_OTA_SCPU) {
+        if (model == BleMsg.TYPE_FACE_OTA_SCPU && mSCPUPath != null) {
             gCmdBytes = FileUtil.loadFirmware(mSCPUPath);
             mSha1 = StringUtil.hexStringToBytes(mVersionModel.sCpuSHA1);
-        } else if (model == BleMsg.TYPE_FACE_OTA_NCPU) {
+        } else if (model == BleMsg.TYPE_FACE_OTA_NCPU && mNCPUPath != null) {
             gCmdBytes = FileUtil.loadFirmware(mNCPUPath);
             mSha1 = StringUtil.hexStringToBytes(mVersionModel.nCpuSHA1);
         }
@@ -885,6 +931,8 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                     mConnStatus.setText(R.string.new_dev_version);
                     mTvProgress.setText("0" + "%");
                     mStartBt.setEnabled(true);
+                    setNum = 1;
+                    sendMessage(SET_FILE_NUM);
                 }
                 break;
             case Message.TYPE_BLE_RECEIVER_CMD_42:
@@ -958,9 +1006,13 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                     case BleMsg.RSP_FACE_OTA_GET_SIZE://0x06
                         prepareDFU(BleMsg.TYPE_FACE_OTA_SCPU);
                         mStartBt.setEnabled(false);
+                        setNum = 1;
+                        sendMessage(SET_FILE_NUM);
                         break;
                     case BleMsg.RSP_FACE_OTA_ALLOW://0x04
                         sendSize(BleMsg.TYPE_FACE_OTA_SCPU);
+                        setNum = 0;
+                        sendMessage(SET_FILE_NUM);
                         break;
                     case BleMsg.RSP_FACE_OTA_FILE_DONE://0x07
                         LogUtil.d(TAG, "发送SCPU完成");
@@ -968,6 +1020,8 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
                             LogUtil.d(TAG, "发送NCPU大小");
                             mOtaMode = true;
                             sendSize(BleMsg.TYPE_FACE_OTA_NCPU);
+                            setNum = 2;
+                            sendMessage(SET_FILE_NUM);
                         } else {
                             LogUtil.d(TAG, "更新结束");
                             mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_FACE_OTA_DONE,
@@ -991,13 +1045,13 @@ public class FaceOtaUpdateActivity extends Activity implements View.OnClickListe
             setDataSize(model);
             LogUtil.e(TAG, "传输大小");
             if (mDevice.getState() == Device.BLE_CONNECTED && mBleManagerHelper.getBleCardService() != null) {
-                if (model == BleMsg.TYPE_FACE_OTA_SCPU) {
+                if (model == BleMsg.TYPE_FACE_OTA_SCPU && gCmdBytes != null) {
                     mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_FACE_FIRMWARE_SIZE,
                             BleMsg.TYPE_FACE_SCPU_OTA,
                             (gCmdBytes.length),
                             BleMsg.INT_DEFAULT_TIMEOUT);
 
-                } else if (model == BleMsg.TYPE_FACE_OTA_NCPU) {
+                } else if (model == BleMsg.TYPE_FACE_OTA_NCPU && gCmdBytes != null) {
                     mBleManagerHelper.getBleCardService().sendCmd41(BleMsg.CMD_FACE_FIRMWARE_SIZE,
                             BleMsg.TYPE_FACE_NCPU_OTA,
                             (gCmdBytes.length),
