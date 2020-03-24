@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.action.AbstractTransaction;
 import com.smart.lock.action.CheckOtaAction;
@@ -44,7 +45,7 @@ import com.smart.lock.widget.SpacesItemDecoration;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class CheckOtaActivity extends AppCompatActivity implements View.OnClickListener, UiListener {
+public class CheckOtaActivity extends MainBaseActivity implements View.OnClickListener, UiListener {
     private static final String TAG = CheckOtaActivity.class.getSimpleName();
     /**
      * 返回控件

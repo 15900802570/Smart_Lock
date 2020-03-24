@@ -1042,6 +1042,7 @@ public class LockSettingActivity extends AppCompatActivity implements UiListener
                             R.string.restore_the_factory_settings_success,
                             Toast.LENGTH_SHORT);
                     mBleManagerHelper.getBleCardService().disconnect();
+                    mHandler.removeMessages(RESET_TIMEOUT);
                     finish();
                 } else {
                     finish();

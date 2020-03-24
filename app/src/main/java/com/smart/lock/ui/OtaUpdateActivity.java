@@ -20,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.action.AbstractTransaction;
 import com.smart.lock.action.CheckOtaAction;
@@ -58,7 +59,7 @@ import java.net.URLConnection;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Arrays;
 
-public class OtaUpdateActivity extends Activity implements View.OnClickListener, UiListener, DeviceStateCallback, Handler.Callback {
+public class OtaUpdateActivity extends MainBaseActivity implements View.OnClickListener, UiListener, DeviceStateCallback, Handler.Callback {
 
     private static final String TAG = OtaUpdateActivity.class.getSimpleName();
     /**

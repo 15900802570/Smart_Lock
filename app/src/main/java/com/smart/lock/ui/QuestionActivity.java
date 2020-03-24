@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.entity.ProblemModel;
@@ -23,7 +24,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QuestionActivity extends AppCompatActivity implements View.OnClickListener {
+public class QuestionActivity extends MainBaseActivity implements View.OnClickListener {
     private ImageView mBack;
     private ProblemModel mProblemModel; //问题实例
     private TextView mQuestionTv; //问题

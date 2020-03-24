@@ -840,7 +840,11 @@ public class ServerPagerFragment extends BaseFragment implements View.OnClickLis
      */
     private void closeDialog(int seconds) {
         mHandler.removeCallbacks(mRunnable);
-        mHandler.postDelayed(mRunnable, seconds * 1000);
+        if (seconds !=0) {
+            mHandler.postDelayed(mRunnable, seconds * 1000);
+        }else {
+            mHandler.postDelayed(mRunnable, 5 * 1000);
+        }
     }
 
     private Runnable mRunnable = new Runnable() {

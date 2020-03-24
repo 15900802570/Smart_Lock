@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -34,7 +35,7 @@ import com.smart.lock.widget.NoScrollViewPager;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class DeviceKeyActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
+public class DeviceKeyActivity extends MainBaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener {
     private final static String TAG = DeviceKeyActivity.class.getSimpleName();
 
     private TabLayout mUserPermissionTl;

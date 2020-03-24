@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -23,7 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-public class LpcdTestActivity extends AppCompatActivity implements View.OnClickListener, UiListener {
+public class LpcdTestActivity extends MainBaseActivity implements View.OnClickListener, UiListener {
 
     private TextView mContent;
     private Button mQueryBtn, mCancelBtn;

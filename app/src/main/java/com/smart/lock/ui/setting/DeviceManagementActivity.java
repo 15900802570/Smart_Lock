@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.db.bean.DeviceInfo;
@@ -41,7 +42,7 @@ import com.smart.lock.utils.ToastUtil;
 import java.util.ArrayList;
 
 
-public class DeviceManagementActivity extends AppCompatActivity implements ScanQRResultInterface, View.OnClickListener {
+public class DeviceManagementActivity extends MainBaseActivity implements ScanQRResultInterface, View.OnClickListener {
 
     private static String TAG = "DeviceManagementActivity";
 

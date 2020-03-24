@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -26,7 +27,7 @@ import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.utils.DialogUtils;
 import com.smart.lock.widget.SpacesItemDecoration;
 
-public class BaseListViewActivity extends AppCompatActivity implements View.OnClickListener {
+public class BaseListViewActivity extends MainBaseActivity implements View.OnClickListener {
     protected RecyclerView mListView;
     protected TextView mTitle;
     protected ImageView mBack;

@@ -129,6 +129,11 @@ public class BleProvider {
     protected SendThread sendThread;
 
     /**
+     * 发送指令
+     */
+    protected Send128Thread send128Thread;
+
+    /**
      * 缓存广播收到的指令，异步处理,上行数据
      */
     protected ArrayBlockingQueue<byte[]> bleCommandQueue;
@@ -225,6 +230,9 @@ public class BleProvider {
         // 初始化发送线程
         sendThread = new SendThread(TAG + "--SendThread");
 
+        // 初始化发送线程
+        send128Thread = new Send128Thread(TAG + "--Send128Thread");
+
         this.debug = debug;
 
         mBleGatt = bleGatt;
@@ -245,6 +253,8 @@ public class BleProvider {
             receiverThread.start();
         if (sendThread != null)
             sendThread.start();
+        if (send128Thread != null)
+            send128Thread.start();
     }
 
     /**
@@ -425,6 +435,138 @@ public class BleProvider {
 
                                 if (sendPacket(mRspBuf)) {
                                     Arrays.fill(mRspBuf, 0, 20, (byte) 0);
+                                } else {
+                                    Log.i(TAG, "send : " + cmd + " failure");
+                                    // 设置发送失败状态
+                                    msg.setException(Message.EXCEPTION_SEND_FAIL);
+                                    // 分发命令
+                                    dispatchMessage(msg, transaction);
+                                }
+                            }
+
+                        } else {
+                            if (!sendPacket(cmd))
+                                Log.i(TAG, "send : " + cmd + " failure");
+                            // 设置发送失败状态
+                            msg.setException(Message.EXCEPTION_SEND_FAIL);
+                            // 分发命令
+                            dispatchMessage(msg, transaction);
+
+                        }
+
+                        if (msg.isForceReturnStatus()) {
+                            // 分发命令
+                            dispatchMessage(msg, transaction);
+                        }
+
+                        // 如果是事务ble下发，启动ble事务
+                        if (transaction != null) {
+                            Log.i(TAG, "Transaction start : " + transaction.getListenerKey());
+                            addBleMsgListener(transaction);
+                            transaction.startWatch();
+                        } else {
+                            // 消息回收
+                            msg.recycle();
+                        }
+                    }
+                } else {
+                    Log.w(TAG, "send ble cmd is empty");
+                    msg.recycle();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+                msg.recycle();
+            }
+        }
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param msg         消息
+     * @param transaction 消息事务
+     * @see ClientTransaction
+     * @see Message
+     * @see BleCommand
+     */
+    private void send128Message(Message msg, ClientTransaction transaction) {
+        int flag = onceSendMessageMap.get(msg.getType());
+
+        switch (flag) {
+            case FLAG_TRUE:
+            case FLAG_FALSE:
+                onceSendMessageMap.put(msg.getType(), FLAG_FALSE);
+                break;
+            default:
+                break;
+        }
+
+        if (debug) {
+            LogUtil.d(TAG, "send msg : " + msg.toString());
+        }
+
+        // 获取创建器
+        BleCreator creator = bleCreatorMap.get(msg.getType(), null);
+
+        if (creator == null) {
+            msg.recycle();
+        } else {
+            try {
+                byte[] cmd = creator.create(msg);
+
+                byte[] mRspBuf = new byte[128];
+
+                int mRspRead = 0;
+                int bufLen = 0;
+
+                if (cmd != null) {
+
+                    if (msg.isOta()) {
+                        // 调用异步接口发送指令
+                        if (cmd.length > 128) {
+
+                            bufLen = cmd.length / 128;
+
+                            if (cmd.length % 128 != 0)
+                                bufLen++;
+
+                            for (int len = 0; len < bufLen; len++) {
+                                mRspRead = len * 128;
+                                for (int i = 0; i < 128; i++) {
+                                    if ((mRspRead + i) >= cmd.length) {
+                                        break;
+                                    }
+                                    mRspBuf[i] = cmd[mRspRead + i];
+                                }
+
+                                if (sendOta(mRspBuf, msg.getType())) {
+                                    Arrays.fill(mRspBuf, 0, 128, (byte) 0);
+                                }
+                            }
+                        } else {
+                            sendOta(cmd, msg.getType());
+                        }
+                        msg.recycle();
+                    } else {
+                        // 调用异步接口发送Ble指令
+                        if (cmd.length > 128) {
+
+                            bufLen = cmd.length / 128;
+
+                            if (cmd.length % 128 != 0)
+                                bufLen++;
+
+                            for (int len = 0; len < bufLen; len++) {
+                                mRspRead = len * 128;
+                                for (int i = 0; i < 128; i++) {
+                                    if ((mRspRead + i) >= cmd.length) {
+                                        break;
+                                    }
+                                    mRspBuf[i] = cmd[mRspRead + i];
+                                }
+
+                                if (sendPacket(mRspBuf)) {
+                                    Arrays.fill(mRspBuf, 0, 128, (byte) 0);
                                 } else {
                                     Log.i(TAG, "send : " + cmd + " failure");
                                     // 设置发送失败状态
@@ -710,6 +852,45 @@ public class BleProvider {
     }
 
     /**
+     * 调用接口，发送ble指令
+     */
+    class Send128Thread extends Thread {
+
+        public Send128Thread(String threadName) {
+            super(threadName);
+        }
+
+        @Override
+        public void run() {
+            // 初始化Provider
+            init();
+
+            while (sendThread == Thread.currentThread()) {
+                try {
+                    if (!mCheckTimeOut && !messageQueue.isEmpty()) {
+                        Object obj = messageQueue.take();
+                        if (obj instanceof Message) {
+                            // 直接发送消息
+                            Message msg = (Message) obj;
+                            send128Message(msg, null);
+                        } else if (obj instanceof ClientTransaction) {
+                            // 直接发送消息
+                            ClientTransaction transaction = (ClientTransaction) obj;
+                            send128Message(transaction.getMessage(), transaction);
+                        } else {
+                            // 未知类型消息
+                            Log.w(TAG, "Unknow obj class : "
+                                    + (obj == null ? obj : obj.getClass().getName()));
+                        }
+                    }
+                } catch (InterruptedException e) {
+
+                }
+            }
+        }
+    }
+
+    /**
      * 处理android广播接收到指令后，放到队列处的指令，进行二次处理分发
      */
     class ReceiverThread extends Thread {
@@ -750,6 +931,11 @@ public class BleProvider {
 
         t = sendThread;
         sendThread = null;
+        if (t != null)
+            t.interrupt();
+
+        t = send128Thread;
+        send128Thread = null;
         if (t != null)
             t.interrupt();
 

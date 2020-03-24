@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
@@ -52,7 +53,7 @@ import static com.smart.lock.ble.message.MessageCreator.mIs128Code;
 import static com.smart.lock.ble.message.MessageCreator.mIsOnceForTempPwd;
 import static com.smart.lock.utils.ConstantUtil.NUMBER_100;
 
-public class TempPwdActivity extends AppCompatActivity implements View.OnClickListener, CreateTmpPwdDialog.OnCreateTmpPwdListener {
+public class TempPwdActivity extends MainBaseActivity implements View.OnClickListener, CreateTmpPwdDialog.OnCreateTmpPwdListener {
 
     private static String TAG = "TempPwdActivity";
 

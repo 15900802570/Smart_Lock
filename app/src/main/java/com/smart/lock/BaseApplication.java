@@ -6,21 +6,11 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 
 import com.smart.lock.ble.BleManagerHelper;
-import com.smart.lock.ble.BleMsg;
-import com.smart.lock.ble.message.MessageCreator;
-import com.smart.lock.db.bean.DeviceInfo;
-import com.smart.lock.db.dao.DeviceInfoDao;
 import com.smart.lock.entity.Device;
-import com.smart.lock.utils.ConstantUtil;
-import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
-import com.smart.lock.utils.SharedPreferenceUtil;
 
 import java.util.List;
 import java.util.Timer;

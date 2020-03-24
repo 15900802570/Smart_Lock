@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -25,7 +26,7 @@ import com.smart.lock.utils.ToastUtil;
 import java.util.Arrays;
 
 @SuppressLint("Registered")
-public class SelfCheckActivity extends AppCompatActivity implements View.OnClickListener, UiListener {
+public class SelfCheckActivity extends MainBaseActivity implements View.OnClickListener, UiListener {
 
 
     private String TAG = "SelfCheckActivity";

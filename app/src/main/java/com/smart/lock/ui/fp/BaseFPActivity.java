@@ -11,6 +11,7 @@ import android.security.keystore.KeyProperties;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.utils.LogUtil;
 
@@ -20,7 +21,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-public abstract class BaseFPActivity extends AppCompatActivity {
+public abstract class BaseFPActivity extends MainBaseActivity {
 
     public static String TGA = "BaseFPActivity";
     protected int mIsFP = 0; //是否支持指纹，0 1 不支持 2 3 未设置 4 支持

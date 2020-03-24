@@ -9,9 +9,10 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 
-public class AboutUsActivity extends AppCompatActivity implements View.OnClickListener {
+public class AboutUsActivity extends MainBaseActivity implements View.OnClickListener {
     private TextView mVersionTv;
     private ImageView mBack;
 

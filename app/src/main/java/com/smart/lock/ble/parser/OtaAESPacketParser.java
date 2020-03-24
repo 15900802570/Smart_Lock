@@ -70,6 +70,15 @@ public class OtaAESPacketParser implements BleCommandParse {
         return packet;
     }
 
+    public byte[] get128NextPacket() {
+
+        int index = this.getNextPacketIndex();
+        byte[] packet = this.get128Packet(index);
+        this.index = index;
+
+        return packet;
+    }
+
     public byte[] getPacket(int index) {
 
         int length = this.data.length;
@@ -89,6 +98,55 @@ public class OtaAESPacketParser implements BleCommandParse {
         packetSize = packetSize + 4;
         byte[] packet = new byte[20];
         for (int i = 0; i < 20; i++) {
+            packet[i] = (byte) 0xFF;
+        }
+        System.arraycopy(this.data, index * size, packet, 2, packetSize - 4);
+
+        this.fillIndex(packet, index);
+        int crc = this.crc16(packet);
+        this.fillCrc(packet, crc);
+
+        byte[] aesBuf = new byte[16];
+        System.arraycopy(packet, 0, aesBuf, 0, 16);
+        byte[] fillBuf = new byte[4];
+        System.arraycopy(packet, 16, fillBuf, 0, 4);
+
+        byte[] buf = new byte[16];
+        try {
+            if (MessageCreator.mIs128Code)
+                AES_ECB_PKCS7.AES128Encode(aesBuf, buf, MessageCreator.m128AK);
+            else
+                AES_ECB_PKCS7.AES256Encode(aesBuf, buf, MessageCreator.m256AK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.arraycopy(buf, 0, packet, 0, 16);
+        System.arraycopy(fillBuf, 0, packet, 16, 4);
+
+        LogUtil.d("ota packet ---> index : " + index + " total : " + this.total + " crc : " + crc + " content : " + StringUtil.bytesToHexString(packet, ":"));
+        return packet;
+    }
+
+    public byte[] get128Packet(int index) {
+
+        int length = this.data.length;
+        int size = 16;
+        int packetSize;
+
+        if (length > size) {
+            if ((index + 1) == this.total) {
+                packetSize = length - index * size;
+            } else {
+                packetSize = size;
+            }
+        } else {
+            packetSize = length;
+        }
+
+        packetSize = packetSize + 4;
+        byte[] packet = new byte[120];
+        for (int i = 0; i < 120; i++) {
             packet[i] = (byte) 0xFF;
         }
         System.arraycopy(this.data, index * size, packet, 2, packetSize - 4);

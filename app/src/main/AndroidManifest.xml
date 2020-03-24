@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.smart.lock">
-
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -19,11 +18,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature android:name="android.hardware.camera" />
-    <uses-feature android:name="android.hardware.autofocus" />
-    <!-- for mta statistics, not necessary-->
+    <uses-feature android:name="android.hardware.autofocus" /> <!-- for mta statistics, not necessary -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <uses-feature
@@ -40,6 +38,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+
         <meta-data
             android:name="APP_SN"
             android:value="\1586001" />
@@ -56,8 +55,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-      <!--  <activity-alias
+        <!--
+  <activity-alias
             android:name=".WelcomeActivity.alias"
             android:enabled="true"
             
@@ -69,8 +68,8 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity-alias>-->
-
+        </activity-alias>
+        -->
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
@@ -147,43 +146,34 @@
             android:name=".ui.setting.RetrieveDeviceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.CheckOtaActivity"
             android:screenOrientation="portrait"
-            
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.FpOtaUpdateActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.FaceOtaUpdateActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.LpcdTestActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.UserSettingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.LanguageActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.HelpListActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ui.QuestionActivity"
             android:screenOrientation="portrait"
@@ -198,7 +188,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
     </application>
 
 </manifest>

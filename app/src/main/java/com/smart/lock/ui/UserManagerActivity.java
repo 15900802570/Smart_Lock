@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -43,7 +44,7 @@ import com.smart.lock.widget.NoScrollViewPager;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class UserManagerActivity extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
+public class UserManagerActivity extends MainBaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener, MemberFragment.OnFragmentInteractionListener,
         AdminFragment.OnFragmentInteractionListener,
         TempFragment.OnFragmentInteractionListener {
     private final static String TAG = UserManagerActivity.class.getSimpleName();

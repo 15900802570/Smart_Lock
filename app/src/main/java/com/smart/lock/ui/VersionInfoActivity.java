@@ -6,12 +6,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.db.bean.DeviceInfo;
 import com.smart.lock.db.dao.DeviceInfoDao;
 
-public class VersionInfoActivity extends AppCompatActivity {
+public class VersionInfoActivity extends MainBaseActivity {
 
     private String TAG = "VersionInfoActivity";
     private DeviceInfo mDefaultDevice;

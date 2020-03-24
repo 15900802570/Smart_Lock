@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.smart.lock.MainActivity;
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.adapter.LangnageAdapter;
 import com.smart.lock.entity.LangnageModel;
@@ -28,7 +29,7 @@ import com.smart.lock.utils.SharedPreferenceUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LanguageActivity extends AppCompatActivity {
+public class LanguageActivity extends MainBaseActivity {
 
     private final String TAG = LanguageActivity.class.getSimpleName();
 

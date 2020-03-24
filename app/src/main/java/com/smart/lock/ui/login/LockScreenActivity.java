@@ -1,7 +1,6 @@
 package com.smart.lock.ui.login;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.Animation;
@@ -22,16 +20,10 @@ import com.smart.lock.MainActivity;
 import com.smart.lock.ui.fp.BaseFPActivity;
 import com.smart.lock.utils.ConstantUtil;
 import com.smart.lock.R;
-import com.smart.lock.utils.DateTimeUtil;
 import com.smart.lock.utils.DialogUtils;
-import com.smart.lock.utils.LanguageType;
-import com.smart.lock.utils.LanguageUtil;
 import com.smart.lock.utils.LogUtil;
 import com.smart.lock.utils.SharedPreferenceUtil;
-import com.smart.lock.utils.SystemUtils;
 import com.smart.lock.utils.ToastUtil;
-
-import java.sql.Time;
 
 
 public class LockScreenActivity extends BaseFPActivity implements View.OnClickListener {

@@ -16,6 +16,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.action.CheckOtaAction;
 import com.smart.lock.action.CheckVersionAction;
@@ -46,7 +47,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 
-public class FaceOtaUpdateActivity extends Activity implements View.OnClickListener, UiListener, SendOTAData.OnSendingListener {
+public class FaceOtaUpdateActivity extends MainBaseActivity implements View.OnClickListener, UiListener, SendOTAData.OnSendingListener {
 
     private static final String TAG = FaceOtaUpdateActivity.class.getSimpleName();
     /**

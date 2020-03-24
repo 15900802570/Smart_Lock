@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -46,7 +47,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-public class UnlockTimeActivity extends AppCompatActivity implements View.OnClickListener, UiListener {
+public class UnlockTimeActivity extends MainBaseActivity implements View.OnClickListener, UiListener {
     private final static String TAG = UnlockTimeActivity.class.getSimpleName();
 
     private Toolbar mUsetSetTb;

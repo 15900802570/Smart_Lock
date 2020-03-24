@@ -14,6 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.JsonObject;
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleMsg;
 import com.smart.lock.entity.ProblemModel;
@@ -27,7 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HelpListActivity extends AppCompatActivity implements View.OnClickListener {
+public class HelpListActivity extends MainBaseActivity implements View.OnClickListener {
     private ImageView mBack;
     private ListView mHelpList;
     private List<ProblemModel> mProblemList = new ArrayList<>();

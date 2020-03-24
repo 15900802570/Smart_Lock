@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -42,7 +43,7 @@ import com.smart.lock.widget.NoScrollViewPager;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class UserManagerActivity2 extends AppCompatActivity implements View.OnClickListener, UiListener {
+public class UserManagerActivity2 extends MainBaseActivity implements View.OnClickListener, UiListener {
     private final static String TAG = UserManagerActivity2.class.getSimpleName();
 
     private NoScrollViewPager mUserPermissionVp;

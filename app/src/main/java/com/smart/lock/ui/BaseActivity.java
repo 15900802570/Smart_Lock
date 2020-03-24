@@ -6,7 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-public class BaseActivity extends AppCompatActivity {
+import com.smart.lock.MainBaseActivity;
+
+public class BaseActivity extends MainBaseActivity {
 
     protected String mSn; //设备SN
     protected String mNodeId; //设备IMEI

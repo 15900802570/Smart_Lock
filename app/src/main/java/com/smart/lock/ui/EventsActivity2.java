@@ -20,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smart.lock.MainBaseActivity;
 import com.smart.lock.R;
 import com.smart.lock.ble.BleManagerHelper;
 import com.smart.lock.ble.BleMsg;
@@ -45,7 +46,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 
-public class EventsActivity2 extends AppCompatActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener {
+public class EventsActivity2 extends MainBaseActivity implements View.OnClickListener, ViewPager.OnPageChangeListener, UiListener {
     private final static String TAG = EventsActivity2.class.getSimpleName();
 
     private TabLayout mEventsTl;
